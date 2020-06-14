@@ -1,7 +1,8 @@
 package com.chaosbuffalo.mkcore.abilities.attributes;
 
-import com.google.gson.JsonObject;
-import net.minecraft.nbt.CompoundNBT;
+import com.chaosbuffalo.mkcore.MKCore;
+import com.mojang.datafixers.Dynamic;
+import com.mojang.datafixers.types.DynamicOps;
 
 public class FloatAttribute extends AbilityAttribute<Float> {
 
@@ -10,23 +11,13 @@ public class FloatAttribute extends AbilityAttribute<Float> {
     }
 
     @Override
-    public CompoundNBT serialize() {
-        CompoundNBT nbt = new CompoundNBT();
-        nbt.putFloat("value", getValue());
-        return nbt;
+    public <T> T serialize(DynamicOps<T> ops) {
+        return ops.createFloat(getValue());
     }
 
     @Override
-    public void deserialize(CompoundNBT nbt) {
-        if (nbt.contains("value")) {
-            setValue(nbt.getFloat("value"));
-        }
-    }
-
-    @Override
-    public void readFromDataPack(JsonObject obj) {
-        if (obj.has("value")) {
-            setValue(obj.get("value").getAsFloat());
-        }
+    public <D> void deserialize(Dynamic<D> dynamic) {
+        setValue(dynamic.asFloat(getDefaultValue()));
+        MKCore.LOGGER.info("float dyn {} {} is {} def {}", dynamic, getName(), getValue(), getDefaultValue());
     }
 }
