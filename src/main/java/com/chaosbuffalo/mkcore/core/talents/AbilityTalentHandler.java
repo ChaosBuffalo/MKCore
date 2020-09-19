@@ -2,6 +2,7 @@ package com.chaosbuffalo.mkcore.core.talents;
 
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
+import com.chaosbuffalo.mkcore.core.player.PlayerAbilityKnowledge;
 import net.minecraft.util.ResourceLocation;
 
 public abstract class AbilityTalentHandler extends TalentTypeHandler {
@@ -33,7 +34,7 @@ public abstract class AbilityTalentHandler extends TalentTypeHandler {
     }
 
     protected void onUnknownAbilityUpdated(TalentRecord record, MKAbility ability) {
-        playerData.getKnowledge().unlearnAbility(ability.getAbilityId());
+        playerData.getAbilities().unlearnAbility(ability.getAbilityId());
     }
 
     protected void onKnownAbilityUpdated(TalentRecord record, MKAbility ability) {
@@ -41,8 +42,9 @@ public abstract class AbilityTalentHandler extends TalentTypeHandler {
     }
 
     protected void tryLearn(MKAbility ability) {
-        if (!playerData.getKnowledge().knowsAbility(ability.getAbilityId())) {
-            playerData.getKnowledge().learnAbility(ability, false);
+        PlayerAbilityKnowledge abilityKnowledge = playerData.getAbilities();
+        if (!abilityKnowledge.knowsAbility(ability.getAbilityId())) {
+            abilityKnowledge.learnAbility(ability, false);
         }
     }
 

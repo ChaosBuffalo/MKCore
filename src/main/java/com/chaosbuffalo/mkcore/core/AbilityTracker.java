@@ -91,7 +91,7 @@ public class AbilityTracker implements ISyncObject {
         }
     }
 
-    void iterateActive(BiConsumer<ResourceLocation, Integer> consumer) {
+    public void iterateActive(BiConsumer<ResourceLocation, Integer> consumer) {
         for (ResourceLocation id : timers.keySet()) {
             int cd = getCooldownTicks(id);
             if (cd > 0) {
@@ -100,7 +100,7 @@ public class AbilityTracker implements ISyncObject {
         }
     }
 
-    void removeAll() {
+    public void removeAll() {
         Iterator<Map.Entry<ResourceLocation, TimerEntry>> iterator = timers.entrySet().iterator();
         while (iterator.hasNext()) {
             Map.Entry<ResourceLocation, TimerEntry> entry = iterator.next();

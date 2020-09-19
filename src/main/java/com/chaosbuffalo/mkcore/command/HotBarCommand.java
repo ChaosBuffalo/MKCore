@@ -4,7 +4,8 @@ import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.abilities.MKAbilityInfo;
 import com.chaosbuffalo.mkcore.core.AbilitySlot;
-import com.chaosbuffalo.mkcore.core.IActiveAbilityContainer;
+import com.chaosbuffalo.mkcore.core.player.IActiveAbilityGroup;
+import com.chaosbuffalo.mkcore.core.player.PlayerAbilityKnowledge;
 import com.chaosbuffalo.mkcore.utils.TextUtils;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.StringReader;
@@ -64,7 +65,7 @@ public class HotBarCommand {
         int count = IntegerArgumentType.getInteger(ctx, "count");
 
         MKCore.getPlayer(player).ifPresent(playerData -> {
-            IActiveAbilityContainer container = playerData.getKnowledge().getAbilityContainer(type);
+            IActiveAbilityGroup container = playerData.getAbilityLoadout().getAbilityGroup(type);
             if (container.setSlots(count)) {
                 MKCore.LOGGER.info("Updated slot count for {}", type);
             } else {
@@ -83,9 +84,9 @@ public class HotBarCommand {
         ResourceLocation abilityId = ctx.getArgument("abilityId", ResourceLocation.class);
 
         MKCore.getPlayer(player).ifPresent(playerData -> {
-            if (playerData.getKnowledge().knowsAbility(abilityId)) {
-                IActiveAbilityContainer container = playerData.getKnowledge().getAbilityContainer(type);
-                container.setAbilityInSlot(slot, abilityId);
+            PlayerAbilityKnowledge abilityKnowledge = playerData.getAbilities();
+            if (abilityKnowledge.knowsAbility(abilityId)) {
+                playerData.getAbilityLoadout().getAbilityGroup(type).setSlot(slot, abilityId);
             }
         });
 
@@ -99,8 +100,9 @@ public class HotBarCommand {
         ResourceLocation abilityId = ctx.getArgument("abilityId", ResourceLocation.class);
 
         MKCore.getPlayer(player).ifPresent(playerData -> {
-            if (playerData.getKnowledge().knowsAbility(abilityId)) {
-                int slot = playerData.getKnowledge().getAbilityContainer(type).tryPlaceOnBar(abilityId);
+            PlayerAbilityKnowledge abilityKnowledge = playerData.getAbilities();
+            if (abilityKnowledge.knowsAbility(abilityId)) {
+                int slot = playerData.getAbilityLoadout().getAbilityGroup(type).trySlot(abilityId);
                 if (slot == GameConstants.ACTION_BAR_INVALID_SLOT) {
                     TextUtils.sendChatMessage(player, "No room for ability");
                 }
@@ -117,7 +119,7 @@ public class HotBarCommand {
         int slot = IntegerArgumentType.getInteger(ctx, "slot");
 
         MKCore.getPlayer(player).ifPresent(playerData ->
-                playerData.getKnowledge().getAbilityContainer(type).clearSlot(slot));
+                playerData.getAbilityLoadout().getAbilityGroup(type).clearSlot(slot));
 
         return Command.SINGLE_SUCCESS;
     }
@@ -127,7 +129,7 @@ public class HotBarCommand {
 
         AbilitySlot type = ctx.getArgument("type", AbilitySlot.class);
         MKCore.getPlayer(player).ifPresent(playerData ->
-                playerData.getKnowledge().getAbilityContainer(type).resetSlots());
+                playerData.getAbilityLoadout().getAbilityGroup(type).resetSlots());
 
         return Command.SINGLE_SUCCESS;
     }
@@ -136,12 +138,12 @@ public class HotBarCommand {
         AbilitySlot type = ctx.getArgument("type", AbilitySlot.class);
         ServerPlayerEntity player = ctx.getSource().asPlayer();
         MKCore.getPlayer(player).ifPresent(playerData -> {
-            IActiveAbilityContainer container = playerData.getKnowledge().getAbilityContainer(type);
+            IActiveAbilityGroup container = playerData.getAbilityLoadout().getAbilityGroup(type);
             int current = container.getCurrentSlotCount();
             int max = container.getMaximumSlotCount();
             TextUtils.sendPlayerChatMessage(player, String.format("%s Action Bar (%d/%d slots)", type, current, max));
             for (int i = 0; i < current; i++) {
-                TextUtils.sendChatMessage(player, String.format("%d: %s", i, container.getAbilityInSlot(i)));
+                TextUtils.sendChatMessage(player, String.format("%d: %s", i, container.getSlot(i)));
             }
         });
 
@@ -153,9 +155,8 @@ public class HotBarCommand {
         ServerPlayerEntity player = context.getSource().asPlayer();
         return ISuggestionProvider.suggest(MKCore.getPlayer(player)
                         .map(playerData -> playerData.getKnowledge()
-                                .getKnownAbilities()
+                                .getAbilityKnowledge()
                                 .getKnownStream()
-                                .filter(MKAbilityInfo::isCurrentlyKnown)
                                 .filter(info -> info.getAbility().getType().fitsSlot(type))
                                 .map(MKAbilityInfo::getId)
                                 .map(ResourceLocation::toString))

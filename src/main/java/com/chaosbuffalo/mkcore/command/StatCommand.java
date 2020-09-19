@@ -2,7 +2,7 @@ package com.chaosbuffalo.mkcore.command;
 
 import com.chaosbuffalo.mkcore.CoreCapabilities;
 import com.chaosbuffalo.mkcore.core.MKAttributes;
-import com.chaosbuffalo.mkcore.core.PlayerStatsModule;
+import com.chaosbuffalo.mkcore.core.player.PlayerStatsModule;
 import com.chaosbuffalo.mkcore.utils.TextUtils;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.FloatArgumentType;

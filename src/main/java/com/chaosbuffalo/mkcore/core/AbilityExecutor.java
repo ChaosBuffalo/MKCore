@@ -51,7 +51,7 @@ public class AbilityExecutor {
     }
 
     public void executeAbilityWithContext(ResourceLocation abilityId, AbilityContext context) {
-        MKAbilityInfo info = entityData.getKnowledge().getKnownAbilityInfo(abilityId);
+        MKAbilityInfo info = entityData.getKnowledge().getAbilityKnowledge().getKnownAbility(abilityId);
         if (info == null)
             return;
 
@@ -172,7 +172,7 @@ public class AbilityExecutor {
             return false;
         }
 
-        MKAbilityInfo info = entityData.getKnowledge().getKnownAbilityInfo(ability.getAbilityId());
+        MKAbilityInfo info = entityData.getKnowledge().getAbilityKnowledge().getKnownAbility(ability.getAbilityId());
         if (info == null) {
             MKCore.LOGGER.warn("startAbility({}) failed - {} does not know", entityData::getEntity, ability::getAbilityId);
             return false;
@@ -364,7 +364,7 @@ public class AbilityExecutor {
         MKToggleAbility toggle = (MKToggleAbility) ability;
 
         LivingEntity entity = entityData.getEntity();
-        MKAbilityInfo info = entityData.getKnowledge().getKnownAbilityInfo(ability.getAbilityId());
+        MKAbilityInfo info = entityData.getKnowledge().getAbilityKnowledge().getKnownAbility(ability.getAbilityId());
         if (info != null) {
             // If this is a toggle ability we must re-apply the effect to make sure it's working at the proper rank
             if (entity.isPotionActive(toggle.getToggleEffect())) {

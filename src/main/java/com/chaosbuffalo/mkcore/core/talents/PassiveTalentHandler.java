@@ -63,7 +63,7 @@ public class PassiveTalentHandler extends AbilityTalentHandler {
     }
 
     private Stream<PassiveTalentAbility> getPassiveAbilitiesStream() {
-        return playerData.getKnowledge().getTalentKnowledge()
+        return playerData.getAbilityLoadout()
                 .getPassiveContainer()
                 .getAbilities()
                 .stream()

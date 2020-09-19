@@ -9,7 +9,7 @@ public interface IMKEntityData {
 
     AbilityExecutor getAbilityExecutor();
 
-    IAbilityKnowledge getKnowledge();
+    IMKEntityKnowledge getKnowledge();
 
     IStatsModule getStats();
 

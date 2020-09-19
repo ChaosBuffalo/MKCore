@@ -40,6 +40,7 @@ public class ClientEventHandler {
     private static KeyBinding playerMenuBind;
     private static KeyBinding[] activeAbilityBinds;
     private static KeyBinding[] ultimateAbilityBinds;
+    private static KeyBinding itemAbilityBind;
 
     private static int currentGCDTicks;
 
@@ -68,6 +69,12 @@ public class ClientEventHandler {
             ClientRegistry.registerKeyBinding(bind);
             ultimateAbilityBinds[i] = bind;
         }
+
+
+        int defaultItemKey = GLFW.GLFW_KEY_8;
+        itemAbilityBind = new KeyBinding("key.hud.item_ability", KeyConflictContext.IN_GAME, KeyModifier.ALT,
+                InputMappings.getInputByCode(defaultItemKey, 0), "key.mkcore.abilitybar");
+        ClientRegistry.registerKeyBinding(itemAbilityBind);
     }
 
     public static float getGlobalCooldown() {
@@ -102,7 +109,7 @@ public class ClientEventHandler {
             return;
 
         MKCore.getPlayer(player).ifPresent(pData -> {
-            ResourceLocation abilityId = pData.getKnowledge().getAbilityInSlot(type, slot);
+            ResourceLocation abilityId = pData.getAbilityLoadout().getAbilityInSlot(type, slot);
             if (abilityId.equals(MKCoreRegistry.INVALID_ABILITY))
                 return;
 
@@ -123,7 +130,6 @@ public class ClientEventHandler {
 
         while (playerMenuBind.isPressed()) {
             Minecraft.getInstance().displayGuiScreen(new CharacterScreen());
-
         }
 
         for (int i = 0; i < activeAbilityBinds.length; i++) {
@@ -138,6 +144,10 @@ public class ClientEventHandler {
             while (bind.isPressed()) {
                 handleAbilityBarPressed(player, AbilitySlot.Ultimate, i);
             }
+        }
+
+        while (itemAbilityBind.isPressed()) {
+            handleAbilityBarPressed(player, AbilitySlot.Item, 0);
         }
     }
 

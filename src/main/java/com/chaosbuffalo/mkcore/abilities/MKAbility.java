@@ -48,7 +48,8 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
         PooledUltimate(AbilitySlot.Ultimate, true, true),
         Active(AbilitySlot.Basic, true, false),
         Ultimate(AbilitySlot.Ultimate, true, false),
-        Passive(AbilitySlot.Passive, false, false);
+        Passive(AbilitySlot.Passive, false, false),
+        Item(AbilitySlot.Item, true, false);
 
         final AbilitySlot slotType;
         final boolean canSlot;

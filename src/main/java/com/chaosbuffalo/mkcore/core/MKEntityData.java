@@ -1,5 +1,7 @@
 package com.chaosbuffalo.mkcore.core;
 
+import com.chaosbuffalo.mkcore.core.entity.EntityAbilityKnowledge;
+import com.chaosbuffalo.mkcore.core.entity.EntityStatsModule;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.AbstractAttributeMap;
 import net.minecraft.nbt.CompoundNBT;

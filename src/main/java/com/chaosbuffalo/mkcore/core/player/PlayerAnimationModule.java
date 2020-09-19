@@ -1,6 +1,7 @@
-package com.chaosbuffalo.mkcore.core;
+package com.chaosbuffalo.mkcore.core.player;
 
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
+import com.chaosbuffalo.mkcore.core.MKPlayerData;
 
 public class PlayerAnimationModule {
     private final MKPlayerData playerData;

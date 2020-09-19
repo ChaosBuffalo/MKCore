@@ -7,11 +7,11 @@ import net.minecraft.util.ResourceLocation;
 import javax.annotation.Nullable;
 import java.util.Collection;
 
-public interface IAbilityKnowledge {
+public interface IMKAbilityKnowledge {
     @Nullable
     MKAbilityInfo getAbilityInfo(ResourceLocation abilityId);
 
-    Collection<MKAbilityInfo> getAbilities();
+    Collection<MKAbilityInfo> getAllAbilities();
 
     boolean learnAbility(MKAbility ability);
 
@@ -20,5 +20,5 @@ public interface IAbilityKnowledge {
     boolean knowsAbility(ResourceLocation abilityId);
 
     @Nullable
-    MKAbilityInfo getKnownAbilityInfo(ResourceLocation abilityId);
+    MKAbilityInfo getKnownAbility(ResourceLocation abilityId);
 }

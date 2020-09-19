@@ -6,7 +6,7 @@ import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.abilities.MKAbilityInfo;
 import com.chaosbuffalo.mkcore.core.AbilitySlot;
-import com.chaosbuffalo.mkcore.core.PlayerAbilityKnowledge;
+import com.chaosbuffalo.mkcore.core.player.PlayerAbilityKnowledge;
 import com.chaosbuffalo.mkcore.utils.TextUtils;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
@@ -33,11 +33,11 @@ public class AbilityCommand {
         return Commands.literal("ability")
                 .then(Commands.literal("learn")
                         .then(Commands.argument("ability", AbilityIdArgument.ability())
-                                .suggests(AbilityCommand::suggestUnknownActiveAbilities)
+                                .suggests(AbilityCommand::suggestUnknownBasicAbilities)
                                 .executes(AbilityCommand::learnAbility)))
                 .then(Commands.literal("unlearn")
                         .then(Commands.argument("ability", AbilityIdArgument.ability())
-                                .suggests(AbilityCommand::suggestKnownActiveAbilities)
+                                .suggests(AbilityCommand::suggestKnownBasicAbilities)
                                 .executes(AbilityCommand::unlearnAbility)))
                 .then(Commands.literal("list")
                         .executes(AbilityCommand::listAbilities))
@@ -48,29 +48,27 @@ public class AbilityCommand {
                 ;
     }
 
-    public static CompletableFuture<Suggestions> suggestKnownActiveAbilities(final CommandContext<CommandSource> context,
-                                                                             final SuggestionsBuilder builder) throws CommandSyntaxException {
+    public static CompletableFuture<Suggestions> suggestKnownBasicAbilities(final CommandContext<CommandSource> context,
+                                                                            final SuggestionsBuilder builder) throws CommandSyntaxException {
         ServerPlayerEntity player = context.getSource().asPlayer();
         return ISuggestionProvider.suggest(MKCore.getPlayer(player)
                         .map(playerData -> playerData.getKnowledge()
-                                .getKnownAbilities()
-                                .getAbilities()
-                                .stream()
+                                .getAbilityKnowledge()
+                                .getKnownStream()
                                 .filter(info -> info.getAbility().getType().fitsSlot(AbilitySlot.Basic))
-                                .filter(MKAbilityInfo::isCurrentlyKnown)
                                 .map(MKAbilityInfo::getId)
                                 .map(ResourceLocation::toString))
                         .orElse(Stream.empty()),
                 builder);
     }
 
-    static CompletableFuture<Suggestions> suggestUnknownActiveAbilities(final CommandContext<CommandSource> context,
-                                                                        final SuggestionsBuilder builder) throws CommandSyntaxException {
+    static CompletableFuture<Suggestions> suggestUnknownBasicAbilities(final CommandContext<CommandSource> context,
+                                                                       final SuggestionsBuilder builder) throws CommandSyntaxException {
         ServerPlayerEntity player = context.getSource().asPlayer();
         return ISuggestionProvider.suggest(MKCore.getPlayer(player)
                         .map(playerData -> {
                             Set<MKAbility> allAbilities = new HashSet<>(MKCoreRegistry.ABILITIES.getValues());
-                            allAbilities.removeIf(ability -> playerData.getKnowledge().knowsAbility(ability.getAbilityId()));
+                            allAbilities.removeIf(ability -> playerData.getAbilities().knowsAbility(ability.getAbilityId()));
                             allAbilities.removeIf(ability -> ability.getType().getSlotType() != AbilitySlot.Basic);
                             return allAbilities.stream().map(MKAbility::getAbilityId).map(ResourceLocation::toString);
                         })
@@ -84,7 +82,7 @@ public class AbilityCommand {
 
         MKAbility ability = MKCoreRegistry.getAbility(abilityId);
         if (ability != null) {
-            MKCore.getPlayer(player).ifPresent(cap -> cap.getKnowledge().learnAbility(ability));
+            MKCore.getPlayer(player).ifPresent(cap -> cap.getAbilities().learnAbility(ability));
         }
 
         return Command.SINGLE_SUCCESS;
@@ -93,15 +91,16 @@ public class AbilityCommand {
     static int setSlotCount(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().asPlayer();
         int size = IntegerArgumentType.getInteger(ctx, "size");
-        MKCore.getPlayer(player).ifPresent(cap -> cap.getKnowledge().getKnownAbilities().setAbilityPoolSize(size));
+        MKCore.getPlayer(player).ifPresent(cap -> cap.getAbilities().setAbilityPoolSize(size));
         return Command.SINGLE_SUCCESS;
     }
 
     static int showSlotCount(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().asPlayer();
         MKCore.getPlayer(player).ifPresent(cap -> {
-            int currentSize = cap.getKnowledge().getKnownAbilities().getCurrentPoolCount();
-            int maxSize = cap.getKnowledge().getKnownAbilities().getAbilityPoolSize();
+            PlayerAbilityKnowledge abilityKnowledge = cap.getAbilities();
+            int currentSize = abilityKnowledge.getCurrentPoolCount();
+            int maxSize = abilityKnowledge.getAbilityPoolSize();
             TextUtils.sendPlayerChatMessage(player, String.format("Ability Pool: %d/%d", currentSize, maxSize));
         });
         return Command.SINGLE_SUCCESS;
@@ -111,7 +110,7 @@ public class AbilityCommand {
         ServerPlayerEntity player = ctx.getSource().asPlayer();
         ResourceLocation abilityId = ctx.getArgument("ability", ResourceLocation.class);
 
-        MKCore.getPlayer(player).ifPresent(cap -> cap.getKnowledge().unlearnAbility(abilityId));
+        MKCore.getPlayer(player).ifPresent(cap -> cap.getAbilities().unlearnAbility(abilityId));
 
         return Command.SINGLE_SUCCESS;
     }
@@ -120,8 +119,8 @@ public class AbilityCommand {
         ServerPlayerEntity player = ctx.getSource().asPlayer();
 
         MKCore.getPlayer(player).ifPresent(cap -> {
-            PlayerAbilityKnowledge knownAbilities = cap.getKnowledge().getKnownAbilities();
-            Collection<MKAbilityInfo> abilities = knownAbilities.getAbilities();
+            PlayerAbilityKnowledge abilityKnowledge = cap.getAbilities();
+            Collection<MKAbilityInfo> abilities = abilityKnowledge.getAllAbilities();
             if (abilities.size() > 0) {
                 TextUtils.sendPlayerChatMessage(player, "Known Abilities");
                 abilities.forEach(info -> TextUtils.sendPlayerChatMessage(player, String.format("%s: %b", info.getId(), info.isCurrentlyKnown())));

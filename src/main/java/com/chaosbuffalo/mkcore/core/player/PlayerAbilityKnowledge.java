@@ -1,10 +1,11 @@
-package com.chaosbuffalo.mkcore.core;
+package com.chaosbuffalo.mkcore.core.player;
 
 import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.abilities.MKAbilityInfo;
+import com.chaosbuffalo.mkcore.core.*;
 import com.chaosbuffalo.mkcore.sync.SyncInt;
 import com.chaosbuffalo.mkcore.sync.SyncMapUpdater;
 import net.minecraft.nbt.CompoundNBT;
@@ -17,7 +18,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
-public class PlayerAbilityKnowledge implements IPlayerSyncComponentProvider {
+public class PlayerAbilityKnowledge implements IMKAbilityKnowledge, IPlayerSyncComponentProvider {
     private final MKPlayerData playerData;
     private final PlayerSyncComponent sync = new PlayerSyncComponent("abilities");
     private final Map<ResourceLocation, MKAbilityInfo> abilityInfoMap = new HashMap<>();
@@ -72,12 +73,14 @@ public class PlayerAbilityKnowledge implements IPlayerSyncComponentProvider {
         return sync;
     }
 
+    @Override
     @Nullable
     public MKAbilityInfo getAbilityInfo(ResourceLocation abilityId) {
         return abilityInfoMap.get(abilityId);
     }
 
-    public Collection<MKAbilityInfo> getAbilities() {
+    @Override
+    public Collection<MKAbilityInfo> getAllAbilities() {
         return Collections.unmodifiableCollection(abilityInfoMap.values());
     }
 
@@ -85,11 +88,20 @@ public class PlayerAbilityKnowledge implements IPlayerSyncComponentProvider {
         return abilityInfoMap.values().stream().filter(MKAbilityInfo::isCurrentlyKnown);
     }
 
-    public boolean hasRoomForAbility(MKAbility ability) {
+    private boolean hasRoomForAbility(MKAbility ability) {
         return !ability.getType().isPoolAbility() || !isAbilityPoolFull();
     }
 
+    private IActiveAbilityGroup getAbilityGroup(MKAbility ability) {
+        return playerData.getAbilityLoadout().getAbilityGroup(ability.getType().getSlotType());
+    }
+
+    @Override
     public boolean learnAbility(MKAbility ability) {
+        return learnAbility(ability, ability.getType().canPlaceOnActionBar());
+    }
+
+    public boolean learnAbility(MKAbility ability, boolean placeOnBar) {
         if (!hasRoomForAbility(ability)) {
             MKCore.LOGGER.warn("Player {} tried to learn pool ability {} with a full pool ({}/{})", playerData::getEntity, ability::getAbilityId, this::getCurrentPoolCount, this::getAbilityPoolSize);
             return false;
@@ -110,27 +122,53 @@ public class PlayerAbilityKnowledge implements IPlayerSyncComponentProvider {
         info.setKnown(true);
         abilityInfoMap.put(ability.getAbilityId(), info);
         markDirty(info);
+
+        IActiveAbilityGroup container = getAbilityGroup(ability);
+        container.onAbilityLearned(ability);
+        if (placeOnBar) {
+            container.trySlot(ability.getAbilityId());
+        }
+
         return true;
     }
 
+    public boolean learnAbility(MKAbility ability, ResourceLocation replacingAbilityId) {
+        if (!hasRoomForAbility(ability)) {
+            return false;
+        }
 
+        if (!replacingAbilityId.equals(MKCoreRegistry.INVALID_ABILITY)) {
+            if (!unlearnAbility(replacingAbilityId)) {
+                return false;
+            }
+        }
+
+        return learnAbility(ability);
+    }
+
+    @Override
     public boolean unlearnAbility(ResourceLocation abilityId) {
-        MKAbilityInfo info = getAbilityInfo(abilityId);
+        MKAbilityInfo info = getKnownAbility(abilityId);
         if (info == null) {
             MKCore.LOGGER.error("{} tried to unlearn unknown ability {}", playerData.getEntity(), abilityId);
             return false;
         }
         info.setKnown(false);
         markDirty(info);
+
+        MKAbility ability = info.getAbility();
+        playerData.getAbilityExecutor().onAbilityUnlearned(ability);
+        getAbilityGroup(ability).onAbilityUnlearned(ability);
         return true;
     }
 
+    @Override
     public boolean knowsAbility(ResourceLocation abilityId) {
-        return getKnownAbilityInfo(abilityId) != null;
+        return getKnownAbility(abilityId) != null;
     }
 
     @Nullable
-    public MKAbilityInfo getKnownAbilityInfo(ResourceLocation abilityId) {
+    public MKAbilityInfo getKnownAbility(ResourceLocation abilityId) {
         MKAbilityInfo info = getAbilityInfo(abilityId);
         if (info == null || !info.isCurrentlyKnown())
             return null;
