@@ -21,6 +21,7 @@ archivesBaseName = "${mod_id}-${mc_version}"
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
 
 repositories {
+    mavenLocal()
     maven {
         name = 'CurseForge'
         url = 'https://minecraft.curseforge.com/api/maven/'
@@ -99,8 +100,10 @@ dependencies {
     // that the dep is a ForgeGradle 'patcher' dependency. And it's patches will be applied.
     // The userdev artifact is a special name and will get all sorts of transformations applied to it.
     minecraft "net.minecraftforge:forge:${forge_version}"
-    compile group: 'targetingapi', name: 'targeting_api', version: '0.21'
-    compile group: 'mk-widgets', name: 'mkwidgets', version: '1.14'
+    compileOnly fg.deobf("com.chaosbuffalo.targeting_api:TargetingAPI:0.21")
+    runtimeOnly fg.deobf("com.chaosbuffalo.targeting_api:TargetingAPI:0.21")
+    compileOnly fg.deobf("com.chaosbuffalo.mkwidgets:MKWidgets:1.14")
+    runtimeOnly fg.deobf("com.chaosbuffalo.mkwidgets:MKWidgets:1.14")
 
     // You may put jars on which you depend on in ./libs or you may define them like so..
     // compile "some.group:artifact:version:classifier"
