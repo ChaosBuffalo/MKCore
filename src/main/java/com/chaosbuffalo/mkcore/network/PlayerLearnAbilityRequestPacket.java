@@ -1,6 +1,6 @@
 package com.chaosbuffalo.mkcore.network;
 
-import com.chaosbuffalo.mkcore.Capabilities;
+import com.chaosbuffalo.mkcore.CoreCapabilities;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
@@ -63,7 +63,7 @@ public class PlayerLearnAbilityRequestPacket {
             if (teacher instanceof IAbilityTrainingEntity) {
                 IAbilityTrainer abilityTrainer = ((IAbilityTrainingEntity) teacher).getAbilityTrainer();
 
-                entity.getCapability(Capabilities.PLAYER_CAPABILITY).ifPresent(playerData -> {
+                entity.getCapability(CoreCapabilities.PLAYER_CAPABILITY).ifPresent(playerData -> {
                     AbilityTrainingEntry entry = abilityTrainer.getTrainingEntry(ability);
                     if (!entry.getRequirements().stream().allMatch(r -> r.check(playerData, ability))) {
                         MKCore.LOGGER.debug("Failed to learn ability {} from {} - unmet requirements", abilityId, teacher);
