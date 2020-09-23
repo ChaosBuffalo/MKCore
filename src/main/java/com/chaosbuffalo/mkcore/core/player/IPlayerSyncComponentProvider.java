@@ -1,4 +1,4 @@
-package com.chaosbuffalo.mkcore.core;
+package com.chaosbuffalo.mkcore.core.player;
 
 import com.chaosbuffalo.mkcore.sync.ISyncObject;
 

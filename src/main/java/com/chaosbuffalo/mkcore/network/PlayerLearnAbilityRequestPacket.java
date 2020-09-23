@@ -71,7 +71,7 @@ public class PlayerLearnAbilityRequestPacket {
                     }
 
                     entry.getRequirements().forEach(r -> r.onLearned(playerData, ability));
-                    playerData.getKnowledge().learnAbility(ability, replacingId);
+                    playerData.getAbilities().learnAbility(ability, replacingId);
                 });
             }
         });

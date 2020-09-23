@@ -123,11 +123,11 @@ public class TalentCommand {
     }
 
     static int listActiveTalents(CommandContext<CommandSource> ctx,
-                                 Function<MKPlayerData, ActiveTalentAbilityContainer> mapper) throws CommandSyntaxException {
+                                 Function<MKPlayerData, ActiveTalentAbilityGroup> mapper) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().asPlayer();
 
         MKCore.getPlayer(player).ifPresent(cap -> {
-            ActiveTalentAbilityContainer container = mapper.apply(cap);
+            ActiveTalentAbilityGroup container = mapper.apply(cap);
             TalentType<?> type = container.getTalentType();
             List<ResourceLocation> knownTalents = container.getAbilities();
             if (knownTalents.size() > 0) {
@@ -146,20 +146,20 @@ public class TalentCommand {
     }
 
     static int setTalentWithArgument(CommandContext<CommandSource> ctx,
-                                     Function<MKPlayerData, ActiveTalentAbilityContainer> containerSupplier) throws CommandSyntaxException {
+                                     Function<MKPlayerData, ActiveTalentAbilityGroup> containerSupplier) throws CommandSyntaxException {
         ResourceLocation talentId = ctx.getArgument("talentId", ResourceLocation.class);
         return setTalentInternal(ctx, containerSupplier, talentId);
     }
 
     static int setTalentInternal(CommandContext<CommandSource> ctx,
-                                 Function<MKPlayerData, ActiveTalentAbilityContainer> containerSupplier,
+                                 Function<MKPlayerData, ActiveTalentAbilityGroup> containerSupplier,
                                  ResourceLocation talentId) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().asPlayer();
 
         int slot = IntegerArgumentType.getInteger(ctx, "slot");
 
         MKCore.getPlayer(player).ifPresent(playerData -> {
-            ActiveTalentAbilityContainer container = containerSupplier.apply(playerData);
+            ActiveTalentAbilityGroup container = containerSupplier.apply(playerData);
 
             int limit = container.getCurrentSlotCount();
             if (slot >= limit) {
@@ -173,15 +173,15 @@ public class TalentCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    private static ActiveTalentAbilityContainer getUltimates(MKPlayerData playerData) {
-        return playerData.getKnowledge().getTalentKnowledge().getUltimateContainer();
+    private static ActiveTalentAbilityGroup getUltimates(MKPlayerData playerData) {
+        return playerData.getAbilityLoadout().getUltimateGroup();
     }
 
-    private static ActiveTalentAbilityContainer getPassives(MKPlayerData playerData) {
-        return playerData.getKnowledge().getTalentKnowledge().getPassiveContainer();
+    private static ActiveTalentAbilityGroup getPassives(MKPlayerData playerData) {
+        return playerData.getAbilityLoadout().getPassiveContainer();
     }
 
-    static int clearTalent(CommandContext<CommandSource> ctx, Function<MKPlayerData, ActiveTalentAbilityContainer> containerSupplier) throws CommandSyntaxException {
+    static int clearTalent(CommandContext<CommandSource> ctx, Function<MKPlayerData, ActiveTalentAbilityGroup> containerSupplier) throws CommandSyntaxException {
         return setTalentInternal(ctx, containerSupplier, MKCoreRegistry.INVALID_TALENT);
     }
 
@@ -221,10 +221,10 @@ public class TalentCommand {
         ServerPlayerEntity player = ctx.getSource().asPlayer();
 
         MKCore.getPlayer(player).ifPresent(cap -> {
-            PlayerTalentKnowledge talentKnowledge = cap.getKnowledge().getTalentKnowledge();
+            ActiveTalentAbilityGroup container = cap.getAbilityLoadout().getUltimateGroup();
             TextUtils.sendPlayerChatMessage(player, "Ultimate Talent Info");
 
-            TextUtils.sendChatMessage(player, String.format("Limit: %d", talentKnowledge.getUltimateContainer().getCurrentSlotCount()));
+            TextUtils.sendChatMessage(player, String.format("Limit: %d", container.getCurrentSlotCount()));
         });
 
         return Command.SINGLE_SUCCESS;
@@ -235,15 +235,14 @@ public class TalentCommand {
         int slot = IntegerArgumentType.getInteger(ctx, "slot");
 
         MKCore.getPlayer(player).ifPresent(cap -> {
-            PlayerTalentKnowledge talentKnowledge = cap.getKnowledge().getTalentKnowledge();
-            ActiveTalentAbilityContainer container = talentKnowledge.getUltimateContainer();
+            ActiveTalentAbilityGroup container = cap.getAbilityLoadout().getUltimateGroup();
 
             if (slot >= container.getCurrentSlotCount()) {
                 TextUtils.sendChatMessage(player, "Invalid slot");
                 return;
             }
 
-            ResourceLocation abilityId = container.getAbilityInSlot(slot);
+            ResourceLocation abilityId = container.getSlot(slot);
             cap.getAbilityExecutor().executeAbility(abilityId);
         });
 

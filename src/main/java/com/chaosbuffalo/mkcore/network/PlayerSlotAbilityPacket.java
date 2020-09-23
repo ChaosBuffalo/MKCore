@@ -42,10 +42,11 @@ public class PlayerSlotAbilityPacket {
             if (entity == null) {
                 return;
             }
-            entity.getCapability(CoreCapabilities.PLAYER_CAPABILITY).ifPresent(playerData -> {
-                MKCore.LOGGER.info("PlayerSlotAbilityPacket.handle {} {} {}", type, slotIndex, ability);
-                playerData.getKnowledge().getAbilityContainer(type).setAbilityInSlot(slotIndex, ability);
-            });
+            entity.getCapability(CoreCapabilities.PLAYER_CAPABILITY).ifPresent(playerData ->
+                    playerData.getKnowledge()
+                            .getAbilityLoadout()
+                            .getAbilityGroup(type)
+                            .setSlot(slotIndex, ability));
         });
         ctx.setPacketHandled(true);
     }

@@ -228,9 +228,13 @@ public class CharacterScreen extends AbilityPanelScreen {
             int contentY = yPos + DATA_BOX_OFFSET;
             int contentWidth = dataBoxRegion.width;
             int contentHeight = dataBoxRegion.height;
+            List<MKAbility> abilities = pData.getKnowledge()
+                    .getAbilityKnowledge()
+                    .getKnownStream()
+                    .map(MKAbilityInfo::getAbility)
+                    .collect(Collectors.toList());
             ScrollingListPanelLayout panel = getAbilityScrollPanel(contentX, contentY,
-                    contentWidth, contentHeight, pData, pData.getKnowledge().getKnownAbilities()
-                            .getKnownStream().map(MKAbilityInfo::getAbility).collect(Collectors.toList()));
+                    contentWidth, contentHeight, pData, abilities);
             currentScrollingPanel = panel;
             abilitiesScrollPanel = panel;
             root.addWidget(panel);

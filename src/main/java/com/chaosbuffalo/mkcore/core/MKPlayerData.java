@@ -3,6 +3,7 @@ package com.chaosbuffalo.mkcore.core;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.persona.IPersonaExtension;
 import com.chaosbuffalo.mkcore.core.persona.PersonaManager;
+import com.chaosbuffalo.mkcore.core.player.*;
 import com.chaosbuffalo.mkcore.core.talents.PlayerTalentModule;
 import com.chaosbuffalo.mkcore.sync.UpdateEngine;
 import net.minecraft.entity.ai.attributes.AbstractAttributeMap;
@@ -102,6 +103,14 @@ public class MKPlayerData implements IMKEntityData {
         return getPersonaManager().getActivePersona().getKnowledge();
     }
 
+    public PlayerAbilityLoadout getAbilityLoadout() {
+        return getKnowledge().getAbilityLoadout();
+    }
+
+    public PlayerAbilityKnowledge getAbilities() {
+        return getKnowledge().getAbilityKnowledge();
+    }
+
     public UpdateEngine getUpdateEngine() {
         return updateEngine;
     }
@@ -166,12 +175,14 @@ public class MKPlayerData implements IMKEntityData {
     }
 
     public void onPersonaActivated() {
+        getEquipment().onPersonaActivated();
         getTalentHandler().onPersonaActivated();
         getAbilityExecutor().onPersonaActivated();
         getStats().onPersonaActivated();
     }
 
     public void onPersonaDeactivated() {
+        getEquipment().onPersonaDeactivated();
         getTalentHandler().onPersonaDeactivated();
         getAbilityExecutor().onPersonaDeactivated();
         getStats().onPersonaDeactivated();

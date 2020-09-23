@@ -9,7 +9,9 @@ import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.abilities.MKAbilityInfo;
 import com.chaosbuffalo.mkcore.core.AbilitySlot;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
-import com.chaosbuffalo.mkcore.core.PlayerAbilityExecutor;
+import com.chaosbuffalo.mkcore.core.player.IActiveAbilityGroup;
+import com.chaosbuffalo.mkcore.core.player.PlayerAbilityExecutor;
+import com.chaosbuffalo.mkcore.core.player.PlayerAbilityKnowledge;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
@@ -59,7 +61,7 @@ public class MKOverlay {
         if (!executor.isCasting()) {
             return;
         }
-        MKAbilityInfo info = data.getKnowledge().getKnownAbilityInfo(executor.getCastingAbility());
+        MKAbilityInfo info = data.getAbilities().getKnownAbility(executor.getCastingAbility());
         if (info == null) {
             return;
         }
@@ -90,6 +92,9 @@ public class MKOverlay {
             return GuiTextures.ABILITY_BAR_REG;
         } else if (type == AbilitySlot.Ultimate) {
             return GuiTextures.ABILITY_BAR_ULT;
+        } else if (type == AbilitySlot.Item) {
+            // TODO: item slot texture?
+            return GuiTextures.ABILITY_BAR_REG;
         }
         return null;
     }
@@ -116,18 +121,20 @@ public class MKOverlay {
 
         int barStartY = getBarStartY(totalSlots);
 
-        int slotCount = data.getKnowledge().getAbilityContainer(type).getCurrentSlotCount();
+        PlayerAbilityKnowledge abilityKnowledge = data.getAbilities();
+        IActiveAbilityGroup container = data.getAbilityLoadout().getAbilityGroup(type);
+        int slotCount = container.getCurrentSlotCount();
         drawBarSlots(type, startingSlot, slotCount, totalSlots);
 
         float globalCooldown = ClientEventHandler.getGlobalCooldown();
         PlayerAbilityExecutor executor = data.getAbilityExecutor();
 
         for (int i = 0; i < slotCount; i++) {
-            ResourceLocation abilityId = data.getKnowledge().getAbilityInSlot(type, i);
+            ResourceLocation abilityId = container.getSlot(i);
             if (abilityId.equals(MKCoreRegistry.INVALID_ABILITY))
                 continue;
 
-            MKAbilityInfo info = data.getKnowledge().getKnownAbilityInfo(abilityId);
+            MKAbilityInfo info = abilityKnowledge.getKnownAbility(abilityId);
             if (info == null)
                 continue;
 
@@ -147,7 +154,7 @@ public class MKOverlay {
             AbstractGui.blit(slotX, slotY, 0, 0, ABILITY_ICON_SIZE, ABILITY_ICON_SIZE, ABILITY_ICON_SIZE, ABILITY_ICON_SIZE);
 
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-            float cooldownFactor = data.getAbilityExecutor().getCurrentAbilityCooldownPercent(abilityId, partialTicks);
+            float cooldownFactor = executor.getCurrentAbilityCooldownPercent(abilityId, partialTicks);
             if (globalCooldown > 0.0f && cooldownFactor == 0) {
                 cooldownFactor = globalCooldown / ClientEventHandler.getTotalGlobalCooldown();
             }
@@ -187,11 +194,12 @@ public class MKOverlay {
 
             int totalSlots = Arrays.stream(AbilitySlot.values())
                     .filter(AbilitySlot::isExecutable)
-                    .mapToInt(type -> cap.getKnowledge().getAbilityContainer(type).getCurrentSlotCount())
+                    .mapToInt(type -> cap.getAbilityLoadout().getAbilityGroup(type).getCurrentSlotCount())
                     .sum();
 
             int slot = drawAbilities(cap, AbilitySlot.Basic, 0, totalSlots, event.getPartialTicks());
             slot = drawAbilities(cap, AbilitySlot.Ultimate, slot, totalSlots, event.getPartialTicks());
+            slot = drawAbilities(cap, AbilitySlot.Item, slot, totalSlots, event.getPartialTicks());
         });
     }
 }

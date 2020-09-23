@@ -76,7 +76,7 @@ public class LearnAbilityTray extends MKStackLayoutVertical {
         abilities.setPaddingTop(2);
         abilities.setMargins(2, 2, 2, 2);
         abilities.doSetChildWidth(true);
-        playerData.getKnowledge().getKnownAbilities().getPoolAbilities().forEach(loc -> {
+        playerData.getAbilities().getPoolAbilities().forEach(loc -> {
             if (loc.equals(MKCoreRegistry.INVALID_ABILITY)) {
                 return;
             }
@@ -106,7 +106,7 @@ public class LearnAbilityTray extends MKStackLayoutVertical {
                     getAbility().getAbilityIcon(), font, 16, 1);
             nameTray.addWidget(abilityName);
             addWidget(nameTray);
-            boolean isKnown = playerData.getKnowledge().getKnownAbilityInfo(getAbility().getAbilityId()) != null;
+            boolean isKnown = playerData.getAbilities().knowsAbility(getAbility().getAbilityId());
             boolean canLearn = unmetRequirements.stream().allMatch(x -> x.isMet);
             String knowText;
             if (isKnown) {
@@ -166,9 +166,9 @@ public class LearnAbilityTray extends MKStackLayoutVertical {
                 learnButton.setEnabled(canLearn);
                 learnButton.setPressedCallback((button, buttonType) -> {
                     if (getAbility().getType().isPoolAbility() &&
-                            playerData.getKnowledge().getKnownAbilities().isAbilityPoolFull()) {
+                            playerData.getAbilities().isAbilityPoolFull()) {
                         MKCore.LOGGER.info("Ability pool full {} ",
-                                playerData.getKnowledge().getKnownAbilities().getCurrentPoolCount());
+                                playerData.getAbilities().getCurrentPoolCount());
                         if (getScreen() != null && choosePoolSlotWidget != null) {
                             getScreen().addModal(choosePoolSlotWidget);
                         }

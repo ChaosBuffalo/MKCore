@@ -1,7 +1,7 @@
 package com.chaosbuffalo.mkcore.core.persona;
 
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
-import com.chaosbuffalo.mkcore.core.PlayerKnowledge;
+import com.chaosbuffalo.mkcore.core.player.PlayerKnowledge;
 import com.chaosbuffalo.mkcore.sync.IMKSerializable;
 import net.minecraft.nbt.CompoundNBT;
 

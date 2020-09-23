@@ -1,6 +1,7 @@
-package com.chaosbuffalo.mkcore.core;
+package com.chaosbuffalo.mkcore.core.entity;
 
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
+import com.chaosbuffalo.mkcore.core.*;
 import com.chaosbuffalo.mkcore.core.damage.MKDamageType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.nbt.CompoundNBT;

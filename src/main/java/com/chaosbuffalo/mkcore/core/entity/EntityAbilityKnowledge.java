@@ -1,9 +1,12 @@
-package com.chaosbuffalo.mkcore.core;
+package com.chaosbuffalo.mkcore.core.entity;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.abilities.MKAbilityInfo;
+import com.chaosbuffalo.mkcore.core.IMKAbilityKnowledge;
+import com.chaosbuffalo.mkcore.core.IMKEntityKnowledge;
+import com.chaosbuffalo.mkcore.core.MKEntityData;
 import com.chaosbuffalo.mkcore.sync.IMKSerializable;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
@@ -11,7 +14,7 @@ import net.minecraft.util.ResourceLocation;
 import javax.annotation.Nullable;
 import java.util.*;
 
-public class EntityAbilityKnowledge implements IAbilityKnowledge, IMKSerializable<CompoundNBT> {
+public class EntityAbilityKnowledge implements IMKEntityKnowledge, IMKAbilityKnowledge, IMKSerializable<CompoundNBT> {
     private final MKEntityData entityData;
     private final Map<ResourceLocation, MKAbilityInfo> abilityInfoMap = new HashMap<>();
     private final Map<ResourceLocation, Integer> abilityPriorities = new HashMap<>();
@@ -21,6 +24,11 @@ public class EntityAbilityKnowledge implements IAbilityKnowledge, IMKSerializabl
         this.entityData = entityData;
     }
 
+    @Override
+    public IMKAbilityKnowledge getAbilityKnowledge() {
+        return this;
+    }
+
     @Nullable
     @Override
     public MKAbilityInfo getAbilityInfo(ResourceLocation abilityId) {
@@ -28,12 +36,12 @@ public class EntityAbilityKnowledge implements IAbilityKnowledge, IMKSerializabl
     }
 
     @Override
-    public Collection<MKAbilityInfo> getAbilities() {
+    public Collection<MKAbilityInfo> getAllAbilities() {
         return Collections.unmodifiableCollection(abilityInfoMap.values());
     }
 
     public void updatePriorityOrder() {
-        priorityOrder = new ArrayList<>(getAbilities());
+        priorityOrder = new ArrayList<>(getAllAbilities());
         priorityOrder.sort(Comparator.comparingInt((x) -> abilityPriorities.getOrDefault(x.getId(), 1)));
     }
 
@@ -88,7 +96,7 @@ public class EntityAbilityKnowledge implements IAbilityKnowledge, IMKSerializabl
 
     @Nullable
     @Override
-    public MKAbilityInfo getKnownAbilityInfo(ResourceLocation abilityId) {
+    public MKAbilityInfo getKnownAbility(ResourceLocation abilityId) {
         MKAbilityInfo info = getAbilityInfo(abilityId);
         if (info == null)
             return null;

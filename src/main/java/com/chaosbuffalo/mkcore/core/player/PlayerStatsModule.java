@@ -1,7 +1,9 @@
-package com.chaosbuffalo.mkcore.core;
+package com.chaosbuffalo.mkcore.core.player;
 
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
+import com.chaosbuffalo.mkcore.core.*;
 import com.chaosbuffalo.mkcore.core.damage.MKDamageType;
+import com.chaosbuffalo.mkcore.core.entity.EntityStatsModule;
 import com.chaosbuffalo.mkcore.sync.SyncFloat;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
@@ -10,7 +12,7 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 
 
-public class PlayerStatsModule extends EntityStatsModule implements IStatsModule, IPlayerSyncComponentProvider {
+public class PlayerStatsModule extends EntityStatsModule implements IPlayerSyncComponentProvider {
     private final PlayerSyncComponent sync = new PlayerSyncComponent("stats");
     private float manaRegenTimer;
     private final SyncFloat mana = new SyncFloat("mana", 0f);
@@ -25,27 +27,6 @@ public class PlayerStatsModule extends EntityStatsModule implements IStatsModule
     @Override
     public PlayerSyncComponent getSyncComponent() {
         return sync;
-    }
-
-    public float getCritChanceForDamageType(MKDamageType damageType) {
-        return damageType.getCritChance(getEntity(), null);
-    }
-
-    public float getCritMultiplierForDamageType(MKDamageType damageType) {
-        return damageType.getCritMultiplier(getEntity(), null);
-    }
-
-    public float getDamageMultiplierForDamageType(MKDamageType damageType) {
-        float originalValue = 10.0f;
-        float scaled = damageType.applyDamage(getEntity(), null, originalValue, 1.0f);
-        return scaled / originalValue;
-    }
-
-
-    public float getArmorMultiplierForDamageType(MKDamageType damageType) {
-        float originalValue = 10.0f;
-        float scaled = damageType.applyResistance(getEntity(), originalValue);
-        return scaled / originalValue;
     }
 
     public float getMeleeCritChance() {
@@ -141,9 +122,7 @@ public class PlayerStatsModule extends EntityStatsModule implements IStatsModule
 
     @Override
     public boolean canActivateAbility(MKAbility ability) {
-        if (getMana() < getAbilityManaCost(ability))
-            return false;
-        return true;
+        return getMana() >= getAbilityManaCost(ability);
     }
 
     public float getTimerPercent(ResourceLocation abilityId, float partialTicks) {

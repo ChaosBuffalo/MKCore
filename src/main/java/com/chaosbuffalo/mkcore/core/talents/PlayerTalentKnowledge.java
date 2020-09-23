@@ -2,10 +2,9 @@ package com.chaosbuffalo.mkcore.core.talents;
 
 import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.MKCore;
-import com.chaosbuffalo.mkcore.core.AbilitySlot;
-import com.chaosbuffalo.mkcore.core.IPlayerSyncComponentProvider;
-import com.chaosbuffalo.mkcore.core.MKPlayerData;
-import com.chaosbuffalo.mkcore.core.PlayerSyncComponent;
+import com.chaosbuffalo.mkcore.core.*;
+import com.chaosbuffalo.mkcore.core.player.IPlayerSyncComponentProvider;
+import com.chaosbuffalo.mkcore.core.player.PlayerSyncComponent;
 import com.chaosbuffalo.mkcore.sync.SyncGroup;
 import com.chaosbuffalo.mkcore.sync.SyncInt;
 import com.google.common.collect.ImmutableMap;
@@ -28,17 +27,10 @@ public class PlayerTalentKnowledge implements IPlayerSyncComponentProvider {
     private final SyncInt talentPoints = new SyncInt("points", 0);
     private final SyncInt totalTalentPoints = new SyncInt("totalPoints", 0);
     private final Map<ResourceLocation, TalentTreeRecord> talentTreeRecordMap = new HashMap<>();
-    private final ActiveTalentAbilityContainer passiveContainer;
-    private final ActiveTalentAbilityContainer ultimateContainer;
     private final KnownTalentCache talentCache = new KnownTalentCache(this);
 
     public PlayerTalentKnowledge(MKPlayerData playerData) {
         this.playerData = playerData;
-
-        passiveContainer = new PassiveTalentContainer(playerData, "passives");
-        ultimateContainer = new UltimateTalentContainer(playerData, "ultimates");
-        addSyncChild(passiveContainer);
-        addSyncChild(ultimateContainer);
         addSyncPrivate(talentPoints);
         addSyncPrivate(totalTalentPoints);
         if (!playerData.isServerSide()) {
@@ -57,14 +49,6 @@ public class PlayerTalentKnowledge implements IPlayerSyncComponentProvider {
 
     public int getUnspentTalentPoints() {
         return talentPoints.get();
-    }
-
-    public ActiveTalentAbilityContainer getPassiveContainer() {
-        return passiveContainer;
-    }
-
-    public ActiveTalentAbilityContainer getUltimateContainer() {
-        return ultimateContainer;
     }
 
     public Stream<TalentRecord> getKnownTalentsStream() {
@@ -196,9 +180,9 @@ public class PlayerTalentKnowledge implements IPlayerSyncComponentProvider {
         return true;
     }
 
-    static class PassiveTalentContainer extends ActiveTalentAbilityContainer {
+    static class PassiveTalentGroup extends ActiveTalentAbilityGroup {
 
-        public PassiveTalentContainer(MKPlayerData playerData, String name) {
+        public PassiveTalentGroup(MKPlayerData playerData, String name) {
             super(playerData, name, AbilitySlot.Passive, GameConstants.DEFAULT_PASSIVES, GameConstants.MAX_PASSIVES, TalentType.PASSIVE);
         }
 
@@ -209,9 +193,9 @@ public class PlayerTalentKnowledge implements IPlayerSyncComponentProvider {
         }
     }
 
-    static class UltimateTalentContainer extends ActiveTalentAbilityContainer {
+    static class UltimateTalentGroup extends ActiveTalentAbilityGroup {
 
-        public UltimateTalentContainer(MKPlayerData playerData, String name) {
+        public UltimateTalentGroup(MKPlayerData playerData, String name) {
             super(playerData, name, AbilitySlot.Ultimate, GameConstants.DEFAULT_ULTIMATES, GameConstants.MAX_ULTIMATES, TalentType.ULTIMATE);
         }
 
@@ -234,9 +218,6 @@ public class PlayerTalentKnowledge implements IPlayerSyncComponentProvider {
                         )
                 )));
 
-        builder.put(ops.createString("loadedPassives"), passiveContainer.serialize(ops));
-        builder.put(ops.createString("loadedUltimates"), ultimateContainer.serialize(ops));
-
         return ops.createMap(builder.build());
     }
 
@@ -247,9 +228,6 @@ public class PlayerTalentKnowledge implements IPlayerSyncComponentProvider {
         dynamic.get("trees")
                 .asMap(Dynamic::asString, Function.identity())
                 .forEach((idOpt, dyn) -> idOpt.map(ResourceLocation::new).ifPresent(id -> deserializeTree(id, dyn)));
-
-        passiveContainer.deserialize(dynamic.get("loadedPassives").orElseEmptyMap());
-        ultimateContainer.deserialize(dynamic.get("loadedUltimates").orElseEmptyMap());
 
         talentCache.invalidate();
     }
