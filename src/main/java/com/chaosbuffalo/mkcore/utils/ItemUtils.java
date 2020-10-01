@@ -42,6 +42,10 @@ public class ItemUtils {
         return false;
     }
 
+    public static boolean isRangedWeapon(ItemStack item){
+        return item.getItem() instanceof BowItem || item.getItem() instanceof CrossbowItem;
+    }
+
     static {
         addCriticalStats(SwordItem.class, 0, .05f, 2.0f);
         addCriticalStats(AxeItem.class, 0, .15f, 2.0f);

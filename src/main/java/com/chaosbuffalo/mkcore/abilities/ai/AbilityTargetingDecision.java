@@ -11,6 +11,7 @@ public class AbilityTargetingDecision {
         STATIONARY,
         FOLLOW,
         KITE,
+        MELEE
     }
     private final LivingEntity target;
     private final MovementSuggestion movementSuggestion;
