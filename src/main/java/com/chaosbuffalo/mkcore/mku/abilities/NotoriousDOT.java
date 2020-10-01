@@ -5,6 +5,7 @@ import com.chaosbuffalo.mkcore.abilities.AbilityTargetSelector;
 import com.chaosbuffalo.mkcore.abilities.AbilityTargeting;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.abilities.MKSongAbility;
+import com.chaosbuffalo.mkcore.abilities.ai.conditions.MeleeUseCondition;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.fx.ParticleEffects;
 import com.chaosbuffalo.mkcore.init.ModSounds;
@@ -41,6 +42,7 @@ public class NotoriousDOT extends MKSongAbility {
 
     private NotoriousDOT() {
         super(MKCore.makeRL("ability.notorious_dot"));
+        setUseCondition(new MeleeUseCondition(this));
     }
 
     @Override

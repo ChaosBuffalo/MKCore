@@ -6,6 +6,7 @@ import com.chaosbuffalo.mkcore.abilities.AbilityContext;
 import com.chaosbuffalo.mkcore.abilities.AbilityTargetSelector;
 import com.chaosbuffalo.mkcore.abilities.AbilityTargeting;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
+import com.chaosbuffalo.mkcore.abilities.ai.conditions.MeleeUseCondition;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.effects.AreaEffectBuilder;
 import com.chaosbuffalo.mkcore.effects.ParticleEffect;
@@ -43,6 +44,7 @@ public class WhirlwindBlades extends MKAbility {
         setCastTime(GameConstants.TICKS_PER_SECOND * 3);
         setCooldownSeconds(20);
         setManaCost(6);
+        setUseCondition(new MeleeUseCondition(this));
     }
 
     @Override
