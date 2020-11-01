@@ -53,6 +53,8 @@ public class PacketHandler {
                 OpenLearnAbilitiesGuiPacket::new, OpenLearnAbilitiesGuiPacket::handle);
         networkChannel.registerMessage(id++, PlayerLearnAbilityRequestPacket.class, PlayerLearnAbilityRequestPacket::toBytes,
                 PlayerLearnAbilityRequestPacket::new, PlayerLearnAbilityRequestPacket::handle);
+        networkChannel.registerMessage(id++, MKItemAttackPacket.class, MKItemAttackPacket::toBytes,
+                MKItemAttackPacket::new, MKItemAttackPacket::handle);
     }
 
     public static <T> void sendMessageToServer(T msg) {

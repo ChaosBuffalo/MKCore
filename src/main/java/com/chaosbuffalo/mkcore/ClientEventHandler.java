@@ -4,20 +4,28 @@ import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.client.gui.CharacterScreen;
 import com.chaosbuffalo.mkcore.client.gui.IPlayerDataAwareScreen;
 import com.chaosbuffalo.mkcore.core.AbilitySlot;
+import com.chaosbuffalo.mkcore.core.MKAttributes;
 import com.chaosbuffalo.mkcore.core.MKRangedAttribute;
 import com.chaosbuffalo.mkcore.events.PlayerDataEvent;
 import com.chaosbuffalo.mkcore.item.ArmorClass;
 import com.chaosbuffalo.mkcore.network.ExecuteActiveAbilityPacket;
+import com.chaosbuffalo.mkcore.network.MKItemAttackPacket;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
+import com.chaosbuffalo.mkcore.utils.RayTraceUtils;
+import com.chaosbuffalo.targeting_api.Targeting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.util.InputMappings;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.IAttribute;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ArmorItem;
+import net.minecraft.util.Hand;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.EntityRayTraceResult;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -222,5 +230,37 @@ public class ClientEventHandler {
                 .appendSibling(new TranslationTextComponent("attribute.name." + attribute.getName()));
 
         tooltip.add(component);
+    }
+
+    private static void doPlayerAttack(PlayerEntity player, Entity target, Minecraft minecraft){
+        if (minecraft.playerController != null){
+            minecraft.playerController.syncCurrentPlayItem();
+        }
+        PacketHandler.sendMessageToServer(new MKItemAttackPacket(target));
+        if (!player.isSpectator()) {
+            player.attackTargetEntityWithCurrentItem(target);
+            player.resetCooldown();
+        }
+    }
+
+    @SubscribeEvent
+    public static void onAttackReplacement(InputEvent.ClickInputEvent event){
+        if (event.isAttack() && event.getHand() == Hand.MAIN_HAND){
+            PlayerEntity player = Minecraft.getInstance().player;
+            if (player != null){
+                RayTraceResult lookingAt = RayTraceUtils.getLookingAt(Entity.class,
+                        player, player.getAttribute(MKAttributes.ATTACK_REACH).getValue(),
+                        (e) -> true);
+                if (lookingAt != null && lookingAt.getType() == RayTraceResult.Type.ENTITY){
+                    EntityRayTraceResult traceResult = (EntityRayTraceResult) lookingAt;
+                    Entity entityHit = traceResult.getEntity();
+                    if (!Targeting.isValidFriendly(player, entityHit)){
+                        doPlayerAttack(player, entityHit, Minecraft.getInstance());
+                    }
+                    event.setCanceled(true);
+                    event.setSwingHand(true);
+                }
+            }
+        }
     }
 }
