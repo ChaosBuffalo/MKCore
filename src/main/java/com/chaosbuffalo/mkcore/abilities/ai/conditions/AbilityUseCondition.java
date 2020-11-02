@@ -22,7 +22,7 @@ public abstract class AbilityUseCondition {
     public abstract AbilityTargetingDecision getDecision(AbilityDecisionContext context);
 
     protected boolean isInRange(AbilityDecisionContext context, LivingEntity target) {
-        float range = getAbility().getDistance();
+        float range = getAbility().getDistance(context.getCaster());
         return target.getDistanceSq(context.getCaster()) <= range * range;
     }
 }

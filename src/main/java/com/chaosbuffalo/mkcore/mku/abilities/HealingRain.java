@@ -66,7 +66,7 @@ public class HealingRain extends MKAbility {
     }
 
     @Override
-    public float getDistance() {
+    public float getDistance(LivingEntity entity) {
         return 5.0f + 1.0f;
     }
 
@@ -89,7 +89,7 @@ public class HealingRain extends MKAbility {
                     new Vec3d(0.0, 1.0, 0.0),
                     10, 0, 1.0);
 
-            float dist = getDistance();
+            float dist = getDistance(entity);
             AreaEffectBuilder.createOnCaster(entity)
                     .spellCast(heal, level, getTargetContext())
                     .spellCast(particlePotion, level, getTargetContext())

@@ -61,7 +61,7 @@ public class NotoriousDOT extends MKSongAbility {
     }
 
     @Override
-    public float getDistance() {
+    public float getDistance(LivingEntity entity) {
         return 6f;
     }
 

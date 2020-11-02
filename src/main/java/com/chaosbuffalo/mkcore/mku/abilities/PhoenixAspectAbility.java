@@ -58,7 +58,7 @@ public class PhoenixAspectAbility extends MKAbility {
     }
 
     @Override
-    public float getDistance() {
+    public float getDistance(LivingEntity entity) {
         return 10.0f + 2.0f * 1;
     }
 
@@ -99,7 +99,7 @@ public class PhoenixAspectAbility extends MKAbility {
                 .spellCast(particlePotion, level, getTargetContext())
                 .instant()
                 .particle(ParticleTypes.FIREWORK)
-                .color(65480).radius(getDistance(), true)
+                .color(65480).radius(getDistance(entity), true)
                 .spawn();
 
         PacketHandler.sendToTrackingMaybeSelf(new ParticleEffectSpawnPacket(

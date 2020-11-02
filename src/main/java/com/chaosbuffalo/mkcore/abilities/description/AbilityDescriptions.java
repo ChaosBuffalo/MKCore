@@ -38,7 +38,7 @@ public class AbilityDescriptions {
 
     public static ITextComponent getRangeDescription(MKAbility ability, IMKEntityData entityData) {
         return new TranslationTextComponent("mkcore.ability.description.range",
-                String.format("%.1f", ability.getDistance()));
+                String.format("%.1f", ability.getDistance(entityData.getEntity())));
     }
 
     public static ITextComponent getTargetTypeDescription(MKAbility ability) {

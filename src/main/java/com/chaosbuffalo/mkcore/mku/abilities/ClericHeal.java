@@ -87,7 +87,7 @@ public class ClericHeal extends MKAbility {
     }
 
     @Override
-    public float getDistance() {
+    public float getDistance(LivingEntity entity) {
         return 10.0f + 5.0f;
     }
 
