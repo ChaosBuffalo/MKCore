@@ -1,11 +1,11 @@
 package com.chaosbuffalo.mkcore.events;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraft.entity.LivingEntity;
+import net.minecraftforge.event.entity.living.LivingEvent;
 
-public class PostAttackEvent extends PlayerEvent {
+public class PostAttackEvent extends LivingEvent {
 
-    public PostAttackEvent(PlayerEntity player) {
-        super(player);
+    public PostAttackEvent(LivingEntity entity) {
+        super(entity);
     }
 }

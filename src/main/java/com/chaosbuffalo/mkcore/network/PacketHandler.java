@@ -55,6 +55,8 @@ public class PacketHandler {
                 PlayerLearnAbilityRequestPacket::new, PlayerLearnAbilityRequestPacket::handle);
         networkChannel.registerMessage(id++, MKItemAttackPacket.class, MKItemAttackPacket::toBytes,
                 MKItemAttackPacket::new, MKItemAttackPacket::handle);
+        networkChannel.registerMessage(id++, ResetAttackSwingPacket.class, ResetAttackSwingPacket::toBytes,
+                ResetAttackSwingPacket::new, ResetAttackSwingPacket::handle);
     }
 
     public static <T> void sendMessageToServer(T msg) {
