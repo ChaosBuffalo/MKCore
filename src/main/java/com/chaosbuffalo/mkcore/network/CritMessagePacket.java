@@ -24,7 +24,8 @@ public class CritMessagePacket {
     public enum CritType {
         MELEE_CRIT,
         MK_CRIT,
-        PROJECTILE_CRIT
+        PROJECTILE_CRIT,
+        TYPED_CRIT
     }
 
     private final int targetId;
@@ -34,13 +35,25 @@ public class CritMessagePacket {
     private final float critDamage;
     private final CritType type;
     private int projectileId;
+    private String typeName;
 
-    public CritMessagePacket(int targetId, UUID sourceUUID, float critDamage, CritType type) {
+    public CritMessagePacket(int targetId, UUID sourceUUID, float critDamage) {
         this.targetId = targetId;
         this.sourceUUID = sourceUUID;
         this.critDamage = critDamage;
-        this.type = type;
+        this.type = CritType.MELEE_CRIT;
     }
+
+    public CritMessagePacket(int targetId, UUID sourceUUID, float critDamage, MKDamageType damageType, String typeName){
+        this.targetId = targetId;
+        this.sourceUUID = sourceUUID;
+        this.critDamage = critDamage;
+        this.type = CritType.TYPED_CRIT;
+        this.typeName = typeName;
+        this.damageType = damageType.getRegistryName();
+    }
+
+
 
     public CritMessagePacket(int targetId, UUID sourceUUID, float critDamage, ResourceLocation abilityName,
                              MKDamageType damageType) {
@@ -72,6 +85,10 @@ public class CritMessagePacket {
         if (type == CritType.PROJECTILE_CRIT) {
             this.projectileId = pb.readInt();
         }
+        if (type == CritType.TYPED_CRIT){
+            this.damageType = pb.readResourceLocation();
+            this.typeName = pb.readString();
+        }
     }
 
     public void toBytes(PacketBuffer pb) {
@@ -85,6 +102,10 @@ public class CritMessagePacket {
         }
         if (type == CritType.PROJECTILE_CRIT) {
             pb.writeInt(this.projectileId);
+        }
+        if (type == CritType.TYPED_CRIT){
+            pb.writeResourceLocation(damageType);
+            pb.writeString(typeName);
         }
     }
 
@@ -138,7 +159,7 @@ public class CritMessagePacket {
                 if (ability == null || mkDamageType == null) {
                     break;
                 }
-                player.sendMessage(mkDamageType.getCritMessage(playerSource, (LivingEntity) target, critDamage, ability, isSelf));
+                player.sendMessage(mkDamageType.getAbilityCritMessage(playerSource, (LivingEntity) target, critDamage, ability, isSelf));
                 break;
             case PROJECTILE_CRIT:
                 Entity projectile = player.getEntityWorld().getEntityByID(projectileId);
@@ -161,6 +182,13 @@ public class CritMessagePacket {
                         ).setStyle(messageStyle));
                     }
                 }
+                break;
+            case TYPED_CRIT:
+                mkDamageType = MKCoreRegistry.getDamageType(damageType);
+                if (mkDamageType == null) {
+                    break;
+                }
+                player.sendMessage(mkDamageType.getEffectCritMessage(playerSource, (LivingEntity) target, critDamage, typeName, isSelf));
                 break;
         }
     }

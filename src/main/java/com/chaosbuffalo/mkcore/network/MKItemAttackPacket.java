@@ -1,9 +1,12 @@
 package com.chaosbuffalo.mkcore.network;
 
+import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.MKAttributes;
+import com.chaosbuffalo.mkcore.events.PostAttackEvent;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.function.Supplier;
@@ -36,6 +39,8 @@ public class MKItemAttackPacket {
             if (target != null) {
                 if (entity.getDistanceSq(target) <= reach * reach){
                     entity.attackTargetEntityWithCurrentItem(target);
+                    MKCore.getEntityData(entity).ifPresent(cap -> cap.getCombatExtension().recordSwing());
+                    MinecraftForge.EVENT_BUS.post(new PostAttackEvent(entity));
                 }
             }
         });

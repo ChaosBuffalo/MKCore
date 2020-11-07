@@ -24,6 +24,7 @@ public class MKPlayerData implements IMKEntityData {
     private PlayerAnimationModule animationModule;
     private PlayerTalentModule talentModule;
     private PlayerEquipmentModule equipmentModule;
+    private CombatExtensionModule combatExtensionModule;
     private final Set<String> spellTag = new HashSet<>();
 
     public MKPlayerData() {
@@ -35,6 +36,7 @@ public class MKPlayerData implements IMKEntityData {
         updateEngine = new UpdateEngine(this);
         personaManager = PersonaManager.getPersonaManager(this);
         abilityExecutor = new PlayerAbilityExecutor(this);
+        combatExtensionModule = new CombatExtensionModule(this);
         stats = new PlayerStatsModule(this);
         stats.getSyncComponent().attach(updateEngine);
 
@@ -93,6 +95,11 @@ public class MKPlayerData implements IMKEntityData {
     }
 
     @Override
+    public CombatExtensionModule getCombatExtension() {
+        return combatExtensionModule;
+    }
+
+    @Override
     public PlayerAbilityExecutor getAbilityExecutor() {
         return abilityExecutor;
     }
@@ -140,6 +147,7 @@ public class MKPlayerData implements IMKEntityData {
         getStats().tick();
         getAbilityExecutor().tick();
         getAnimationModule().tick();
+        getCombatExtension().tick();
 
         if (!isServerSide()) {
             // client-only handling here

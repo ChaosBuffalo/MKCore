@@ -26,8 +26,8 @@ public class MeleeDamageType extends MKDamageType {
     }
 
     @Override
-    public ITextComponent getCritMessage(LivingEntity source, LivingEntity target, float damage,
-                                         MKAbility ability, boolean isSelf) {
+    public ITextComponent getAbilityCritMessage(LivingEntity source, LivingEntity target, float damage,
+                                                MKAbility ability, boolean isSelf) {
         Style messageStyle = new Style();
         messageStyle.setColor(TextFormatting.GOLD);
         String msg;

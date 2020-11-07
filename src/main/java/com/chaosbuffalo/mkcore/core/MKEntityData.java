@@ -10,6 +10,7 @@ public class MKEntityData implements IMKEntityData {
     private AbilityExecutor abilityExecutor;
     private EntityStatsModule stats;
     private EntityAbilityKnowledge knowledge;
+    private CombatExtensionModule combatExtensionModule;
 
     public MKEntityData() {
 
@@ -20,6 +21,7 @@ public class MKEntityData implements IMKEntityData {
         knowledge = new EntityAbilityKnowledge(this);
         abilityExecutor = new AbilityExecutor(this);
         stats = new EntityStatsModule(this);
+        combatExtensionModule = new CombatExtensionModule(this);
         registerAttributes();
     }
 
@@ -31,6 +33,7 @@ public class MKEntityData implements IMKEntityData {
     public void update() {
         getAbilityExecutor().tick();
         getStats().tick();
+        getCombatExtension().tick();
     }
 
     @Override
@@ -51,6 +54,11 @@ public class MKEntityData implements IMKEntityData {
     @Override
     public EntityStatsModule getStats() {
         return stats;
+    }
+
+    @Override
+    public CombatExtensionModule getCombatExtension() {
+        return combatExtensionModule;
     }
 
     @Override

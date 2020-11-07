@@ -6,7 +6,9 @@ import com.chaosbuffalo.mkcore.client.gui.IPlayerDataAwareScreen;
 import com.chaosbuffalo.mkcore.core.AbilitySlot;
 import com.chaosbuffalo.mkcore.core.MKAttributes;
 import com.chaosbuffalo.mkcore.core.MKRangedAttribute;
+import com.chaosbuffalo.mkcore.effects.status.StunEffect;
 import com.chaosbuffalo.mkcore.events.PlayerDataEvent;
+import com.chaosbuffalo.mkcore.events.PostAttackEvent;
 import com.chaosbuffalo.mkcore.item.ArmorClass;
 import com.chaosbuffalo.mkcore.network.ExecuteActiveAbilityPacket;
 import com.chaosbuffalo.mkcore.network.MKItemAttackPacket;
@@ -33,6 +35,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.client.settings.KeyModifier;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -104,9 +107,17 @@ public class ClientEventHandler {
         handleInputEvent();
     }
 
+    @SubscribeEvent
+    public static void onRawMouseEvent(InputEvent.RawMouseEvent event){
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.player != null && minecraft.player.isPotionActive(StunEffect.INSTANCE)
+                && minecraft.currentScreen == null){
+            event.setCanceled(true);
+        }
+    }
 
     static void handleAbilityBarPressed(PlayerEntity player, AbilitySlot type, int slot) {
-        if (isOnGlobalCooldown())
+        if (isOnGlobalCooldown() || player.isPotionActive(StunEffect.INSTANCE))
             return;
 
         MKCore.getPlayer(player).ifPresent(pData -> {
@@ -240,6 +251,8 @@ public class ClientEventHandler {
         if (!player.isSpectator()) {
             player.attackTargetEntityWithCurrentItem(target);
             player.resetCooldown();
+            MKCore.getEntityData(player).ifPresent(cap -> cap.getCombatExtension().recordSwing());
+            MinecraftForge.EVENT_BUS.post(new PostAttackEvent(player));
         }
     }
 

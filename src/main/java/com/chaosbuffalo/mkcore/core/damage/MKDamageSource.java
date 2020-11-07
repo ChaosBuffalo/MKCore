@@ -8,13 +8,39 @@ import net.minecraft.util.ResourceLocation;
 import javax.annotation.Nullable;
 
 public class MKDamageSource extends IndirectEntityDamageSource {
-    private final ResourceLocation abilityId;
+    @Nullable
+    private ResourceLocation abilityId;
+    @Nullable
+    private String damageTypeName;
     private float modifierScaling;
     private boolean suppressTriggers;
     private final MKDamageType damageType;
+    public enum Origination {
+        MK_ABILITY,
+        DAMAGE_TYPE
+    }
+    private final Origination origination;
 
     public ResourceLocation getAbilityId() {
         return abilityId;
+    }
+
+    public Origination getOrigination() {
+        return origination;
+    }
+
+    @Nullable
+    public String getDamageTypeName() {
+        return damageTypeName;
+    }
+
+    public MKDamageSource(String damageTypeName, MKDamageType damageTypeIn,
+                          Entity source, @Nullable Entity indirectEntityIn){
+        super(damageTypeIn.getRegistryName().toString(), source, indirectEntityIn);
+        this.damageType = damageTypeIn;
+        this.damageTypeName = damageTypeName;
+        this.origination = Origination.DAMAGE_TYPE;
+
     }
 
     public MKDamageSource(ResourceLocation abilityId, MKDamageType damageTypeIn,
@@ -23,6 +49,7 @@ public class MKDamageSource extends IndirectEntityDamageSource {
         this.abilityId = abilityId;
         this.modifierScaling = 1.0f;
         this.damageType = damageTypeIn;
+        this.origination = Origination.MK_ABILITY;
     }
 
     public float getModifierScaling() {
@@ -63,6 +90,18 @@ public class MKDamageSource extends IndirectEntityDamageSource {
     public static MKDamageSource causeAbilityDamage(MKDamageType damageType, ResourceLocation abilityId, Entity source,
                                                     @Nullable Entity indirectEntityIn, float modifierScaling) {
         return causeAbilityDamage(damageType, abilityId, source, indirectEntityIn)
+                .setModifierScaling(modifierScaling);
+    }
+
+    public static MKDamageSource causeEffectDamage(MKDamageType damageType, String effectType, Entity source,
+                                                   @Nullable Entity indirectEntityIn){
+        return (MKDamageSource) new MKDamageSource(effectType, damageType, source, indirectEntityIn)
+                .setDamageBypassesArmor();
+    }
+
+    public static MKDamageSource causeEffectDamage(MKDamageType damageType, String effectType, Entity source,
+                                                   @Nullable Entity indirectEntityIn, float modifierScaling){
+        return causeEffectDamage(damageType, effectType, source, indirectEntityIn)
                 .setModifierScaling(modifierScaling);
     }
 
