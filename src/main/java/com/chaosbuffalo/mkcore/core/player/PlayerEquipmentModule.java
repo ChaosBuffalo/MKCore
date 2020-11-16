@@ -54,7 +54,7 @@ public class PlayerEquipmentModule {
 
     private void handleMainHandChange(ItemStack to) {
         if (to.getItem() instanceof IMKAbilityProvider) {
-            currentMainAbility = ((IMKAbilityProvider) to.getItem()).getAbility();
+            currentMainAbility = ((IMKAbilityProvider) to.getItem()).getAbility(to);
             if (currentMainAbility != null) {
                 if (!playerData.getAbilities().knowsAbility(currentMainAbility.getAbilityId())) {
                     playerData.getAbilities().learnAbility(currentMainAbility);
@@ -105,7 +105,7 @@ public class PlayerEquipmentModule {
             return;
 
         if (newItem.getItem() instanceof IMKAbilityProvider) {
-            MKAbility ability = ((IMKAbilityProvider) newItem.getItem()).getAbility();
+            MKAbility ability = ((IMKAbilityProvider) newItem.getItem()).getAbility(newItem);
             playerData.getAbilities().learnAbility(ability);
         }
     }
@@ -115,7 +115,7 @@ public class PlayerEquipmentModule {
             return;
 
         if (oldItem.getItem() instanceof IMKAbilityProvider) {
-            MKAbility ability = ((IMKAbilityProvider) oldItem.getItem()).getAbility();
+            MKAbility ability = ((IMKAbilityProvider) oldItem.getItem()).getAbility(oldItem);
             playerData.getAbilities().unlearnAbility(ability.getAbilityId());
         }
     }

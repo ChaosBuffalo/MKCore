@@ -34,7 +34,7 @@ public class ModItems {
         }
 
         @Override
-        public MKAbility getAbility() {
+        public MKAbility getAbility(ItemStack item) {
             return BurningSoul.INSTANCE;
         }
     }
@@ -46,7 +46,7 @@ public class ModItems {
         }
 
         @Override
-        public MKAbility getAbility() {
+        public MKAbility getAbility(ItemStack item) {
             return WhirlwindBlades.INSTANCE;
         }
     }
