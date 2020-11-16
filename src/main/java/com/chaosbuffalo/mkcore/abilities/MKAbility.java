@@ -8,6 +8,7 @@ import com.chaosbuffalo.mkcore.abilities.attributes.IAbilityAttribute;
 import com.chaosbuffalo.mkcore.abilities.description.AbilityDescriptions;
 import com.chaosbuffalo.mkcore.core.AbilitySlot;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
+import com.chaosbuffalo.mkcore.core.MKAttributes;
 import com.chaosbuffalo.mkcore.init.ModSounds;
 import com.chaosbuffalo.mkcore.utils.RayTraceUtils;
 import com.chaosbuffalo.targeting_api.Targeting;
@@ -184,8 +185,12 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
         return true;
     }
 
-    public float getDistance() {
+    public float getDistance(LivingEntity entity) {
         return 1.0f;
+    }
+
+    protected float getMeleeReach(LivingEntity entity){
+        return (float) entity.getAttribute(MKAttributes.ATTACK_REACH).getValue();
     }
 
     protected void setCooldownTicks(int ticks) {

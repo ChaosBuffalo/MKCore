@@ -4,20 +4,30 @@ import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.client.gui.CharacterScreen;
 import com.chaosbuffalo.mkcore.client.gui.IPlayerDataAwareScreen;
 import com.chaosbuffalo.mkcore.core.AbilitySlot;
+import com.chaosbuffalo.mkcore.core.MKAttributes;
 import com.chaosbuffalo.mkcore.core.MKRangedAttribute;
+import com.chaosbuffalo.mkcore.effects.status.StunEffect;
 import com.chaosbuffalo.mkcore.events.PlayerDataEvent;
+import com.chaosbuffalo.mkcore.events.PostAttackEvent;
 import com.chaosbuffalo.mkcore.item.ArmorClass;
 import com.chaosbuffalo.mkcore.network.ExecuteActiveAbilityPacket;
+import com.chaosbuffalo.mkcore.network.MKItemAttackPacket;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
+import com.chaosbuffalo.mkcore.utils.RayTraceUtils;
+import com.chaosbuffalo.targeting_api.Targeting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.util.InputMappings;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.IAttribute;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ArmorItem;
+import net.minecraft.util.Hand;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.EntityRayTraceResult;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -25,8 +35,10 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.client.settings.KeyModifier;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Mod;
@@ -103,9 +115,17 @@ public class ClientEventHandler {
         handleInputEvent();
     }
 
+    @SubscribeEvent
+    public static void onRawMouseEvent(InputEvent.RawMouseEvent event){
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.player != null && minecraft.player.isPotionActive(StunEffect.INSTANCE)
+                && minecraft.currentScreen == null){
+            event.setCanceled(true);
+        }
+    }
 
     static void handleAbilityBarPressed(PlayerEntity player, AbilitySlot type, int slot) {
-        if (isOnGlobalCooldown())
+        if (isOnGlobalCooldown() || player.isPotionActive(StunEffect.INSTANCE))
             return;
 
         MKCore.getPlayer(player).ifPresent(pData -> {
@@ -232,5 +252,39 @@ public class ClientEventHandler {
                 .appendSibling(new TranslationTextComponent("attribute.name." + attribute.getName()));
 
         tooltip.add(component);
+    }
+
+    private static void doPlayerAttack(PlayerEntity player, Entity target, Minecraft minecraft){
+        if (minecraft.playerController != null){
+            minecraft.playerController.syncCurrentPlayItem();
+        }
+        PacketHandler.sendMessageToServer(new MKItemAttackPacket(target));
+        if (!player.isSpectator()) {
+            player.attackTargetEntityWithCurrentItem(target);
+            player.resetCooldown();
+            MKCore.getEntityData(player).ifPresent(cap -> cap.getCombatExtension().recordSwing());
+            MinecraftForge.EVENT_BUS.post(new PostAttackEvent(player));
+        }
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public static void onAttackReplacement(InputEvent.ClickInputEvent event){
+        if (event.isAttack() && event.getHand() == Hand.MAIN_HAND){
+            PlayerEntity player = Minecraft.getInstance().player;
+            if (player != null){
+                RayTraceResult lookingAt = RayTraceUtils.getLookingAt(Entity.class,
+                        player, player.getAttribute(MKAttributes.ATTACK_REACH).getValue(),
+                        (e) -> true);
+                if (lookingAt != null && lookingAt.getType() == RayTraceResult.Type.ENTITY){
+                    EntityRayTraceResult traceResult = (EntityRayTraceResult) lookingAt;
+                    Entity entityHit = traceResult.getEntity();
+                    if (!Targeting.isValidFriendly(player, entityHit)){
+                        doPlayerAttack(player, entityHit, Minecraft.getInstance());
+                    }
+                    event.setCanceled(true);
+                    event.setSwingHand(true);
+                }
+            }
+        }
     }
 }

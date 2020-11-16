@@ -2,15 +2,25 @@ package com.chaosbuffalo.mkcore.events;
 
 import com.chaosbuffalo.mkcore.CoreCapabilities;
 import com.chaosbuffalo.mkcore.MKCore;
+import com.chaosbuffalo.mkcore.core.MKAttributes;
 import com.chaosbuffalo.mkcore.core.damage.MKDamageSource;
 import com.chaosbuffalo.mkcore.effects.SpellTriggers;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.PlayerLeftClickEmptyPacket;
+import com.chaosbuffalo.mkcore.utils.RayTraceUtils;
+import com.chaosbuffalo.targeting_api.Targeting;
+import com.chaosbuffalo.targeting_api.TargetingAPI;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.Hand;
+import net.minecraft.util.math.EntityRayTraceResult;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraftforge.client.event.InputEvent;
+import net.minecraftforge.event.entity.ProjectileImpactEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
@@ -70,6 +80,8 @@ public class CombatEventHandler {
         }
     }
 
+
+
     @SubscribeEvent
     public static void onLeftClickEmptyServer(ServerSideLeftClickEmpty event) {
         if (!event.getPlayer().world.isRemote) {
@@ -91,6 +103,20 @@ public class CombatEventHandler {
         }
         if (source instanceof LivingEntity) {
             SpellTriggers.ATTACK_ENTITY.onAttackEntity((LivingEntity) source, target);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onArrowImpact(ProjectileImpactEvent.Arrow arrowEvent){
+        Entity shooter = arrowEvent.getArrow().getShooter();
+        if (shooter != null){
+            MKCore.getEntityData(shooter).ifPresent(cap -> {
+                if (arrowEvent.getRayTraceResult().getType() == RayTraceResult.Type.BLOCK){
+                    cap.getCombatExtension().projectileMiss();
+                } else {
+                    cap.getCombatExtension().recordProjectileHit();
+                }
+            });
         }
     }
 

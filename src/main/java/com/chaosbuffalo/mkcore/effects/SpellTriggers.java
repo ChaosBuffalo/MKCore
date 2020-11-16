@@ -1,6 +1,7 @@
 package com.chaosbuffalo.mkcore.effects;
 
 import com.chaosbuffalo.mkcore.CoreCapabilities;
+import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
@@ -42,7 +43,7 @@ public class SpellTriggers {
         return !source.isFireDamage() &&
                 !source.isExplosion() &&
                 !source.isMagicDamage() &&
-                source.getDamageType().equals("player");
+                (source.getDamageType().equals("player") || source.getDamageType().equals("mob"));
     }
 
     public static boolean isProjectileDamage(DamageSource source) {
@@ -102,9 +103,11 @@ public class SpellTriggers {
         private static final String MELEE_TAG = "PLAYER_HURT_ENTITY.melee";
         private static final String MAGIC_TAG = "PLAYER_HURT_ENTITY.magic";
         private static final String POST_TAG = "PLAYER_HURT_ENTITY.post";
+        private static final String PROJECTILE_TAG = "PLAYER_HURT_ENTITY.projectile";
         private static final List<PlayerHurtEntityTrigger> playerHurtEntityMeleeTriggers = new ArrayList<>();
         private static final List<PlayerHurtEntityTrigger> playerHurtEntityMagicTriggers = new ArrayList<>();
         private static final List<PlayerHurtEntityTrigger> playerHurtEntityPostTriggers = new ArrayList<>();
+        private static final List<PlayerHurtEntityTrigger> playerHurtEntityProjectileTriggers = new ArrayList<>();
 
         public static void registerMelee(PlayerHurtEntityTrigger trigger) {
             playerHurtEntityMeleeTriggers.add(trigger);
@@ -112,6 +115,10 @@ public class SpellTriggers {
 
         public static void registerMagic(PlayerHurtEntityTrigger trigger) {
             playerHurtEntityMagicTriggers.add(trigger);
+        }
+
+        public static void registerProjectile(PlayerHurtEntityTrigger trigger){
+            playerHurtEntityProjectileTriggers.add(trigger);
         }
 
         public static void registerPostHandler(PlayerHurtEntityTrigger trigger) {
@@ -126,7 +133,7 @@ public class SpellTriggers {
                 if (mkSource.isMeleeDamage()) {
                     handleMKMelee(event, mkSource, livingTarget, playerSource, sourceData);
                 } else {
-                    handleMKAbility(event, mkSource, livingTarget, playerSource, sourceData);
+                    handleMKDamage(event, mkSource, livingTarget, playerSource, sourceData);
                 }
             }
 
@@ -145,31 +152,43 @@ public class SpellTriggers {
             endTrigger(playerSource, POST_TAG);
         }
 
-        private static void handleMKAbility(LivingHurtEvent event, MKDamageSource source, LivingEntity livingTarget,
-                                            ServerPlayerEntity playerSource,
-                                            IMKEntityData sourceData) {
-            calculateAbilityDamage(event, livingTarget, playerSource, sourceData, source,
+        private static void handleMKDamage(LivingHurtEvent event, MKDamageSource source, LivingEntity livingTarget,
+                                           ServerPlayerEntity playerSource,
+                                           IMKEntityData sourceData) {
+            calculateMKDamage(event, livingTarget, playerSource, sourceData, source,
                     MAGIC_TAG, playerHurtEntityMagicTriggers);
         }
 
-        private static void calculateAbilityDamage(LivingHurtEvent event, LivingEntity livingTarget,
-                                                   ServerPlayerEntity playerSource, IMKEntityData sourceData,
-                                                   MKDamageSource source, String typeTag,
-                                                   List<PlayerHurtEntityTrigger> playerHurtTriggers) {
+        private static void calculateMKDamage(LivingHurtEvent event, LivingEntity livingTarget,
+                                              ServerPlayerEntity playerSource, IMKEntityData sourceData,
+                                              MKDamageSource source, String typeTag,
+                                              List<PlayerHurtEntityTrigger> playerHurtTriggers) {
             Entity immediate = source.getImmediateSource() != null ? source.getImmediateSource() : playerSource;
             float newDamage = source.getMKDamageType().applyDamage(playerSource, livingTarget, immediate, event.getAmount(), source.getModifierScaling());
             if (source.getMKDamageType().rollCrit(playerSource, livingTarget, immediate)) {
                 newDamage = source.getMKDamageType().applyCritDamage(playerSource, livingTarget, immediate, event.getAmount());
-                MKAbility ability = MKCoreRegistry.getAbility(source.getAbilityId());
-                ResourceLocation abilityName;
-                if (ability != null) {
-                    abilityName = ability.getRegistryName();
-                } else {
-                    abilityName = MKCoreRegistry.INVALID_ABILITY;
+                switch (source.getOrigination()){
+                    case MK_ABILITY:
+                        MKAbility ability = MKCoreRegistry.getAbility(source.getAbilityId());
+                        ResourceLocation abilityName;
+                        if (ability != null) {
+                            abilityName = ability.getRegistryName();
+                        } else {
+                            abilityName = MKCoreRegistry.INVALID_ABILITY;
+                        }
+                        sendCritPacket(livingTarget, playerSource,
+                                new CritMessagePacket(livingTarget.getEntityId(), playerSource.getUniqueID(), newDamage,
+                                        abilityName, source.getMKDamageType()));
+                        break;
+                    case DAMAGE_TYPE:
+                        sendCritPacket(livingTarget, playerSource,
+                                new CritMessagePacket(livingTarget.getEntityId(), playerSource.getUniqueID(), newDamage,
+                                        source.getMKDamageType(), source.getDamageTypeName()));
+                        break;
+
                 }
-                sendCritPacket(livingTarget, playerSource,
-                        new CritMessagePacket(livingTarget.getEntityId(), playerSource.getUniqueID(), newDamage,
-                                abilityName, source.getMKDamageType()));
+
+
             }
             event.setAmount(newDamage);
 
@@ -190,12 +209,16 @@ public class SpellTriggers {
                         new CritMessagePacket(livingTarget.getEntityId(), playerSource.getUniqueID(), newDamage,
                                 projectile.getEntityId()));
             }
+            if (!startTrigger(playerSource, PROJECTILE_TAG))
+                return;
+            playerHurtEntityProjectileTriggers.forEach(f -> f.apply(event, source, livingTarget, playerSource, sourceData));
+            endTrigger(playerSource, PROJECTILE_TAG);
         }
 
         private static void handleMKMelee(LivingHurtEvent event, MKDamageSource source, LivingEntity livingTarget,
                                           ServerPlayerEntity playerSource, IMKEntityData sourceData) {
 
-            calculateAbilityDamage(event, livingTarget, playerSource, sourceData, source,
+            calculateMKDamage(event, livingTarget, playerSource, sourceData, source,
                     MELEE_TAG, playerHurtEntityMeleeTriggers);
         }
 
@@ -206,8 +229,7 @@ public class SpellTriggers {
                     float newDamage = ModDamageTypes.MeleeDamage.applyCritDamage(playerSource, livingTarget, event.getAmount());
                     event.setAmount(newDamage);
                     sendCritPacket(livingTarget, playerSource,
-                            new CritMessagePacket(livingTarget.getEntityId(), playerSource.getUniqueID(), newDamage,
-                                    CritMessagePacket.CritType.MELEE_CRIT));
+                            new CritMessagePacket(livingTarget.getEntityId(), playerSource.getUniqueID(), newDamage));
                 }
             }
 

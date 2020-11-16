@@ -73,8 +73,8 @@ public class WhirlwindBlades extends MKAbility {
     }
 
     @Override
-    public float getDistance() {
-        return 4f;
+    public float getDistance(LivingEntity entity) {
+        return getMeleeReach(entity);
     }
 
     //    @Override
@@ -114,7 +114,7 @@ public class WhirlwindBlades extends MKAbility {
 //                    .spellCast(SoundPotion.Create(entity, ModSounds.spell_shadow_2, SoundCategory.PLAYERS),
 //                            1, getTargetType())
                     .instant()
-                    .color(16409620).radius(getDistance(), true)
+                    .color(16409620).radius(getDistance(entity), true)
                     .particle(ParticleTypes.CRIT)
                     .spawn();
 

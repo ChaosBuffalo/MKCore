@@ -57,7 +57,7 @@ public class FireArmor extends MKAbility {
     }
 
     @Override
-    public float getDistance() {
+    public float getDistance(LivingEntity entity) {
         return 12f;
     }
 
@@ -98,7 +98,7 @@ public class FireArmor extends MKAbility {
 //                        1, getTargetType())
                 .instant()
                 .particle(ParticleTypes.DRIPPING_LAVA)
-                .color(16762905).radius(getDistance(), true)
+                .color(16762905).radius(getDistance(entity), true)
                 .spawn();
 
         PacketHandler.sendToTrackingMaybeSelf(

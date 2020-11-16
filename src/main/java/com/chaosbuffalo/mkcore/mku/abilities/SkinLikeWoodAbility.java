@@ -46,7 +46,7 @@ public class SkinLikeWoodAbility extends MKToggleAbility {
     }
 
     @Override
-    public float getDistance() {
+    public float getDistance(LivingEntity entity) {
         return 1.0f;
     }
 

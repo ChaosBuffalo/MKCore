@@ -1,8 +1,10 @@
 package com.chaosbuffalo.mkcore.utils;
 
+import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.core.stats.CriticalStats;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.projectile.ArrowEntity;
 import net.minecraft.entity.projectile.SpectralArrowEntity;
 import net.minecraft.entity.projectile.ThrowableEntity;
@@ -37,5 +39,10 @@ public class EntityUtils {
     public static boolean isLargeEntity(LivingEntity entityIn) {
         double vol = calculateBoundingBoxVolume(entityIn);
         return vol >= LARGE_VOLUME;
+    }
+
+    public static double getCooldownPeriod(LivingEntity entity){
+        return 1.0D / entity.getAttribute(SharedMonsterAttributes.ATTACK_SPEED).getValue() *
+                GameConstants.TICKS_PER_SECOND;
     }
 }

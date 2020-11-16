@@ -32,6 +32,9 @@ public class ModDamageTypes {
     @ObjectHolder("damage.arcane")
     public static MKDamageType ArcaneDamage;
 
+    @ObjectHolder("damage.bleed")
+    public static MKDamageType BleedDamage;
+
     @ObjectHolder("damage.nature")
     public static MKDamageType NatureDamage;
 
@@ -67,5 +70,7 @@ public class ModDamageTypes {
         evt.getRegistry().register(new MKDamageType(MKCore.makeRL("damage.elemental"), MKAttributes.ELEMENTAL_DAMAGE,
                 MKAttributes.ELEMENTAL_RESISTANCE, MKAttributes.SPELL_CRIT, MKAttributes.SPELL_CRIT_MULTIPLIER)
                 .setShouldDisplay(false));
+        evt.getRegistry().register(new MKDamageType(MKCore.makeRL("damage.bleed"), MKAttributes.BLEED_DAMAGE,
+                MKAttributes.BLEED_RESISTANCE, MKAttributes.MELEE_CRIT, MKAttributes.MELEE_CRIT_MULTIPLIER));
     }
 }

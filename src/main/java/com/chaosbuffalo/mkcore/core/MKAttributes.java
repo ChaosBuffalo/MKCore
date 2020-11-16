@@ -135,11 +135,24 @@ public class MKAttributes {
             .setDescription("Poison Damage")
             .setShouldWatch(true);
 
+    public static final RangedAttribute BLEED_RESISTANCE = (RangedAttribute) new RangedAttribute(null, "mk.bleed_resistance", 0, -1.0, 1.0)
+            .setDescription("Bleed Resistance")
+            .setShouldWatch(true);
+
+    public static final RangedAttribute BLEED_DAMAGE = (RangedAttribute) new RangedAttribute(null, "mk.bleed_damage", 0, 0, 2048)
+            .setDescription("Bleed Damage")
+            .setShouldWatch(true);
+
+    public static final RangedAttribute ATTACK_REACH = (RangedAttribute) new RangedAttribute(null, "mk.attack_reach", 3.0, 0.0, 128)
+            .setDescription("Attack Reach")
+            .setShouldWatch(true);
+
     public static void registerEntityAttributes(AbstractAttributeMap attributes) {
         attributes.registerAttribute(MKAttributes.COOLDOWN);
         attributes.registerAttribute(MKAttributes.CASTING_SPEED);
         attributes.registerAttribute(MKAttributes.HEAL_BONUS);
         attributes.registerAttribute(MKAttributes.BUFF_DURATION);
+        attributes.registerAttribute(MKAttributes.ATTACK_REACH);
         for (MKDamageType damageType : MKCoreRegistry.DAMAGE_TYPES.getValues()) {
             damageType.addAttributes(attributes);
         }

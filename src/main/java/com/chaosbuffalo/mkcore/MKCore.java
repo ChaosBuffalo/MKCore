@@ -12,6 +12,8 @@ import com.chaosbuffalo.mkcore.core.talents.TalentManager;
 import com.chaosbuffalo.mkcore.mku.PersonaTest;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.ai.attributes.RangedAttribute;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
@@ -59,6 +61,7 @@ public class MKCore {
         CoreCapabilities.registerCapabilities();
         PersonaManager.registerExtension(PersonaTest.CustomPersonaData::new);
         MKCommand.registerArguments();
+        ((RangedAttribute)SharedMonsterAttributes.ATTACK_DAMAGE).setShouldWatch(true);
     }
 
     @SubscribeEvent

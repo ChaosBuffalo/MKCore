@@ -66,7 +66,7 @@ public class EmberAbility extends MKAbility {
     }
 
     @Override
-    public float getDistance() {
+    public float getDistance(LivingEntity entity) {
         return 25.0f;
     }
 

@@ -82,8 +82,28 @@ public class MKDamageType extends ForgeRegistryEntry<MKDamageType> {
         attributeMap.registerAttribute(getResistanceAttribute());
     }
 
-    public ITextComponent getCritMessage(LivingEntity source, LivingEntity target, float damage,
-                                         MKAbility ability, boolean isSelf) {
+    public ITextComponent getEffectCritMessage(LivingEntity source, LivingEntity target, float damage,
+                                               String damageType, boolean isSelf){
+        Style messageStyle = new Style();
+        messageStyle.setColor(TextFormatting.DARK_PURPLE);
+        String msg;
+        if (isSelf) {
+            msg = String.format("Your %s just crit %s for %s",
+                    damageType,
+                    target.getDisplayName().getFormattedText(),
+                    Math.round(damage));
+        } else {
+            msg = String.format("%s's %s %s just crit %s for %s",
+                    source.getDisplayName().getFormattedText(),
+                    damageType,
+                    target.getDisplayName().getFormattedText(),
+                    Math.round(damage));
+        }
+        return new StringTextComponent(msg).setStyle(messageStyle);
+    }
+
+    public ITextComponent getAbilityCritMessage(LivingEntity source, LivingEntity target, float damage,
+                                                MKAbility ability, boolean isSelf) {
         Style messageStyle = new Style();
         messageStyle.setColor(TextFormatting.AQUA);
         String msg;
@@ -119,6 +139,9 @@ public class MKDamageType extends ForgeRegistryEntry<MKDamageType> {
     }
 
     public boolean rollCrit(LivingEntity source, LivingEntity target, Entity immediate) {
+        if (target.isEntityUndead()){
+            return false;
+        }
         float critChance = getCritChance(source, target, immediate);
         return MKCombatFormulas.checkCrit(source, critChance);
     }

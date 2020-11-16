@@ -144,7 +144,7 @@ public abstract class SpellEffectBase extends Effect {
     public abstract void doEffect(Entity applier, Entity caster, LivingEntity target, int amplifier, SpellCast cast);
 
     protected boolean shouldShowParticles() {
-        return true;
+        return false;
     }
 
     protected boolean isAmbient() {

@@ -37,14 +37,17 @@ public class AbilityTargeting {
     }
 
     private static AbilityContext selectSingle(IMKEntityData entityData, MKAbility ability) {
-        LivingEntity targetEntity = ability.getSingleLivingTarget(entityData.getEntity(), ability.getDistance());
+        LivingEntity targetEntity = ability.getSingleLivingTarget(entityData.getEntity(),
+                ability.getDistance(entityData.getEntity()));
         MKCore.LOGGER.info("AbilityTargeting.SINGLE_TARGET {} {} {}", ability.getAbilityId(), entityData.getEntity(), targetEntity);
         return AbilityContext.singleTarget(targetEntity);
     }
 
     private static AbilityContext selectSingleOrSelf(IMKEntityData entityData, MKAbility ability) {
-        LivingEntity targetEntity = ability.getSingleLivingTargetOrSelf(entityData.getEntity(), ability.getDistance(), true);
-        MKCore.LOGGER.info("AbilityTargeting.SINGLE_TARGET_OR_SELF {} {} {}", ability.getAbilityId(), entityData.getEntity(), targetEntity);
+        LivingEntity targetEntity = ability.getSingleLivingTargetOrSelf(entityData.getEntity(),
+                ability.getDistance(entityData.getEntity()), true);
+        MKCore.LOGGER.info("AbilityTargeting.SINGLE_TARGET_OR_SELF {} {} {}", ability.getAbilityId(),
+                entityData.getEntity(), targetEntity);
         return AbilityContext.singleTarget(targetEntity);
     }
 }

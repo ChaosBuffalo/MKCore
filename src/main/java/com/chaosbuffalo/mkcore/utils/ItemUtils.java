@@ -51,6 +51,7 @@ public class ItemUtils {
         addCriticalStats(AxeItem.class, 0, .15f, 2.0f);
         addCriticalStats(PickaxeItem.class, 0, .05f, 1.5f);
         addCriticalStats(ShovelItem.class, 0, .05f, 1.5f);
+        addCriticalStats(HoeItem.class, 0, .05f, 1.5f);
     }
 
 

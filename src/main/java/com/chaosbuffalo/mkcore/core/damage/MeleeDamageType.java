@@ -26,8 +26,8 @@ public class MeleeDamageType extends MKDamageType {
     }
 
     @Override
-    public ITextComponent getCritMessage(LivingEntity source, LivingEntity target, float damage,
-                                         MKAbility ability, boolean isSelf) {
+    public ITextComponent getAbilityCritMessage(LivingEntity source, LivingEntity target, float damage,
+                                                MKAbility ability, boolean isSelf) {
         Style messageStyle = new Style();
         messageStyle.setColor(TextFormatting.GOLD);
         String msg;
@@ -51,17 +51,6 @@ public class MeleeDamageType extends MKDamageType {
 
     }
 
-    @Override
-    public float getCritChance(LivingEntity source, LivingEntity target, Entity immediate) {
-        ItemStack mainHand = source.getHeldItemMainhand();
-        return super.getCritChance(source, target, immediate) + MKCombatFormulas.getCritChanceForItem(mainHand);
-    }
-
-    @Override
-    public float getCritMultiplier(LivingEntity source, LivingEntity target, Entity immediate) {
-        ItemStack mainHand = source.getHeldItemMainhand();
-        return super.getCritMultiplier(source, target, immediate) + ItemUtils.getCritMultiplierForItem(mainHand);
-    }
 
     @Override
     public float applyResistance(LivingEntity target, float originalDamage) {
