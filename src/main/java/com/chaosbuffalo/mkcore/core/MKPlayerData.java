@@ -24,7 +24,7 @@ public class MKPlayerData implements IMKEntityData {
     private PlayerAnimationModule animationModule;
     private PlayerTalentModule talentModule;
     private PlayerEquipmentModule equipmentModule;
-    private CombatExtensionModule combatExtensionModule;
+    private PlayerCombatExtensionModule combatExtensionModule;
     private final Set<String> spellTag = new HashSet<>();
 
     public MKPlayerData() {
@@ -36,7 +36,8 @@ public class MKPlayerData implements IMKEntityData {
         updateEngine = new UpdateEngine(this);
         personaManager = PersonaManager.getPersonaManager(this);
         abilityExecutor = new PlayerAbilityExecutor(this);
-        combatExtensionModule = new CombatExtensionModule(this);
+        combatExtensionModule = new PlayerCombatExtensionModule(this);
+        combatExtensionModule.getSyncComponent().attach(updateEngine);
         stats = new PlayerStatsModule(this);
         stats.getSyncComponent().attach(updateEngine);
 

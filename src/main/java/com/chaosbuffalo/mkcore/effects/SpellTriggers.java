@@ -1,6 +1,7 @@
 package com.chaosbuffalo.mkcore.effects;
 
 import com.chaosbuffalo.mkcore.CoreCapabilities;
+import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
@@ -102,9 +103,11 @@ public class SpellTriggers {
         private static final String MELEE_TAG = "PLAYER_HURT_ENTITY.melee";
         private static final String MAGIC_TAG = "PLAYER_HURT_ENTITY.magic";
         private static final String POST_TAG = "PLAYER_HURT_ENTITY.post";
+        private static final String PROJECTILE_TAG = "PLAYER_HURT_ENTITY.projectile";
         private static final List<PlayerHurtEntityTrigger> playerHurtEntityMeleeTriggers = new ArrayList<>();
         private static final List<PlayerHurtEntityTrigger> playerHurtEntityMagicTriggers = new ArrayList<>();
         private static final List<PlayerHurtEntityTrigger> playerHurtEntityPostTriggers = new ArrayList<>();
+        private static final List<PlayerHurtEntityTrigger> playerHurtEntityProjectileTriggers = new ArrayList<>();
 
         public static void registerMelee(PlayerHurtEntityTrigger trigger) {
             playerHurtEntityMeleeTriggers.add(trigger);
@@ -112,6 +115,10 @@ public class SpellTriggers {
 
         public static void registerMagic(PlayerHurtEntityTrigger trigger) {
             playerHurtEntityMagicTriggers.add(trigger);
+        }
+
+        public static void registerProjectile(PlayerHurtEntityTrigger trigger){
+            playerHurtEntityProjectileTriggers.add(trigger);
         }
 
         public static void registerPostHandler(PlayerHurtEntityTrigger trigger) {
@@ -202,6 +209,10 @@ public class SpellTriggers {
                         new CritMessagePacket(livingTarget.getEntityId(), playerSource.getUniqueID(), newDamage,
                                 projectile.getEntityId()));
             }
+            if (!startTrigger(playerSource, PROJECTILE_TAG))
+                return;
+            playerHurtEntityProjectileTriggers.forEach(f -> f.apply(event, source, livingTarget, playerSource, sourceData));
+            endTrigger(playerSource, PROJECTILE_TAG);
         }
 
         private static void handleMKMelee(LivingHurtEvent event, MKDamageSource source, LivingEntity livingTarget,
