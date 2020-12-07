@@ -31,7 +31,7 @@ public class CombatExtensionModule {
     public void tick(){
         incrementTicksSinceSwing();
         incrementTicksSinceProjectileHit();
-        if (midCombo && ticksSinceSwing >= COMBAT_TIMEOUT){
+        if (midCombo && getTicksSinceSwing() >= COMBAT_TIMEOUT){
             setCurrentSwingCount(0);
             midCombo = false;
         }
@@ -53,12 +53,28 @@ public class CombatExtensionModule {
         ticksSinceSwing++;
     }
 
+    public int getTicksSinceSwing() {
+        return ticksSinceSwing;
+    }
+
+    public int getTicksSinceProjectileHit() {
+        return ticksSinceProjectileHit;
+    }
+
     protected void incrementTicksSinceProjectileHit(){
         ticksSinceProjectileHit++;
     }
 
-    public void setTicksSinceSwing(int newTicks){
+    public void setEntityTicksSinceLastSwing(int newTicks){
         getEntityData().getEntity().ticksSinceLastSwing = newTicks;
+    }
+
+    public int getEntityTicksSinceLastSwing(){
+        return getEntityData().getEntity().ticksSinceLastSwing;
+    }
+
+    public void addEntityTicksSinceLastSwing(int toAdd){
+        getEntityData().getEntity().ticksSinceLastSwing += toAdd;
     }
 
     public void recordSwing(){
