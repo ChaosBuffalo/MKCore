@@ -1,7 +1,11 @@
 package com.chaosbuffalo.mkcore.core;
 
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
+import net.minecraft.item.ItemStack;
+
+import javax.annotation.Nullable;
 
 public interface IMKAbilityProvider {
-    MKAbility getAbility();
+    @Nullable
+    MKAbility getAbility(ItemStack item);
 }
