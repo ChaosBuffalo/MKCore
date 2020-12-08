@@ -3,8 +3,8 @@ package com.chaosbuffalo.mkcore.core.talents;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.google.common.collect.ImmutableMap;
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
+import com.mojang.serialization.Dynamic;
+import com.mojang.serialization.DynamicOps;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
 
@@ -123,7 +123,7 @@ public class TalentTreeDefinition {
 
         public static <T> TalentLineDefinition deserialize(TalentTreeDefinition tree, Dynamic<T> dynamic) {
 
-            Optional<String> nameOpt = dynamic.get("name").asString();
+            Optional<String> nameOpt = dynamic.get("name").asString().result();
             if (!nameOpt.isPresent())
                 return null;
 
@@ -144,7 +144,7 @@ public class TalentTreeDefinition {
         }
 
         <T> TalentNode deserializeNode(Dynamic<T> entry) {
-            Optional<String> nameOpt = entry.get("name").asString();
+            Optional<String> nameOpt = entry.get("name").asString().result();
             if (!nameOpt.isPresent()) {
                 MKCore.LOGGER.error("Tried to deserialize talent without a name!");
                 return null;

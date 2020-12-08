@@ -5,14 +5,15 @@ import com.chaosbuffalo.mkcore.core.MKCombatFormulas;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.AbstractAttributeMap;
+import net.minecraft.entity.ai.attributes.Attribute;
 import net.minecraft.entity.ai.attributes.RangedAttribute;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.registries.ForgeRegistryEntry;
+
+import java.util.function.Consumer;
 
 
 public class MKDamageType extends ForgeRegistryEntry<MKDamageType> {
@@ -77,49 +78,47 @@ public class MKDamageType extends ForgeRegistryEntry<MKDamageType> {
         return resistanceAttribute;
     }
 
-    public void addAttributes(AbstractAttributeMap attributeMap) {
-        attributeMap.registerAttribute(getDamageAttribute());
-        attributeMap.registerAttribute(getResistanceAttribute());
+    public void addAttributes(Consumer<Attribute> attributeMap) {
+        attributeMap.accept(getDamageAttribute());
+        attributeMap.accept(getResistanceAttribute());
+//        attributeMap.registerAttribute(getDamageAttribute());
+//        attributeMap.registerAttribute(getResistanceAttribute());
     }
 
     public ITextComponent getEffectCritMessage(LivingEntity source, LivingEntity target, float damage,
                                                String damageType, boolean isSelf){
-        Style messageStyle = new Style();
-        messageStyle.setColor(TextFormatting.DARK_PURPLE);
         String msg;
         if (isSelf) {
             msg = String.format("Your %s just crit %s for %s",
                     damageType,
-                    target.getDisplayName().getFormattedText(),
+                    target.getDisplayName().getString(),
                     Math.round(damage));
         } else {
             msg = String.format("%s's %s %s just crit %s for %s",
-                    source.getDisplayName().getFormattedText(),
+                    source.getDisplayName().getString(),
                     damageType,
-                    target.getDisplayName().getFormattedText(),
+                    target.getDisplayName().getString(),
                     Math.round(damage));
         }
-        return new StringTextComponent(msg).setStyle(messageStyle);
+        return new StringTextComponent(msg).mergeStyle(TextFormatting.DARK_PURPLE);
     }
 
     public ITextComponent getAbilityCritMessage(LivingEntity source, LivingEntity target, float damage,
                                                 MKAbility ability, boolean isSelf) {
-        Style messageStyle = new Style();
-        messageStyle.setColor(TextFormatting.AQUA);
         String msg;
         if (isSelf) {
             msg = String.format("Your %s spell just crit %s for %s",
                     ability.getAbilityName(),
-                    target.getDisplayName().getFormattedText(),
+                    target.getDisplayName().getString(),
                     Math.round(damage));
         } else {
             msg = String.format("%s's %s spell just crit %s for %s",
-                    source.getDisplayName().getFormattedText(),
+                    source.getDisplayName().getString(),
                     ability.getAbilityName(),
-                    target.getDisplayName().getFormattedText(),
+                    target.getDisplayName().getString(),
                     Math.round(damage));
         }
-        return new StringTextComponent(msg).setStyle(messageStyle);
+        return new StringTextComponent(msg).mergeStyle(TextFormatting.AQUA);
     }
 
     public float applyDamage(LivingEntity source, LivingEntity target, float originalDamage, float modifierScaling) {

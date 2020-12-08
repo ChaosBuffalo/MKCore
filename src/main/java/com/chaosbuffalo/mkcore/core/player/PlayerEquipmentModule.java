@@ -74,11 +74,11 @@ public class PlayerEquipmentModule {
         if (armorClass != null) {
             armorClass.getPositiveModifierMap(slot).forEach((attr, mod) -> {
                 AttributeModifier dup = createSlotModifier(slot, mod);
-                playerData.getEntity().getAttribute(attr).applyModifier(dup);
+                playerData.getEntity().getAttribute(attr).applyNonPersistentModifier(dup);
             });
             armorClass.getNegativeModifierMap(slot).forEach((attr, mod) -> {
                 AttributeModifier dup = createSlotModifier(slot, mod);
-                playerData.getEntity().getAttribute(attr).applyModifier(dup);
+                playerData.getEntity().getAttribute(attr).applyNonPersistentModifier(dup);
             });
         }
         addAbilityItem(to);
@@ -97,7 +97,7 @@ public class PlayerEquipmentModule {
     }
 
     private AttributeModifier createSlotModifier(EquipmentSlotType slot, AttributeModifier mod) {
-        return new AttributeModifier(getSlotUUID(slot), mod::getName, mod.getAmount(), mod.getOperation()).setSaved(false);
+        return new AttributeModifier(getSlotUUID(slot), mod::getName, mod.getAmount(), mod.getOperation());
     }
 
     private void addAbilityItem(ItemStack newItem) {

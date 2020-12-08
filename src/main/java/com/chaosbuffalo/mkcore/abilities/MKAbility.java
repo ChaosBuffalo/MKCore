@@ -15,9 +15,10 @@ import com.chaosbuffalo.targeting_api.Targeting;
 import com.chaosbuffalo.targeting_api.TargetingContext;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Dynamic;
+import com.mojang.serialization.DynamicOps;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
@@ -27,7 +28,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.EntityRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
@@ -165,7 +166,7 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void drawAbilityBarEffect(Minecraft mc, int slotX, int slotY) {
+    public void drawAbilityBarEffect(MatrixStack matrixStack, Minecraft mc, int slotX, int slotY) {
 
     }
 
@@ -317,8 +318,8 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
         return getSingleLivingTarget(caster, distance, true);
     }
 
-    protected List<LivingEntity> getTargetsInLine(LivingEntity caster, Vec3d from, Vec3d to, boolean checkValid, float growth) {
-        return RayTraceUtils.getEntitiesInLine(LivingEntity.class, caster, from, to, Vec3d.ZERO, growth,
+    protected List<LivingEntity> getTargetsInLine(LivingEntity caster, Vector3d from, Vector3d to, boolean checkValid, float growth) {
+        return RayTraceUtils.getEntitiesInLine(LivingEntity.class, caster, from, to, Vector3d.ZERO, growth,
                 e -> !checkValid || (e != null && isValidTarget(caster, e)));
     }
 

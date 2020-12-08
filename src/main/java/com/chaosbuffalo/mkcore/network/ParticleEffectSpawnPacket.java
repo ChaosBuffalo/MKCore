@@ -5,7 +5,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.particles.IParticleData;
 import net.minecraft.particles.ParticleType;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.registry.Registry;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -53,7 +53,7 @@ public class ParticleEffectSpawnPacket {
     public ParticleEffectSpawnPacket(IParticleData particleID, int motionType, int count, int data,
                                      double xPos, double yPos, double zPos,
                                      double radiusX, double radiusY, double radiusZ,
-                                     double speed, Vec3d headingVec) {
+                                     double speed, Vector3d headingVec) {
         this(particleID, motionType, count, data,
                 xPos, yPos, zPos,
                 radiusX, radiusY, radiusZ, speed,
@@ -61,9 +61,9 @@ public class ParticleEffectSpawnPacket {
     }
 
     public ParticleEffectSpawnPacket(IParticleData particleID, int motionType, int count, int data,
-                                     Vec3d posVec,
+                                     Vector3d posVec,
                                      double radiusX, double radiusY, double radiusZ,
-                                     double speed, Vec3d headingVec) {
+                                     double speed, Vector3d headingVec) {
         this(particleID, motionType, count, data, posVec.x, posVec.y, posVec.z, radiusX,
                 radiusY, radiusZ, speed, headingVec.x, headingVec.y, headingVec.z);
     }
@@ -115,9 +115,9 @@ public class ParticleEffectSpawnPacket {
         //            MKCore.LOGGER.info("Got spawn particle packet");
         ParticleEffects.spawnParticleEffect(
                 particleID, motionType, data, speed, count,
-                new Vec3d(xPos, yPos, zPos),
-                new Vec3d(radiusX, radiusY, radiusZ),
-                new Vec3d(headingX, headingY, headingZ),
+                new Vector3d(xPos, yPos, zPos),
+                new Vector3d(radiusX, radiusY, radiusZ),
+                new Vector3d(headingX, headingY, headingZ),
                 Minecraft.getInstance().player.world);
     }
 

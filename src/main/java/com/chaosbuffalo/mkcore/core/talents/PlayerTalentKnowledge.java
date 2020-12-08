@@ -8,8 +8,8 @@ import com.chaosbuffalo.mkcore.core.player.PlayerSyncComponent;
 import com.chaosbuffalo.mkcore.sync.SyncGroup;
 import com.chaosbuffalo.mkcore.sync.SyncInt;
 import com.google.common.collect.ImmutableMap;
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
+import com.mojang.serialization.Dynamic;
+import com.mojang.serialization.DynamicOps;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.NBTDynamicOps;
@@ -227,7 +227,7 @@ public class PlayerTalentKnowledge implements IPlayerSyncComponentProvider {
 
         dynamic.get("trees")
                 .asMap(Dynamic::asString, Function.identity())
-                .forEach((idOpt, dyn) -> idOpt.map(ResourceLocation::new).ifPresent(id -> deserializeTree(id, dyn)));
+                .forEach((idOpt, dyn) -> idOpt.map(ResourceLocation::new).result().ifPresent(id -> deserializeTree(id, dyn)));
 
         talentCache.invalidate();
     }

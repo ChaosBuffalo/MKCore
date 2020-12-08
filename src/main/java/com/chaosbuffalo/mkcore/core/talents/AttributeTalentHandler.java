@@ -47,28 +47,29 @@ public class AttributeTalentHandler extends TalentTypeHandler {
         }
     }
 
-    private void dumpAttrInstance(IAttributeInstance instance) {
-        MKCore.LOGGER.info("\tAttribute {}", instance.getAttribute().getName());
-        for (AttributeModifier modifier : instance.func_225505_c_()) {
+    private void dumpAttrInstance(ModifiableAttributeInstance instance) {
+        MKCore.LOGGER.info("\tAttribute {}", instance.getAttribute().getAttributeName());
+        for (AttributeModifier modifier : instance.getModifierListCopy()) {
             MKCore.LOGGER.info("\t\tmodifier {}", modifier);
         }
     }
 
     private void dumpAttributes(String location) {
         MKCore.LOGGER.info("All Attributes @ {}", location);
-        AbstractAttributeMap map = playerData.getEntity().getAttributes();
-        map.getAllAttributes().forEach(this::dumpAttrInstance);
+        AttributeModifierManager map = playerData.getEntity().getAttributeManager();
+
+//        map.getAllAttributes().forEach(this::dumpAttrInstance);
     }
 
     private void dumpDirtyAttributes(String location) {
-        AttributeMap map = (AttributeMap) playerData.getEntity().getAttributes();
+        AttributeModifierManager map = playerData.getEntity().getAttributeManager();
 
         MKCore.LOGGER.info("Dirty Attributes @ {}", location);
-        map.getDirtyInstances().forEach(this::dumpAttrInstance);
+        map.getInstances().forEach(this::dumpAttrInstance);
     }
 
     private void applyAttribute(AttributeEntry entry) {
-        IAttributeInstance instance = playerData.getEntity().getAttribute(entry.getAttribute());
+        ModifiableAttributeInstance instance = playerData.getEntity().getAttribute(entry.getAttribute());
         //noinspection ConstantConditions
         if (instance == null) {
             MKCore.LOGGER.error("PlayerTalentModule.applyAttribute player did not have attribute {}!", entry.getAttribute());
@@ -77,7 +78,7 @@ public class AttributeTalentHandler extends TalentTypeHandler {
 
         AttributeModifier mod = entry.getModifier();
         instance.removeModifier(mod);
-        instance.applyModifier(mod);
+        instance.applyNonPersistentModifier(mod);
         if (entry.getAttributeTalent().requiresStatRefresh()) {
             playerData.getStats().refreshStats();
         }
@@ -88,7 +89,7 @@ public class AttributeTalentHandler extends TalentTypeHandler {
     private void removeAttribute(AttributeTalent attributeTalent) {
         AttributeEntry entry = attributeEntryMap.get(attributeTalent);
         if (entry != null) {
-            IAttributeInstance instance = playerData.getEntity().getAttribute(entry.getAttribute());
+            ModifiableAttributeInstance instance = playerData.getEntity().getAttribute(entry.getAttribute());
             //noinspection ConstantConditions
             if (instance != null) {
                 instance.removeModifier(entry.getModifier());
@@ -129,7 +130,7 @@ public class AttributeTalentHandler extends TalentTypeHandler {
             return attribute;
         }
 
-        public IAttribute getAttribute() {
+        public Attribute getAttribute() {
             return attribute.getAttribute();
         }
 

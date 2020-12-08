@@ -1,8 +1,8 @@
 package com.chaosbuffalo.mkcore.core.talents;
 
 import com.google.common.collect.ImmutableMap;
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
+import com.mojang.serialization.Dynamic;
+import com.mojang.serialization.DynamicOps;
 
 public class TalentNode {
 

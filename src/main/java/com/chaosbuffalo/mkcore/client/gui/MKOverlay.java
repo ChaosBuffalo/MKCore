@@ -12,6 +12,7 @@ import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.player.IActiveAbilityGroup;
 import com.chaosbuffalo.mkcore.core.player.PlayerAbilityExecutor;
 import com.chaosbuffalo.mkcore.core.player.PlayerAbilityKnowledge;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
@@ -36,7 +37,7 @@ public class MKOverlay {
         mc = Minecraft.getInstance();
     }
 
-    private void drawMana(MKPlayerData data) {
+    private void drawMana(MatrixStack matrixStack, MKPlayerData data) {
         int height = mc.getMainWindow().getScaledHeight();
 
         GuiTextures.CORE_TEXTURES.bind(mc);
@@ -52,11 +53,11 @@ public class MKOverlay {
         for (int i = 0; i < data.getStats().getMana(); i++) {
             int manaX = manaCellWidth * (i % maxManaPerRow);
             int manaY = (i / maxManaPerRow) * manaCellRowSize;
-            GuiTextures.CORE_TEXTURES.drawRegionAtPos(GuiTextures.MANA_REGION, manaStartX + manaX, manaStartY + manaY);
+            GuiTextures.CORE_TEXTURES.drawRegionAtPos(matrixStack, GuiTextures.MANA_REGION, manaStartX + manaX, manaStartY + manaY);
         }
     }
 
-    private void drawCastBar(MKPlayerData data) {
+    private void drawCastBar(MatrixStack matrixStack, MKPlayerData data) {
         PlayerAbilityExecutor executor = data.getAbilityExecutor();
         if (!executor.isCasting()) {
             return;
@@ -78,7 +79,7 @@ public class MKOverlay {
 
         GuiTextures.CORE_TEXTURES.bind(mc);
         RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
-        GuiTextures.CORE_TEXTURES.drawRegionAtPosPartialWidth(GuiTextures.CAST_BAR_REGION, castStartX, castStartY, barSize);
+        GuiTextures.CORE_TEXTURES.drawRegionAtPosPartialWidth(matrixStack, GuiTextures.CAST_BAR_REGION, castStartX, castStartY, barSize);
     }
 
     private int getBarStartY(int slotCount) {
@@ -99,7 +100,7 @@ public class MKOverlay {
         return null;
     }
 
-    private void drawBarSlots(AbilitySlot type, int startSlot, int slotCount, int totalSlots) {
+    private void drawBarSlots(MatrixStack matrixStack, AbilitySlot type, int startSlot, int slotCount, int totalSlots) {
         GuiTextures.CORE_TEXTURES.bind(mc);
         RenderSystem.disableLighting();
         int xOffset = 0;
@@ -108,12 +109,12 @@ public class MKOverlay {
             int yPos = yOffset - i + i * SLOT_HEIGHT;
             String texture = getTextureForType(type);
             if (texture != null) {
-                GuiTextures.CORE_TEXTURES.drawRegionAtPos(texture, xOffset, yPos);
+                GuiTextures.CORE_TEXTURES.drawRegionAtPos(matrixStack, texture, xOffset, yPos);
             }
         }
     }
 
-    private int drawAbilities(MKPlayerData data, AbilitySlot type, int startingSlot, int totalSlots, float partialTicks) {
+    private int drawAbilities(MatrixStack matrixStack, MKPlayerData data, AbilitySlot type, int startingSlot, int totalSlots, float partialTicks) {
         RenderSystem.disableLighting();
 
         final int slotAbilityOffsetX = 2;
@@ -124,7 +125,7 @@ public class MKOverlay {
         PlayerAbilityKnowledge abilityKnowledge = data.getAbilities();
         IActiveAbilityGroup container = data.getAbilityLoadout().getAbilityGroup(type);
         int slotCount = container.getCurrentSlotCount();
-        drawBarSlots(type, startingSlot, slotCount, totalSlots);
+        drawBarSlots(matrixStack, type, startingSlot, slotCount, totalSlots);
 
         float globalCooldown = ClientEventHandler.getGlobalCooldown();
         PlayerAbilityExecutor executor = data.getAbilityExecutor();
@@ -151,7 +152,7 @@ public class MKOverlay {
             int slotY = barStartY + slotAbilityOffsetY - (startingSlot + i) + ((startingSlot + i) * SLOT_HEIGHT);
 
             mc.getTextureManager().bindTexture(ability.getAbilityIcon());
-            AbstractGui.blit(slotX, slotY, 0, 0, ABILITY_ICON_SIZE, ABILITY_ICON_SIZE, ABILITY_ICON_SIZE, ABILITY_ICON_SIZE);
+            AbstractGui.blit(matrixStack, slotX, slotY, 0, 0, ABILITY_ICON_SIZE, ABILITY_ICON_SIZE, ABILITY_ICON_SIZE, ABILITY_ICON_SIZE);
 
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
             float cooldownFactor = executor.getCurrentAbilityCooldownPercent(abilityId, partialTicks);
@@ -167,10 +168,10 @@ public class MKOverlay {
                     coolDownHeight = 1;
                 }
                 mc.getTextureManager().bindTexture(COOLDOWN_ICON);
-                AbstractGui.blit(slotX, slotY, 0, 0, ABILITY_ICON_SIZE, coolDownHeight, ABILITY_ICON_SIZE, coolDownHeight);
+                AbstractGui.blit(matrixStack, slotX, slotY, 0, 0, ABILITY_ICON_SIZE, coolDownHeight, ABILITY_ICON_SIZE, coolDownHeight);
             }
 
-            ability.drawAbilityBarEffect(mc, slotX, slotY);
+            ability.drawAbilityBarEffect(matrixStack, mc, slotX, slotY);
         }
 
         return startingSlot + slotCount;
@@ -189,17 +190,17 @@ public class MKOverlay {
         mc.player.getCapability(CoreCapabilities.PLAYER_CAPABILITY).ifPresent(cap -> {
 
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-            drawMana(cap);
-            drawCastBar(cap);
+            drawMana(event.getMatrixStack(), cap);
+            drawCastBar(event.getMatrixStack(), cap);
 
             int totalSlots = Arrays.stream(AbilitySlot.values())
                     .filter(AbilitySlot::isExecutable)
                     .mapToInt(type -> cap.getAbilityLoadout().getAbilityGroup(type).getCurrentSlotCount())
                     .sum();
 
-            int slot = drawAbilities(cap, AbilitySlot.Basic, 0, totalSlots, event.getPartialTicks());
-            slot = drawAbilities(cap, AbilitySlot.Ultimate, slot, totalSlots, event.getPartialTicks());
-            slot = drawAbilities(cap, AbilitySlot.Item, slot, totalSlots, event.getPartialTicks());
+            int slot = drawAbilities(event.getMatrixStack(), cap, AbilitySlot.Basic, 0, totalSlots, event.getPartialTicks());
+            slot = drawAbilities(event.getMatrixStack(), cap, AbilitySlot.Ultimate, slot, totalSlots, event.getPartialTicks());
+            slot = drawAbilities(event.getMatrixStack(), cap, AbilitySlot.Item, slot, totalSlots, event.getPartialTicks());
         });
     }
 }

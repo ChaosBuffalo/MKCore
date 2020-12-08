@@ -10,6 +10,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Util;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextFormatting;
@@ -111,7 +112,6 @@ public class CritMessagePacket {
 
     @OnlyIn(Dist.CLIENT)
     private void handleClient() {
-        Style messageStyle = new Style();
         PlayerEntity player = Minecraft.getInstance().player;
         if (player == null) {
             return;
@@ -134,44 +134,42 @@ public class CritMessagePacket {
         }
         switch (type) {
             case MELEE_CRIT:
-                messageStyle.setColor(TextFormatting.DARK_RED);
                 if (isSelf) {
                     player.sendMessage(new StringTextComponent(
                             String.format("You just crit %s with %s for %s",
-                                    target.getDisplayName().getFormattedText(),
-                                    playerSource.getHeldItemMainhand().getDisplayName().getFormattedText(),
+                                    target.getDisplayName().getString(),
+                                    playerSource.getHeldItemMainhand().getDisplayName().getString(),
                                     Math.round(critDamage)))
-                            .setStyle(messageStyle));
+                            .mergeStyle(TextFormatting.DARK_RED), Util.DUMMY_UUID);
                 } else {
                     player.sendMessage(new StringTextComponent(
                             String.format("%s just crit %s with %s for %s",
-                                    playerSource.getDisplayName().getFormattedText(),
-                                    target.getDisplayName().getFormattedText(),
-                                    playerSource.getHeldItemMainhand().getDisplayName().getFormattedText(),
+                                    playerSource.getDisplayName().getString(),
+                                    target.getDisplayName().getString(),
+                                    playerSource.getHeldItemMainhand().getDisplayName().getString(),
                                     Math.round(critDamage))
-                    ).setStyle(messageStyle));
+                    ).mergeStyle(TextFormatting.DARK_RED), Util.DUMMY_UUID);
                 }
                 break;
             case MK_CRIT:
-                messageStyle.setColor(TextFormatting.AQUA);
+//                messageStyle.setColor(TextFormatting.AQUA);
                 MKAbility ability = MKCoreRegistry.getAbility(abilityName);
                 MKDamageType mkDamageType = MKCoreRegistry.getDamageType(damageType);
                 if (ability == null || mkDamageType == null) {
                     break;
                 }
-                player.sendMessage(mkDamageType.getAbilityCritMessage(playerSource, (LivingEntity) target, critDamage, ability, isSelf));
+                player.sendMessage(mkDamageType.getAbilityCritMessage(playerSource, (LivingEntity) target, critDamage, ability, isSelf), Util.DUMMY_UUID);
                 break;
             case PROJECTILE_CRIT:
                 Entity projectile = player.getEntityWorld().getEntityByID(projectileId);
                 if (projectile != null) {
-                    messageStyle.setColor(TextFormatting.LIGHT_PURPLE);
                     if (isSelf) {
                         player.sendMessage(new StringTextComponent(
                                 String.format("You just crit %s with %s for %s",
                                         target.getDisplayName().getUnformattedComponentText(),
                                         projectile.getDisplayName().getUnformattedComponentText(),
                                         Math.round(critDamage)))
-                                .setStyle(messageStyle));
+                                .mergeStyle(TextFormatting.LIGHT_PURPLE), Util.DUMMY_UUID);
                     } else {
                         player.sendMessage(new StringTextComponent(
                                 String.format("%s just crit %s with %s for %s",
@@ -179,7 +177,7 @@ public class CritMessagePacket {
                                         target.getDisplayName().getUnformattedComponentText(),
                                         projectile.getDisplayName().getUnformattedComponentText(),
                                         Math.round(critDamage))
-                        ).setStyle(messageStyle));
+                        ).mergeStyle(TextFormatting.LIGHT_PURPLE), Util.DUMMY_UUID);
                     }
                 }
                 break;
@@ -188,7 +186,7 @@ public class CritMessagePacket {
                 if (mkDamageType == null) {
                     break;
                 }
-                player.sendMessage(mkDamageType.getEffectCritMessage(playerSource, (LivingEntity) target, critDamage, typeName, isSelf));
+                player.sendMessage(mkDamageType.getEffectCritMessage(playerSource, (LivingEntity) target, critDamage, typeName, isSelf), Util.DUMMY_UUID);
                 break;
         }
     }

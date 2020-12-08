@@ -405,7 +405,7 @@ public class AbilityExecutor {
                 SpellCast cast = sp.createReapplicationCast(entity);
                 if (cast != null) {
                     // Call onPotionAdd to re-apply any non-attribute bonuses (such as granting flying)
-                    sp.onPotionAdd(cast, entity, entity.getAttributes(), e.getAmplifier());
+                    sp.onPotionAdd(cast, entity, entity.getAttributeManager(), e.getAmplifier());
                     MKCore.LOGGER.debug("AbilityExecutor.checkPassiveEffects {} {} onPotionAdd", entity, sp.getName());
                 }
             }

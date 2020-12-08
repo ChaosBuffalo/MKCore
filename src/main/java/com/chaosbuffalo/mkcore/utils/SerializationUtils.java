@@ -3,8 +3,8 @@ package com.chaosbuffalo.mkcore.utils;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
+import com.mojang.serialization.Dynamic;
+import com.mojang.serialization.DynamicOps;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.JsonToNBT;
@@ -29,7 +29,7 @@ public class SerializationUtils {
     }
 
     public static <D> ItemStack deserializeItemStack(Dynamic<D> dynamic){
-        Optional<String> nbtString = dynamic.asString();
+        Optional<String> nbtString = dynamic.asString().result();
         if (nbtString.isPresent()){
             try {
                 CompoundNBT nbt = fromJsonString(nbtString.get());

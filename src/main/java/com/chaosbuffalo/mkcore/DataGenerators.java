@@ -4,11 +4,8 @@ import com.chaosbuffalo.mkcore.init.ModTags;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
-import com.mojang.datafixers.types.JsonOps;
-import net.minecraft.data.DataGenerator;
-import net.minecraft.data.DirectoryCache;
-import net.minecraft.data.IDataProvider;
-import net.minecraft.data.ItemTagsProvider;
+import com.mojang.serialization.JsonOps;
+import net.minecraft.data.*;
 import net.minecraft.item.Items;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -27,7 +24,7 @@ public class DataGenerators {
         DataGenerator generator = event.getGenerator();
         if (event.includeServer()) {
             generator.addProvider(new AbilityDataGenerator(generator));
-            generator.addProvider(new ArmorClassItemTagProvider(generator));
+//            generator.addProvider(new ArmorClassItemTagProvider(generator));
         }
     }
 
@@ -68,15 +65,15 @@ public class DataGenerators {
     }
 
     public static class ArmorClassItemTagProvider extends ItemTagsProvider {
-        public ArmorClassItemTagProvider(DataGenerator generatorIn) {
-            super(generatorIn);
+        public ArmorClassItemTagProvider(DataGenerator dataGenerator, BlockTagsProvider blockTagProvider) {
+            super(dataGenerator, blockTagProvider);
         }
 
         @Override
         protected void registerTags() {
-            getBuilder(ModTags.Items.LIGHT_ARMOR).add(Items.LEATHER_HELMET, Items.LEATHER_CHESTPLATE, Items.LEATHER_LEGGINGS, Items.LEATHER_BOOTS);
-            getBuilder(ModTags.Items.MEDIUM_ARMOR).add(Items.IRON_HELMET, Items.IRON_CHESTPLATE, Items.IRON_LEGGINGS, Items.IRON_BOOTS);
-            getBuilder(ModTags.Items.HEAVY_ARMOR).add(Items.DIAMOND_HELMET, Items.DIAMOND_CHESTPLATE, Items.DIAMOND_LEGGINGS, Items.DIAMOND_BOOTS);
+            getOrCreateBuilder(ModTags.Items.LIGHT_ARMOR).add(Items.LEATHER_HELMET, Items.LEATHER_CHESTPLATE, Items.LEATHER_LEGGINGS, Items.LEATHER_BOOTS);
+            getOrCreateBuilder(ModTags.Items.MEDIUM_ARMOR).add(Items.IRON_HELMET, Items.IRON_CHESTPLATE, Items.IRON_LEGGINGS, Items.IRON_BOOTS);
+            getOrCreateBuilder(ModTags.Items.HEAVY_ARMOR).add(Items.DIAMOND_HELMET, Items.DIAMOND_CHESTPLATE, Items.DIAMOND_LEGGINGS, Items.DIAMOND_BOOTS);
         }
 
         @Nonnull

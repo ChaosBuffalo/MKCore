@@ -7,6 +7,7 @@ import com.chaosbuffalo.mkcore.core.entity.EntityStatsModule;
 import com.chaosbuffalo.mkcore.sync.SyncFloat;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Util;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
@@ -132,12 +133,12 @@ public class PlayerStatsModule extends EntityStatsModule implements IPlayerSyncC
     public void printActiveCooldowns() {
         String msg = "All active cooldowns:";
 
-        getEntity().sendMessage(new StringTextComponent(msg));
+        getEntity().sendMessage(new StringTextComponent(msg), Util.DUMMY_UUID);
         abilityTracker.iterateActive((abilityId, current) -> {
             String name = abilityId.toString();
             int max = abilityTracker.getMaxCooldownTicks(abilityId);
             ITextComponent line = new StringTextComponent(String.format("%s: %d / %d", name, current, max));
-            getEntity().sendMessage(line);
+            getEntity().sendMessage(line, Util.DUMMY_UUID);
         });
     }
 

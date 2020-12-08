@@ -9,7 +9,7 @@ public class TextUtils {
 
     public static void sendPlayerChatMessage(PlayerEntity playerEntity, ITextComponent message, boolean brackets) {
         if (brackets)
-            message = TextComponentUtils.wrapInSquareBrackets(message);
+            message = TextComponentUtils.wrapWithSquareBrackets(message);
         playerEntity.sendStatusMessage(message, false);
     }
 

@@ -2,7 +2,7 @@ package com.chaosbuffalo.mkcore.fx;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import net.minecraft.particles.IParticleData;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 
 public class ParticleEffects {
@@ -12,15 +12,15 @@ public class ParticleEffects {
     public static int DIRECTED_SPOUT = 3;
     public static int RAIN_EFFECT = 4;
 
-    public static void spawnParticle(IParticleData particleID, double speed, Vec3d position, Vec3d heading, World world) {
-        Vec3d motion = heading.scale(speed);
+    public static void spawnParticle(IParticleData particleID, double speed, Vector3d position, Vector3d heading, World world) {
+        Vector3d motion = heading.scale(speed);
         world.addOptionalParticle(particleID, position.x, position.y, position.z, motion.x, motion.y, motion.z);
     }
 
     public static void spawnParticleEffect(IParticleData particleID, int motionType, int data,
                                            double speed, int count,
-                                           Vec3d position, Vec3d radii,
-                                           Vec3d heading, World theWorld) {
+                                           Vector3d position, Vector3d radii,
+                                           Vector3d heading, World theWorld) {
         double[] posAndMotion;
         MKCore.LOGGER.debug("Spawning {} particles", count);
         for (int i = 0; i < count; i++) {
@@ -33,15 +33,15 @@ public class ParticleEffects {
         }
     }
 
-    private static double[] getPositionAndMotion(int motionType, int data, Vec3d position,
+    private static double[] getPositionAndMotion(int motionType, int data, Vector3d position,
                                                  double speed, int particleNumber, int count,
-                                                 Vec3d radii, Vec3d heading) {
+                                                 Vector3d radii, Vector3d heading) {
         double[] ret = new double[6];
         double degrees = (360.0 / count) * particleNumber;
         if (motionType == CIRCLE_MOTION) {
-            Vec3d posVec = new Vec3d(position.x + radii.x * Math.cos(degrees),
+            Vector3d posVec = new Vector3d(position.x + radii.x * Math.cos(degrees),
                     position.y, position.z + radii.z * Math.sin(degrees));
-            Vec3d diffVec = posVec.subtract(position).normalize();
+            Vector3d diffVec = posVec.subtract(position).normalize();
             ret[0] = posVec.x;
             ret[1] = posVec.y;
             ret[2] = posVec.z;
@@ -67,11 +67,11 @@ public class ParticleEffects {
             double scaledRatio = 2.0 * (ratio - 0.5);
             double realDegrees = (360.0 / data) * realNum;
             double inverseScale = 1.0 - Math.pow(scaledRatio, 2.0);
-            Vec3d posVec = new Vec3d(
+            Vector3d posVec = new Vector3d(
                     position.x + (radii.x * inverseScale * Math.cos(realDegrees)),
                     scaledRatio * radii.y + position.y,
                     position.z + (radii.z * inverseScale * Math.sin(realDegrees)));
-            Vec3d diffVec = posVec.subtract(position).normalize();
+            Vector3d diffVec = posVec.subtract(position).normalize();
             ret[0] = posVec.x;
             ret[1] = posVec.y;
             ret[2] = posVec.z;
@@ -80,7 +80,7 @@ public class ParticleEffects {
             ret[5] = diffVec.z * speed;
         } else if (motionType == DIRECTED_SPOUT) {
             //Uses data to determine direction -1/+1
-            Vec3d posVec = new Vec3d(getRandomInRadiusRange(position.x, radii.x),
+            Vector3d posVec = new Vector3d(getRandomInRadiusRange(position.x, radii.x),
                     getRandomInRadiusRange(position.y, radii.y),
                     getRandomInRadiusRange(position.z, radii.z));
             ret[0] = posVec.x;
@@ -90,11 +90,11 @@ public class ParticleEffects {
             ret[4] = heading.y * speed * data;
             ret[5] = heading.z * speed * data;
         } else if (motionType == RAIN_EFFECT) {
-            Vec3d posVec = new Vec3d(getRandomInRadiusRange(position.x, radii.x),
+            Vector3d posVec = new Vector3d(getRandomInRadiusRange(position.x, radii.x),
                     getRandomInRadiusRange(position.y, radii.y),
                     getRandomInRadiusRange(position.z, radii.z));
-            Vec3d towards = new Vec3d(posVec.x, posVec.y - 1.0, posVec.z);
-            Vec3d diffVec = towards.subtract(posVec);
+            Vector3d towards = new Vector3d(posVec.x, posVec.y - 1.0, posVec.z);
+            Vector3d diffVec = towards.subtract(posVec);
             ret[0] = posVec.x;
             ret[1] = posVec.y;
             ret[2] = posVec.z;

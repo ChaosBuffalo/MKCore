@@ -3,7 +3,6 @@ package com.chaosbuffalo.mkcore.core;
 import com.chaosbuffalo.mkcore.core.entity.EntityAbilityKnowledge;
 import com.chaosbuffalo.mkcore.core.entity.EntityStatsModule;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.AbstractAttributeMap;
 import net.minecraft.nbt.CompoundNBT;
 
 public class MKEntityData implements IMKEntityData {
@@ -28,8 +27,8 @@ public class MKEntityData implements IMKEntityData {
     }
 
     private void registerAttributes() {
-        AbstractAttributeMap attributes = entity.getAttributes();
-        MKAttributes.registerEntityAttributes(attributes);
+//        AbstractAttributeMap attributes = entity.getAttributes();
+//        MKAttributes.registerEntityAttributes(attributes);
     }
 
     public void update() {

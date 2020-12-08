@@ -20,6 +20,7 @@ import com.chaosbuffalo.mkwidgets.client.gui.layouts.MKLayout;
 import com.chaosbuffalo.mkwidgets.client.gui.math.IntColor;
 import com.chaosbuffalo.mkwidgets.client.gui.math.Vec2i;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKImage;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ResourceLocation;
@@ -165,7 +166,7 @@ public class AbilitySlotWidget extends MKLayout {
     }
 
     @Override
-    public void postDraw(Minecraft mc, int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks) {
+    public void postDraw(MatrixStack matrixStack, Minecraft mc, int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks) {
         if (isHovered()) {
             if (getScreen() != null) {
                 if (!getAbilityId().equals(MKCoreRegistry.INVALID_ABILITY)) {

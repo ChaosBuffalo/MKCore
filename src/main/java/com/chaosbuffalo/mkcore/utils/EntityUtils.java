@@ -4,7 +4,7 @@ import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.core.stats.CriticalStats;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.projectile.ArrowEntity;
 import net.minecraft.entity.projectile.SpectralArrowEntity;
 import net.minecraft.entity.projectile.ThrowableEntity;
@@ -42,7 +42,7 @@ public class EntityUtils {
     }
 
     public static double getCooldownPeriod(LivingEntity entity){
-        return 1.0D / entity.getAttribute(SharedMonsterAttributes.ATTACK_SPEED).getValue() *
+        return 1.0D / entity.getAttribute(Attributes.ATTACK_SPEED).getValue() *
                 GameConstants.TICKS_PER_SECOND;
     }
 }

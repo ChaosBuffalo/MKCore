@@ -12,7 +12,7 @@ public class ServerSideLeftClickEmpty extends PlayerEvent {
     public ServerSideLeftClickEmpty(PlayerEntity player) {
         super(player);
         this.hand = Hand.MAIN_HAND;
-        this.pos = new BlockPos(player);
+        this.pos = player.getPosition();
     }
 
     public Hand getHand() {

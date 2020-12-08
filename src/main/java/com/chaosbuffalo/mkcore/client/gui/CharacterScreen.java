@@ -23,11 +23,7 @@ import com.chaosbuffalo.mkwidgets.utils.TextureRegion;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.entity.SharedMonsterAttributes;
-import net.minecraft.entity.ai.attributes.AbstractAttributeMap;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.ai.attributes.IAttribute;
-import net.minecraft.entity.ai.attributes.IAttributeInstance;
+import net.minecraft.entity.ai.attributes.*;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.CClientStatusPacket;
@@ -43,7 +39,7 @@ public class CharacterScreen extends AbilityPanelScreen {
     private TalentTreeWidget talentTreeWidget;
     private TalentTreeRecord currentTree;
     private ScrollingListPanelLayout talentScrollPanel;
-    private static final ArrayList<IAttribute> STAT_PANEL_ATTRIBUTES = new ArrayList<>();
+    private static final ArrayList<Attribute> STAT_PANEL_ATTRIBUTES = new ArrayList<>();
 
     public static class AbilitySlotKey {
         public AbilitySlot type;
@@ -82,16 +78,16 @@ public class CharacterScreen extends AbilityPanelScreen {
     }
 
     static {
-        STAT_PANEL_ATTRIBUTES.add(SharedMonsterAttributes.MAX_HEALTH);
+        STAT_PANEL_ATTRIBUTES.add(Attributes.MAX_HEALTH);
         STAT_PANEL_ATTRIBUTES.add(MKAttributes.MAX_MANA);
         STAT_PANEL_ATTRIBUTES.add(MKAttributes.MANA_REGEN);
-        STAT_PANEL_ATTRIBUTES.add(SharedMonsterAttributes.ARMOR);
-        STAT_PANEL_ATTRIBUTES.add(SharedMonsterAttributes.ARMOR_TOUGHNESS);
-        STAT_PANEL_ATTRIBUTES.add(SharedMonsterAttributes.ATTACK_DAMAGE);
+        STAT_PANEL_ATTRIBUTES.add(Attributes.ARMOR);
+        STAT_PANEL_ATTRIBUTES.add(Attributes.ARMOR_TOUGHNESS);
+        STAT_PANEL_ATTRIBUTES.add(Attributes.ATTACK_DAMAGE);
         STAT_PANEL_ATTRIBUTES.add(MKAttributes.HEAL_BONUS);
         STAT_PANEL_ATTRIBUTES.add(MKAttributes.BUFF_DURATION);
-        STAT_PANEL_ATTRIBUTES.add(SharedMonsterAttributes.ATTACK_SPEED);
-        STAT_PANEL_ATTRIBUTES.add(SharedMonsterAttributes.MOVEMENT_SPEED);
+        STAT_PANEL_ATTRIBUTES.add(Attributes.ATTACK_SPEED);
+        STAT_PANEL_ATTRIBUTES.add(Attributes.MOVEMENT_SPEED);
         STAT_PANEL_ATTRIBUTES.add(MKAttributes.COOLDOWN);
         STAT_PANEL_ATTRIBUTES.add(MKAttributes.CASTING_SPEED);
         STAT_PANEL_ATTRIBUTES.add(MKAttributes.MELEE_CRIT);
@@ -109,17 +105,16 @@ public class CharacterScreen extends AbilityPanelScreen {
         setDoAbilityDrag(true);
     }
 
-    private MKWidget createStatList(MKPlayerData pData, int panelWidth, List<IAttribute> toDisplay) {
+    private MKWidget createStatList(MKPlayerData pData, int panelWidth, List<Attribute> toDisplay) {
         if (getMinecraft().player == null) {
             return null;
         }
-        AbstractAttributeMap attributes = getMinecraft().player.getAttributes();
         MKStackLayoutVertical stackLayout = new MKStackLayoutVertical(0, 0, panelWidth);
         stackLayout.setMarginTop(4).setMarginBot(4).setPaddingTop(2).setMarginLeft(4)
                 .setMarginRight(4).setPaddingBot(2);
         stackLayout.doSetChildWidth(true);
-        for (IAttribute attr : toDisplay) {
-            MKText textWidget = getTextForAttribute(attributes, attr);
+        for (Attribute attr : toDisplay) {
+            MKText textWidget = getTextForAttribute(pData, attr);
             stackLayout.addWidget(textWidget);
         }
         return stackLayout;
@@ -243,7 +238,6 @@ public class CharacterScreen extends AbilityPanelScreen {
     }
 
     private MKWidget createDamageTypeList(MKPlayerData pData, int panelWidth) {
-        AbstractAttributeMap attributes = getMinecraft().player.getAttributes();
         MKStackLayoutVertical stackLayout = new MKStackLayoutVertical(0, 0, panelWidth);
         stackLayout.setMarginTop(4).setMarginBot(4).setPaddingTop(2).setMarginLeft(4)
                 .setMarginRight(4).setPaddingBot(2);
@@ -260,10 +254,10 @@ public class CharacterScreen extends AbilityPanelScreen {
                 MKRectangle rect = MKRectangle.GetHorizontalBar(1, 0xffffffff);
                 stackLayout.addConstraintToWidget(new LayoutRelativeWidthConstraint(.75f), rect);
                 stackLayout.addWidget(rect);
-                MKText damageText = getTextForAttribute(attributes, damageType.getDamageAttribute());
+                MKText damageText = getTextForAttribute(pData, damageType.getDamageAttribute());
                 stackLayout.addConstraintToWidget(new LayoutRelativeWidthConstraint(1.0f), damageText);
                 stackLayout.addWidget(damageText);
-                MKText resistanceText = getTextForAttribute(attributes, damageType.getResistanceAttribute());
+                MKText resistanceText = getTextForAttribute(pData, damageType.getResistanceAttribute());
                 stackLayout.addConstraintToWidget(new LayoutRelativeWidthConstraint(1.0f), resistanceText);
                 stackLayout.addWidget(resistanceText);
                 MKRectangle rect2 = MKRectangle.GetHorizontalBar(1, 0xffffffff);
@@ -274,22 +268,22 @@ public class CharacterScreen extends AbilityPanelScreen {
         return stackLayout;
     }
 
-    private MKText getTextForAttribute(AbstractAttributeMap attributes, IAttribute attr) {
-        IAttributeInstance attribute = attributes.getAttributeInstance(attr);
+    private MKText getTextForAttribute(MKPlayerData playerData, Attribute attr) {
+        ModifiableAttributeInstance attribute = playerData.getEntity().getAttribute(attr);
         String text = String.format("%s: %.2f", I18n.format(String.format("attribute.name.%s",
-                attribute.getAttribute().getName())), attribute.getValue());
+                attribute.getAttribute().getAttributeName())), attribute.getValue());
         MKText textWidget = new MKText(minecraft.fontRenderer, text).setMultiline(true);
         addPreDrawRunnable(() -> {
             String newText = String.format("%s: %.2f", I18n.format(String.format("attribute.name.%s",
-                    attribute.getAttribute().getName())), attribute.getValue());
+                    attribute.getAttribute().getAttributeName())), attribute.getValue());
             textWidget.setText(newText);
             double baseValue = attribute.getBaseValue();
-            if (attr.equals(SharedMonsterAttributes.ATTACK_SPEED) && minecraft.player != null) {
+            if (attr.equals(Attributes.ATTACK_SPEED) && minecraft.player != null) {
                 ItemStack itemInHand = minecraft.player.getHeldItemMainhand();
                 if (!itemInHand.equals(ItemStack.EMPTY)) {
-                    if (itemInHand.getAttributeModifiers(EquipmentSlotType.MAINHAND).containsKey(attr.getName())) {
+                    if (itemInHand.getAttributeModifiers(EquipmentSlotType.MAINHAND).containsKey(attr)) {
                         Collection<AttributeModifier> itemAttackSpeed = itemInHand.getAttributeModifiers(EquipmentSlotType.MAINHAND)
-                                .get(attr.getName());
+                                .get(attr);
                         double attackSpeed = 4.0;
                         for (AttributeModifier mod : itemAttackSpeed) {
                             if (mod.getOperation().equals(AttributeModifier.Operation.ADDITION)) {
@@ -348,11 +342,11 @@ public class CharacterScreen extends AbilityPanelScreen {
         String formattedValue = statType.format(clientPlayer.getStats().getValue(Stats.CUSTOM, statName));
         TranslationTextComponent statNameTranslated = new TranslationTextComponent("stat." +
                 statType.getValue().toString().replace(':', '.'));
-        MKText statText = new MKText(font, String.format("%s: %s", statNameTranslated.getFormattedText(), formattedValue));
+        MKText statText = new MKText(font, String.format("%s: %s", statNameTranslated.getString(), formattedValue));
         layout.addWidget(statText);
         addPreDrawRunnable(() -> {
             String val = statType.format(clientPlayer.getStats().getValue(Stats.CUSTOM, statName));
-            statText.setText(String.format("%s: %s", statNameTranslated.getFormattedText(), val));
+            statText.setText(String.format("%s: %s", statNameTranslated.getString(), val));
         });
     }
 

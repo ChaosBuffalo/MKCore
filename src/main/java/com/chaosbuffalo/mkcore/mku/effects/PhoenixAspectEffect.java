@@ -6,8 +6,8 @@ import com.chaosbuffalo.mkcore.effects.PassiveEffect;
 import com.chaosbuffalo.mkcore.effects.SpellCast;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.AbstractAttributeMap;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
+import net.minecraft.entity.ai.attributes.AttributeModifierManager;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.potion.Effect;
 import net.minecraft.potion.EffectType;
@@ -43,7 +43,7 @@ public class PhoenixAspectEffect extends PassiveEffect {
     }
 
     @Override
-    public void onPotionAdd(SpellCast cast, LivingEntity target, AbstractAttributeMap attributes, int amplifier) {
+    public void onPotionAdd(SpellCast cast, LivingEntity target, AttributeModifierManager attributes, int amplifier) {
         if (target instanceof ServerPlayerEntity) {
             ServerPlayerEntity player = (ServerPlayerEntity) target;
             player.abilities.allowFlying = true;
@@ -52,7 +52,7 @@ public class PhoenixAspectEffect extends PassiveEffect {
     }
 
     @Override
-    public void onPotionRemove(SpellCast cast, LivingEntity target, AbstractAttributeMap attributes, int amplifier) {
+    public void onPotionRemove(SpellCast cast, LivingEntity target, AttributeModifierManager attributes, int amplifier) {
         if (target instanceof ServerPlayerEntity) {
             ServerPlayerEntity player = (ServerPlayerEntity) target;
             player.abilities.allowFlying = false;

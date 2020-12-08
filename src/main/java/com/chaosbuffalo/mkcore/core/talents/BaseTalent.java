@@ -1,7 +1,7 @@
 package com.chaosbuffalo.mkcore.core.talents;
 
 import com.chaosbuffalo.mkcore.MKCore;
-import com.mojang.datafixers.Dynamic;
+import com.mojang.serialization.Dynamic;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;

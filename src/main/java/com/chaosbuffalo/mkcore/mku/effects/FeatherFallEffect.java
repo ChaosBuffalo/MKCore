@@ -10,6 +10,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.potion.Effect;
 import net.minecraft.potion.EffectType;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.Util;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
@@ -42,7 +43,7 @@ public class FeatherFallEffect extends PassiveEffect {
         if (entity.isPotionActive(INSTANCE)) {
             event.setAmount(0.0f);
             if (entity instanceof PlayerEntity) {
-                entity.sendMessage(new StringTextComponent("My legs are OK"));
+                entity.sendMessage(new StringTextComponent("My legs are OK"), Util.DUMMY_UUID);
             }
         }
     }

@@ -11,9 +11,9 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
 import net.minecraft.command.arguments.EntityArgument;
-import net.minecraft.entity.SharedMonsterAttributes;
-import net.minecraft.entity.ai.attributes.IAttribute;
-import net.minecraft.entity.ai.attributes.IAttributeInstance;
+import net.minecraft.entity.ai.attributes.Attribute;
+import net.minecraft.entity.ai.attributes.Attributes;
+import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
@@ -28,9 +28,9 @@ public class StatCommand {
         return Commands.literal("stat")
                 .then(createSimpleFloatStat("mana", PlayerStatsModule::getMana, PlayerStatsModule::setMana))
                 .then(createSimpleFloatStat("health", PlayerStatsModule::getHealth, PlayerStatsModule::setHealth))
-                .then(createAttributeStat("max_health", SharedMonsterAttributes.MAX_HEALTH))
-                .then(createAttributeStat("armor", SharedMonsterAttributes.ARMOR))
-                .then(createAttributeStat("armor_toughness", SharedMonsterAttributes.ARMOR_TOUGHNESS))
+                .then(createAttributeStat("max_health", Attributes.MAX_HEALTH))
+                .then(createAttributeStat("armor", Attributes.ARMOR))
+                .then(createAttributeStat("armor_toughness", Attributes.ARMOR_TOUGHNESS))
                 .then(createAttributeStat("mana_regen", MKAttributes.MANA_REGEN))
                 .then(createAttributeStat("max_mana", MKAttributes.MAX_MANA))
                 .then(createAttributeStat("cdr", MKAttributes.COOLDOWN))
@@ -93,9 +93,9 @@ public class StatCommand {
         return createCore(name, getAction, setAction);
     }
 
-    static ArgumentBuilder<CommandSource, ?> createAttributeStat(String name, IAttribute attribute) {
+    static ArgumentBuilder<CommandSource, ?> createAttributeStat(String name, Attribute attribute) {
         ToIntFunction<PlayerEntity> getAction = playerEntity -> {
-            IAttributeInstance instance = playerEntity.getAttribute(attribute);
+            ModifiableAttributeInstance instance = playerEntity.getAttribute(attribute);
             //noinspection ConstantConditions
             if (instance != null) {
                 String value = String.format("%s is %f (%f base)", name, instance.getValue(), instance.getBaseValue());
@@ -108,7 +108,7 @@ public class StatCommand {
         };
 
         ToIntBiFunction<PlayerEntity, Float> setAction = (playerEntity, value) -> {
-            IAttributeInstance instance = playerEntity.getAttribute(attribute);
+            ModifiableAttributeInstance instance = playerEntity.getAttribute(attribute);
             //noinspection ConstantConditions
             if (instance != null) {
                 instance.setBaseValue(value);

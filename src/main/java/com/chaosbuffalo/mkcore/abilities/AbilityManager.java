@@ -6,9 +6,10 @@ import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.PlayerAbilitiesSyncPacket;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.JsonOps;
+import com.mojang.serialization.Dynamic;
+import com.mojang.serialization.JsonOps;
 import net.minecraft.client.resources.JsonReloadListener;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.profiler.IProfiler;
@@ -33,16 +34,16 @@ public class AbilityManager extends JsonReloadListener {
     }
 
     @Override
-    protected void apply(Map<ResourceLocation, JsonObject> objectIn, IResourceManager resourceManagerIn,
+    protected void apply(Map<ResourceLocation, JsonElement> objectIn, IResourceManager resourceManagerIn,
                          IProfiler profilerIn) {
         MKCore.LOGGER.debug("Loading ability definitions from Json");
         boolean wasChanged = false;
-        for (Map.Entry<ResourceLocation, JsonObject> entry : objectIn.entrySet()) {
+        for (Map.Entry<ResourceLocation, JsonElement> entry : objectIn.entrySet()) {
             ResourceLocation resourcelocation = entry.getKey();
             MKCore.LOGGER.debug("Found file: {}", resourcelocation);
             if (resourcelocation.getPath().startsWith("_"))
                 continue; //Forge: filter anything beginning with "_" as it's used for metadata.
-            if (parse(entry.getKey(), entry.getValue())) {
+            if (parse(entry.getKey(), entry.getValue().getAsJsonObject())) {
                 wasChanged = true;
             }
         }

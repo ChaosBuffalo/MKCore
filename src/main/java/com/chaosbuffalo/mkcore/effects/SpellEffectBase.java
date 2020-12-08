@@ -5,7 +5,7 @@ import com.chaosbuffalo.targeting_api.Targeting;
 import com.chaosbuffalo.targeting_api.TargetingContext;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.AbstractAttributeMap;
+import net.minecraft.entity.ai.attributes.AttributeModifierManager;
 import net.minecraft.potion.Effect;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.EffectType;
@@ -107,7 +107,7 @@ public abstract class SpellEffectBase extends Effect {
     }
 
     @Override
-    public void applyAttributesModifiersToEntity(@Nonnull LivingEntity target, @Nonnull AbstractAttributeMap attributes, int amplifier) {
+    public void applyAttributesModifiersToEntity(@Nonnull LivingEntity target, @Nonnull AttributeModifierManager attributes, int amplifier) {
         MKCore.LOGGER.debug("applyAttributesModifiersToEntity {} {}", target, getName());
         super.applyAttributesModifiersToEntity(target, attributes, amplifier);
 
@@ -122,7 +122,7 @@ public abstract class SpellEffectBase extends Effect {
 
 
     @Override
-    public void removeAttributesModifiersFromEntity(@Nonnull LivingEntity target, @Nonnull AbstractAttributeMap attributes, int amplifier) {
+    public void removeAttributesModifiersFromEntity(@Nonnull LivingEntity target, @Nonnull AttributeModifierManager attributes, int amplifier) {
         MKCore.LOGGER.debug("removeAttributesModifiersFromEntity {} {}", target, getName());
         super.removeAttributesModifiersFromEntity(target, attributes, amplifier);
 
@@ -135,10 +135,10 @@ public abstract class SpellEffectBase extends Effect {
         }
     }
 
-    public void onPotionAdd(SpellCast cast, LivingEntity target, AbstractAttributeMap attributes, int amplifier) {
+    public void onPotionAdd(SpellCast cast, LivingEntity target, AttributeModifierManager attributes, int amplifier) {
     }
 
-    public void onPotionRemove(SpellCast cast, LivingEntity target, AbstractAttributeMap attributes, int amplifier) {
+    public void onPotionRemove(SpellCast cast, LivingEntity target, AttributeModifierManager attributes, int amplifier) {
     }
 
     public abstract void doEffect(Entity applier, Entity caster, LivingEntity target, int amplifier, SpellCast cast);

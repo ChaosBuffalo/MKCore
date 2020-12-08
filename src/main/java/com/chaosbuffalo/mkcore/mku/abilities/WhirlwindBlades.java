@@ -20,7 +20,7 @@ import com.chaosbuffalo.targeting_api.TargetingContexts;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -103,8 +103,8 @@ public class WhirlwindBlades extends MKAbility {
             SpellCast particlePotion = ParticleEffect.Create(entity,
                     ParticleTypes.SWEEP_ATTACK,
                     ParticleEffects.CIRCLE_MOTION, false,
-                    new Vec3d(1.0, 1.0, 1.0),
-                    new Vec3d(0.0, 1.0, 0.0),
+                    new Vector3d(1.0, 1.0, 1.0),
+                    new Vector3d(0.0, 1.0, 0.0),
                     4, 0, 1.0);
 
 

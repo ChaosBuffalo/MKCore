@@ -6,7 +6,6 @@ import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.damage.MKDamageType;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.AbstractAttributeMap;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
@@ -55,10 +54,10 @@ public class CoreCapabilities {
             e.addCapability(ENTITY_CAP_ID, new EntityDataProvider((LivingEntity) e.getObject()));
         } else if (e.getObject() instanceof LivingEntity) {
             LivingEntity livEnt = (LivingEntity) e.getObject();
-            AbstractAttributeMap attributes = livEnt.getAttributes();
-            for (MKDamageType damageType : MKCoreRegistry.DAMAGE_TYPES.getValues()) {
-                damageType.addAttributes(attributes);
-            }
+//            AbstractAttributeMap attributes = livEnt.getAttributes();
+//            for (MKDamageType damageType : MKCoreRegistry.DAMAGE_TYPES.getValues()) {
+//                damageType.addAttributes(attributes);
+//            }
         }
     }
 

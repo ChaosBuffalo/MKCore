@@ -6,7 +6,6 @@ import com.chaosbuffalo.mkcore.core.persona.PersonaManager;
 import com.chaosbuffalo.mkcore.core.player.*;
 import com.chaosbuffalo.mkcore.core.talents.PlayerTalentModule;
 import com.chaosbuffalo.mkcore.sync.UpdateEngine;
-import net.minecraft.entity.ai.attributes.AbstractAttributeMap;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -55,28 +54,28 @@ public class MKPlayerData implements IMKEntityData {
     }
 
     void setupFakeStats() {
-        AttributeModifier mod = new AttributeModifier("test max mana", 20, AttributeModifier.Operation.ADDITION).setSaved(false);
-        player.getAttribute(MKAttributes.MAX_MANA).applyModifier(mod);
+        AttributeModifier mod = new AttributeModifier("test max mana", 20, AttributeModifier.Operation.ADDITION);
+        player.getAttribute(MKAttributes.MAX_MANA).applyNonPersistentModifier(mod);
 
-        AttributeModifier mod2 = new AttributeModifier("test mana regen", 1, AttributeModifier.Operation.ADDITION).setSaved(false);
-        player.getAttribute(MKAttributes.MANA_REGEN).applyModifier(mod2);
+        AttributeModifier mod2 = new AttributeModifier("test mana regen", 1, AttributeModifier.Operation.ADDITION);
+        player.getAttribute(MKAttributes.MANA_REGEN).applyNonPersistentModifier(mod2);
 
-        AttributeModifier mod3 = new AttributeModifier("test cdr", 0.1, AttributeModifier.Operation.ADDITION).setSaved(false);
-        player.getAttribute(MKAttributes.COOLDOWN).applyModifier(mod3);
+        AttributeModifier mod3 = new AttributeModifier("test cdr", 0.1, AttributeModifier.Operation.ADDITION);
+        player.getAttribute(MKAttributes.COOLDOWN).applyNonPersistentModifier(mod3);
 
-        AttributeModifier mod4 = new AttributeModifier("test haste", 0.1, AttributeModifier.Operation.ADDITION).setSaved(false);
-        player.getAttribute(MKAttributes.CASTING_SPEED).applyModifier(mod4);
+        AttributeModifier mod4 = new AttributeModifier("test haste", 0.1, AttributeModifier.Operation.ADDITION);
+        player.getAttribute(MKAttributes.CASTING_SPEED).applyNonPersistentModifier(mod4);
     }
 
     private void registerAttributes() {
-        AbstractAttributeMap attributes = player.getAttributes();
-        MKAttributes.registerEntityAttributes(attributes);
-        attributes.registerAttribute(MKAttributes.MAX_MANA);
-        attributes.registerAttribute(MKAttributes.MANA_REGEN);
-        attributes.registerAttribute(MKAttributes.MELEE_CRIT);
-        attributes.registerAttribute(MKAttributes.MELEE_CRIT_MULTIPLIER);
-        attributes.registerAttribute(MKAttributes.SPELL_CRIT);
-        attributes.registerAttribute(MKAttributes.SPELL_CRIT_MULTIPLIER);
+//        AbstractAttributeMap attributes = player.getAttributes();
+//        MKAttributes.registerEntityAttributes(attributes);
+//        attributes.registerAttribute(MKAttributes.MAX_MANA);
+//        attributes.registerAttribute(MKAttributes.MANA_REGEN);
+//        attributes.registerAttribute(MKAttributes.MELEE_CRIT);
+//        attributes.registerAttribute(MKAttributes.MELEE_CRIT_MULTIPLIER);
+//        attributes.registerAttribute(MKAttributes.SPELL_CRIT);
+//        attributes.registerAttribute(MKAttributes.SPELL_CRIT_MULTIPLIER);
     }
 
     public void onJoinWorld() {

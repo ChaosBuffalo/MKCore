@@ -1,7 +1,7 @@
 package com.chaosbuffalo.mkcore.core.talents;
 
 import com.chaosbuffalo.mkcore.MKCore;
-import com.mojang.datafixers.Dynamic;
+import com.mojang.serialization.Dynamic;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.RangedAttribute;
@@ -61,7 +61,7 @@ public class AttributeTalent extends BaseTalent {
 
     @Override
     public String toString() {
-        return String.format("AttributeTalent[%s, %s, %s]", attribute.getName(), id, operation);
+        return String.format("AttributeTalent[%s, %s, %s]", attribute.getAttributeName(), id, operation);
     }
 
     private String getDescriptionTranslationKey() {
@@ -93,7 +93,7 @@ public class AttributeTalent extends BaseTalent {
     }
 
     public AttributeModifier createModifier(double value) {
-        return new AttributeModifier(getUUID(), getRegistryName().toString(), value, getOp()).setSaved(false);
+        return new AttributeModifier(getUUID(), getRegistryName().toString(), value, getOp());
     }
 
     public double getDefaultPerRank() {

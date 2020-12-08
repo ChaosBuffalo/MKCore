@@ -108,7 +108,7 @@ public class CombatEventHandler {
 
     @SubscribeEvent
     public static void onArrowImpact(ProjectileImpactEvent.Arrow arrowEvent){
-        Entity shooter = arrowEvent.getArrow().getShooter();
+        Entity shooter = arrowEvent.getArrow().func_234616_v_(); // getShooter
         if (shooter != null){
             MKCore.getEntityData(shooter).ifPresent(cap -> {
                 if (arrowEvent.getRayTraceResult().getType() == RayTraceResult.Type.BLOCK){

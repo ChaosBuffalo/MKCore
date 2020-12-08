@@ -1,8 +1,8 @@
 package com.chaosbuffalo.mkcore.core.talents;
 
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
 
+import com.mojang.serialization.Dynamic;
+import com.mojang.serialization.DynamicOps;
 
 public class AttributeTalentNode extends TalentNode {
 
@@ -28,7 +28,7 @@ public class AttributeTalentNode extends TalentNode {
 
     public <T> T serialize(DynamicOps<T> ops) {
         T value = super.serialize(ops);
-        value = ops.mergeInto(value, ops.createString("value"), ops.createDouble(perRank));
+        value = ops.mergeToMap(value, ops.createString("value"), ops.createDouble(perRank)).result().get();
         return value;
     }
 }

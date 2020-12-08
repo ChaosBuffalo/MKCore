@@ -4,8 +4,8 @@ import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.sync.ISyncNotifier;
 import com.chaosbuffalo.mkcore.sync.ISyncObject;
 import com.google.common.collect.ImmutableMap;
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
+import com.mojang.serialization.Dynamic;
+import com.mojang.serialization.DynamicOps;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.nbt.NBTDynamicOps;
@@ -164,7 +164,7 @@ public class TalentTreeRecord {
 
         dynamic.get("lines")
                 .asMap(Dynamic::asString, Function.identity())
-                .forEach((nameOpt, dyn) -> nameOpt.ifPresent(name -> deserializeLineRecord(name, dyn)));
+                .forEach((nameOpt, dyn) -> nameOpt.result().ifPresent(name -> deserializeLineRecord(name, dyn)));
         return true;
     }
 

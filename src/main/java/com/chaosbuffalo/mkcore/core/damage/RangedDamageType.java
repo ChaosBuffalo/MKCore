@@ -4,9 +4,11 @@ import com.chaosbuffalo.mkcore.core.MKAttributes;
 import com.chaosbuffalo.mkcore.utils.EntityUtils;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.AbstractAttributeMap;
+import net.minecraft.entity.ai.attributes.Attribute;
 import net.minecraft.util.CombatRules;
 import net.minecraft.util.ResourceLocation;
+
+import java.util.function.Consumer;
 
 public class RangedDamageType extends MKDamageType {
     public RangedDamageType(ResourceLocation name) {
@@ -14,10 +16,10 @@ public class RangedDamageType extends MKDamageType {
     }
 
     @Override
-    public void addAttributes(AbstractAttributeMap attributeMap) {
+    public void addAttributes(Consumer<Attribute> attributeMap) {
         super.addAttributes(attributeMap);
-        attributeMap.registerAttribute(getCritChanceAttribute());
-        attributeMap.registerAttribute(getCritMultiplierAttribute());
+        attributeMap.accept(getCritChanceAttribute());
+        attributeMap.accept(getCritMultiplierAttribute());
     }
 
     @Override

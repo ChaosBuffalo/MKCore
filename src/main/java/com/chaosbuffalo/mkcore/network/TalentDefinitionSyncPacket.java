@@ -2,7 +2,7 @@ package com.chaosbuffalo.mkcore.network;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.talents.TalentTreeDefinition;
-import com.mojang.datafixers.Dynamic;
+import com.mojang.serialization.Dynamic;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.NBTDynamicOps;

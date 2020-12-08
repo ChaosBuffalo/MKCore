@@ -8,8 +8,8 @@ import com.chaosbuffalo.mkcore.core.talents.PassiveTalent;
 import com.chaosbuffalo.mkcore.core.talents.UltimateTalent;
 import com.chaosbuffalo.mkcore.mku.abilities.BurningSoul;
 import com.chaosbuffalo.mkcore.mku.abilities.HealingRain;
-import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
+import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.attributes.RangedAttribute;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -25,7 +25,7 @@ public class ModTalents {
         // Vanilla Attributes
         AttributeTalent maxHealth = new AttributeTalent(
                 MKCore.makeRL("talent.max_health"),
-                (RangedAttribute) SharedMonsterAttributes.MAX_HEALTH,
+                (RangedAttribute) Attributes.MAX_HEALTH,
                 UUID.fromString("5d95bcd4-a06e-415a-add0-f1f85e20b18b"))
                 .setRequiresStatRefresh(true)
                 .setDefaultPerRank(1);
@@ -33,14 +33,14 @@ public class ModTalents {
 
         AttributeTalent armor = new AttributeTalent(
                 MKCore.makeRL("talent.armor"),
-                (RangedAttribute) SharedMonsterAttributes.ARMOR,
+                (RangedAttribute) Attributes.ARMOR,
                 UUID.fromString("1f917d51-efa1-43ee-8af0-b49175c97c0b"))
                 .setDefaultPerRank(1);
         event.getRegistry().register(armor);
 
         AttributeTalent movementSpeed = new AttributeTalent(
                 MKCore.makeRL("talent.movement_speed"),
-                (RangedAttribute) SharedMonsterAttributes.MOVEMENT_SPEED,
+                (RangedAttribute) Attributes.MOVEMENT_SPEED,
                 UUID.fromString("95fcf4d0-aaa9-413f-8362-7706e29412f7"))
                 .setDisplayAsPercentage(true);
         event.getRegistry().register(movementSpeed);

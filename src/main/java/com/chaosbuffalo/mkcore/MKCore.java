@@ -12,12 +12,14 @@ import com.chaosbuffalo.mkcore.core.talents.TalentManager;
 import com.chaosbuffalo.mkcore.mku.PersonaTest;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.attributes.RangedAttribute;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.event.AddReloadListenerEvent;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -61,16 +63,22 @@ public class MKCore {
         CoreCapabilities.registerCapabilities();
         PersonaManager.registerExtension(PersonaTest.CustomPersonaData::new);
         MKCommand.registerArguments();
-        ((RangedAttribute)SharedMonsterAttributes.ATTACK_DAMAGE).setShouldWatch(true);
+        Attributes.ATTACK_DAMAGE.setShouldWatch(true);
     }
 
     @SubscribeEvent
     public void serverStart(final FMLServerAboutToStartEvent event) {
         // some preinit code
         abilityManager = new AbilityManager(event.getServer());
-        event.getServer().getResourceManager().addReloadListener(abilityManager);
-        event.getServer().getResourceManager().addReloadListener(talentManager);
+//        event.getServer().getDataPackRegistries().getResourceManager().addReloadListener(abilityManager);
+//        event.getServer().getResourceManager().addReloadListener(talentManager);
         LOGGER.info("HELLO FROM ABOUTTOSTART");
+    }
+
+    @SubscribeEvent
+    public void addReloadListener(AddReloadListenerEvent event) {
+        event.addListener(abilityManager);
+        event.addListener(talentManager);
     }
 
     private void doClientStuff(final FMLClientSetupEvent event) {
@@ -86,7 +94,11 @@ public class MKCore {
     public void onServerStarting(FMLServerStartingEvent event) {
         // do something when the server starts
         LOGGER.info("HELLO from server starting");
-        MKCommand.registerCommands(event.getCommandDispatcher());
+    }
+
+    @SubscribeEvent
+    public void registerCommands(RegisterCommandsEvent event) {
+        MKCommand.registerCommands(event.getDispatcher());
     }
 
     private void processIMC(final InterModProcessEvent event)

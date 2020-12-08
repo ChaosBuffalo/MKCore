@@ -10,7 +10,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.particles.IParticleData;
 import net.minecraft.potion.Effect;
 import net.minecraft.potion.EffectType;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -26,7 +26,7 @@ public class ParticleEffect extends SpellEffectBase {
     }
 
     public static SpellCast Create(Entity source, IParticleData particleId, int motionType, boolean includeSelf,
-                                   Vec3d radius, Vec3d offsets, int particleCount, int particleData,
+                                   Vector3d radius, Vector3d offsets, int particleCount, int particleData,
                                    double particleSpeed) {
         return new ParticleCast(source, particleId, motionType, radius, offsets, particleCount, particleData, particleSpeed, includeSelf);
     }
@@ -67,15 +67,15 @@ public class ParticleEffect extends SpellEffectBase {
         Entity source;
         IParticleData particleId;
         int motionType;
-        Vec3d radius;
-        Vec3d offsets;
+        Vector3d radius;
+        Vector3d offsets;
         int particleCount;
         int particleData;
         double particleSpeed;
         boolean includeSelf;
 
         public ParticleCast(Entity source, IParticleData particleId, int motionType,
-                            Vec3d radius, Vec3d offsets, int particleCount, int particleData,
+                            Vector3d radius, Vector3d offsets, int particleCount, int particleData,
                             double particleSpeed, boolean includeSelf) {
             super(ParticleEffect.INSTANCE, source);
             this.source = source;
@@ -99,7 +99,7 @@ public class ParticleEffect extends SpellEffectBase {
                     radius.y,
                     radius.z,
                     particleSpeed,
-                    source.getPositionVector().subtract(target.getPositionVector()).normalize());
+                    source.getPositionVec().subtract(target.getPositionVec()).normalize());
         }
     }
 }

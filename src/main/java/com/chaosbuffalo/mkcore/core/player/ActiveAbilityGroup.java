@@ -11,8 +11,9 @@ import com.chaosbuffalo.mkcore.sync.ResourceListUpdater;
 import com.chaosbuffalo.mkcore.sync.SyncInt;
 import com.chaosbuffalo.mkcore.sync.SyncListUpdater;
 import com.google.common.collect.ImmutableMap;
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.Dynamic;
+import com.mojang.serialization.DynamicOps;
 import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.NBTDynamicOps;
 import net.minecraft.util.NonNullList;
@@ -217,10 +218,10 @@ public class ActiveAbilityGroup implements IActiveAbilityGroup, IPlayerSyncCompo
     }
 
     private <T> void deserializeAbilityList(Dynamic<T> dynamic, BiConsumer<Integer, ResourceLocation> consumer) {
-        List<Optional<String>> passives = dynamic.asList(Dynamic::asString);
+        List<DataResult<String>> passives = dynamic.asList(Dynamic::asString);
         for (int i = 0; i < passives.size(); i++) {
             int index = i;
-            passives.get(i).ifPresent(idString -> {
+            passives.get(i).result().ifPresent(idString -> {
                 ResourceLocation abilityId = new ResourceLocation(idString);
                 MKAbility ability = MKCoreRegistry.getAbility(abilityId);
                 if (ability != null) {

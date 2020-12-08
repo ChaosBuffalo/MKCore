@@ -20,8 +20,8 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.util.InputMappings;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.ai.attributes.Attribute;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.ai.attributes.IAttribute;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ArmorItem;
 import net.minecraft.util.Hand;
@@ -206,8 +206,8 @@ public class ClientEventHandler {
             }
 
             event.getToolTip().add(new TranslationTextComponent("mkcore.gui.item.armor_class.name")
-                    .appendText(": ")
-                    .appendSibling(armorClass.getName()));
+                    .appendString(": ")
+                    .append(armorClass.getName()));
 
             if (MKConfig.CLIENT.showArmorClassEffectsOnTooltip.get()) {
                 List<ITextComponent> tooltip = event.getToolTip();
@@ -225,7 +225,7 @@ public class ClientEventHandler {
         }
     }
 
-    private static void addAttributeToTooltip(List<ITextComponent> tooltip, IAttribute attribute,
+    private static void addAttributeToTooltip(List<ITextComponent> tooltip, Attribute attribute,
                                               AttributeModifier modifier, TextFormatting color) {
         String suffix = "";
         double amount = modifier.getAmount();
@@ -247,9 +247,9 @@ public class ClientEventHandler {
         String prefix = amount > 0 ? "+" : "";
 
         ITextComponent component = new TranslationTextComponent("mkcore.gui.item.armor_class.effect.name")
-                .applyTextStyle(color)
-                .appendText(String.format(": %s%.2f%s ", prefix, amount, suffix))
-                .appendSibling(new TranslationTextComponent("attribute.name." + attribute.getName()));
+                .mergeStyle(color)
+                .appendString(String.format(": %s%.2f%s ", prefix, amount, suffix))
+                .append(new TranslationTextComponent("attribute.name." + attribute.getAttributeName()));
 
         tooltip.add(component);
     }

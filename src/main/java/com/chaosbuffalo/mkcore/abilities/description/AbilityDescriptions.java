@@ -4,8 +4,8 @@ import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.entity.ai.attributes.Attribute;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.ai.attributes.IAttribute;
 import net.minecraft.potion.Effect;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
@@ -57,13 +57,13 @@ public class AbilityDescriptions {
         }
         if (showName) {
             desc.add(new TranslationTextComponent("mkcore.ability.description.effect_with_name",
-                    effect.getDisplayName().getFormattedText()));
+                    effect.getDisplayName().getString()));
         } else {
             desc.add(new TranslationTextComponent("mkcore.ability.description.effect"));
         }
-        for (Map.Entry<IAttribute, AttributeModifier> entry : effect.getAttributeModifierMap().entrySet()) {
+        for (Map.Entry<Attribute, AttributeModifier> entry : effect.getAttributeModifierMap().entrySet()) {
             desc.add(new StringTextComponent(String.format("    %s: %s%.2f", I18n.format(String.format("attribute.name.%s",
-                    entry.getKey().getName())), entry.getValue().getAmount() > 0 ? "+" : "", entry.getValue().getAmount())));
+                    entry.getKey().getAttributeName())), entry.getValue().getAmount() > 0 ? "+" : "", entry.getValue().getAmount())));
         }
         return desc;
     }

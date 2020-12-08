@@ -25,12 +25,12 @@ public class MovingSoundCasting extends TickableSound {
     @Override
     public void tick() {
         if (!caster.isAlive()) {
-            donePlaying = true;
+            finishPlaying();
             return;
         }
 
 
-        donePlaying = MKCore.getEntityData((caster)).map(cap -> {
+        boolean donePlaying = MKCore.getEntityData((caster)).map(cap -> {
             AbilityExecutor executor = cap.getAbilityExecutor();
             if (!executor.isCasting()) {
                 return true;
@@ -50,8 +50,10 @@ public class MovingSoundCasting extends TickableSound {
             return false;
         }).orElse(true);
 
-        if (donePlaying)
+        if (donePlaying) {
+            finishPlaying();
             return;
+        }
 
         x = (float) caster.getPosX();
         y = (float) caster.getPosY();
