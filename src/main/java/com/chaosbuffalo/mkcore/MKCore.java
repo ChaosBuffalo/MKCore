@@ -12,12 +12,15 @@ import com.chaosbuffalo.mkcore.core.persona.PersonaManager;
 import com.chaosbuffalo.mkcore.core.talents.TalentManager;
 import com.chaosbuffalo.mkcore.mku.PersonaTest;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
+import com.chaosbuffalo.targeting_api.Targeting;
+import com.chaosbuffalo.targeting_api.TargetingAPI;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.*;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.registry.Registry;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.AddReloadListenerEvent;
@@ -62,6 +65,8 @@ public class MKCore {
         abilityManager = new AbilityManager();
 
         MKConfig.init();
+        // REMOVEME when MKFaction ready
+        Targeting.registerRelationCallback((caster, target) -> Targeting.TargetRelation.ENEMY);
     }
 
     private void setup(final FMLCommonSetupEvent event) {
@@ -83,6 +88,10 @@ public class MKCore {
         AttributeFixer.addAttributes(EntityType.PLAYER, builder -> {
             MKAttributes.registerPlayerAttributes(builder::createMutableAttribute);
         });
+
+        GlobalEntityTypeAttributes.getAttributesForEntity(EntityType.PLAYER).attributeMap.forEach(((attribute, modifiableAttributeInstance) -> {
+            MKCore.LOGGER.info("player attr {} {}", attribute.getAttributeName(), Registry.ATTRIBUTE.containsKey(attribute.getRegistryName()));
+        }));
     }
 
     @SubscribeEvent

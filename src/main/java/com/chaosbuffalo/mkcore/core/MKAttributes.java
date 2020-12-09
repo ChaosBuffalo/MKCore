@@ -1,8 +1,6 @@
 package com.chaosbuffalo.mkcore.core;
 
 import com.chaosbuffalo.mkcore.MKCore;
-import com.chaosbuffalo.mkcore.MKCoreRegistry;
-import com.chaosbuffalo.mkcore.core.damage.MKDamageType;
 import net.minecraft.entity.ai.attributes.Attribute;
 import net.minecraft.entity.ai.attributes.RangedAttribute;
 import net.minecraftforge.event.RegistryEvent;
@@ -161,9 +159,24 @@ public class MKAttributes {
         attributes.accept(HEAL_BONUS);
         attributes.accept(BUFF_DURATION);
         attributes.accept(ATTACK_REACH);
-        for (MKDamageType damageType : MKCoreRegistry.DAMAGE_TYPES.getValues()) {
-            damageType.registerAttributes(attributes);
-        }
+        attributes.accept(ELEMENTAL_DAMAGE);
+        attributes.accept(ELEMENTAL_RESISTANCE);
+        attributes.accept(ARCANE_DAMAGE);
+        attributes.accept(ARCANE_RESISTANCE);
+        attributes.accept(FIRE_DAMAGE);
+        attributes.accept(FIRE_RESISTANCE);
+        attributes.accept(FROST_DAMAGE);
+        attributes.accept(FROST_RESISTANCE);
+        attributes.accept(SHADOW_DAMAGE);
+        attributes.accept(SHADOW_RESISTANCE);
+        attributes.accept(HOLY_DAMAGE);
+        attributes.accept(HOLY_RESISTANCE);
+        attributes.accept(NATURE_DAMAGE);
+        attributes.accept(NATURE_RESISTANCE);
+        attributes.accept(POISON_DAMAGE);
+        attributes.accept(POISON_RESISTANCE);
+        attributes.accept(BLEED_DAMAGE);
+        attributes.accept(BLEED_RESISTANCE);
     }
 
     public static void registerPlayerAttributes(Consumer<Attribute> attributes) {
