@@ -78,11 +78,9 @@ public class MKDamageType extends ForgeRegistryEntry<MKDamageType> {
         return resistanceAttribute;
     }
 
-    public void addAttributes(Consumer<Attribute> attributeMap) {
+    public void registerAttributes(Consumer<Attribute> attributeMap) {
         attributeMap.accept(getDamageAttribute());
         attributeMap.accept(getResistanceAttribute());
-//        attributeMap.registerAttribute(getDamageAttribute());
-//        attributeMap.registerAttribute(getResistanceAttribute());
     }
 
     public ITextComponent getEffectCritMessage(LivingEntity source, LivingEntity target, float damage,

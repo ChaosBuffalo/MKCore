@@ -42,7 +42,7 @@ public class MeleeDamageType extends MKDamageType {
     }
 
     @Override
-    public void addAttributes(Consumer<Attribute> attributeMap) {
+    public void registerAttributes(Consumer<Attribute> attributeMap) {
 
     }
 

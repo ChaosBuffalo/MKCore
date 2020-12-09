@@ -5,6 +5,7 @@ import com.chaosbuffalo.mkcore.client.gui.MKOverlay;
 import com.chaosbuffalo.mkcore.client.rendering.MKRenderers;
 import com.chaosbuffalo.mkcore.command.MKCommand;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
+import com.chaosbuffalo.mkcore.core.MKAttributes;
 import com.chaosbuffalo.mkcore.core.persona.IPersonaExtensionProvider;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.persona.PersonaManager;
@@ -12,8 +13,9 @@ import com.chaosbuffalo.mkcore.core.talents.TalentManager;
 import com.chaosbuffalo.mkcore.mku.PersonaTest;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.ai.attributes.RangedAttribute;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.ai.attributes.*;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
@@ -28,8 +30,13 @@ import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
 import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Consumer;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(MKCore.MOD_ID)
@@ -37,7 +44,7 @@ public class MKCore {
     public static final String MOD_ID = "mkcore";
     // Directly reference a log4j logger.
     public static final Logger LOGGER = LogManager.getLogger();
-    private AbilityManager abilityManager;
+    private final AbilityManager abilityManager;
     private final TalentManager talentManager;
 
     public static MKCore INSTANCE;
@@ -52,6 +59,7 @@ public class MKCore {
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
         talentManager = new TalentManager();
+        abilityManager = new AbilityManager();
 
         MKConfig.init();
     }
@@ -63,22 +71,24 @@ public class MKCore {
         CoreCapabilities.registerCapabilities();
         PersonaManager.registerExtension(PersonaTest.CustomPersonaData::new);
         MKCommand.registerArguments();
+        registerAttributes();
+    }
+
+    private void registerAttributes() {
         Attributes.ATTACK_DAMAGE.setShouldWatch(true);
+
+        AttributeFixer.addAttributesToAll(builder -> {
+            MKAttributes.registerEntityAttributes(builder::createMutableAttribute);
+        });
+        AttributeFixer.addAttributes(EntityType.PLAYER, builder -> {
+            MKAttributes.registerPlayerAttributes(builder::createMutableAttribute);
+        });
     }
 
     @SubscribeEvent
-    public void serverStart(final FMLServerAboutToStartEvent event) {
+    public void serverStart(FMLServerAboutToStartEvent event) {
         // some preinit code
-        abilityManager = new AbilityManager(event.getServer());
-//        event.getServer().getDataPackRegistries().getResourceManager().addReloadListener(abilityManager);
-//        event.getServer().getResourceManager().addReloadListener(talentManager);
         LOGGER.info("HELLO FROM ABOUTTOSTART");
-    }
-
-    @SubscribeEvent
-    public void addReloadListener(AddReloadListenerEvent event) {
-        event.addListener(abilityManager);
-        event.addListener(talentManager);
     }
 
     private void doClientStuff(final FMLClientSetupEvent event) {
@@ -98,11 +108,18 @@ public class MKCore {
 
     @SubscribeEvent
     public void registerCommands(RegisterCommandsEvent event) {
+        LOGGER.info("registerCommands event");
         MKCommand.registerCommands(event.getDispatcher());
     }
 
-    private void processIMC(final InterModProcessEvent event)
-    {
+    @SubscribeEvent
+    public void addReloadListeners(AddReloadListenerEvent event) {
+        LOGGER.info("addReloadListeners event");
+        event.addListener(abilityManager);
+        event.addListener(talentManager);
+    }
+
+    private void processIMC(final InterModProcessEvent event) {
         MKCore.LOGGER.info("MKCore.processIMC");
         event.getIMCStream().forEach(m -> {
             if (m.getMethod().equals("register_persona_extension")) {
@@ -135,5 +152,34 @@ public class MKCore {
 
     public static AbilityManager getAbilityManager() {
         return INSTANCE.abilityManager;
+    }
+
+    static class AttributeFixer {
+        public static void addAttributes(EntityType<? extends LivingEntity> type, Consumer<AttributeModifierMap.MutableAttribute> builder) {
+            Map<Attribute, ModifiableAttributeInstance> finalMap;
+            if (GlobalEntityTypeAttributes.doesEntityHaveAttributes(type)) {
+                finalMap = new HashMap<>(GlobalEntityTypeAttributes.getAttributesForEntity(type).attributeMap);
+            } else {
+                finalMap = new HashMap<>();
+            }
+
+            AttributeModifierMap.MutableAttribute newAttrs = AttributeModifierMap.createMutableAttribute();
+            builder.accept(newAttrs);
+
+            finalMap.putAll(newAttrs.create().attributeMap);
+            finalMap.keySet().forEach(attribute -> {
+//                LOGGER.info("Adding {} to {}", attribute.getAttributeName(), type);
+            });
+            GlobalEntityTypeAttributes.put(type, new AttributeModifierMap(finalMap));
+        }
+
+        public static void addAttributesToAll(Consumer<AttributeModifierMap.MutableAttribute> builder) {
+            ForgeRegistries.ENTITIES.forEach(entityType -> {
+                if (GlobalEntityTypeAttributes.doesEntityHaveAttributes(entityType)) {
+                    LOGGER.info("Adding attributes to {}", entityType);
+                    addAttributes((EntityType<? extends LivingEntity>) entityType, builder);
+                }
+            });
+        }
     }
 }

@@ -5,9 +5,12 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.JsonOps;
+import net.minecraft.block.Block;
 import net.minecraft.data.*;
 import net.minecraft.item.Items;
+import net.minecraft.tags.ITag;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
@@ -22,9 +25,12 @@ public class DataGenerators {
     @SubscribeEvent
     public static void gatherData(GatherDataEvent event) {
         DataGenerator generator = event.getGenerator();
+
         if (event.includeServer()) {
+            MKBlockTagsProvider blockTagsProvider = new MKBlockTagsProvider(generator);
+            generator.addProvider(blockTagsProvider);
             generator.addProvider(new AbilityDataGenerator(generator));
-//            generator.addProvider(new ArmorClassItemTagProvider(generator));
+            generator.addProvider(new ArmorClassItemTagProvider(generator, blockTagsProvider));
         }
     }
 
@@ -61,6 +67,21 @@ public class DataGenerators {
         @Override
         public String getName() {
             return "MKCore Abilities";
+        }
+    }
+
+    static class MKBlockTagsProvider extends BlockTagsProvider {
+
+        public MKBlockTagsProvider(DataGenerator generatorIn) {
+            super(generatorIn);
+        }
+
+        @Override
+        protected void registerTags() {
+        }
+
+        private TagsProvider.Builder<Block> tag(ITag.INamedTag<Block> tag) {
+            return this.getOrCreateBuilder(tag);
         }
     }
 

@@ -110,11 +110,10 @@ public class TalentButton extends MKButton {
                     getX() + getWidth(), getY() + rankOffset + fontrenderer.FONT_HEIGHT + 2,
                     0xff264747);
             String rankText = String.format("%d/%d", rank, maxRank);
-            // FIXME 1.16
-//            this.drawCenteredString(fontrenderer, rankText,
-//                    this.getX() + this.getWidth() / 2,
-//                    this.getY() + SLOT_Y_OFFSET + SLOT_HEIGHT + OVERLAY_HEIGHT + TEXT_OFFSET,
-//                    textColor);
+            this.drawCenteredString(matrixStack, fontrenderer, rankText,
+                    this.getX() + this.getWidth() / 2,
+                    this.getY() + SLOT_Y_OFFSET + SLOT_HEIGHT + OVERLAY_HEIGHT + TEXT_OFFSET,
+                    textColor);
             if (isHovered()) {
                 if (getScreen() != null) {
                     getScreen().addPostRenderInstruction(new HoveringTextInstruction(tooltip,

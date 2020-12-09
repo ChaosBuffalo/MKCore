@@ -16,8 +16,8 @@ public class RangedDamageType extends MKDamageType {
     }
 
     @Override
-    public void addAttributes(Consumer<Attribute> attributeMap) {
-        super.addAttributes(attributeMap);
+    public void registerAttributes(Consumer<Attribute> attributeMap) {
+        super.registerAttributes(attributeMap);
         attributeMap.accept(getCritChanceAttribute());
         attributeMap.accept(getCritMultiplierAttribute());
     }

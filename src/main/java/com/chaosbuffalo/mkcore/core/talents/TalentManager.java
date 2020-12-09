@@ -20,6 +20,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent;
 
 import javax.annotation.Nonnull;
 import java.util.Collection;
@@ -32,11 +33,18 @@ public class TalentManager extends JsonReloadListener {
     private static final Gson GSON = (new GsonBuilder()).setPrettyPrinting().disableHtmlEscaping().create();
 
     private final Map<ResourceLocation, TalentTreeDefinition> talentTreeMap = new HashMap<>();
+    private boolean serverStarted = false;
 
     public TalentManager() {
         super(GSON, "player_talents");
 
         MinecraftForge.EVENT_BUS.register(this);
+    }
+
+    @SubscribeEvent
+    public void serverStart(FMLServerAboutToStartEvent event) {
+        // Can't start sending packets before this event
+        serverStarted = true;
     }
 
     @Override
@@ -54,7 +62,7 @@ public class TalentManager extends JsonReloadListener {
                 wasChanged = true;
             }
         }
-        if (wasChanged) {
+        if (serverStarted && wasChanged) {
             syncToPlayers();
         }
 

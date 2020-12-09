@@ -48,9 +48,8 @@ public class MKPlayerData implements IMKEntityData {
         talentModule = new PlayerTalentModule(this);
         equipmentModule = new PlayerEquipmentModule(this);
 
-        registerAttributes();
-        if (isServerSide())
-            setupFakeStats();
+//        if (isServerSide())
+//            setupFakeStats();
     }
 
     void setupFakeStats() {
@@ -65,17 +64,6 @@ public class MKPlayerData implements IMKEntityData {
 
         AttributeModifier mod4 = new AttributeModifier("test haste", 0.1, AttributeModifier.Operation.ADDITION);
         player.getAttribute(MKAttributes.CASTING_SPEED).applyNonPersistentModifier(mod4);
-    }
-
-    private void registerAttributes() {
-//        AbstractAttributeMap attributes = player.getAttributes();
-//        MKAttributes.registerEntityAttributes(attributes);
-//        attributes.registerAttribute(MKAttributes.MAX_MANA);
-//        attributes.registerAttribute(MKAttributes.MANA_REGEN);
-//        attributes.registerAttribute(MKAttributes.MELEE_CRIT);
-//        attributes.registerAttribute(MKAttributes.MELEE_CRIT_MULTIPLIER);
-//        attributes.registerAttribute(MKAttributes.SPELL_CRIT);
-//        attributes.registerAttribute(MKAttributes.SPELL_CRIT_MULTIPLIER);
     }
 
     public void onJoinWorld() {
