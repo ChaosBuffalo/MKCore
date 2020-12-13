@@ -30,7 +30,7 @@ public class DataGenerators {
             MKBlockTagsProvider blockTagsProvider = new MKBlockTagsProvider(generator);
             generator.addProvider(blockTagsProvider);
             generator.addProvider(new AbilityDataGenerator(generator));
-            generator.addProvider(new ArmorClassItemTagProvider(generator, blockTagsProvider));
+            generator.addProvider(new ArmorClassItemTagProvider(generator, blockTagsProvider, event.getExistingFileHelper()));
         }
     }
 
@@ -86,8 +86,8 @@ public class DataGenerators {
     }
 
     public static class ArmorClassItemTagProvider extends ItemTagsProvider {
-        public ArmorClassItemTagProvider(DataGenerator dataGenerator, BlockTagsProvider blockTagProvider) {
-            super(dataGenerator, blockTagProvider);
+        public ArmorClassItemTagProvider(DataGenerator dataGenerator, BlockTagsProvider blockTagProvider, ExistingFileHelper existingFileHelper) {
+            super(dataGenerator, blockTagProvider, MKCore.MOD_ID, existingFileHelper);
         }
 
         @Override

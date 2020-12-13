@@ -270,12 +270,10 @@ public class CharacterScreen extends AbilityPanelScreen {
 
     private MKText getTextForAttribute(MKPlayerData playerData, Attribute attr) {
         ModifiableAttributeInstance attribute = playerData.getEntity().getAttribute(attr);
-        String text = String.format("%s: %.2f", I18n.format(String.format("attribute.name.%s",
-                attribute.getAttribute().getAttributeName())), attribute.getValue());
+        String text = String.format("%s: %.2f", I18n.format(attr.getAttributeName()), attribute.getValue());
         MKText textWidget = new MKText(minecraft.fontRenderer, text).setMultiline(true);
         addPreDrawRunnable(() -> {
-            String newText = String.format("%s: %.2f", I18n.format(String.format("attribute.name.%s",
-                    attribute.getAttribute().getAttributeName())), attribute.getValue());
+            String newText = String.format("%s: %.2f", I18n.format(attr.getAttributeName()), attribute.getValue());
             textWidget.setText(newText);
             double baseValue = attribute.getBaseValue();
             if (attr.equals(Attributes.ATTACK_SPEED) && minecraft.player != null) {

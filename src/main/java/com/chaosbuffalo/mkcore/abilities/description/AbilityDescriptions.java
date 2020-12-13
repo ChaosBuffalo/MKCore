@@ -62,8 +62,9 @@ public class AbilityDescriptions {
             desc.add(new TranslationTextComponent("mkcore.ability.description.effect"));
         }
         for (Map.Entry<Attribute, AttributeModifier> entry : effect.getAttributeModifierMap().entrySet()) {
-            desc.add(new StringTextComponent(String.format("    %s: %s%.2f", I18n.format(String.format("attribute.name.%s",
-                    entry.getKey().getAttributeName())), entry.getValue().getAmount() > 0 ? "+" : "", entry.getValue().getAmount())));
+            desc.add(new StringTextComponent("    ")
+                    .append(new TranslationTextComponent(entry.getKey().getAttributeName()))
+                    .appendString(String.format(": %s%.2f", entry.getValue().getAmount() > 0 ? "+" : "", entry.getValue().getAmount())));
         }
         return desc;
     }

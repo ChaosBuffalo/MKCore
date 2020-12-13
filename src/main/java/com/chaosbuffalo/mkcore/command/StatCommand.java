@@ -5,18 +5,23 @@ import com.chaosbuffalo.mkcore.core.MKAttributes;
 import com.chaosbuffalo.mkcore.core.player.PlayerStatsModule;
 import com.chaosbuffalo.mkcore.utils.TextUtils;
 import com.mojang.brigadier.Command;
+import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
 import net.minecraft.command.arguments.EntityArgument;
 import net.minecraft.entity.ai.attributes.Attribute;
+import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
+import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.ToIntBiFunction;
@@ -90,7 +95,7 @@ public class StatCommand {
             };
         }
 
-        return createCore(name, getAction, setAction);
+        return createSimple(name, getAction, setAction);
     }
 
     static ArgumentBuilder<CommandSource, ?> createAttributeStat(String name, Attribute attribute) {
@@ -120,10 +125,10 @@ public class StatCommand {
             return Command.SINGLE_SUCCESS;
         };
 
-        return createCore(name, getAction, setAction);
+        return createAttrCore(name, attribute, getAction, setAction);
     }
 
-    static ArgumentBuilder<CommandSource, ?> createCore(String name, ToIntFunction<PlayerEntity> getterAction, ToIntBiFunction<PlayerEntity, Float> setterAction) {
+    static ArgumentBuilder<CommandSource, ?> createSimple(String name, ToIntFunction<PlayerEntity> getterAction, ToIntBiFunction<PlayerEntity, Float> setterAction) {
         return Commands.argument("player", EntityArgument.player())
                 .then(Commands.literal(name)
                         .executes(ctx -> getterAction.applyAsInt(EntityArgument.getPlayer(ctx, "player")))
@@ -131,5 +136,61 @@ public class StatCommand {
                                 .requires(s -> s.hasPermissionLevel(ServerLifecycleHooks.getCurrentServer().getOpPermissionLevel()))
                                 .executes(ctx -> setterAction.applyAsInt(EntityArgument.getPlayer(ctx, "player"),
                                         FloatArgumentType.getFloat(ctx, "amount")))));
+    }
+
+    static ArgumentBuilder<CommandSource, ?> createAttrCore(String name, Attribute attr, ToIntFunction<PlayerEntity> getterAction, ToIntBiFunction<PlayerEntity, Float> setterAction) {
+        return Commands.argument("player", EntityArgument.player())
+                .then(Commands.literal(name)
+                        .executes(ctx -> getterAction.applyAsInt(EntityArgument.getPlayer(ctx, "player")))
+                        .then(Commands.argument("amount", FloatArgumentType.floatArg())
+                                .requires(s -> s.hasPermissionLevel(ServerLifecycleHooks.getCurrentServer().getOpPermissionLevel()))
+                                .executes(ctx -> setterAction.applyAsInt(EntityArgument.getPlayer(ctx, "player"),
+                                        FloatArgumentType.getFloat(ctx, "amount"))))
+                        .then(Commands.literal("mod")
+                                .executes(ctx -> listModifiers(ctx, attr))
+                                .then(Commands.argument("value", FloatArgumentType.floatArg())
+                                        .then(Commands.argument("temp", BoolArgumentType.bool())
+                                                .executes(ctx -> addModifier(ctx, attr, FloatArgumentType.getFloat(ctx, "value"), BoolArgumentType.getBool(ctx, "temp")))))));
+    }
+
+    static int listModifiers(CommandContext<CommandSource> ctx, Attribute attr) throws CommandSyntaxException {
+        PlayerEntity entity = EntityArgument.getPlayer(ctx, "player");
+
+        if (entity.getAttributeManager().hasAttributeInstance(attr)) {
+            ModifiableAttributeInstance instance = entity.getAttribute(attr);
+            if (instance == null) {
+                TextUtils.sendChatMessage(entity, "Unable to add modifier - player does not have attribute");
+                return Command.SINGLE_SUCCESS;
+            }
+
+            TextUtils.sendPlayerChatMessage(entity, String.format("%s modifiers", attr.getAttributeName()));
+            for (AttributeModifier mod : instance.getModifierListCopy()) {
+                String msg = String.format("%s: %f %s", mod.getName(), mod.getAmount(), mod.getID().toString());
+                TextUtils.sendChatMessage(entity, msg);
+            }
+        }
+        return Command.SINGLE_SUCCESS;
+    }
+
+    static int addModifier(CommandContext<CommandSource> ctx, Attribute attr, float value, boolean temp) throws CommandSyntaxException {
+        PlayerEntity entity = EntityArgument.getPlayer(ctx, "player");
+
+        if (entity.getAttributeManager().hasAttributeInstance(attr)) {
+            ModifiableAttributeInstance instance = entity.getAttribute(attr);
+            if (instance == null) {
+                TextUtils.sendChatMessage(entity, "Unable to add modifier - player does not have attribute");
+                return Command.SINGLE_SUCCESS;
+            }
+
+            AttributeModifier mod = new AttributeModifier(UUID.randomUUID(), "added by command", value, AttributeModifier.Operation.ADDITION);
+            if (temp) {
+                instance.applyNonPersistentModifier(mod);
+            } else {
+                instance.applyPersistentModifier(mod);
+            }
+            TextUtils.sendChatMessage(entity, String.format("Temp mod added with UUID %s", mod.getID().toString()));
+        }
+
+        return Command.SINGLE_SUCCESS;
     }
 }

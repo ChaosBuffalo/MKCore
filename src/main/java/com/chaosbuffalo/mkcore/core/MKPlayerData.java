@@ -25,7 +25,6 @@ public class MKPlayerData implements IMKEntityData {
     private PlayerTalentModule talentModule;
     private PlayerEquipmentModule equipmentModule;
     private PlayerCombatExtensionModule combatExtensionModule;
-    private final Set<String> spellTag = new HashSet<>();
 
     public MKPlayerData() {
 
@@ -47,27 +46,11 @@ public class MKPlayerData implements IMKEntityData {
 
         talentModule = new PlayerTalentModule(this);
         equipmentModule = new PlayerEquipmentModule(this);
-
-//        if (isServerSide())
-//            setupFakeStats();
-    }
-
-    void setupFakeStats() {
-        AttributeModifier mod = new AttributeModifier("test max mana", 20, AttributeModifier.Operation.ADDITION);
-        player.getAttribute(MKAttributes.MAX_MANA).applyNonPersistentModifier(mod);
-
-        AttributeModifier mod2 = new AttributeModifier("test mana regen", 1, AttributeModifier.Operation.ADDITION);
-        player.getAttribute(MKAttributes.MANA_REGEN).applyNonPersistentModifier(mod2);
-
-        AttributeModifier mod3 = new AttributeModifier("test cdr", 0.1, AttributeModifier.Operation.ADDITION);
-        player.getAttribute(MKAttributes.COOLDOWN).applyNonPersistentModifier(mod3);
-
-        AttributeModifier mod4 = new AttributeModifier("test haste", 0.1, AttributeModifier.Operation.ADDITION);
-        player.getAttribute(MKAttributes.CASTING_SPEED).applyNonPersistentModifier(mod4);
     }
 
     public void onJoinWorld() {
         getPersonaManager().ensurePersonaLoaded();
+        getStats().onJoinWorld();
         getAbilityExecutor().onJoinWorld();
         getTalentHandler().onJoinWorld();
         if (isServerSide()) {
@@ -84,7 +67,7 @@ public class MKPlayerData implements IMKEntityData {
     }
 
     @Override
-    public CombatExtensionModule getCombatExtension() {
+    public PlayerCombatExtensionModule getCombatExtension() {
         return combatExtensionModule;
     }
 
@@ -200,17 +183,5 @@ public class MKPlayerData implements IMKEntityData {
     public void deserialize(CompoundNBT tag) {
         personaManager.deserialize(tag.getCompound("persona"));
         getStats().deserialize(tag.getCompound("stats"));
-    }
-
-    public void addSpellTag(String tag) {
-        spellTag.add(tag);
-    }
-
-    public void removeSpellTag(String tag) {
-        spellTag.remove(tag);
-    }
-
-    public boolean hasSpellTag(String tag) {
-        return spellTag.contains(tag);
     }
 }

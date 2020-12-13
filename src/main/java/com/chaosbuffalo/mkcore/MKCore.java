@@ -10,10 +10,8 @@ import com.chaosbuffalo.mkcore.core.persona.IPersonaExtensionProvider;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.persona.PersonaManager;
 import com.chaosbuffalo.mkcore.core.talents.TalentManager;
-import com.chaosbuffalo.mkcore.mku.PersonaTest;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.targeting_api.Targeting;
-import com.chaosbuffalo.targeting_api.TargetingAPI;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -74,7 +72,6 @@ public class MKCore {
         LOGGER.info("HELLO FROM PREINIT");
         PacketHandler.setupHandler();
         CoreCapabilities.registerCapabilities();
-        PersonaManager.registerExtension(PersonaTest.CustomPersonaData::new);
         MKCommand.registerArguments();
         registerAttributes();
     }
@@ -90,7 +87,9 @@ public class MKCore {
         });
 
         GlobalEntityTypeAttributes.getAttributesForEntity(EntityType.PLAYER).attributeMap.forEach(((attribute, modifiableAttributeInstance) -> {
-            MKCore.LOGGER.info("player attr {} {}", attribute.getAttributeName(), Registry.ATTRIBUTE.containsKey(attribute.getRegistryName()));
+            if (!Registry.ATTRIBUTE.containsKey(attribute.getRegistryName())) {
+                MKCore.LOGGER.error("ERROR: Player attribute {} was not registered with the registry!", attribute);
+            }
         }));
     }
 
@@ -176,9 +175,6 @@ public class MKCore {
             builder.accept(newAttrs);
 
             finalMap.putAll(newAttrs.create().attributeMap);
-            finalMap.keySet().forEach(attribute -> {
-//                LOGGER.info("Adding {} to {}", attribute.getAttributeName(), type);
-            });
             GlobalEntityTypeAttributes.put(type, new AttributeModifierMap(finalMap));
         }
 

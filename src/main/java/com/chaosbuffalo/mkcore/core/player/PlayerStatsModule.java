@@ -1,10 +1,13 @@
 package com.chaosbuffalo.mkcore.core.player;
 
+import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.core.*;
-import com.chaosbuffalo.mkcore.core.damage.MKDamageType;
 import com.chaosbuffalo.mkcore.core.entity.EntityStatsModule;
 import com.chaosbuffalo.mkcore.sync.SyncFloat;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.ai.attributes.Attribute;
+import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Util;
@@ -55,7 +58,12 @@ public class PlayerStatsModule extends EntityStatsModule implements IPlayerSyncC
     }
 
     private void setMana(float value, boolean sendUpdate) {
-        value = MathHelper.clamp(value, 0, getMaxMana());
+//        MKCore.LOGGER.info("setMana {} {}", value, getMaxMana());
+        // Here we're using isAddedToWorld as a proxy to know that attribute deserialization is done and max mana is available
+        if (getEntity().isAddedToWorld()) {
+            value = MathHelper.clamp(value, 0, getMaxMana());
+            MKCore.LOGGER.info("setMana clamp {}", value);
+        }
         mana.set(value, sendUpdate);
     }
 
@@ -75,6 +83,33 @@ public class PlayerStatsModule extends EntityStatsModule implements IPlayerSyncC
     public void tick() {
         super.tick();
         updateMana();
+    }
+
+    public void onJoinWorld() {
+        MKCore.LOGGER.info("PlayerStats.onJoinWorld");
+        if (getEntity().isServerWorld()) {
+            setupBaseStats();
+        }
+    }
+
+    private void addBaseStat(Attribute attribute, double value) {
+        LivingEntity entity = getEntity();
+
+        ModifiableAttributeInstance instance = entity.getAttribute(attribute);
+        if (instance != null) {
+            MKCore.LOGGER.info("Adding MK base stat {} {} to player", attribute.getAttributeName(), value);
+            instance.setBaseValue(value);
+        } else {
+            MKCore.LOGGER.error("Cannot apply base stat mod to {} - missing attribute {}", getEntity(), attribute);
+        }
+    }
+
+    private void setupBaseStats() {
+        MKCore.LOGGER.info("PlayerStats.setupFakeStats");
+        addBaseStat(MKAttributes.MAX_MANA, 20);
+        addBaseStat(MKAttributes.MANA_REGEN, 1);
+        addBaseStat(MKAttributes.COOLDOWN, 0.1);
+        addBaseStat(MKAttributes.CASTING_SPEED, 0.1);
     }
 
     private void updateMana() {

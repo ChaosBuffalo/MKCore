@@ -19,12 +19,12 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent;
+import net.minecraftforge.fml.event.server.FMLServerStoppingEvent;
 
 import javax.annotation.Nonnull;
 import java.util.Map;
 
 public class AbilityManager extends JsonReloadListener {
-
     private static final Gson GSON = (new GsonBuilder()).setPrettyPrinting().disableHtmlEscaping().create();
     private boolean serverStarted = false;
 
@@ -36,6 +36,11 @@ public class AbilityManager extends JsonReloadListener {
     @SubscribeEvent
     public void serverStart(FMLServerAboutToStartEvent event) {
         serverStarted = true;
+    }
+
+    @SubscribeEvent
+    public void serverStop(FMLServerStoppingEvent event) {
+        serverStarted = false;
     }
 
     @Override

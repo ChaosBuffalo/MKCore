@@ -116,10 +116,11 @@ public class ClientEventHandler {
     }
 
     @SubscribeEvent
-    public static void onRawMouseEvent(InputEvent.RawMouseEvent event){
+    public static void onRawMouseEvent(InputEvent.RawMouseEvent event) {
         Minecraft minecraft = Minecraft.getInstance();
-        if (minecraft.player != null && minecraft.player.isPotionActive(StunEffect.INSTANCE)
-                && minecraft.currentScreen == null){
+        if (minecraft.player != null &&
+                minecraft.player.isPotionActive(StunEffect.INSTANCE) &&
+                minecraft.currentScreen == null) {
             event.setCanceled(true);
         }
     }
@@ -249,7 +250,7 @@ public class ClientEventHandler {
         ITextComponent component = new TranslationTextComponent("mkcore.gui.item.armor_class.effect.name")
                 .mergeStyle(color)
                 .appendString(String.format(": %s%.2f%s ", prefix, amount, suffix))
-                .append(new TranslationTextComponent("attribute.name." + attribute.getAttributeName()));
+                .append(new TranslationTextComponent(attribute.getAttributeName()));
 
         tooltip.add(component);
     }

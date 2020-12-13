@@ -54,10 +54,10 @@ public class SpellTriggers {
         if (source instanceof PlayerEntity) {
 //            Log.info("startTrigger - %s", tag);
             return source.getCapability(CoreCapabilities.PLAYER_CAPABILITY).map(cap -> {
-                if (cap.hasSpellTag(tag)) {
+                if (cap.getCombatExtension().hasSpellTag(tag)) {
                     return false;
                 }
-                cap.addSpellTag(tag);
+                cap.getCombatExtension().addSpellTag(tag);
                 return true;
             }).orElse(true);
         }
@@ -67,7 +67,7 @@ public class SpellTriggers {
     private static void endTrigger(Entity source, String tag) {
         if (source instanceof PlayerEntity) {
 //            Log.info("endTrigger - %s", tag);
-            source.getCapability(CoreCapabilities.PLAYER_CAPABILITY).ifPresent(cap -> cap.removeSpellTag(tag));
+            source.getCapability(CoreCapabilities.PLAYER_CAPABILITY).ifPresent(cap -> cap.getCombatExtension().removeSpellTag(tag));
         }
     }
 

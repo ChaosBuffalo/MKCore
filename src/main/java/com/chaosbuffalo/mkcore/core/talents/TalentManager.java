@@ -21,6 +21,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent;
+import net.minecraftforge.fml.event.server.FMLServerStoppingEvent;
 
 import javax.annotation.Nonnull;
 import java.util.Collection;
@@ -45,6 +46,11 @@ public class TalentManager extends JsonReloadListener {
     public void serverStart(FMLServerAboutToStartEvent event) {
         // Can't start sending packets before this event
         serverStarted = true;
+    }
+
+    @SubscribeEvent
+    public void serverStop(FMLServerStoppingEvent event) {
+        serverStarted = false;
     }
 
     @Override
