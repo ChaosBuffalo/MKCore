@@ -62,7 +62,7 @@ public class PlayerStatsModule extends EntityStatsModule implements IPlayerSyncC
         // Here we're using isAddedToWorld as a proxy to know that attribute deserialization is done and max mana is available
         if (getEntity().isAddedToWorld()) {
             value = MathHelper.clamp(value, 0, getMaxMana());
-            MKCore.LOGGER.info("setMana clamp {}", value);
+//            MKCore.LOGGER.info("setMana clamp {}", value);
         }
         mana.set(value, sendUpdate);
     }
@@ -86,7 +86,7 @@ public class PlayerStatsModule extends EntityStatsModule implements IPlayerSyncC
     }
 
     public void onJoinWorld() {
-        MKCore.LOGGER.info("PlayerStats.onJoinWorld");
+//        MKCore.LOGGER.info("PlayerStats.onJoinWorld");
         if (getEntity().isServerWorld()) {
             setupBaseStats();
         }
@@ -97,7 +97,7 @@ public class PlayerStatsModule extends EntityStatsModule implements IPlayerSyncC
 
         ModifiableAttributeInstance instance = entity.getAttribute(attribute);
         if (instance != null) {
-            MKCore.LOGGER.info("Adding MK base stat {} {} to player", attribute.getAttributeName(), value);
+//            MKCore.LOGGER.info("Adding MK base stat {} {} to player", attribute.getAttributeName(), value);
             instance.setBaseValue(value);
         } else {
             MKCore.LOGGER.error("Cannot apply base stat mod to {} - missing attribute {}", getEntity(), attribute);
@@ -105,7 +105,7 @@ public class PlayerStatsModule extends EntityStatsModule implements IPlayerSyncC
     }
 
     private void setupBaseStats() {
-        MKCore.LOGGER.info("PlayerStats.setupFakeStats");
+//        MKCore.LOGGER.info("PlayerStats.setupBaseStats");
         addBaseStat(MKAttributes.MAX_MANA, 20);
         addBaseStat(MKAttributes.MANA_REGEN, 1);
         addBaseStat(MKAttributes.COOLDOWN, 0.1);

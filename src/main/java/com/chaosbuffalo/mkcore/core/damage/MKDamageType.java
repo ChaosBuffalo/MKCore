@@ -92,7 +92,7 @@ public class MKDamageType extends ForgeRegistryEntry<MKDamageType> {
                     target.getDisplayName().getString(),
                     Math.round(damage));
         } else {
-            msg = String.format("%s's %s %s just crit %s for %s",
+            msg = String.format("%s's %s just crit %s for %s",
                     source.getDisplayName().getString(),
                     damageType,
                     target.getDisplayName().getString(),

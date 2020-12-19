@@ -34,7 +34,7 @@ public class NeedsBuffCondition extends AbilityUseCondition {
     @Nonnull
     @Override
     public AbilityTargetingDecision getDecision(AbilityDecisionContext context) {
-        if (getAbility().canSelfCast() && needsBuff(context.getCaster())) {
+        if (getAbility().getTargetContext().canTargetCaster() && needsBuff(context.getCaster())) {
             return new AbilityTargetingDecision(context.getCaster(), getAbility());
         }
         if (!selfOnly) {

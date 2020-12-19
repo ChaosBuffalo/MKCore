@@ -12,7 +12,7 @@ public class ModTags {
         public static final ITag.INamedTag<Item> HEAVY_ARMOR = tag("armor/heavy");
 
         private static ITag.INamedTag<Item> tag(String name) {
-            return ItemTags.createOptional(MKCore.makeRL(name));
+            return ItemTags.makeWrapperTag(MKCore.makeRL(name).toString());
         }
     }
 }

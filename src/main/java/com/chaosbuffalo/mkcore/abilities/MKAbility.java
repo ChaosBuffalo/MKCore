@@ -216,10 +216,6 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
 
     public abstract TargetingContext getTargetContext();
 
-    public boolean canSelfCast() {
-        return false;
-    }
-
     public boolean isValidTarget(LivingEntity caster, LivingEntity target) {
         return Targeting.isValidTarget(getTargetContext(), caster, target);
     }

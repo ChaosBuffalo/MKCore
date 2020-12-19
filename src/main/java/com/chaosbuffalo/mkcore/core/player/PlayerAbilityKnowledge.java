@@ -175,7 +175,7 @@ public class PlayerAbilityKnowledge implements IMKAbilityKnowledge, IPlayerSyncC
         return info;
     }
 
-    public void markDirty(MKAbilityInfo info) {
+    private void markDirty(MKAbilityInfo info) {
         knownAbilityUpdater.markDirty(info.getId());
     }
 

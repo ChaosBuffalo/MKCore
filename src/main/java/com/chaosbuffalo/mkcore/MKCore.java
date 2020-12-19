@@ -116,13 +116,11 @@ public class MKCore {
 
     @SubscribeEvent
     public void registerCommands(RegisterCommandsEvent event) {
-        LOGGER.info("registerCommands event");
         MKCommand.registerCommands(event.getDispatcher());
     }
 
     @SubscribeEvent
     public void addReloadListeners(AddReloadListenerEvent event) {
-        LOGGER.info("addReloadListeners event");
         event.addListener(abilityManager);
         event.addListener(talentManager);
     }

@@ -221,7 +221,7 @@ public class ActiveAbilityGroup implements IActiveAbilityGroup, IPlayerSyncCompo
         List<DataResult<String>> passives = dynamic.asList(Dynamic::asString);
         for (int i = 0; i < passives.size(); i++) {
             int index = i;
-            passives.get(i).result().ifPresent(idString -> {
+            passives.get(i).resultOrPartial(MKCore.LOGGER::error).ifPresent(idString -> {
                 ResourceLocation abilityId = new ResourceLocation(idString);
                 MKAbility ability = MKCoreRegistry.getAbility(abilityId);
                 if (ability != null) {

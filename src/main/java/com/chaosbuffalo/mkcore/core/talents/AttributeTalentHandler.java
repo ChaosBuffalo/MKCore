@@ -70,7 +70,6 @@ public class AttributeTalentHandler extends TalentTypeHandler {
 
     private void applyAttribute(AttributeEntry entry) {
         ModifiableAttributeInstance instance = playerData.getEntity().getAttribute(entry.getAttribute());
-        //noinspection ConstantConditions
         if (instance == null) {
             MKCore.LOGGER.error("PlayerTalentModule.applyAttribute player did not have attribute {}!", entry.getAttribute());
             return;
@@ -90,7 +89,6 @@ public class AttributeTalentHandler extends TalentTypeHandler {
         AttributeEntry entry = attributeEntryMap.get(attributeTalent);
         if (entry != null) {
             ModifiableAttributeInstance instance = playerData.getEntity().getAttribute(entry.getAttribute());
-            //noinspection ConstantConditions
             if (instance != null) {
                 instance.removeModifier(entry.getModifier());
 //                dumpDirtyAttributes("removeAttribute");

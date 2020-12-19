@@ -165,7 +165,7 @@ public class CharacterScreen extends AbilityPanelScreen {
             stackLayout.doSetChildWidth(true);
             pData.getKnowledge().getTalentKnowledge().getKnownTrees().stream()
                     .map((loc) -> pData.getKnowledge().getTalentKnowledge().getTree(loc))
-                    .sorted(Comparator.comparing((info) -> info.getTreeDefinition().getName()))
+                    .sorted(Comparator.comparing((info) -> info.getTreeDefinition().getName().getString()))
                     .forEach(record -> {
                         MKLayout talentEntry = new TalentListEntry(0, 0, 16, record, treeWidget, font, this);
                         stackLayout.addWidget(talentEntry);

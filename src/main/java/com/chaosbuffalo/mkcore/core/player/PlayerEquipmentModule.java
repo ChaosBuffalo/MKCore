@@ -1,5 +1,6 @@
 package com.chaosbuffalo.mkcore.core.player;
 
+import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.core.AbilitySlot;
 import com.chaosbuffalo.mkcore.core.IMKAbilityProvider;
@@ -56,10 +57,14 @@ public class PlayerEquipmentModule {
         if (to.getItem() instanceof IMKAbilityProvider) {
             currentMainAbility = ((IMKAbilityProvider) to.getItem()).getAbility(to);
             if (currentMainAbility != null) {
-                if (!playerData.getAbilities().knowsAbility(currentMainAbility.getAbilityId())) {
-                    playerData.getAbilities().learnAbility(currentMainAbility);
+                if (currentMainAbility.getType().fitsSlot(AbilitySlot.Item)) {
+                    if (!playerData.getAbilities().knowsAbility(currentMainAbility.getAbilityId())) {
+                        playerData.getAbilities().learnAbility(currentMainAbility);
+                    }
+                    playerData.getAbilityLoadout().getAbilityGroup(AbilitySlot.Item).setSlot(0, currentMainAbility.getAbilityId());
+                } else {
+                    MKCore.LOGGER.error("Cannot use ability {} provided by Item {} because it uses the wrong AbilitySlot", currentMainAbility, to);
                 }
-                playerData.getAbilityLoadout().getAbilityGroup(AbilitySlot.Item).setSlot(0, currentMainAbility.getAbilityId());
             }
         } else {
             if (currentMainAbility != null) {

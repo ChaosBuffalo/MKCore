@@ -82,11 +82,6 @@ public class ClericHeal extends MKAbility {
     }
 
     @Override
-    public boolean canSelfCast() {
-        return true;
-    }
-
-    @Override
     public float getDistance(LivingEntity entity) {
         return 10.0f + 5.0f;
     }
