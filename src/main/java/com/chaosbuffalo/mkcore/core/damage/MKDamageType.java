@@ -2,7 +2,6 @@ package com.chaosbuffalo.mkcore.core.damage;
 
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.core.MKCombatFormulas;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.Attribute;
@@ -11,6 +10,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
 import java.util.function.Consumer;
@@ -53,8 +53,8 @@ public class MKDamageType extends ForgeRegistryEntry<MKDamageType> {
         return shouldDisplay;
     }
 
-    public String getDisplayName() {
-        return I18n.format(String.format("%s.%s.name", getRegistryName().getNamespace(),
+    public ITextComponent getDisplayName() {
+        return new TranslationTextComponent(String.format("%s.%s.name", getRegistryName().getNamespace(),
                 getRegistryName().getPath()));
     }
 
@@ -84,39 +84,39 @@ public class MKDamageType extends ForgeRegistryEntry<MKDamageType> {
     }
 
     public ITextComponent getEffectCritMessage(LivingEntity source, LivingEntity target, float damage,
-                                               String damageType, boolean isSelf){
-        String msg;
+                                               String damageType, boolean isSelf) {
+        TranslationTextComponent msg;
         if (isSelf) {
-            msg = String.format("Your %s just crit %s for %s",
+            msg = new TranslationTextComponent("mkcore.crit.effect.self",
                     damageType,
-                    target.getDisplayName().getString(),
+                    target.getDisplayName(),
                     Math.round(damage));
         } else {
-            msg = String.format("%s's %s just crit %s for %s",
-                    source.getDisplayName().getString(),
+            msg = new TranslationTextComponent("mkcore.crit.effect.other",
+                    source.getDisplayName(),
                     damageType,
-                    target.getDisplayName().getString(),
+                    target.getDisplayName(),
                     Math.round(damage));
         }
-        return new StringTextComponent(msg).mergeStyle(TextFormatting.DARK_PURPLE);
+        return msg.mergeStyle(TextFormatting.DARK_PURPLE);
     }
 
     public ITextComponent getAbilityCritMessage(LivingEntity source, LivingEntity target, float damage,
                                                 MKAbility ability, boolean isSelf) {
-        String msg;
+        TranslationTextComponent msg;
         if (isSelf) {
-            msg = String.format("Your %s spell just crit %s for %s",
+            msg = new TranslationTextComponent("mkcore.crit.ability.self",
                     ability.getAbilityName(),
-                    target.getDisplayName().getString(),
+                    target.getDisplayName(),
                     Math.round(damage));
         } else {
-            msg = String.format("%s's %s spell just crit %s for %s",
-                    source.getDisplayName().getString(),
+            msg = new TranslationTextComponent("mkcore.crit.ability.self",
+                    source.getDisplayName(),
                     ability.getAbilityName(),
-                    target.getDisplayName().getString(),
+                    target.getDisplayName(),
                     Math.round(damage));
         }
-        return new StringTextComponent(msg).mergeStyle(TextFormatting.AQUA);
+        return msg.mergeStyle(TextFormatting.AQUA);
     }
 
     public float applyDamage(LivingEntity source, LivingEntity target, float originalDamage, float modifierScaling) {

@@ -105,11 +105,8 @@ public class PlayerStatsModule extends EntityStatsModule implements IPlayerSyncC
     }
 
     private void setupBaseStats() {
-//        MKCore.LOGGER.info("PlayerStats.setupBaseStats");
         addBaseStat(MKAttributes.MAX_MANA, 20);
         addBaseStat(MKAttributes.MANA_REGEN, 1);
-        addBaseStat(MKAttributes.COOLDOWN, 0.1);
-        addBaseStat(MKAttributes.CASTING_SPEED, 0.1);
     }
 
     private void updateMana() {

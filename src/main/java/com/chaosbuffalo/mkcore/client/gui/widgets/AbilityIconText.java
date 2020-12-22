@@ -7,12 +7,13 @@ import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKImage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
 
 public class AbilityIconText extends IconText {
-    private AbilityPanelScreen screen;
-    private MKAbility ability;
+    private final AbilityPanelScreen screen;
+    private final MKAbility ability;
 
-    public AbilityIconText(int x, int y, int height, String text, ResourceLocation iconLoc,
+    public AbilityIconText(int x, int y, int height, ITextComponent text, ResourceLocation iconLoc,
                            FontRenderer font, int iconWidth, AbilityPanelScreen screen, MKAbility ability) {
         super(x, y, height, text, iconLoc, font, iconWidth, 1);
         this.screen = screen;

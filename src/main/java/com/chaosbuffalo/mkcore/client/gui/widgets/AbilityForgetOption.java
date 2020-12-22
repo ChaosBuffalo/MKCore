@@ -26,8 +26,7 @@ public class AbilityForgetOption extends MKLayout {
         this.popup = popup;
         this.ability = ability;
         this.trainerEntityId = trainerEntity;
-        IconText iconText = new IconText(0, 0, 16, ability.getAbilityName(), ability.getAbilityIcon(),
-                font, 16, 1);
+        IconText iconText = new IconText(0, 0, 16, ability.getAbilityName(), ability.getAbilityIcon(), font, 16, 1);
         this.addWidget(iconText);
         addConstraintToWidget(new MarginConstraint(MarginConstraint.MarginType.TOP), iconText);
         addConstraintToWidget(new MarginConstraint(MarginConstraint.MarginType.LEFT), iconText);

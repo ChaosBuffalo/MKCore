@@ -243,7 +243,7 @@ public class CharacterScreen extends AbilityPanelScreen {
                 .setMarginRight(4).setPaddingBot(2);
         stackLayout.doSetChildWidth(false);
         List<MKDamageType> damageTypes = new ArrayList<>(MKCoreRegistry.DAMAGE_TYPES.getValues());
-        damageTypes.sort(Comparator.comparing(MKDamageType::getDisplayName));
+        damageTypes.sort(Comparator.comparing(d -> d.getDisplayName().getString()));
         for (MKDamageType damageType : damageTypes) {
             if (damageType.shouldDisplay()) {
                 IconText iconText = new IconText(0, 0, 16,

@@ -2,11 +2,12 @@ package com.chaosbuffalo.mkcore.core.talents;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.mojang.serialization.Dynamic;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.RangedAttribute;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.TranslationTextComponent;
 
 import java.util.UUID;
 
@@ -69,7 +70,7 @@ public class AttributeTalent extends BaseTalent {
     }
 
     @Override
-    public String getTalentDescription(TalentRecord record) {
+    public ITextComponent getTalentDescription(TalentRecord record) {
         double perRank = 0;
         double currentValue = 0;
         if (record.getNode() instanceof AttributeTalentNode) {
@@ -89,7 +90,7 @@ public class AttributeTalent extends BaseTalent {
             totalAmount = String.format("%.2f", currentValue);
         }
         String finalAmount = String.format("%s (%s)", amount, totalAmount);
-        return TextFormatting.GRAY + I18n.format(getDescriptionTranslationKey(), finalAmount);
+        return new TranslationTextComponent(getDescriptionTranslationKey(), finalAmount).mergeStyle(TextFormatting.GRAY);
     }
 
     public AttributeModifier createModifier(double value) {

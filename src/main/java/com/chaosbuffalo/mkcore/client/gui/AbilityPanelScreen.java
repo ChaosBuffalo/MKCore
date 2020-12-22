@@ -207,7 +207,7 @@ public abstract class AbilityPanelScreen extends MKScreen implements IPlayerData
                 .setMarginRight(4).setPaddingBot(2).setPaddingRight(2);
         stackLayout.doSetChildWidth(true);
         abilities.stream()
-                .sorted(Comparator.comparing(MKAbility::getAbilityName))
+                .sorted(Comparator.comparing(a -> a.getAbilityName().getString()))
                 .forEach(ability -> {
                     MKLayout abilityEntry = new AbilityListEntry(0, 0, 16,
                             ability, infoWidget, font, this);

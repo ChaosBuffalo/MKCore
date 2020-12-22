@@ -35,7 +35,7 @@ public abstract class PassiveTalentAbility extends MKAbility {
     public List<ITextComponent> getDescriptionsForEntity(IMKEntityData entityData) {
         List<ITextComponent> descriptions = new ArrayList<>();
         descriptions.add(new TranslationTextComponent("mkcore.ability.description.passive"));
-        descriptions.add(AbilityDescriptions.getTargetTypeDescription(this));
+        descriptions.add(getTargetContextLocalization());
         descriptions.add(AbilityDescriptions.getAbilityDescription(this, entityData, this::getDescriptionArgs));
         descriptions.addAll(AbilityDescriptions.getEffectModifiers(getPassiveEffect(), entityData, false));
         return descriptions;

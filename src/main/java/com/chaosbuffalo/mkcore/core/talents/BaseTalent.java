@@ -1,10 +1,10 @@
 package com.chaosbuffalo.mkcore.core.talents;
 
-import com.chaosbuffalo.mkcore.MKCore;
 import com.mojang.serialization.Dynamic;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
 import java.util.regex.Pattern;
@@ -21,19 +21,19 @@ public abstract class BaseTalent extends ForgeRegistryEntry<BaseTalent> {
         return new TalentNode(this, dynamic);
     }
 
-    public String getTalentName() {
-        return I18n.format(String.format("%s.%s.name",
+    public ITextComponent getTalentName() {
+        return new TranslationTextComponent(String.format("%s.%s.name",
                 getRegistryName().getNamespace(), getRegistryName().getPath()));
     }
 
-    public String getTalentDescription(TalentRecord record) {
-        return TextFormatting.GRAY + I18n.format(String.format("%s.%s.description",
+    public ITextComponent getTalentDescription(TalentRecord record) {
+        TranslationTextComponent comp = new TranslationTextComponent(String.format("%s.%s.description",
                 getRegistryName().getNamespace(), getRegistryName().getPath()));
+        return comp.mergeStyle(TextFormatting.GRAY);
     }
 
-    public String getTalentTypeName() {
-        return TextFormatting.GOLD + I18n.format(String.format("%s.talent_type.%s.name",
-                MKCore.MOD_ID, getTalentType().getName().toLowerCase()));
+    public ITextComponent getTalentTypeName() {
+        return getTalentType().getFullName().mergeStyle(TextFormatting.GOLD);
     }
 
     public ResourceLocation getIcon() {

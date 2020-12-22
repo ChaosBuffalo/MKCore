@@ -14,6 +14,7 @@ import net.minecraft.util.Util;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.network.NetworkEvent;
@@ -135,19 +136,17 @@ public class CritMessagePacket {
         switch (type) {
             case MELEE_CRIT:
                 if (isSelf) {
-                    player.sendMessage(new StringTextComponent(
-                            String.format("You just crit %s with %s for %s",
-                                    target.getDisplayName().getString(),
-                                    playerSource.getHeldItemMainhand().getDisplayName().getString(),
-                                    Math.round(critDamage)))
-                            .mergeStyle(TextFormatting.DARK_RED), Util.DUMMY_UUID);
+                    player.sendMessage(new TranslationTextComponent("mkcore.crit.melee.self",
+                            target.getDisplayName(),
+                            playerSource.getHeldItemMainhand().getDisplayName(),
+                            Math.round(critDamage)
+                    ).mergeStyle(TextFormatting.DARK_RED), Util.DUMMY_UUID);
                 } else {
-                    player.sendMessage(new StringTextComponent(
-                            String.format("%s just crit %s with %s for %s",
-                                    playerSource.getDisplayName().getString(),
-                                    target.getDisplayName().getString(),
-                                    playerSource.getHeldItemMainhand().getDisplayName().getString(),
-                                    Math.round(critDamage))
+                    player.sendMessage(new TranslationTextComponent("mkcore.crit.melee.other",
+                            playerSource.getDisplayName(),
+                            target.getDisplayName(),
+                            playerSource.getHeldItemMainhand().getDisplayName(),
+                            Math.round(critDamage)
                     ).mergeStyle(TextFormatting.DARK_RED), Util.DUMMY_UUID);
                 }
                 break;
@@ -164,19 +163,17 @@ public class CritMessagePacket {
                 Entity projectile = player.getEntityWorld().getEntityByID(projectileId);
                 if (projectile != null) {
                     if (isSelf) {
-                        player.sendMessage(new StringTextComponent(
-                                String.format("You just crit %s with %s for %s",
-                                        target.getDisplayName().getUnformattedComponentText(),
-                                        projectile.getDisplayName().getUnformattedComponentText(),
-                                        Math.round(critDamage)))
-                                .mergeStyle(TextFormatting.LIGHT_PURPLE), Util.DUMMY_UUID);
+                        player.sendMessage(new TranslationTextComponent("mkcore.crit.projectile.self",
+                                target.getDisplayName(),
+                                projectile.getDisplayName(),
+                                Math.round(critDamage)
+                        ).mergeStyle(TextFormatting.LIGHT_PURPLE), Util.DUMMY_UUID);
                     } else {
-                        player.sendMessage(new StringTextComponent(
-                                String.format("%s just crit %s with %s for %s",
-                                        playerSource.getDisplayName().getUnformattedComponentText(),
-                                        target.getDisplayName().getUnformattedComponentText(),
-                                        projectile.getDisplayName().getUnformattedComponentText(),
-                                        Math.round(critDamage))
+                        player.sendMessage(new TranslationTextComponent("mkcore.crit.projectile.other",
+                                playerSource.getDisplayName(),
+                                target.getDisplayName(),
+                                projectile.getDisplayName(),
+                                Math.round(critDamage)
                         ).mergeStyle(TextFormatting.LIGHT_PURPLE), Util.DUMMY_UUID);
                     }
                 }

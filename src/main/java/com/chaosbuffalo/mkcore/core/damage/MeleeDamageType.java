@@ -9,8 +9,8 @@ import net.minecraft.entity.ai.attributes.RangedAttribute;
 import net.minecraft.util.CombatRules;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.TranslationTextComponent;
 
 import java.util.function.Consumer;
 
@@ -25,20 +25,20 @@ public class MeleeDamageType extends MKDamageType {
     @Override
     public ITextComponent getAbilityCritMessage(LivingEntity source, LivingEntity target, float damage,
                                                 MKAbility ability, boolean isSelf) {
-        String msg;
+        TranslationTextComponent msg;
         if (isSelf) {
-            msg = String.format("You just crit %s with %s for %s",
-                    target.getDisplayName().getString(),
-                    source.getHeldItemMainhand().getDisplayName().getString(),
+            msg = new TranslationTextComponent("mkcore.crit.melee.self",
+                    target.getDisplayName(),
+                    source.getHeldItemMainhand().getDisplayName(),
                     Math.round(damage));
         } else {
-            msg = String.format("%s just crit %s with %s for %s",
-                    source.getDisplayName().getString(),
-                    target.getDisplayName().getString(),
-                    source.getHeldItemMainhand().getDisplayName().getString(),
+            msg = new TranslationTextComponent("mkcore.crit.melee.other",
+                    source.getDisplayName(),
+                    target.getDisplayName(),
+                    source.getHeldItemMainhand().getDisplayName(),
                     Math.round(damage));
         }
-        return new StringTextComponent(msg).mergeStyle(TextFormatting.GOLD);
+        return msg.mergeStyle(TextFormatting.GOLD);
     }
 
     @Override

@@ -1,8 +1,6 @@
 package com.chaosbuffalo.mkcore.abilities;
 
-import com.chaosbuffalo.mkcore.abilities.description.AbilityDescriptions;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -47,22 +45,21 @@ public class AbilityTargetSelector {
     }
 
     public void fillAbilityDescription(List<ITextComponent> descriptions, MKAbility ability, IMKEntityData entityData) {
-        descriptions.add(getLocalizedDescriptionForContext());
+        descriptions.add(getDescriptionWithHeading());
         if (doShowTargetType()) {
-            descriptions.add(AbilityDescriptions.getTargetTypeDescription(ability));
+            descriptions.add(ability.getTargetContextLocalization());
         }
         additionalDescriptors.forEach(func -> {
             descriptions.add(func.apply(ability, entityData));
         });
     }
 
-    public ITextComponent getLocalizedDescriptionForContext() {
-        return new TranslationTextComponent("mkcore.ability_description.target",
-                I18n.format(getDescriptionKey()));
+    private ITextComponent getDescriptionWithHeading() {
+        return new TranslationTextComponent("mkcore.ability_description.target", getDescription());
     }
 
-    public String getDescriptionKey() {
-        return descriptionKey;
+    public ITextComponent getDescription() {
+        return new TranslationTextComponent(descriptionKey);
     }
 
     public AbilityTargetSelector setRequiredMemories(Set<MemoryModuleType<?>> types) {

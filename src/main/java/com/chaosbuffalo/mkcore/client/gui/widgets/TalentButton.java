@@ -11,8 +11,10 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class TalentButton extends MKButton {
 
@@ -29,7 +31,7 @@ public class TalentButton extends MKButton {
     public static final int SLOT_Y_OFFSET = 4;
     public static final int TEXT_OFFSET = 4;
     public static final int SLOT_X_OFFSET = (WIDTH - SLOT_WIDTH) / 2;
-    private ArrayList<String> tooltip;
+    private final List<ITextComponent> tooltip;
 
     public final int index;
     public final String line;

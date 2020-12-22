@@ -20,7 +20,6 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.DynamicOps;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
@@ -145,10 +144,9 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
     }
 
 
-    public String getAbilityName() {
-        return I18n.format(getTranslationKey());
+    public ITextComponent getAbilityName() {
+        return new TranslationTextComponent(getTranslationKey());
     }
-
 
     public String getTranslationKey() {
         ResourceLocation abilityId = getRegistryName();
@@ -190,7 +188,7 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
         return 1.0f;
     }
 
-    protected float getMeleeReach(LivingEntity entity){
+    protected float getMeleeReach(LivingEntity entity) {
         return (float) entity.getAttribute(MKAttributes.ATTACK_REACH).getValue();
     }
 
