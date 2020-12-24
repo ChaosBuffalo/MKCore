@@ -7,10 +7,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.Attribute;
 import net.minecraft.entity.ai.attributes.RangedAttribute;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.util.text.*;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
 import java.util.function.Consumer;
@@ -53,7 +50,7 @@ public class MKDamageType extends ForgeRegistryEntry<MKDamageType> {
         return shouldDisplay;
     }
 
-    public ITextComponent getDisplayName() {
+    public IFormattableTextComponent getDisplayName() {
         return new TranslationTextComponent(String.format("%s.%s.name", getRegistryName().getNamespace(),
                 getRegistryName().getPath()));
     }

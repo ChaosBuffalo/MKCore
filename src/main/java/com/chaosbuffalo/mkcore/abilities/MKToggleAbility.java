@@ -15,6 +15,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public abstract class MKToggleAbility extends MKAbility {
 
@@ -39,10 +40,9 @@ public abstract class MKToggleAbility extends MKAbility {
     }
 
     @Override
-    public List<ITextComponent> getDescriptionsForEntity(IMKEntityData entityData) {
-        List<ITextComponent> ret = super.getDescriptionsForEntity(entityData);
-        ret.addAll(AbilityDescriptions.getEffectModifiers(getToggleEffect(), entityData, false));
-        return ret;
+    public void buildDescription(IMKEntityData entityData, Consumer<ITextComponent> consumer) {
+        super.buildDescription(entityData, consumer);
+        AbilityDescriptions.getEffectModifiers(getToggleEffect(), entityData, false).forEach(consumer);
     }
 
     @Override

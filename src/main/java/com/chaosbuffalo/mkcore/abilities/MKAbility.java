@@ -5,7 +5,6 @@ import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.abilities.ai.conditions.AbilityUseCondition;
 import com.chaosbuffalo.mkcore.abilities.ai.conditions.StandardUseCondition;
 import com.chaosbuffalo.mkcore.abilities.attributes.IAbilityAttribute;
-import com.chaosbuffalo.mkcore.abilities.description.AbilityDescriptions;
 import com.chaosbuffalo.mkcore.core.AbilitySlot;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.core.MKAttributes;
@@ -37,6 +36,7 @@ import net.minecraftforge.registries.ForgeRegistryEntry;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -99,18 +99,34 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
         setUseCondition(new StandardUseCondition(this));
     }
 
-    protected List<Object> getDescriptionArgs(IMKEntityData entityData) {
-        return new ArrayList<>();
+    public void buildDescription(IMKEntityData entityData, Consumer<ITextComponent> consumer) {
+        consumer.accept(getManaCostDescription(entityData));
+        consumer.accept(getCooldownDescription(entityData));
+        consumer.accept(getCastTimeDescription(entityData));
+        getTargetSelector().buildDescription(this, entityData, consumer);
+        consumer.accept(getAbilityDescription(entityData));
     }
 
-    public List<ITextComponent> getDescriptionsForEntity(IMKEntityData entityData) {
-        List<ITextComponent> descriptions = new ArrayList<>();
-        descriptions.add(AbilityDescriptions.getManaCostDescription(this, entityData));
-        descriptions.add(AbilityDescriptions.getCooldownDescription(this, entityData));
-        descriptions.add(AbilityDescriptions.getCastTimeDescription(this, entityData));
-        getTargetSelector().fillAbilityDescription(descriptions, this, entityData);
-        descriptions.add(AbilityDescriptions.getAbilityDescription(this, entityData, this::getDescriptionArgs));
-        return descriptions;
+    protected ITextComponent getCooldownDescription(IMKEntityData entityData) {
+        float seconds = (float) entityData.getStats().getAbilityCooldown(this) / GameConstants.TICKS_PER_SECOND;
+        return new TranslationTextComponent("mkcore.ability.description.cooldown", seconds);
+    }
+
+    protected ITextComponent getCastTimeDescription(IMKEntityData entityData) {
+        int castTicks = entityData.getStats().getAbilityCastTime(this);
+        float seconds = (float) castTicks / GameConstants.TICKS_PER_SECOND;
+        ITextComponent time = castTicks > 0 ?
+                new TranslationTextComponent("mkcore.ability.description.seconds", seconds) :
+                new TranslationTextComponent("mkcore.ability.description.instant");
+        return new TranslationTextComponent("mkcore.ability.description.cast_time", time);
+    }
+
+    protected ITextComponent getManaCostDescription(IMKEntityData entityData) {
+        return new TranslationTextComponent("mkcore.ability.description.mana_cost", getManaCost(entityData));
+    }
+
+    protected ITextComponent getAbilityDescription(IMKEntityData entityData) {
+        return new TranslationTextComponent(getDescriptionTranslationKey());
     }
 
     public void setUseCondition(AbilityUseCondition useCondition) {
@@ -148,12 +164,12 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
         return new TranslationTextComponent(getTranslationKey());
     }
 
-    public String getTranslationKey() {
+    protected String getTranslationKey() {
         ResourceLocation abilityId = getRegistryName();
         return String.format("%s.%s.name", abilityId.getNamespace(), abilityId.getPath());
     }
 
-    public String getDescriptionTranslationKey() {
+    protected String getDescriptionTranslationKey() {
         ResourceLocation abilityId = getRegistryName();
         return String.format("%s.%s.description", abilityId.getNamespace(), abilityId.getPath());
     }

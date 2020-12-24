@@ -20,12 +20,12 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.util.SoundEvent;
+import net.minecraft.util.text.*;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 import javax.annotation.Nullable;
-import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
@@ -51,13 +51,17 @@ public class EmberAbility extends MKAbility {
     }
 
     @Override
-    protected List<Object> getDescriptionArgs(IMKEntityData entityData) {
-        List<Object> args = super.getDescriptionArgs(entityData);
-        args.add(String.format("%.1f (%.1f)", damage.getValue(), entityData.getStats()
-                .getDamageTypeBonus(ModDamageTypes.FireDamage) + damage.getValue()));
-        args.add(ModDamageTypes.FireDamage.getDisplayName());
-        args.add(burnTime.getValue());
-        return args;
+    protected ITextComponent getAbilityDescription(IMKEntityData entityData) {
+        float bonus = entityData.getStats().getDamageTypeBonus(ModDamageTypes.FireDamage);
+        IFormattableTextComponent damageStr = StringTextComponent.EMPTY.deepCopy();
+        damageStr.append(new StringTextComponent(String.format("%.1f", damage.getValue() + bonus)).mergeStyle(TextFormatting.UNDERLINE));
+        if (bonus != 0) {
+            damageStr.append(new StringTextComponent(String.format(" (+%.1f)", bonus)).mergeStyle(TextFormatting.BOLD));
+        }
+        damageStr.appendString(" ")
+                .append(ModDamageTypes.FireDamage.getDisplayName().mergeStyle(TextFormatting.DARK_RED));
+        ITextComponent burn = new StringTextComponent(burnTime.getValue().toString()).mergeStyle(TextFormatting.UNDERLINE);
+        return new TranslationTextComponent(getDescriptionTranslationKey(), damageStr, burn);
     }
 
     @Override
