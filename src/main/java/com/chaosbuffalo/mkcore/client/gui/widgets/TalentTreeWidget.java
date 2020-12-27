@@ -44,8 +44,8 @@ public class TalentTreeWidget extends MKLayout {
         if (treeRecord == null) {
             MKText noSelectPrompt = new MKText(fontRenderer,
                     new TranslationTextComponent("mkcore.gui.select_talent_tree"));
-            addConstraintToWidget(new MarginConstraint(MarginConstraint.MarginType.TOP), noSelectPrompt);
-            addConstraintToWidget(new MarginConstraint(MarginConstraint.MarginType.LEFT), noSelectPrompt);
+            addConstraintToWidget(MarginConstraint.TOP, noSelectPrompt);
+            addConstraintToWidget(MarginConstraint.LEFT, noSelectPrompt);
             noSelectPrompt.setColor(0xffffffff);
             addWidget(noSelectPrompt);
             setWidth(originalWidth);

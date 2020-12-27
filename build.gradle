@@ -102,8 +102,8 @@ dependencies {
     minecraft "net.minecraftforge:forge:${forge_version}"
     compileOnly fg.deobf("com.chaosbuffalo.targeting_api:targeting_api-1.16.4:0.22")
     runtimeOnly fg.deobf("com.chaosbuffalo.targeting_api:targeting_api-1.16.4:0.22")
-    compileOnly fg.deobf("com.chaosbuffalo.mkwidgets:mkwidgets-1.16.4:1.16")
-    runtimeOnly fg.deobf("com.chaosbuffalo.mkwidgets:mkwidgets-1.16.4:1.16")
+    compileOnly fg.deobf("com.chaosbuffalo.mkwidgets:mkwidgets-1.16.4:1.17")
+    runtimeOnly fg.deobf("com.chaosbuffalo.mkwidgets:mkwidgets-1.16.4:1.17")
 
     // You may put jars on which you depend on in ./libs or you may define them like so..
     // compile "some.group:artifact:version:classifier"

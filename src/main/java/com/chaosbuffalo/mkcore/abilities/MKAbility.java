@@ -304,7 +304,7 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
     }
 
     public Set<MemoryModuleType<?>> getRequiredMemories() {
-        return ImmutableSet.of();
+        return getTargetSelector().getRequiredMemories();
     }
 
     public boolean isExecutableContext(AbilityContext context) {

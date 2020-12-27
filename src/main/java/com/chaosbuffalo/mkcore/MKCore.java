@@ -27,6 +27,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
 import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
@@ -53,6 +54,7 @@ public class MKCore {
     public MKCore() {
         INSTANCE = this;
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::loadComplete);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doClientStuff);
         // Register the processIMC method for modloading
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::processIMC);
@@ -73,6 +75,10 @@ public class MKCore {
         PacketHandler.setupHandler();
         CoreCapabilities.registerCapabilities();
         MKCommand.registerArguments();
+    }
+
+    private void loadComplete(final FMLLoadCompleteEvent event) {
+        // Hopefully other mods will have put their entries in the GlobalEntityTypeAttributes by now
         registerAttributes();
     }
 

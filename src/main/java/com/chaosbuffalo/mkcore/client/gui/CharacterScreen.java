@@ -350,8 +350,8 @@ public class CharacterScreen extends AbilityPanelScreen {
 
     public void setupDamageHeader(MKPlayerData playerData, MKLayout layout) {
         MKStackLayoutVertical stackLayout = new MKStackLayoutVertical(0, 0, layout.getWidth());
-        layout.addConstraintToWidget(new MarginConstraint(MarginConstraint.MarginType.LEFT), stackLayout);
-        layout.addConstraintToWidget(new MarginConstraint(MarginConstraint.MarginType.TOP), stackLayout);
+        layout.addConstraintToWidget(MarginConstraint.LEFT, stackLayout);
+        layout.addConstraintToWidget(MarginConstraint.TOP, stackLayout);
         layout.addConstraintToWidget(new LayoutRelativeWidthConstraint(1.0f), stackLayout);
         stackLayout.setMargins(4, 4, 4, 4);
         stackLayout.setPaddingTop(2);
@@ -369,8 +369,8 @@ public class CharacterScreen extends AbilityPanelScreen {
 
     public void setupStatsHeader(MKPlayerData playerData, MKLayout layout) {
         MKStackLayoutVertical stackLayout = new MKStackLayoutVertical(0, 0, layout.getWidth());
-        layout.addConstraintToWidget(new MarginConstraint(MarginConstraint.MarginType.LEFT), stackLayout);
-        layout.addConstraintToWidget(new MarginConstraint(MarginConstraint.MarginType.TOP), stackLayout);
+        layout.addConstraintToWidget(MarginConstraint.LEFT, stackLayout);
+        layout.addConstraintToWidget(MarginConstraint.TOP, stackLayout);
         layout.addConstraintToWidget(new LayoutRelativeWidthConstraint(1.0f), stackLayout);
         stackLayout.setMargins(4, 4, 4, 4);
         stackLayout.setPaddingTop(2);

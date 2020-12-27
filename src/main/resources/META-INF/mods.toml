@@ -59,11 +59,11 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed mollis lacinia magn
     modId="targeting_api"
     mandatory=true
     versionRange="[0.22,)"
-    ordering="NONE"
+    ordering="AFTER"
     side="BOTH"
 [[dependencies.mkcore]]
     modId="mkwidgets"
     mandatory=true
-    versionRange="[1.15,)"
-    ordering="NONE"
+    versionRange="[1.17,)"
+    ordering="AFTER"
     side="BOTH"

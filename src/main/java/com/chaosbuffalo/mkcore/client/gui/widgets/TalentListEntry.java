@@ -1,8 +1,8 @@
 package com.chaosbuffalo.mkcore.client.gui.widgets;
 
 import com.chaosbuffalo.mkcore.client.gui.CharacterScreen;
-import com.chaosbuffalo.mkcore.client.gui.constraints.CenterYWithOffsetConstraint;
 import com.chaosbuffalo.mkcore.core.talents.TalentTreeRecord;
+import com.chaosbuffalo.mkwidgets.client.gui.constraints.CenterYWithOffsetConstraint;
 import com.chaosbuffalo.mkwidgets.client.gui.layouts.MKStackLayoutHorizontal;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKText;
 import com.mojang.blaze3d.matrix.MatrixStack;

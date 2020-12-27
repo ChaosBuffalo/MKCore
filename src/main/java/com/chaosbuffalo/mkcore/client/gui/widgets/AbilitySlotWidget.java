@@ -94,8 +94,8 @@ public class AbilitySlotWidget extends MKLayout {
             if (ability != null) {
                 icon = new MKImage(0, 0, 16, 16, ability.getAbilityIcon());
                 addWidget(icon);
-                addConstraintToWidget(new MarginConstraint(MarginConstraint.MarginType.TOP), icon);
-                addConstraintToWidget(new MarginConstraint(MarginConstraint.MarginType.LEFT), icon);
+                addConstraintToWidget(MarginConstraint.TOP, icon);
+                addConstraintToWidget(MarginConstraint.LEFT, icon);
             }
         }
     }

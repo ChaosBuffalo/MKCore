@@ -20,6 +20,12 @@ public class AbilityIconText extends IconText {
         this.ability = ability;
     }
 
+    public AbilityIconText(int x, int y, int height, FontRenderer font, int iconWidth, AbilityPanelScreen screen, MKAbility ability) {
+        super(x, y, height, ability.getAbilityName(), ability.getAbilityIcon(), font, iconWidth, 1);
+        this.screen = screen;
+        this.ability = ability;
+    }
+
     @Override
     public boolean onMousePressed(Minecraft minecraft, double mouseX, double mouseY, int mouseButton) {
         if (screen.shouldAbilityDrag()) {
