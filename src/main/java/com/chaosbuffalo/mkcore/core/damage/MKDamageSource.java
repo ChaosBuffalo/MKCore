@@ -15,10 +15,12 @@ public class MKDamageSource extends IndirectEntityDamageSource {
     private float modifierScaling;
     private boolean suppressTriggers;
     private final MKDamageType damageType;
+
     public enum Origination {
         MK_ABILITY,
         DAMAGE_TYPE
     }
+
     private final Origination origination;
 
     public ResourceLocation getAbilityId() {
@@ -35,7 +37,7 @@ public class MKDamageSource extends IndirectEntityDamageSource {
     }
 
     public MKDamageSource(String damageTypeName, MKDamageType damageTypeIn,
-                          Entity source, @Nullable Entity indirectEntityIn){
+                          Entity source, @Nullable Entity indirectEntityIn) {
         super(damageTypeIn.getRegistryName().toString(), source, indirectEntityIn);
         this.damageType = damageTypeIn;
         this.damageTypeName = damageTypeName;
@@ -94,13 +96,13 @@ public class MKDamageSource extends IndirectEntityDamageSource {
     }
 
     public static MKDamageSource causeEffectDamage(MKDamageType damageType, String effectType, Entity source,
-                                                   @Nullable Entity indirectEntityIn){
+                                                   @Nullable Entity indirectEntityIn) {
         return (MKDamageSource) new MKDamageSource(effectType, damageType, source, indirectEntityIn)
                 .setDamageBypassesArmor();
     }
 
     public static MKDamageSource causeEffectDamage(MKDamageType damageType, String effectType, Entity source,
-                                                   @Nullable Entity indirectEntityIn, float modifierScaling){
+                                                   @Nullable Entity indirectEntityIn, float modifierScaling) {
         return causeEffectDamage(damageType, effectType, source, indirectEntityIn)
                 .setModifierScaling(modifierScaling);
     }

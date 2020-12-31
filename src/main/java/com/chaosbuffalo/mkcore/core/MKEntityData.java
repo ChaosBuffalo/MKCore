@@ -23,12 +23,6 @@ public class MKEntityData implements IMKEntityData {
         abilityExecutor = new AbilityExecutor(this);
         stats = new EntityStatsModule(this);
         combatExtensionModule = new CombatExtensionModule(this);
-        registerAttributes();
-    }
-
-    private void registerAttributes() {
-//        AbstractAttributeMap attributes = entity.getAttributes();
-//        MKAttributes.registerEntityAttributes(attributes);
     }
 
     public void update() {

@@ -255,8 +255,8 @@ public class ClientEventHandler {
         tooltip.add(component);
     }
 
-    private static void doPlayerAttack(PlayerEntity player, Entity target, Minecraft minecraft){
-        if (minecraft.playerController != null){
+    private static void doPlayerAttack(PlayerEntity player, Entity target, Minecraft minecraft) {
+        if (minecraft.playerController != null) {
             minecraft.playerController.syncCurrentPlayItem();
         }
         PacketHandler.sendMessageToServer(new MKItemAttackPacket(target));
@@ -269,17 +269,17 @@ public class ClientEventHandler {
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void onAttackReplacement(InputEvent.ClickInputEvent event){
-        if (event.isAttack() && event.getHand() == Hand.MAIN_HAND){
+    public static void onAttackReplacement(InputEvent.ClickInputEvent event) {
+        if (event.isAttack() && event.getHand() == Hand.MAIN_HAND) {
             PlayerEntity player = Minecraft.getInstance().player;
-            if (player != null){
+            if (player != null) {
                 RayTraceResult lookingAt = RayTraceUtils.getLookingAt(Entity.class,
                         player, player.getAttribute(MKAttributes.ATTACK_REACH).getValue(),
                         (e) -> true);
-                if (lookingAt != null && lookingAt.getType() == RayTraceResult.Type.ENTITY){
+                if (lookingAt != null && lookingAt.getType() == RayTraceResult.Type.ENTITY) {
                     EntityRayTraceResult traceResult = (EntityRayTraceResult) lookingAt;
                     Entity entityHit = traceResult.getEntity();
-                    if (!Targeting.isValidFriendly(player, entityHit)){
+                    if (!Targeting.isValidFriendly(player, entityHit)) {
                         doPlayerAttack(player, entityHit, Minecraft.getInstance());
                     }
                     event.setCanceled(true);

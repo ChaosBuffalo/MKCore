@@ -2,7 +2,10 @@ package com.chaosbuffalo.mkcore.core.talents;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
-import net.minecraft.entity.ai.attributes.*;
+import net.minecraft.entity.ai.attributes.Attribute;
+import net.minecraft.entity.ai.attributes.AttributeModifier;
+import net.minecraft.entity.ai.attributes.AttributeModifierManager;
+import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 
 import java.util.*;
 

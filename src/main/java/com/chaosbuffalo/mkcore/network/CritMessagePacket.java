@@ -11,8 +11,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Util;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
@@ -46,7 +44,7 @@ public class CritMessagePacket {
         this.type = CritType.MELEE_CRIT;
     }
 
-    public CritMessagePacket(int targetId, UUID sourceUUID, float critDamage, MKDamageType damageType, String typeName){
+    public CritMessagePacket(int targetId, UUID sourceUUID, float critDamage, MKDamageType damageType, String typeName) {
         this.targetId = targetId;
         this.sourceUUID = sourceUUID;
         this.critDamage = critDamage;
@@ -54,7 +52,6 @@ public class CritMessagePacket {
         this.typeName = typeName;
         this.damageType = damageType.getRegistryName();
     }
-
 
 
     public CritMessagePacket(int targetId, UUID sourceUUID, float critDamage, ResourceLocation abilityName,
@@ -87,7 +84,7 @@ public class CritMessagePacket {
         if (type == CritType.PROJECTILE_CRIT) {
             this.projectileId = pb.readInt();
         }
-        if (type == CritType.TYPED_CRIT){
+        if (type == CritType.TYPED_CRIT) {
             this.damageType = pb.readResourceLocation();
             this.typeName = pb.readString();
         }
@@ -105,7 +102,7 @@ public class CritMessagePacket {
         if (type == CritType.PROJECTILE_CRIT) {
             pb.writeInt(this.projectileId);
         }
-        if (type == CritType.TYPED_CRIT){
+        if (type == CritType.TYPED_CRIT) {
             pb.writeResourceLocation(damageType);
             pb.writeString(typeName);
         }

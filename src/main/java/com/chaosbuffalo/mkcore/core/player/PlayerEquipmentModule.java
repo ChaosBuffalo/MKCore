@@ -111,7 +111,7 @@ public class PlayerEquipmentModule {
 
         if (newItem.getItem() instanceof IMKAbilityProvider) {
             MKAbility ability = ((IMKAbilityProvider) newItem.getItem()).getAbility(newItem);
-            if (ability != null){
+            if (ability != null) {
                 playerData.getAbilities().learnAbility(ability);
             }
         }
@@ -123,7 +123,7 @@ public class PlayerEquipmentModule {
 
         if (oldItem.getItem() instanceof IMKAbilityProvider) {
             MKAbility ability = ((IMKAbilityProvider) oldItem.getItem()).getAbility(oldItem);
-            if (ability != null){
+            if (ability != null) {
                 playerData.getAbilities().unlearnAbility(ability.getAbilityId());
             }
         }

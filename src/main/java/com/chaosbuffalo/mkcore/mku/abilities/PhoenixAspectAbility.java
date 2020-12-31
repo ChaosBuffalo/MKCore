@@ -59,7 +59,7 @@ public class PhoenixAspectAbility extends MKAbility {
 
     @Override
     public float getDistance(LivingEntity entity) {
-        return 10.0f + 2.0f * 1;
+        return 12.0f;
     }
 
     @Override

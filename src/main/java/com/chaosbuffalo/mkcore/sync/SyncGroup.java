@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 public class SyncGroup implements ISyncObject, ISyncNotifier {
-    List<ISyncObject> components = new ArrayList<>();
+    private final List<ISyncObject> components = new ArrayList<>();
     private String nestedName = null;
     private final Set<ISyncObject> dirty = new HashSet<>();
     private ISyncNotifier parentNotifier = ISyncNotifier.NONE;

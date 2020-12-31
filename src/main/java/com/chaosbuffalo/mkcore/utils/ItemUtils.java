@@ -43,7 +43,7 @@ public class ItemUtils {
         return false;
     }
 
-    public static boolean isRangedWeapon(ItemStack item){
+    public static boolean isRangedWeapon(ItemStack item) {
         return item.getItem() instanceof BowItem || item.getItem() instanceof CrossbowItem;
     }
 

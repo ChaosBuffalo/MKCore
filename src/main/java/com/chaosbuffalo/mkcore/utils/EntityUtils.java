@@ -41,7 +41,7 @@ public class EntityUtils {
         return vol >= LARGE_VOLUME;
     }
 
-    public static double getCooldownPeriod(LivingEntity entity){
+    public static double getCooldownPeriod(LivingEntity entity) {
         return 1.0D / entity.getAttribute(Attributes.ATTACK_SPEED).getValue() *
                 GameConstants.TICKS_PER_SECOND;
     }

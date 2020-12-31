@@ -2,7 +2,8 @@ package com.chaosbuffalo.mkcore.core.talents;
 
 import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.MKCore;
-import com.chaosbuffalo.mkcore.core.*;
+import com.chaosbuffalo.mkcore.core.AbilitySlot;
+import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.player.IPlayerSyncComponentProvider;
 import com.chaosbuffalo.mkcore.core.player.PlayerSyncComponent;
 import com.chaosbuffalo.mkcore.sync.SyncGroup;

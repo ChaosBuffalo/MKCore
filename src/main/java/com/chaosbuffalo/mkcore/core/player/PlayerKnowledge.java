@@ -1,6 +1,7 @@
 package com.chaosbuffalo.mkcore.core.player;
 
-import com.chaosbuffalo.mkcore.core.*;
+import com.chaosbuffalo.mkcore.core.IMKEntityKnowledge;
+import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.talents.PlayerTalentKnowledge;
 import net.minecraft.nbt.CompoundNBT;
 

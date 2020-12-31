@@ -94,7 +94,7 @@ public class AttributeTalent extends BaseTalent {
     }
 
     public AttributeModifier createModifier(double value) {
-        return new AttributeModifier(getUUID(), getRegistryName().toString(), value, getOp());
+        return new AttributeModifier(getUUID(), () -> getRegistryName().toString(), value, getOp());
     }
 
     public double getDefaultPerRank() {

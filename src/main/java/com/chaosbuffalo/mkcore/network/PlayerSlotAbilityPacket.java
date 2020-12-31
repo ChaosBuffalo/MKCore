@@ -1,7 +1,6 @@
 package com.chaosbuffalo.mkcore.network;
 
 import com.chaosbuffalo.mkcore.CoreCapabilities;
-import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.AbilitySlot;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;

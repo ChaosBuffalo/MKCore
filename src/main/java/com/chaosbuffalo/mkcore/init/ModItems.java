@@ -4,7 +4,6 @@ import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.core.IMKAbilityProvider;
 import com.chaosbuffalo.mkcore.mku.abilities.BurningSoul;
-import com.chaosbuffalo.mkcore.mku.abilities.FireArmor;
 import com.chaosbuffalo.mkcore.mku.abilities.WhirlwindBlades;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.*;

@@ -67,7 +67,7 @@ public class HealingRain extends MKAbility {
 
     @Override
     public float getDistance(LivingEntity entity) {
-        return 5.0f + 1.0f;
+        return 6.0f;
     }
 
     @Override

@@ -6,8 +6,8 @@ import com.chaosbuffalo.mkcore.client.rendering.MKRenderers;
 import com.chaosbuffalo.mkcore.command.MKCommand;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.core.MKAttributes;
-import com.chaosbuffalo.mkcore.core.persona.IPersonaExtensionProvider;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
+import com.chaosbuffalo.mkcore.core.persona.IPersonaExtensionProvider;
 import com.chaosbuffalo.mkcore.core.persona.PersonaManager;
 import com.chaosbuffalo.mkcore.core.talents.TalentManager;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
@@ -18,7 +18,6 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.*;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.registry.Registry;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.AddReloadListenerEvent;
@@ -85,15 +84,13 @@ public class MKCore {
     private void registerAttributes() {
         Attributes.ATTACK_DAMAGE.setShouldWatch(true);
 
-        AttributeFixer.addAttributesToAll(builder -> {
-            MKAttributes.registerEntityAttributes(builder::createMutableAttribute);
-        });
-        AttributeFixer.addAttributes(EntityType.PLAYER, builder -> {
-            MKAttributes.registerPlayerAttributes(builder::createMutableAttribute);
-        });
+        AttributeFixer.addAttributesToAll(builder ->
+                MKAttributes.registerEntityAttributes(builder::createMutableAttribute));
+        AttributeFixer.addAttributes(EntityType.PLAYER, builder ->
+                MKAttributes.registerPlayerAttributes(builder::createMutableAttribute));
 
         GlobalEntityTypeAttributes.getAttributesForEntity(EntityType.PLAYER).attributeMap.forEach(((attribute, modifiableAttributeInstance) -> {
-            if (!Registry.ATTRIBUTE.containsKey(attribute.getRegistryName())) {
+            if (!ForgeRegistries.ATTRIBUTES.containsKey(attribute.getRegistryName())) {
                 MKCore.LOGGER.error("ERROR: Player attribute {} was not registered with the registry!", attribute);
             }
         }));

@@ -84,9 +84,7 @@ public abstract class AbilityPanelScreen extends MKScreen implements IPlayerData
         super.addRestoreStateCallbacks();
         if (ability != null) {
             final MKAbility abilityInf = getAbility();
-            addPostSetupCallback(() -> {
-                setAbility(abilityInf);
-            });
+            addPostSetupCallback(() -> setAbility(abilityInf));
         }
         restoreScrollingPanelState();
     }

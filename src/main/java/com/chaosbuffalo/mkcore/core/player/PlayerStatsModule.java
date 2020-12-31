@@ -2,7 +2,9 @@ package com.chaosbuffalo.mkcore.core.player;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
-import com.chaosbuffalo.mkcore.core.*;
+import com.chaosbuffalo.mkcore.core.MKAttributes;
+import com.chaosbuffalo.mkcore.core.MKCombatFormulas;
+import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.entity.EntityStatsModule;
 import com.chaosbuffalo.mkcore.sync.SyncFloat;
 import net.minecraft.entity.LivingEntity;

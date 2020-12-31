@@ -2,8 +2,8 @@ package com.chaosbuffalo.mkcore.init;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import net.minecraft.item.Item;
-import net.minecraft.tags.*;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.tags.ITag;
+import net.minecraft.tags.ItemTags;
 
 public class ModTags {
     public static class Items {

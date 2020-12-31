@@ -96,7 +96,7 @@ public class WhirlwindBlades extends MKAbility {
             int level = 1;
             int totalDuration = getCastTime(data);
             int count = (totalDuration - castTimeLeft) / tickSpeed;
-            float baseAmount = level > 1 ? 0.10f : 0.15f;
+            float baseAmount = 0.15f;
             float scaling = count * baseAmount;
             // What to do for each target hit
             SpellCast damage = AbilityMagicDamage.Create(entity, BASE_DAMAGE, DAMAGE_SCALE, scaling);

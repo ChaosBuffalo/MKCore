@@ -7,7 +7,10 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.Attribute;
 import net.minecraft.entity.ai.attributes.RangedAttribute;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.*;
+import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
 import java.util.function.Consumer;
@@ -133,7 +136,7 @@ public class MKDamageType extends ForgeRegistryEntry<MKDamageType> {
     }
 
     public boolean rollCrit(LivingEntity source, LivingEntity target, Entity immediate) {
-        if (target.isEntityUndead()){
+        if (target.isEntityUndead()) {
             return false;
         }
         float critChance = getCritChance(source, target, immediate);

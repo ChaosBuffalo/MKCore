@@ -1,7 +1,6 @@
 package com.chaosbuffalo.mkcore.effects;
 
 import com.chaosbuffalo.mkcore.CoreCapabilities;
-import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
@@ -117,7 +116,7 @@ public class SpellTriggers {
             playerHurtEntityMagicTriggers.add(trigger);
         }
 
-        public static void registerProjectile(PlayerHurtEntityTrigger trigger){
+        public static void registerProjectile(PlayerHurtEntityTrigger trigger) {
             playerHurtEntityProjectileTriggers.add(trigger);
         }
 
@@ -167,7 +166,7 @@ public class SpellTriggers {
             float newDamage = source.getMKDamageType().applyDamage(playerSource, livingTarget, immediate, event.getAmount(), source.getModifierScaling());
             if (source.getMKDamageType().rollCrit(playerSource, livingTarget, immediate)) {
                 newDamage = source.getMKDamageType().applyCritDamage(playerSource, livingTarget, immediate, event.getAmount());
-                switch (source.getOrigination()){
+                switch (source.getOrigination()) {
                     case MK_ABILITY:
                         MKAbility ability = MKCoreRegistry.getAbility(source.getAbilityId());
                         ResourceLocation abilityName;

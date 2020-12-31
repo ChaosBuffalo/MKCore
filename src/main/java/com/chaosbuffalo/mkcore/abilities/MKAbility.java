@@ -13,7 +13,6 @@ import com.chaosbuffalo.mkcore.utils.RayTraceUtils;
 import com.chaosbuffalo.targeting_api.Targeting;
 import com.chaosbuffalo.targeting_api.TargetingContext;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Dynamic;
@@ -337,6 +336,7 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
         return getSingleLivingTarget(LivingEntity.class, caster, distance, checkValid);
     }
 
+    @SuppressWarnings("unchecked")
     protected <E extends LivingEntity> E getSingleLivingTarget(Class<E> clazz, LivingEntity caster,
                                                                float distance, boolean checkValid) {
         RayTraceResult lookingAt = RayTraceUtils.getLookingAt(clazz, caster, distance,

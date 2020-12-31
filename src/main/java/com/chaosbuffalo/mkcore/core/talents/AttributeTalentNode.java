@@ -2,9 +2,10 @@ package com.chaosbuffalo.mkcore.core.talents;
 
 
 import com.chaosbuffalo.mkcore.MKCore;
-import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.DynamicOps;
+
+import java.util.Optional;
 
 public class AttributeTalentNode extends TalentNode {
 
@@ -30,7 +31,7 @@ public class AttributeTalentNode extends TalentNode {
 
     public <T> T serialize(DynamicOps<T> ops) {
         T value = super.serialize(ops);
-        value = ops.mergeToMap(value, ops.createString("value"), ops.createDouble(perRank)).resultOrPartial(MKCore.LOGGER::error).get();
-        return value;
+        Optional<T> merged = ops.mergeToMap(value, ops.createString("value"), ops.createDouble(perRank)).resultOrPartial(MKCore.LOGGER::error);
+        return merged.orElse(value);
     }
 }

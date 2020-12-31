@@ -21,7 +21,6 @@ import net.minecraft.util.ResourceLocation;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.BiConsumer;
 
 public class ActiveAbilityGroup implements IActiveAbilityGroup, IPlayerSyncComponentProvider {
@@ -184,7 +183,7 @@ public class ActiveAbilityGroup implements IActiveAbilityGroup, IPlayerSyncCompo
         if (info != null)
             return;
 
-        MKCore.LOGGER.debug("checkHotBar({}, {}) - bad", slot, abilityId);
+        MKCore.LOGGER.debug("ensureValidAbility({}, {}) - bad", slot, abilityId);
         clearAbility(abilityId);
     }
 

@@ -3,7 +3,6 @@ package com.chaosbuffalo.mkcore;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.core.MKEntityData;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
-import com.chaosbuffalo.mkcore.core.damage.MKDamageType;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -25,8 +24,8 @@ import javax.annotation.Nullable;
 
 public class CoreCapabilities {
 
-    public static ResourceLocation PLAYER_CAP_ID = MKCore.makeRL("player_data");
-    public static ResourceLocation ENTITY_CAP_ID = MKCore.makeRL("entity_data");
+    public static final ResourceLocation PLAYER_CAP_ID = MKCore.makeRL("player_data");
+    public static final ResourceLocation ENTITY_CAP_ID = MKCore.makeRL("entity_data");
 
     @CapabilityInject(MKPlayerData.class)
     public static final Capability<MKPlayerData> PLAYER_CAPABILITY;
@@ -52,12 +51,6 @@ public class CoreCapabilities {
             e.addCapability(PLAYER_CAP_ID, new PlayerDataProvider((PlayerEntity) e.getObject()));
         } else if (e.getObject() instanceof LivingEntity) {
             e.addCapability(ENTITY_CAP_ID, new EntityDataProvider((LivingEntity) e.getObject()));
-        } else if (e.getObject() instanceof LivingEntity) {
-            LivingEntity livEnt = (LivingEntity) e.getObject();
-//            AbstractAttributeMap attributes = livEnt.getAttributes();
-//            for (MKDamageType damageType : MKCoreRegistry.DAMAGE_TYPES.getValues()) {
-//                damageType.addAttributes(attributes);
-//            }
         }
     }
 

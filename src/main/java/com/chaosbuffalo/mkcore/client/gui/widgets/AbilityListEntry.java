@@ -14,7 +14,7 @@ import net.minecraft.client.gui.FontRenderer;
 public class AbilityListEntry extends MKStackLayoutHorizontal {
     private final MKAbility ability;
     private final AbilityInfoWidget infoWidget;
-    private AbilityPanelScreen screen;
+    private final AbilityPanelScreen screen;
     private final MKImage icon;
 
 

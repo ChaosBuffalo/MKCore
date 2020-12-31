@@ -64,7 +64,7 @@ public class TalentNode {
 
     public <T> T serialize(DynamicOps<T> ops) {
         ImmutableMap.Builder<T, T> builder = ImmutableMap.builder();
-        builder.put(ops.createString("name"), ops.createString(talent.getRegistryName().toString()));
+        builder.put(ops.createString("name"), ops.createString(talent.getTalentId().toString()));
         builder.put(ops.createString("max_points"), ops.createInt(maxRanks));
         return ops.createMap(builder.build());
     }

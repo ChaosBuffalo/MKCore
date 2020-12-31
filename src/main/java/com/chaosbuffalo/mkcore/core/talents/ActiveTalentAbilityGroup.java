@@ -4,8 +4,8 @@ import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.core.AbilitySlot;
-import com.chaosbuffalo.mkcore.core.player.ActiveAbilityGroup;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
+import com.chaosbuffalo.mkcore.core.player.ActiveAbilityGroup;
 import net.minecraft.util.ResourceLocation;
 
 public class ActiveTalentAbilityGroup extends ActiveAbilityGroup {
