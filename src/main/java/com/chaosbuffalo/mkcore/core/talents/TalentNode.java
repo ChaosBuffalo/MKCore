@@ -5,13 +5,12 @@ import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.DynamicOps;
 
 public class TalentNode {
-
-    private final BaseTalent talent;
+    private final MKTalent talent;
     private final int maxRanks;
     private TalentTreeDefinition.TalentLineDefinition line;
     private int index;
 
-    public TalentNode(BaseTalent talent, Dynamic<?> entry) {
+    public TalentNode(MKTalent talent, Dynamic<?> entry) {
         this.talent = talent;
         this.maxRanks = entry.get("max_points").asInt(1);
     }
@@ -37,7 +36,7 @@ public class TalentNode {
         return talent.getTalentType();
     }
 
-    public BaseTalent getTalent() {
+    public MKTalent getTalent() {
         return talent;
     }
 

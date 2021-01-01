@@ -11,7 +11,7 @@ import net.minecraft.util.text.TranslationTextComponent;
 
 import java.util.UUID;
 
-public class AttributeTalent extends BaseTalent {
+public class AttributeTalent extends MKTalent {
     private final UUID id;
     private final RangedAttribute attribute;
     private AttributeModifier.Operation operation;

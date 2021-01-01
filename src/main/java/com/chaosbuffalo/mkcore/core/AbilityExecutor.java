@@ -168,13 +168,13 @@ public class AbilityExecutor {
 
     public boolean startAbility(AbilityContext context, MKAbility ability) {
         if (isCasting()) {
-            MKCore.LOGGER.warn("startAbility({}) failed - {} currently casting", entityData::getEntity, ability::getAbilityId);
+            MKCore.LOGGER.warn("startAbility({}) failed - {} currently casting", ability.getAbilityId(), entityData.getEntity());
             return false;
         }
 
         MKAbilityInfo info = entityData.getKnowledge().getAbilityKnowledge().getKnownAbility(ability.getAbilityId());
         if (info == null) {
-            MKCore.LOGGER.warn("startAbility({}) failed - {} does not know", entityData::getEntity, ability::getAbilityId);
+            MKCore.LOGGER.warn("startAbility({}) failed - {} does not know", ability.getAbilityId(), entityData.getEntity());
             return false;
         }
 

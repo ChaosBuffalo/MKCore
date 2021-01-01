@@ -253,7 +253,7 @@ public class PlayerTalentKnowledge implements IPlayerSyncComponentProvider {
 
     private static class KnownTalentCache {
         private final Map<ResourceLocation, TalentTreeRecord> parent;
-        private final Map<TalentType<?>, Set<BaseTalent>> typeCache = new HashMap<>();
+        private final Map<TalentType<?>, Set<MKTalent>> typeCache = new HashMap<>();
         private boolean needsRebuild;
 
         public KnownTalentCache(PlayerTalentKnowledge knowledge) {
@@ -276,7 +276,7 @@ public class PlayerTalentKnowledge implements IPlayerSyncComponentProvider {
                     }));
         }
 
-        private Map<TalentType<?>, Set<BaseTalent>> getTypeCache() {
+        private Map<TalentType<?>, Set<MKTalent>> getTypeCache() {
             if (needsRebuild) {
                 rebuild();
                 needsRebuild = false;

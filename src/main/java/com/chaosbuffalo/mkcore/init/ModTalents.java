@@ -3,7 +3,7 @@ package com.chaosbuffalo.mkcore.init;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.MKAttributes;
 import com.chaosbuffalo.mkcore.core.talents.AttributeTalent;
-import com.chaosbuffalo.mkcore.core.talents.BaseTalent;
+import com.chaosbuffalo.mkcore.core.talents.MKTalent;
 import com.chaosbuffalo.mkcore.core.talents.PassiveTalent;
 import com.chaosbuffalo.mkcore.core.talents.UltimateTalent;
 import com.chaosbuffalo.mkcore.mku.abilities.BurningSoul;
@@ -21,7 +21,7 @@ import java.util.UUID;
 //@ObjectHolder(MKCore.MOD_ID)
 public class ModTalents {
 
-    private static void registerVanillaAttributeTalents(RegistryEvent.Register<BaseTalent> event) {
+    private static void registerVanillaAttributeTalents(RegistryEvent.Register<MKTalent> event) {
         // Vanilla Attributes
         AttributeTalent maxHealth = new AttributeTalent(
                 MKCore.makeRL("talent.max_health"),
@@ -47,7 +47,7 @@ public class ModTalents {
     }
 
     @SubscribeEvent
-    public static void registerTalents(RegistryEvent.Register<BaseTalent> event) {
+    public static void registerTalents(RegistryEvent.Register<MKTalent> event) {
         registerVanillaAttributeTalents(event);
 
         // MKCore
@@ -56,21 +56,21 @@ public class ModTalents {
         registerUltimateTalents(event);
     }
 
-    private static void registerPassiveTalents(RegistryEvent.Register<BaseTalent> event) {
+    private static void registerPassiveTalents(RegistryEvent.Register<MKTalent> event) {
         PassiveTalent burningSoul = new PassiveTalent(
                 MKCore.makeRL("talent.burning_soul"),
                 BurningSoul.INSTANCE);
         event.getRegistry().register(burningSoul);
     }
 
-    private static void registerUltimateTalents(RegistryEvent.Register<BaseTalent> event) {
+    private static void registerUltimateTalents(RegistryEvent.Register<MKTalent> event) {
         UltimateTalent healingRain = new UltimateTalent(
                 MKCore.makeRL("talent.healing_rain"),
                 HealingRain.INSTANCE);
         event.getRegistry().register(healingRain);
     }
 
-    private static void registerMKAttributeTalents(RegistryEvent.Register<BaseTalent> event) {
+    private static void registerMKAttributeTalents(RegistryEvent.Register<MKTalent> event) {
         AttributeTalent maxMana = new AttributeTalent(
                 MKCore.makeRL("talent.max_mana"),
                 MKAttributes.MAX_MANA,

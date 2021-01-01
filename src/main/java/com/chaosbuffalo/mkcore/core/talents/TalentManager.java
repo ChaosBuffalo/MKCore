@@ -105,7 +105,7 @@ public class TalentManager extends JsonReloadListener {
     }
 
     public static MKAbility getTalentAbility(ResourceLocation talentId) {
-        BaseTalent talent = MKCoreRegistry.TALENT_TYPES.getValue(talentId);
+        MKTalent talent = MKCoreRegistry.TALENTS.getValue(talentId);
         if (talent instanceof IAbilityTalent<?>) {
             return ((IAbilityTalent<?>) talent).getAbility();
         } else {

@@ -154,7 +154,7 @@ public class TalentTreeDefinition {
             }
 
             ResourceLocation nodeType = new ResourceLocation(nameOpt.get());
-            BaseTalent talentType = MKCoreRegistry.TALENT_TYPES.getValue(nodeType);
+            MKTalent talentType = MKCoreRegistry.TALENTS.getValue(nodeType);
             if (talentType == null) {
                 MKCore.LOGGER.error("Tried to deserialize talent node that referenced unknown talent type {}", nodeType);
                 return Optional.empty();

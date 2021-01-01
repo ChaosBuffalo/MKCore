@@ -503,7 +503,7 @@ public class TalentCommand {
 
         @Override
         public <S> CompletableFuture<Suggestions> listSuggestions(final CommandContext<S> context, final SuggestionsBuilder builder) {
-            Stream<String> all = MKCoreRegistry.TALENT_TYPES.getValues()
+            Stream<String> all = MKCoreRegistry.TALENTS.getValues()
                     .stream()
                     .filter(talent -> talent.getTalentType() == type)
                     .map(ForgeRegistryEntry::getRegistryName)

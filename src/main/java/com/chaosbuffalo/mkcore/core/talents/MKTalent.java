@@ -11,9 +11,9 @@ import javax.annotation.Nonnull;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
-public abstract class BaseTalent extends ForgeRegistryEntry<BaseTalent> {
+public abstract class MKTalent extends ForgeRegistryEntry<MKTalent> {
 
-    public BaseTalent(ResourceLocation name) {
+    public MKTalent(ResourceLocation name) {
         setRegistryName(name);
     }
 
@@ -40,7 +40,7 @@ public abstract class BaseTalent extends ForgeRegistryEntry<BaseTalent> {
     }
 
     public ITextComponent getTalentTypeName() {
-        return getTalentType().getFullName().mergeStyle(TextFormatting.GOLD);
+        return getTalentType().getDisplayName().mergeStyle(TextFormatting.GOLD);
     }
 
     public ResourceLocation getIcon() {
