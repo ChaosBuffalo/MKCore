@@ -3,6 +3,7 @@ package com.chaosbuffalo.mkcore.core.player;
 import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
+import com.chaosbuffalo.mkcore.abilities.MKAbilityInfo;
 import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nonnull;
@@ -15,7 +16,7 @@ public interface IActiveAbilityGroup {
 
     void setSlot(int index, ResourceLocation abilityId);
 
-    default int trySlot(ResourceLocation abilityId) {
+    default int tryEquip(ResourceLocation abilityId) {
         return GameConstants.ACTION_BAR_INVALID_SLOT;
     }
 
@@ -38,12 +39,14 @@ public interface IActiveAbilityGroup {
 
     void clearAbility(ResourceLocation abilityId);
 
-    default void onAbilityLearned(MKAbility ability) {
-
+    default void onAbilityLearned(MKAbilityInfo info) {
+        if (info.getSource().placeOnBarWhenLearned()) {
+            tryEquip(info.getId());
+        }
     }
 
-    default void onAbilityUnlearned(MKAbility ability) {
-        clearAbility(ability.getAbilityId());
+    default void onAbilityUnlearned(MKAbilityInfo info) {
+        clearAbility(info.getId());
     }
 
     default boolean isSlotUnlocked(int slot) {

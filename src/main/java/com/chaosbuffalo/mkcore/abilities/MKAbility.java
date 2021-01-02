@@ -154,8 +154,8 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
         return getRegistryName();
     }
 
-    public MKAbilityInfo createAbilityInfo() {
-        return new MKAbilityInfo(this);
+    public MKAbilityInfo createAbilityInfo(AbilitySource source) {
+        return new MKAbilityInfo(this, source);
     }
 
 
@@ -164,17 +164,17 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
     }
 
     protected String getTranslationKey() {
-        ResourceLocation abilityId = getRegistryName();
+        ResourceLocation abilityId = getAbilityId();
         return String.format("%s.%s.name", abilityId.getNamespace(), abilityId.getPath());
     }
 
     protected String getDescriptionTranslationKey() {
-        ResourceLocation abilityId = getRegistryName();
+        ResourceLocation abilityId = getAbilityId();
         return String.format("%s.%s.description", abilityId.getNamespace(), abilityId.getPath());
     }
 
     public ResourceLocation getAbilityIcon() {
-        ResourceLocation abilityId = getRegistryName();
+        ResourceLocation abilityId = getAbilityId();
         return new ResourceLocation(abilityId.getNamespace(), String.format("textures/class/abilities/%s.png", abilityId.getPath().split(Pattern.quote("."))[1]));
     }
 

@@ -3,6 +3,7 @@ package com.chaosbuffalo.mkcore.network;
 import com.chaosbuffalo.mkcore.CoreCapabilities;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
+import com.chaosbuffalo.mkcore.abilities.AbilitySource;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.abilities.training.AbilityTrainingEntry;
 import com.chaosbuffalo.mkcore.abilities.training.IAbilityTrainer;
@@ -65,13 +66,13 @@ public class PlayerLearnAbilityRequestPacket {
 
                 entity.getCapability(CoreCapabilities.PLAYER_CAPABILITY).ifPresent(playerData -> {
                     AbilityTrainingEntry entry = abilityTrainer.getTrainingEntry(ability);
-                    if (!entry.getRequirements().stream().allMatch(r -> r.check(playerData, ability))) {
+                    if (!entry.getRequirements().stream().allMatch(req -> req.check(playerData, ability))) {
                         MKCore.LOGGER.debug("Failed to learn ability {} from {} - unmet requirements", abilityId, teacher);
                         return;
                     }
 
-                    entry.getRequirements().forEach(r -> r.onLearned(playerData, ability));
-                    playerData.getAbilities().learnAbility(ability, replacingId);
+                    entry.getRequirements().forEach(req -> req.onLearned(playerData, ability));
+                    playerData.getAbilities().learnAbility(ability, AbilitySource.TRAINED, replacingId);
                 });
             }
         });

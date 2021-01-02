@@ -1,6 +1,7 @@
 package com.chaosbuffalo.mkcore.core.player;
 
 import com.chaosbuffalo.mkcore.MKCore;
+import com.chaosbuffalo.mkcore.abilities.AbilitySource;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.core.AbilitySlot;
 import com.chaosbuffalo.mkcore.core.IMKAbilityProvider;
@@ -54,23 +55,24 @@ public class PlayerEquipmentModule {
     }
 
     private void handleMainHandChange(ItemStack to) {
+        // Clear the current ability if present
+        if (currentMainAbility != null) {
+            playerData.getAbilityLoadout().getAbilityGroup(AbilitySlot.Item).clearSlot(0);
+            currentMainAbility = null;
+        }
+
         if (to.getItem() instanceof IMKAbilityProvider) {
             currentMainAbility = ((IMKAbilityProvider) to.getItem()).getAbility(to);
             if (currentMainAbility != null) {
                 if (currentMainAbility.getType().fitsSlot(AbilitySlot.Item)) {
                     if (!playerData.getAbilities().knowsAbility(currentMainAbility.getAbilityId())) {
-                        playerData.getAbilities().learnAbility(currentMainAbility);
+                        playerData.getAbilities().learnAbility(currentMainAbility, AbilitySource.ITEM);
                     }
                     playerData.getAbilityLoadout().getAbilityGroup(AbilitySlot.Item).setSlot(0, currentMainAbility.getAbilityId());
                 } else {
                     MKCore.LOGGER.error("Cannot use ability {} provided by Item {} because it uses the wrong AbilitySlot", currentMainAbility, to);
                 }
             }
-        } else {
-            if (currentMainAbility != null) {
-                playerData.getAbilityLoadout().getAbilityGroup(AbilitySlot.Item).clearSlot(0);
-            }
-            currentMainAbility = null;
         }
     }
 
@@ -112,7 +114,7 @@ public class PlayerEquipmentModule {
         if (newItem.getItem() instanceof IMKAbilityProvider) {
             MKAbility ability = ((IMKAbilityProvider) newItem.getItem()).getAbility(newItem);
             if (ability != null) {
-                playerData.getAbilities().learnAbility(ability);
+                playerData.getAbilities().learnAbility(ability, AbilitySource.ITEM);
             }
         }
     }
@@ -131,7 +133,8 @@ public class PlayerEquipmentModule {
 
     public void onPersonaActivated() {
         PlayerEntity player = playerData.getEntity();
-        handleMainHandChange(playerData.getEntity().getItemStackFromSlot(EquipmentSlotType.MAINHAND));
+        ItemStack mainHand = playerData.getEntity().getItemStackFromSlot(EquipmentSlotType.MAINHAND);
+        handleMainHandChange(mainHand);
         addAbilityItem(player.getItemStackFromSlot(EquipmentSlotType.HEAD));
         addAbilityItem(player.getItemStackFromSlot(EquipmentSlotType.CHEST));
         addAbilityItem(player.getItemStackFromSlot(EquipmentSlotType.LEGS));
@@ -140,6 +143,8 @@ public class PlayerEquipmentModule {
 
     public void onPersonaDeactivated() {
         PlayerEntity player = playerData.getEntity();
+        ItemStack mainHand = playerData.getEntity().getItemStackFromSlot(EquipmentSlotType.MAINHAND);
+        handleMainHandChange(ItemStack.EMPTY);
         removeAbilityItem(player.getItemStackFromSlot(EquipmentSlotType.HEAD));
         removeAbilityItem(player.getItemStackFromSlot(EquipmentSlotType.CHEST));
         removeAbilityItem(player.getItemStackFromSlot(EquipmentSlotType.LEGS));

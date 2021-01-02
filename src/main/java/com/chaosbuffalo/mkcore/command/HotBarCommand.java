@@ -102,7 +102,7 @@ public class HotBarCommand {
         MKCore.getPlayer(player).ifPresent(playerData -> {
             PlayerAbilityKnowledge abilityKnowledge = playerData.getAbilities();
             if (abilityKnowledge.knowsAbility(abilityId)) {
-                int slot = playerData.getAbilityLoadout().getAbilityGroup(type).trySlot(abilityId);
+                int slot = playerData.getAbilityLoadout().getAbilityGroup(type).tryEquip(abilityId);
                 if (slot == GameConstants.ACTION_BAR_INVALID_SLOT) {
                     TextUtils.sendChatMessage(player, "No room for ability");
                 }

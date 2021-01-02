@@ -3,6 +3,7 @@ package com.chaosbuffalo.mkcore.core.player;
 import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
+import com.chaosbuffalo.mkcore.abilities.AbilitySource;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.abilities.MKAbilityInfo;
 import com.chaosbuffalo.mkcore.core.IMKAbilityKnowledge;
@@ -75,12 +76,6 @@ public class PlayerAbilityKnowledge implements IMKAbilityKnowledge, IPlayerSyncC
     }
 
     @Override
-    @Nullable
-    public MKAbilityInfo getAbilityInfo(ResourceLocation abilityId) {
-        return abilityInfoMap.get(abilityId);
-    }
-
-    @Override
     public Collection<MKAbilityInfo> getAllAbilities() {
         return Collections.unmodifiableCollection(abilityInfoMap.values());
     }
@@ -98,42 +93,27 @@ public class PlayerAbilityKnowledge implements IMKAbilityKnowledge, IPlayerSyncC
     }
 
     @Override
-    public boolean learnAbility(MKAbility ability) {
-        return learnAbility(ability, ability.getType().canPlaceOnActionBar());
-    }
-
-    public boolean learnAbility(MKAbility ability, boolean placeOnBar) {
+    public boolean learnAbility(MKAbility ability, AbilitySource source) {
         if (!hasRoomForAbility(ability)) {
-            MKCore.LOGGER.warn("Player {} tried to learn pool ability {} with a full pool ({}/{})", playerData::getEntity, ability::getAbilityId, this::getCurrentPoolCount, this::getAbilityPoolSize);
+            MKCore.LOGGER.warn("Player {} tried to learn pool ability {} with a full pool ({}/{})",
+                    playerData.getEntity(), ability.getAbilityId(), getCurrentPoolCount(), getAbilityPoolSize());
             return false;
         }
-        MKAbilityInfo info = getAbilityInfo(ability.getAbilityId());
-        if (info == null) {
-            info = ability.createAbilityInfo();
-        } else if (info.isCurrentlyKnown()) {
+
+        MKAbilityInfo info = abilityInfoMap.computeIfAbsent(ability.getAbilityId(), id -> ability.createAbilityInfo(source));
+        if (info.isCurrentlyKnown()) {
             MKCore.LOGGER.warn("Player {} tried to learn already-known ability {}", playerData.getEntity(), ability.getAbilityId());
             return true;
         }
 
-        if (info == null) {
-            MKCore.LOGGER.error("Failed to create PlayerAbilityInfo for ability {} for player {}", ability.getAbilityId(), playerData.getEntity());
-            return false;
-        }
-
         info.setKnown(true);
-        abilityInfoMap.put(ability.getAbilityId(), info);
         markDirty(info);
 
-        IActiveAbilityGroup container = getAbilityGroup(ability);
-        container.onAbilityLearned(ability);
-        if (placeOnBar) {
-            container.trySlot(ability.getAbilityId());
-        }
-
+        getAbilityGroup(ability).onAbilityLearned(info);
         return true;
     }
 
-    public boolean learnAbility(MKAbility ability, ResourceLocation replacingAbilityId) {
+    public boolean learnAbility(MKAbility ability, AbilitySource source, ResourceLocation replacingAbilityId) {
         if (!hasRoomForAbility(ability)) {
             return false;
         }
@@ -144,7 +124,7 @@ public class PlayerAbilityKnowledge implements IMKAbilityKnowledge, IPlayerSyncC
             }
         }
 
-        return learnAbility(ability);
+        return learnAbility(ability, source);
     }
 
     @Override
@@ -159,7 +139,7 @@ public class PlayerAbilityKnowledge implements IMKAbilityKnowledge, IPlayerSyncC
 
         MKAbility ability = info.getAbility();
         playerData.getAbilityExecutor().onAbilityUnlearned(ability);
-        getAbilityGroup(ability).onAbilityUnlearned(ability);
+        getAbilityGroup(ability).onAbilityUnlearned(info);
         return true;
     }
 
@@ -170,7 +150,7 @@ public class PlayerAbilityKnowledge implements IMKAbilityKnowledge, IPlayerSyncC
 
     @Nullable
     public MKAbilityInfo getKnownAbility(ResourceLocation abilityId) {
-        MKAbilityInfo info = getAbilityInfo(abilityId);
+        MKAbilityInfo info = abilityInfoMap.get(abilityId);
         if (info == null || !info.isCurrentlyKnown())
             return null;
         return info;
@@ -197,6 +177,6 @@ public class PlayerAbilityKnowledge implements IMKAbilityKnowledge, IPlayerSyncC
         if (ability == null)
             return null;
 
-        return ability.createAbilityInfo();
+        return ability.createAbilityInfo(AbilitySource.TRAINED);
     }
 }

@@ -107,7 +107,7 @@ public class ActiveAbilityGroup implements IActiveAbilityGroup, IPlayerSyncCompo
     }
 
     @Override
-    public int trySlot(ResourceLocation abilityId) {
+    public int tryEquip(ResourceLocation abilityId) {
         int slot = getAbilitySlot(abilityId);
         if (slot == GameConstants.ACTION_BAR_INVALID_SLOT) {
             // Skill was just learned so let's try to put it on the bar

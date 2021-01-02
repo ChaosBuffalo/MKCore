@@ -1,5 +1,6 @@
 package com.chaosbuffalo.mkcore.core.talents;
 
+import com.chaosbuffalo.mkcore.abilities.AbilitySource;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.player.PlayerAbilityKnowledge;
@@ -44,7 +45,7 @@ public abstract class AbilityTalentHandler extends TalentTypeHandler {
     protected void tryLearn(MKAbility ability) {
         PlayerAbilityKnowledge abilityKnowledge = playerData.getAbilities();
         if (!abilityKnowledge.knowsAbility(ability.getAbilityId())) {
-            abilityKnowledge.learnAbility(ability, false);
+            abilityKnowledge.learnAbility(ability, AbilitySource.TALENT);
         }
     }
 
