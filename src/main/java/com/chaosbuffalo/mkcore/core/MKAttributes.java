@@ -199,7 +199,6 @@ public class MKAttributes {
 
         @SubscribeEvent
         public static void registerAttributes(RegistryEvent.Register<Attribute> event) {
-            MKCore.LOGGER.info("MKCORE REGISTER ATTRIBUTES");
             registerEntityAttributes(event.getRegistry()::register);
             registerPlayerAttributes(event.getRegistry()::register);
         }

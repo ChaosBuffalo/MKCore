@@ -21,6 +21,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -52,7 +53,7 @@ public class MKCore {
     public MKCore() {
         INSTANCE = this;
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::loadComplete);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(EventPriority.LOWEST, this::loadComplete);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doClientStuff);
         // Register the processIMC method for modloading
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::processIMC);
@@ -67,7 +68,6 @@ public class MKCore {
 
     private void setup(final FMLCommonSetupEvent event) {
         // some preinit code
-        LOGGER.info("HELLO FROM PREINIT");
         PacketHandler.setupHandler();
         CoreCapabilities.registerCapabilities();
         MKCommand.registerArguments();
@@ -75,7 +75,7 @@ public class MKCore {
 
     private void loadComplete(final FMLLoadCompleteEvent event) {
         // Hopefully other mods will have put their entries in the GlobalEntityTypeAttributes by now
-        registerAttributes();
+        event.enqueueWork(this::registerAttributes);
     }
 
     private void registerAttributes() {
@@ -96,12 +96,10 @@ public class MKCore {
     @SubscribeEvent
     public void serverStart(FMLServerAboutToStartEvent event) {
         // some preinit code
-        LOGGER.info("HELLO FROM ABOUTTOSTART");
+//        LOGGER.info("HELLO FROM ABOUTTOSTART");
     }
 
     private void doClientStuff(final FMLClientSetupEvent event) {
-        // do something that can only be done on the client
-        LOGGER.info("Got game settings {}", event.getMinecraftSupplier().get().gameSettings);
         MinecraftForge.EVENT_BUS.register(new MKOverlay());
         ClientEventHandler.initKeybindings();
         MKRenderers.registerPlayerRenderers();
@@ -111,7 +109,7 @@ public class MKCore {
     @SubscribeEvent
     public void onServerStarting(FMLServerStartingEvent event) {
         // do something when the server starts
-        LOGGER.info("HELLO from server starting");
+//        LOGGER.info("HELLO from server starting");
     }
 
     @SubscribeEvent
@@ -126,10 +124,10 @@ public class MKCore {
     }
 
     private void processIMC(final InterModProcessEvent event) {
-        MKCore.LOGGER.info("MKCore.processIMC");
+        MKCore.LOGGER.debug("MKCore.processIMC");
         event.getIMCStream().forEach(m -> {
             if (m.getMethod().equals("register_persona_extension")) {
-                MKCore.LOGGER.info("IMC register persona extension from mod {} {}", m.getSenderModId(), m.getMethod());
+                MKCore.LOGGER.debug("IMC register persona extension from mod {} {}", m.getSenderModId(), m.getMethod());
                 IPersonaExtensionProvider factory = (IPersonaExtensionProvider) m.getMessageSupplier().get();
                 PersonaManager.registerExtension(factory);
             }
@@ -179,7 +177,7 @@ public class MKCore {
         public static void addAttributesToAll(Consumer<AttributeModifierMap.MutableAttribute> builder) {
             ForgeRegistries.ENTITIES.forEach(entityType -> {
                 if (GlobalEntityTypeAttributes.doesEntityHaveAttributes(entityType)) {
-                    LOGGER.info("Adding attributes to {}", entityType);
+                    LOGGER.debug("Adding attributes to {}", entityType);
                     addAttributes((EntityType<? extends LivingEntity>) entityType, builder);
                 }
             });

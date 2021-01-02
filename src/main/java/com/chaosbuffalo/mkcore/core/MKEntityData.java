@@ -26,9 +26,17 @@ public class MKEntityData implements IMKEntityData {
     }
 
     public void update() {
+        getEntity().getEntityWorld().getProfiler().startSection("MKEntityData.update");
+
+        getEntity().getEntityWorld().getProfiler().startSection("AbilityExecutor.tick");
         getAbilityExecutor().tick();
+        getEntity().getEntityWorld().getProfiler().endStartSection("EntityStats.tick");
         getStats().tick();
+        getEntity().getEntityWorld().getProfiler().endStartSection("EntityCombat.tick");
         getCombatExtension().tick();
+
+        getEntity().getEntityWorld().getProfiler().endSection();
+        getEntity().getEntityWorld().getProfiler().endSection();
     }
 
     @Override

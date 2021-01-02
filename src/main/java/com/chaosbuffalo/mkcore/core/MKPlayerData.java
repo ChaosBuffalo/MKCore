@@ -120,17 +120,23 @@ public class MKPlayerData implements IMKEntityData {
     }
 
     public void update() {
+        getEntity().getEntityWorld().getProfiler().startSection("MKPlayerData.update");
+
+        getEntity().getEntityWorld().getProfiler().startSection("PlayerStats.tick");
         getStats().tick();
+        getEntity().getEntityWorld().getProfiler().endStartSection("AbilityExecutor.tick");
         getAbilityExecutor().tick();
+        getEntity().getEntityWorld().getProfiler().endStartSection("Animation.tick");
         getAnimationModule().tick();
+        getEntity().getEntityWorld().getProfiler().endStartSection("PlayerCombat.tick");
         getCombatExtension().tick();
 
-        if (!isServerSide()) {
-            // client-only handling here
-            return;
+        if (isServerSide()) {
+            getEntity().getEntityWorld().getProfiler().endStartSection("Updater.sync");
+            syncState();
         }
-
-        syncState();
+        getEntity().getEntityWorld().getProfiler().endSection();
+        getEntity().getEntityWorld().getProfiler().endSection();
     }
 
     private void syncState() {

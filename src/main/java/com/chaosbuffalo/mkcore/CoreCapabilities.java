@@ -21,11 +21,15 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Predicate;
 
 public class CoreCapabilities {
 
     public static final ResourceLocation PLAYER_CAP_ID = MKCore.makeRL("player_data");
     public static final ResourceLocation ENTITY_CAP_ID = MKCore.makeRL("entity_data");
+    private static final List<Predicate<LivingEntity>> entityAdditionPredicates = new ArrayList<>();
 
     @CapabilityInject(MKPlayerData.class)
     public static final Capability<MKPlayerData> PLAYER_CAPABILITY;
@@ -49,11 +53,18 @@ public class CoreCapabilities {
     public static void attachEntityCapability(AttachCapabilitiesEvent<Entity> e) {
         if (e.getObject() instanceof PlayerEntity) {
             e.addCapability(PLAYER_CAP_ID, new PlayerDataProvider((PlayerEntity) e.getObject()));
-        } else if (e.getObject() instanceof LivingEntity) {
+        } else if (e.getObject() instanceof LivingEntity &&
+                entityAdditionPredicates.stream().anyMatch(p -> p.test((LivingEntity) e.getObject()))) {
             e.addCapability(ENTITY_CAP_ID, new EntityDataProvider((LivingEntity) e.getObject()));
         }
     }
 
+    /**
+     * @param entityPredicate Predicate to determine if the given entity should be given the IMKEntityData capability
+     */
+    public static void registerLivingEntity(Predicate<LivingEntity> entityPredicate) {
+        entityAdditionPredicates.add(entityPredicate);
+    }
 
     public static class MKDataStorage<T extends IMKEntityData> implements Capability.IStorage<T> {
 

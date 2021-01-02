@@ -12,7 +12,7 @@ public class CombatExtensionModule {
     private int ticksSinceProjectileHit;
     private boolean midCombo;
     private boolean midProjectileCombo;
-    private IMKEntityData entityData;
+    private final IMKEntityData entityData;
 
     public CombatExtensionModule(IMKEntityData entityData) {
         this.entityData = entityData;
