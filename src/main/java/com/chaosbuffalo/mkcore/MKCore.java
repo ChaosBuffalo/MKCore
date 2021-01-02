@@ -11,7 +11,6 @@ import com.chaosbuffalo.mkcore.core.persona.IPersonaExtensionProvider;
 import com.chaosbuffalo.mkcore.core.persona.PersonaManager;
 import com.chaosbuffalo.mkcore.core.talents.TalentManager;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
-import com.chaosbuffalo.targeting_api.Targeting;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -64,8 +63,6 @@ public class MKCore {
         abilityManager = new AbilityManager();
 
         MKConfig.init();
-        // REMOVEME when MKFaction ready
-        Targeting.registerRelationCallback((caster, target) -> Targeting.TargetRelation.ENEMY);
     }
 
     private void setup(final FMLCommonSetupEvent event) {
