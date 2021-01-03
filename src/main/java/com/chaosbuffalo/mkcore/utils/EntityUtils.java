@@ -7,10 +7,12 @@ import com.chaosbuffalo.mkcore.entities.BaseProjectileEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.Attributes;
+import net.minecraft.entity.projectile.AbstractArrowEntity;
 import net.minecraft.entity.projectile.ArrowEntity;
 import net.minecraft.entity.projectile.SpectralArrowEntity;
 import net.minecraft.entity.projectile.ThrowableEntity;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 
 
@@ -47,6 +49,16 @@ public class EntityUtils {
     public static double getCooldownPeriod(LivingEntity entity) {
         return 1.0D / entity.getAttribute(Attributes.ATTACK_SPEED).getValue() *
                 GameConstants.TICKS_PER_SECOND;
+    }
+
+    public static void shootArrow(LivingEntity source, AbstractArrowEntity arrowEntity, LivingEntity target){
+        // emulates the logic skeleton uses to shoot an arrow
+        double d0 = target.getPosX() - source.getPosX();
+        double d1 = target.getPosYHeight(0.3333333333333333D) - arrowEntity.getPosY();
+        double d2 = target.getPosZ() - source.getPosZ();
+        double d3 = MathHelper.sqrt(d0 * d0 + d2 * d2);
+        arrowEntity.shoot(d0, d1 + d3 * (double)0.2F, d2, 1.6F, (float)(
+                14 - source.getEntityWorld().getDifficulty().getId() * 4));
     }
 
     public static boolean shootProjectileAtTarget(BaseProjectileEntity projectile, LivingEntity target,
