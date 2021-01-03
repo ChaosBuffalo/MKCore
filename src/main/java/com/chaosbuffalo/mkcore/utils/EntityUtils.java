@@ -1,7 +1,9 @@
 package com.chaosbuffalo.mkcore.utils;
 
 import com.chaosbuffalo.mkcore.GameConstants;
+import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.stats.CriticalStats;
+import com.chaosbuffalo.mkcore.entities.BaseProjectileEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.Attributes;
@@ -9,6 +11,7 @@ import net.minecraft.entity.projectile.ArrowEntity;
 import net.minecraft.entity.projectile.SpectralArrowEntity;
 import net.minecraft.entity.projectile.ThrowableEntity;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.vector.Vector3d;
 
 
 public class EntityUtils {
@@ -44,5 +47,22 @@ public class EntityUtils {
     public static double getCooldownPeriod(LivingEntity entity) {
         return 1.0D / entity.getAttribute(Attributes.ATTACK_SPEED).getValue() *
                 GameConstants.TICKS_PER_SECOND;
+    }
+
+    public static boolean shootProjectileAtTarget(BaseProjectileEntity projectile, LivingEntity target,
+                                                  float velocity, float accuracy) {
+
+        ProjectileUtils.BallisticResult result = ProjectileUtils.solveBallisticArcStationaryTarget(
+                projectile.getPositionVec(),
+                target.getPositionVec().add(new Vector3d(0, target.getHeight() / 2.0, 0)),
+                velocity, projectile.getGravityVelocity());
+
+        if (!result.foundSolution) {
+            MKCore.LOGGER.info("No solution found for {}", projectile.toString());
+            return false;
+        } else {
+            projectile.shoot(result.lowArc.x, result.lowArc.y, result.lowArc.z, velocity, accuracy);
+            return true;
+        }
     }
 }
