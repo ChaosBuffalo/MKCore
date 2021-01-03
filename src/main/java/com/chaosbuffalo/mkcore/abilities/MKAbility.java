@@ -8,8 +8,16 @@ import com.chaosbuffalo.mkcore.abilities.attributes.IAbilityAttribute;
 import com.chaosbuffalo.mkcore.core.AbilitySlot;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.core.MKAttributes;
+import com.chaosbuffalo.mkcore.core.damage.MKDamageSource;
+import com.chaosbuffalo.mkcore.entities.BaseProjectileEntity;
+import com.chaosbuffalo.mkcore.fx.ParticleEffects;
+import com.chaosbuffalo.mkcore.init.ModDamageTypes;
 import com.chaosbuffalo.mkcore.init.ModSounds;
+import com.chaosbuffalo.mkcore.network.PacketHandler;
+import com.chaosbuffalo.mkcore.network.ParticleEffectSpawnPacket;
+import com.chaosbuffalo.mkcore.utils.EntityUtils;
 import com.chaosbuffalo.mkcore.utils.RayTraceUtils;
+import com.chaosbuffalo.mkcore.utils.SoundUtils;
 import com.chaosbuffalo.targeting_api.Targeting;
 import com.chaosbuffalo.targeting_api.TargetingContext;
 import com.google.common.collect.ImmutableMap;
@@ -21,6 +29,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.particles.ParticleTypes;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.EntityRayTraceResult;
@@ -363,5 +373,16 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
     protected LivingEntity getSingleLivingTargetOrSelf(LivingEntity caster, float distance, boolean checkValid) {
         LivingEntity target = getSingleLivingTarget(caster, distance, checkValid);
         return target != null ? target : caster;
+    }
+
+    protected void shootProjectile(BaseProjectileEntity projectileEntity, float velocity, float accuracy,
+                                   LivingEntity entity, AbilityContext context){
+
+        if (entity instanceof PlayerEntity){
+            projectileEntity.shoot(entity, entity.rotationPitch, entity.rotationYaw, 0, velocity, accuracy);
+        } else {
+            context.getMemory(MKAbilityMemories.ABILITY_TARGET).ifPresent(targetEntity ->
+                    EntityUtils.shootProjectileAtTarget(projectileEntity, targetEntity, velocity, accuracy));
+        }
     }
 }
