@@ -7,7 +7,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 
-public class EntityStatsModule implements IStatsModule {
+public class EntityStatsModule implements IMKEntityStats {
 
     protected final IMKEntityData entityData;
     protected final AbilityTracker abilityTracker;

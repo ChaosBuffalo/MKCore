@@ -9,6 +9,7 @@ import com.chaosbuffalo.mkcore.sync.UpdateEngine;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraftforge.fml.LogicalSide;
 
 public class MKPlayerData implements IMKEntityData {
 
@@ -117,6 +118,10 @@ public class MKPlayerData implements IMKEntityData {
 
     public boolean isServerSide() {
         return player instanceof ServerPlayerEntity;
+    }
+
+    public LogicalSide getSide() {
+        return isServerSide() ? LogicalSide.SERVER : LogicalSide.CLIENT;
     }
 
     public void update() {

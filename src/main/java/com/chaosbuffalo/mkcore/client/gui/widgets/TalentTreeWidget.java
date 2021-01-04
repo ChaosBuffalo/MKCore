@@ -2,8 +2,8 @@ package com.chaosbuffalo.mkcore.client.gui.widgets;
 
 import com.chaosbuffalo.mkcore.client.gui.CharacterScreen;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
+import com.chaosbuffalo.mkcore.core.talents.TalentLineDefinition;
 import com.chaosbuffalo.mkcore.core.talents.TalentRecord;
-import com.chaosbuffalo.mkcore.core.talents.TalentTreeDefinition;
 import com.chaosbuffalo.mkcore.core.talents.TalentTreeRecord;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.TalentPointActionPacket;
@@ -56,7 +56,7 @@ public class TalentTreeWidget extends MKLayout {
             int talentButtonHeight = TalentButton.HEIGHT;
             int talentButtonWidth = TalentButton.WIDTH;
             int talentButtonYMargin = getMarginTop();
-            Map<String, TalentTreeDefinition.TalentLineDefinition> lineDefs = treeRecord
+            Map<String, TalentLineDefinition> lineDefs = treeRecord
                     .getTreeDefinition().getTalentLines();
             int count = lineDefs.size();
             int talentWidth = talentButtonWidth * count + treeRenderingMarginX + (count - 1) * treeRenderingPaddingX;
@@ -69,7 +69,7 @@ public class TalentTreeWidget extends MKLayout {
             int largestIndex = 0;
             int columnOffsetTotal = 0;
             for (String name : keys) {
-                TalentTreeDefinition.TalentLineDefinition lineDef = lineDefs.get(name);
+                TalentLineDefinition lineDef = lineDefs.get(name);
                 for (int talentIndex = 0; talentIndex < lineDef.getLength(); talentIndex++) {
                     TalentRecord record = treeRecord.getNodeRecord(name, talentIndex);
                     if (record == null) {

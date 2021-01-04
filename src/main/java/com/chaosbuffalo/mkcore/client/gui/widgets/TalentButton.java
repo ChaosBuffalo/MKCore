@@ -103,8 +103,8 @@ public class TalentButton extends MKButton {
             } else if (isHovered()) {
                 textColor = 16777120;
             }
-            drawCenteredString(matrixStack, fontrenderer, this.buttonText, this.getX() + this.getWidth() / 2,
-                    this.getY() + SLOT_Y_OFFSET + SLOT_HEIGHT + OVERLAY_HEIGHT + TEXT_OFFSET, textColor);
+//            drawCenteredString(matrixStack, fontrenderer, this.buttonText, this.getX() + this.getWidth() / 2,
+//                    this.getY() + SLOT_Y_OFFSET + SLOT_HEIGHT + OVERLAY_HEIGHT + TEXT_OFFSET, textColor);
             int rank = record.getRank();
             int maxRank = record.getNode().getMaxRanks();
             int rankOffset = SLOT_Y_OFFSET + SLOT_HEIGHT + OVERLAY_HEIGHT + TEXT_OFFSET;

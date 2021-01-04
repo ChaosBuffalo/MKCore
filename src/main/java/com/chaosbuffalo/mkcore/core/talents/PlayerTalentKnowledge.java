@@ -1,12 +1,10 @@
 package com.chaosbuffalo.mkcore.core.talents;
 
-import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.MKCore;
-import com.chaosbuffalo.mkcore.core.AbilitySlot;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.player.IPlayerSyncComponentProvider;
 import com.chaosbuffalo.mkcore.core.player.PlayerSyncComponent;
-import com.chaosbuffalo.mkcore.sync.SyncGroup;
+import com.chaosbuffalo.mkcore.sync.DynamicSyncGroup;
 import com.chaosbuffalo.mkcore.sync.SyncInt;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.Dynamic;
@@ -15,7 +13,6 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.NBTDynamicOps;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.registries.ForgeRegistryEntry;
 
 import java.util.*;
 import java.util.function.Function;
@@ -28,7 +25,6 @@ public class PlayerTalentKnowledge implements IPlayerSyncComponentProvider {
     private final SyncInt talentPoints = new SyncInt("points", 0);
     private final SyncInt totalTalentPoints = new SyncInt("totalPoints", 0);
     private final Map<ResourceLocation, TalentTreeRecord> talentTreeRecordMap = new HashMap<>();
-    private final KnownTalentCache talentCache = new KnownTalentCache(this);
 
     public PlayerTalentKnowledge(MKPlayerData playerData) {
         this.playerData = playerData;
@@ -69,7 +65,9 @@ public class PlayerTalentKnowledge implements IPlayerSyncComponentProvider {
     }
 
     public Set<ResourceLocation> getKnownTalentIds(TalentType<?> type) {
-        return Collections.unmodifiableSet(talentCache.getKnownTalentIds(type));
+        return getKnownTalentsStream(type)
+                .map(record -> record.getNode().getTalent().getTalentId())
+                .collect(Collectors.toSet());
     }
 
     public boolean unlockTree(ResourceLocation treeId) {
@@ -83,7 +81,7 @@ public class PlayerTalentKnowledge implements IPlayerSyncComponentProvider {
 
     private TalentTreeRecord unlockTreeInternal(ResourceLocation treeId) {
         if (talentTreeRecordMap.containsKey(treeId)) {
-            MKCore.LOGGER.warn("Player {} tried to unlock already-known talent tree {}", playerData.getEntity(), treeId);
+//            MKCore.LOGGER.warn("Player {} tried to unlock already-known talent tree {}", playerData.getEntity(), treeId);
             return null;
         }
 
@@ -149,7 +147,6 @@ public class PlayerTalentKnowledge implements IPlayerSyncComponentProvider {
             return false;
         }
 
-        talentCache.invalidate();
         talentPoints.add(-1);
 
         TalentRecord record = treeRecord.getNodeRecord(line, index);
@@ -171,7 +168,6 @@ public class PlayerTalentKnowledge implements IPlayerSyncComponentProvider {
             return false;
         }
 
-        talentCache.invalidate();
         talentPoints.add(1);
 
         TalentRecord record = treeRecord.getNodeRecord(line, index);
@@ -179,32 +175,6 @@ public class PlayerTalentKnowledge implements IPlayerSyncComponentProvider {
             playerData.getTalentHandler().onTalentRecordUpdated(record);
         }
         return true;
-    }
-
-    static class PassiveTalentGroup extends ActiveTalentAbilityGroup {
-
-        public PassiveTalentGroup(MKPlayerData playerData, String name) {
-            super(playerData, name, AbilitySlot.Passive, GameConstants.DEFAULT_PASSIVES, GameConstants.MAX_PASSIVES, TalentType.PASSIVE);
-        }
-
-        @Override
-        protected void onSlotChanged(int index, ResourceLocation previous, ResourceLocation newAbility) {
-            playerData.getTalentHandler().getTypeHandler(TalentType.PASSIVE).onSlotChanged(index, previous, newAbility);
-            super.onSlotChanged(index, previous, newAbility);
-        }
-    }
-
-    static class UltimateTalentGroup extends ActiveTalentAbilityGroup {
-
-        public UltimateTalentGroup(MKPlayerData playerData, String name) {
-            super(playerData, name, AbilitySlot.Ultimate, GameConstants.DEFAULT_ULTIMATES, GameConstants.MAX_ULTIMATES, TalentType.ULTIMATE);
-        }
-
-        @Override
-        protected void onSlotChanged(int index, ResourceLocation previous, ResourceLocation newAbility) {
-            playerData.getTalentHandler().getTypeHandler(TalentType.ULTIMATE).onSlotChanged(index, previous, newAbility);
-            super.onSlotChanged(index, previous, newAbility);
-        }
     }
 
     public <T> T serialize(DynamicOps<T> ops) {
@@ -229,8 +199,6 @@ public class PlayerTalentKnowledge implements IPlayerSyncComponentProvider {
         dynamic.get("trees")
                 .asMap(Dynamic::asString, Function.identity())
                 .forEach((idOpt, dyn) -> idOpt.map(ResourceLocation::new).result().ifPresent(id -> deserializeTree(id, dyn)));
-
-        talentCache.invalidate();
     }
 
     private <T> void deserializeTree(ResourceLocation id, Dynamic<T> dyn) {
@@ -251,68 +219,20 @@ public class PlayerTalentKnowledge implements IPlayerSyncComponentProvider {
         deserialize(new Dynamic<>(NBTDynamicOps.INSTANCE, tag));
     }
 
-    private static class KnownTalentCache {
-        private final Map<ResourceLocation, TalentTreeRecord> parent;
-        private final Map<TalentType<?>, Set<MKTalent>> typeCache = new HashMap<>();
-        private boolean needsRebuild;
-
-        public KnownTalentCache(PlayerTalentKnowledge knowledge) {
-            parent = knowledge.talentTreeRecordMap;
-            invalidate();
-        }
-
-        public void invalidate() {
-            needsRebuild = true;
-        }
-
-        public void rebuild() {
-            typeCache.clear();
-            parent.forEach((treeId, treeRecord) ->
-                    treeRecord.getRecordStream().forEach(record -> {
-                        TalentNode node = record.getNode();
-                        if (record.isKnown()) {
-                            typeCache.computeIfAbsent(node.getTalentType(), type -> new HashSet<>()).add(node.getTalent());
-                        }
-                    }));
-        }
-
-        private Map<TalentType<?>, Set<MKTalent>> getTypeCache() {
-            if (needsRebuild) {
-                rebuild();
-                needsRebuild = false;
-            }
-            return typeCache;
-        }
-
-        public boolean hasAnyOfType(TalentType<?> type) {
-            return !getTypeCache().getOrDefault(type, Collections.emptySet()).isEmpty();
-        }
-
-        public Set<ResourceLocation> getKnownTalentIds(TalentType<?> type) {
-            return Collections.unmodifiableSet(getTypeCache()
-                    .getOrDefault(type, Collections.emptySet()).stream()
-                    .map(ForgeRegistryEntry::getRegistryName)
-                    .collect(Collectors.toSet()));
-        }
-    }
-
-    class ClientTreeSyncGroup extends SyncGroup {
+    class ClientTreeSyncGroup extends DynamicSyncGroup {
 
         @Override
-        public void deserializeUpdate(CompoundNBT tag) {
-            MKCore.getTalentManager()
-                    .getTreeNames()
-                    .stream()
-                    .filter(treeId -> tag.contains(treeId.toString()))
-                    .filter(treeId -> !talentTreeRecordMap.containsKey(treeId))
-                    .map(PlayerTalentKnowledge.this::unlockTreeInternal)
-                    .filter(Objects::nonNull)
-                    .forEach(record -> {
-                        record.setUpdateCallback(ignore -> talentCache.invalidate());
-                        add(record.getUpdater());
-                    });
+        protected void onKey(String key) {
+            ResourceLocation treeId = ResourceLocation.tryCreate(key);
+            if (treeId == null)
+                return;
 
-            super.deserializeUpdate(tag);
+            if (!talentTreeRecordMap.containsKey(treeId)) {
+                TalentTreeRecord treeRecord = unlockTreeInternal(treeId);
+                if (treeRecord != null) {
+                    add(treeRecord.getUpdater());
+                }
+            }
         }
 
         @Override

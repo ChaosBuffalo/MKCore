@@ -5,7 +5,7 @@ import com.chaosbuffalo.mkcore.core.damage.MKDamageType;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 
-public interface IStatsModule {
+public interface IMKEntityStats {
 
     float getDamageTypeBonus(MKDamageType damageType);
 

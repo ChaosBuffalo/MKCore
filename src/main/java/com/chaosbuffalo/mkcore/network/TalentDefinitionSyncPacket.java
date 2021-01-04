@@ -18,11 +18,11 @@ import java.util.function.Supplier;
 public class TalentDefinitionSyncPacket {
     private final Map<ResourceLocation, CompoundNBT> data = new HashMap<>();
 
-    public TalentDefinitionSyncPacket(Collection<TalentTreeDefinition> abilities) {
-        for (TalentTreeDefinition ability : abilities) {
-            INBT serialized = ability.serialize(NBTDynamicOps.INSTANCE);
+    public TalentDefinitionSyncPacket(Collection<TalentTreeDefinition> definitions) {
+        for (TalentTreeDefinition treeDefinition : definitions) {
+            INBT serialized = treeDefinition.serialize(NBTDynamicOps.INSTANCE);
             if (serialized instanceof CompoundNBT) {
-                data.put(ability.getTreeId(), (CompoundNBT) serialized);
+                data.put(treeDefinition.getTreeId(), (CompoundNBT) serialized);
             } else {
                 throw new IllegalArgumentException("TalentTreeDefinition did not serialize to a CompoundNBT!");
             }

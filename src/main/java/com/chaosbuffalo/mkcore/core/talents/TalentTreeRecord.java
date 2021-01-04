@@ -14,7 +14,6 @@ import net.minecraftforge.common.util.Constants;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -33,10 +32,6 @@ public class TalentTreeRecord {
     @Nonnull
     ISyncObject getUpdater() {
         return updater;
-    }
-
-    public void setUpdateCallback(Consumer<CompoundNBT> callback) {
-        updater.deserializationCallback = callback;
     }
 
     @Nonnull
@@ -62,19 +57,19 @@ public class TalentTreeRecord {
         return lines.computeIfAbsent(lineName, this::createMissingLine);
     }
 
-    private boolean pointMotionCheck(TalentRecord record, int amount) {
+    private boolean validatePointModification(TalentRecord record, int amount) {
         TalentNode node = record.getNode();
         String lineName = node.getLine().getName();
         int index = node.getIndex();
 
         TalentLineRecord lineRecord = getLineRecord(lineName);
         if (lineRecord == null) {
-            MKCore.LOGGER.error("pointMotionCheck({}, {}, {}) - line does not exist", lineName, index, amount);
+            MKCore.LOGGER.error("validatePointModification({}, {}, {}) - line does not exist", lineName, index, amount);
             return false;
         }
 
         if (index >= lineRecord.getLength()) {
-            MKCore.LOGGER.error("pointMotionCheck({}, {}, {}) - index out of range (max {})", lineName, index, amount, lineRecord.getLength());
+            MKCore.LOGGER.error("validatePointModification({}, {}, {}) - index out of range (max {})", lineName, index, amount, lineRecord.getLength());
             return false;
         }
 
@@ -83,7 +78,7 @@ public class TalentTreeRecord {
             if (index != 0) {
                 TalentRecord previous = lineRecord.getRecord(index - 1);
                 if (!previous.isKnown()) {
-                    MKCore.LOGGER.error("pointMotionCheck({}, {}, {}) - cannot learn talent if the previous is unknown", lineName, index, amount);
+                    MKCore.LOGGER.error("validatePointModification({}, {}, {}) - cannot learn talent if the previous is unknown", lineName, index, amount);
                     return false;
                 }
             }
@@ -93,7 +88,7 @@ public class TalentTreeRecord {
             // trying to remove
             TalentRecord next = lineRecord.getRecord(index + 1);
             if (next != null && next.isKnown() && record.getRank() <= 1) {
-                MKCore.LOGGER.error("pointMotionCheck({}, {}, {}) - cannot unlearn talent if children have points", lineName, index, amount);
+                MKCore.LOGGER.error("validatePointModification({}, {}, {}) - cannot unlearn talent if children have points", lineName, index, amount);
                 return false;
             }
 
@@ -104,6 +99,9 @@ public class TalentTreeRecord {
     }
 
     private boolean modifyPoint(TalentRecord record, int points) {
+        if (!validatePointModification(record, points))
+            return false;
+
         if (record.modifyRank(points)) {
             TalentNode node = record.getNode();
             updater.markUpdated(node.getLine().getName(), node.getIndex());
@@ -118,12 +116,8 @@ public class TalentTreeRecord {
         if (record == null)
             return false;
 
-        int motion = 1;
-        if (pointMotionCheck(record, motion)) {
-            return modifyPoint(record, motion);
-        }
-
-        return false;
+        int amount = 1;
+        return modifyPoint(record, amount);
     }
 
     public boolean tryRefundPoint(String line, int index) {
@@ -132,11 +126,8 @@ public class TalentTreeRecord {
         if (record == null || !record.isKnown())
             return false;
 
-        int motion = -1;
-        if (pointMotionCheck(record, motion)) {
-            return modifyPoint(record, motion);
-        }
-        return false;
+        int amount = -1;
+        return modifyPoint(record, amount);
     }
 
     public <T> T serialize(DynamicOps<T> ops) {
@@ -179,7 +170,7 @@ public class TalentTreeRecord {
     }
 
     private TalentLineRecord createMissingLine(String name) {
-        TalentTreeDefinition.TalentLineDefinition lineDef = tree.getLine(name);
+        TalentLineDefinition lineDef = tree.getLine(name);
         if (lineDef != null) {
             return new TalentLineRecord(lineDef);
         }
@@ -187,10 +178,10 @@ public class TalentTreeRecord {
     }
 
     private static class TalentLineRecord {
-        private final TalentTreeDefinition.TalentLineDefinition lineDefinition;
+        private final TalentLineDefinition lineDefinition;
         private final List<TalentRecord> lineRecords;
 
-        public TalentLineRecord(TalentTreeDefinition.TalentLineDefinition lineDefinition) {
+        public TalentLineRecord(TalentLineDefinition lineDefinition) {
             this.lineDefinition = lineDefinition;
             this.lineRecords = lineDefinition.getNodes()
                     .stream()
@@ -213,7 +204,7 @@ public class TalentTreeRecord {
             return lineDefinition.getLength();
         }
 
-        public TalentTreeDefinition.TalentLineDefinition getLineDefinition() {
+        public TalentLineDefinition getLineDefinition() {
             return lineDefinition;
         }
 
@@ -231,7 +222,6 @@ public class TalentTreeRecord {
     private class TalentTreeUpdater implements ISyncObject {
         private final HashMap<String, BitSet> updatedLines = new HashMap<>();
         private ISyncNotifier parentNotifier = ISyncNotifier.NONE;
-        private Consumer<CompoundNBT> deserializationCallback;
 
         public void markUpdated(String lineName, int index) {
             getLineUpdater(lineName).set(index);
@@ -278,9 +268,6 @@ public class TalentTreeRecord {
                     });
                 }
             }
-
-            if (deserializationCallback != null)
-                deserializationCallback.accept(root);
         }
 
         private CompoundNBT writeNode(TalentRecord rec) {
