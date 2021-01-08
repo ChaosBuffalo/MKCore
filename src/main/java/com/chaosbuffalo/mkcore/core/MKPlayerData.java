@@ -141,6 +141,7 @@ public class MKPlayerData implements IMKEntityData {
             syncState();
         }
         getEntity().getEntityWorld().getProfiler().endSection();
+
         getEntity().getEntityWorld().getProfiler().endSection();
     }
 
@@ -165,6 +166,7 @@ public class MKPlayerData implements IMKEntityData {
         getTalentHandler().onPersonaActivated();
         getAbilityExecutor().onPersonaActivated();
         getStats().onPersonaActivated();
+        getAbilityLoadout().onPersonaSwitch();
     }
 
     public void onPersonaDeactivated() {

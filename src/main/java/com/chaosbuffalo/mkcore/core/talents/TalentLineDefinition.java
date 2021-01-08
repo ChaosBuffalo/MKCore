@@ -84,9 +84,8 @@ public class TalentLineDefinition {
         ResourceLocation nodeType = new ResourceLocation(nameOpt.get());
         MKTalent talentType = MKCoreRegistry.TALENTS.getValue(nodeType);
         if (talentType == null) {
-            MKCore.LOGGER.error("Tried to deserialize talent node that referenced unknown talent type {}", nodeType);
+            MKCore.LOGGER.error("Tried to deserialize talent node that referenced unknown talent {}", nodeType);
             return Optional.empty();
-//                throw new IllegalArgumentException(String.format("Tried to deserialize talent that referenced unknown talent type %s", nodeType));
         }
 
         return Optional.of(talentType.createNode(entry));

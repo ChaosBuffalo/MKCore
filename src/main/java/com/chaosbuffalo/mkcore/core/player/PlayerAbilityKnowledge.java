@@ -160,9 +160,16 @@ public class PlayerAbilityKnowledge implements IMKAbilityKnowledge, IPlayerSyncC
         knownAbilityUpdater.markDirty(info.getId());
     }
 
+    private boolean serializationFilter(ResourceLocation key, MKAbilityInfo info) {
+        // Talent abilities are granted when deserializing the talent records, so they don't need to be persisted here
+        if (info.getSource() == AbilitySource.TALENT)
+            return false;
+        return true;
+    }
+
     public CompoundNBT serialize() {
         CompoundNBT tag = new CompoundNBT();
-        tag.put("known", knownAbilityUpdater.serializeStorage());
+        tag.put("known", knownAbilityUpdater.serializeStorage(this::serializationFilter));
         tag.putInt("poolSize", poolSize.get());
         return tag;
     }
