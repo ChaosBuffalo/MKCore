@@ -3,6 +3,7 @@ package com.chaosbuffalo.mkcore.core.talents;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.google.common.collect.ImmutableMap;
+import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.DynamicOps;
 import net.minecraft.util.ResourceLocation;
@@ -53,19 +54,22 @@ public class TalentLineDefinition {
 
     public static <T> TalentLineDefinition deserialize(TalentTreeDefinition tree, Dynamic<T> dynamic) {
         Optional<String> nameOpt = dynamic.get("name").asString()
-                .resultOrPartial(error -> MKCore.LOGGER.error("Failed to deserialize talent line: {}", error));
+                .resultOrPartial(error -> MKCore.LOGGER.error("Failed to deserialize talent line in tree {}: {}", tree.getTreeId(), error));
         if (!nameOpt.isPresent())
             return null;
 
         TalentLineDefinition line = new TalentLineDefinition(tree, nameOpt.get());
-        for (Optional<TalentNode> node : dynamic.get("talents")
+        for (DataResult<TalentNode> nodeResult : dynamic.get("talents")
                 .asListOpt(line::deserializeNode)
-                .resultOrPartial(error -> MKCore.LOGGER.error("Failed to deserialize talent line {}: {}", nameOpt.get(), error))
+                .resultOrPartial(error ->
+                        MKCore.LOGGER.error("Failed to deserialize talent line entry {}:{}: {}", tree.getTreeId(), line.getName(), error))
                 .orElse(Collections.emptyList())) {
+
+            Optional<TalentNode> node = nodeResult.resultOrPartial(error ->
+                    MKCore.LOGGER.error("Stopping parsing talent line {}:{} at index {}: {}", tree.getTreeId(), line.getName(), line.getNodes().size(), error));
             if (node.isPresent()) {
                 line.addNode(node.get());
             } else {
-                MKCore.LOGGER.error("Stopping parsing talent line {} at index {} because it failed to deserialize", line.getName(), line.getNodes().size());
                 break;
             }
         }
@@ -73,22 +77,20 @@ public class TalentLineDefinition {
         return line;
     }
 
-    private <T> Optional<TalentNode> deserializeNode(Dynamic<T> entry) {
+    private <T> DataResult<TalentNode> deserializeNode(Dynamic<T> entry) {
         Optional<String> nameOpt = entry.get("name").asString()
                 .resultOrPartial(error -> MKCore.LOGGER.error("Failed to deserialize talent node: {}", error));
         if (!nameOpt.isPresent()) {
-            MKCore.LOGGER.error("Tried to deserialize talent without a name!");
-            return Optional.empty();
+            return DataResult.error("Node did not have a name");
         }
 
         ResourceLocation nodeType = new ResourceLocation(nameOpt.get());
         MKTalent talentType = MKCoreRegistry.TALENTS.getValue(nodeType);
         if (talentType == null) {
-            MKCore.LOGGER.error("Tried to deserialize talent node that referenced unknown talent {}", nodeType);
-            return Optional.empty();
+            return DataResult.error("Node referenced unknown talent " + nodeType);
         }
 
-        return Optional.of(talentType.createNode(entry));
+        return DataResult.success(talentType.createNode(entry));
     }
 
     public <T> T serialize(DynamicOps<T> ops) {
