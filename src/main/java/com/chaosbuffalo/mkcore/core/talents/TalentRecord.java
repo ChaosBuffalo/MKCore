@@ -45,8 +45,13 @@ public class TalentRecord {
         return ops.createMap(builder.build());
     }
 
-    public <T> void deserialize(Dynamic<T> dynamic) {
-        currentRank = dynamic.get("rank").asInt(0);
+    public <T> boolean deserialize(Dynamic<T> dynamic) {
+        int rank = dynamic.get("rank").asInt(0);
+        if (rank > node.getMaxRanks())
+            return false;
+        // Validation complete, assign the points
+        currentRank = rank;
+        return true;
     }
 
     public String toString() {

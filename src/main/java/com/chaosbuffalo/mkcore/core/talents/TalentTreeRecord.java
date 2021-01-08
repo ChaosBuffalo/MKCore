@@ -4,6 +4,7 @@ import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.sync.ISyncNotifier;
 import com.chaosbuffalo.mkcore.sync.ISyncObject;
 import com.google.common.collect.ImmutableMap;
+import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.DynamicOps;
 import net.minecraft.nbt.CompoundNBT;
@@ -16,7 +17,6 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class TalentTreeRecord {
@@ -44,6 +44,13 @@ public class TalentTreeRecord {
                 .flatMap(e -> e.getRecords().stream());
     }
 
+    public int getPointsSpent() {
+        return getRecordStream()
+                .filter(TalentRecord::isKnown)
+                .mapToInt(TalentRecord::getRank)
+                .sum();
+    }
+
     @Nullable
     public TalentRecord getNodeRecord(String lineName, int index) {
         TalentLineRecord lineRecord = getLineRecord(lineName);
@@ -54,7 +61,7 @@ public class TalentTreeRecord {
 
     @Nullable
     private TalentLineRecord getLineRecord(String lineName) {
-        return lines.computeIfAbsent(lineName, this::createMissingLine);
+        return lines.computeIfAbsent(lineName, this::createLineRecord);
     }
 
     private boolean validatePointModification(TalentRecord record, int amount) {
@@ -139,8 +146,8 @@ public class TalentTreeRecord {
                         lines.entrySet()
                                 .stream()
                                 .collect(Collectors.toMap(
-                                        e -> ops.createString(e.getKey()),
-                                        e -> e.getValue().serialize(ops)))
+                                        k -> ops.createString(k.getKey()),
+                                        v -> v.getValue().serialize(ops)))
                 )
         );
         return ops.createMap(builder.build());
@@ -149,27 +156,34 @@ public class TalentTreeRecord {
     public <T> boolean deserialize(Dynamic<T> dynamic) {
 
         int version = dynamic.get("version").asInt(-1);
-        if (version == -1 || version != tree.getVersion()) {
-            return false;
+        if (version != tree.getVersion()) {
+            // This isn't really an error if it's an upgrade scenario.
+            // Return true to add it to the unlocked tree map but with no points spent
+            return true;
         }
 
-        dynamic.get("lines")
-                .asMap(Dynamic::asString, Function.identity())
-                .forEach((nameOpt, dyn) -> nameOpt.result().ifPresent(name -> deserializeLineRecord(name, dyn)));
+        Map<DataResult<String>, Dynamic<T>> lineMap = dynamic.get("lines").asMap(Dynamic::asString, Function.identity());
+        lineMap.forEach((name, value) ->
+                name.resultOrPartial(MKCore.LOGGER::error).ifPresent(s -> deserializeLineRecord(s, value)));
+
         return true;
     }
 
     private <T> void deserializeLineRecord(String name, Dynamic<T> dyn) {
-        TalentLineRecord lineRecord = getLineRecord(name);
+        TalentLineRecord lineRecord = createLineRecord(name);
         if (lineRecord == null) {
             MKCore.LOGGER.error("TalentTreeRecord.deserializeLineRecord line {} - line does not exist!", name);
             return;
         }
 
-        lineRecord.deserialize(dyn);
+        if (lineRecord.deserialize(dyn)) {
+            lines.put(name, lineRecord);
+        } else {
+            MKCore.LOGGER.error("TalentTreeRecord.deserializeLineRecord line {} - line failed to deserialize!", name);
+        }
     }
 
-    private TalentLineRecord createMissingLine(String name) {
+    private TalentLineRecord createLineRecord(String name) {
         TalentLineDefinition lineDef = tree.getLine(name);
         if (lineDef != null) {
             return new TalentLineRecord(lineDef);
@@ -213,9 +227,19 @@ public class TalentTreeRecord {
             return ops.createList(lineRecords.stream().map(record -> record.serialize(ops)));
         }
 
-        public <T> void deserialize(Dynamic<T> dynamic) {
+        public <T> boolean deserialize(Dynamic<T> dynamic) {
             List<Dynamic<T>> entries = dynamic.asList(Function.identity());
-            IntStream.range(0, entries.size()).forEach(i -> getRecord(i).deserialize(entries.get(i)));
+            int savedCount = entries.size();
+            if (savedCount != getLength())
+                return false;
+
+            for (int i = 0; i < savedCount; i++) {
+                TalentRecord record = getRecord(i);
+                if (!record.deserialize(entries.get(i))) {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 

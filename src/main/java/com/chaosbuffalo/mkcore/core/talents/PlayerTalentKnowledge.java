@@ -81,7 +81,7 @@ public class PlayerTalentKnowledge implements IPlayerSyncComponentProvider {
 
     private TalentTreeRecord unlockTreeInternal(ResourceLocation treeId) {
         if (talentTreeRecordMap.containsKey(treeId)) {
-//            MKCore.LOGGER.warn("Player {} tried to unlock already-known talent tree {}", playerData.getEntity(), treeId);
+            MKCore.LOGGER.warn("Player {} tried to unlock already-known talent tree {}", playerData.getEntity(), treeId);
             return null;
         }
 
@@ -179,7 +179,6 @@ public class PlayerTalentKnowledge implements IPlayerSyncComponentProvider {
 
     public <T> T serialize(DynamicOps<T> ops) {
         ImmutableMap.Builder<T, T> builder = ImmutableMap.builder();
-        builder.put(ops.createString("talentPoints"), ops.createInt(talentPoints.get()));
         builder.put(ops.createString("totalPoints"), ops.createInt(totalTalentPoints.get()));
         builder.put(ops.createString("trees"), ops.createMap(talentTreeRecordMap.entrySet().stream()
                 .collect(
@@ -193,21 +192,30 @@ public class PlayerTalentKnowledge implements IPlayerSyncComponentProvider {
     }
 
     public <T> void deserialize(Dynamic<T> dynamic) {
-        talentPoints.set(dynamic.get("talentPoints").asInt(0));
         totalTalentPoints.set(dynamic.get("totalPoints").asInt(0));
+        talentPoints.set(totalTalentPoints.get());
 
         dynamic.get("trees")
                 .asMap(Dynamic::asString, Function.identity())
                 .forEach((idOpt, dyn) -> idOpt.map(ResourceLocation::new).result().ifPresent(id -> deserializeTree(id, dyn)));
     }
 
-    private <T> void deserializeTree(ResourceLocation id, Dynamic<T> dyn) {
-        if (unlockTree(id)) {
-            if (!getTree(id).deserialize(dyn)) {
-                MKCore.LOGGER.error("Player {} had invalid talent layout. Needs reset.", playerData.getEntity());
-            }
+    private <T> void deserializeTree(ResourceLocation treeId, Dynamic<T> dyn) {
+        TalentTreeDefinition tree = MKCore.getTalentManager().getTalentTree(treeId);
+        if (tree == null) {
+            MKCore.LOGGER.warn("Player {} tried to unlock unknown tree {}", playerData.getEntity(), treeId);
+            return;
+        }
+
+        TalentTreeRecord treeRecord = tree.createRecord();
+        if (!treeRecord.deserialize(dyn)) {
+            MKCore.LOGGER.error("Player {} had invalid talent layout for tree {}. Points will be refunded.", playerData.getEntity(), treeId);
         } else {
-            MKCore.LOGGER.error("PlayerTalentKnowledge.deserializeTree failed for tree {} {}", id, dyn);
+            // If the tree deserializes properly subtract the points spent in it from the total points
+            talentPoints.add(-treeRecord.getPointsSpent());
+
+            talentTreeRecordMap.put(tree.getTreeId(), treeRecord);
+            sync.addPrivate(treeRecord.getUpdater(), true);
         }
     }
 
@@ -227,7 +235,7 @@ public class PlayerTalentKnowledge implements IPlayerSyncComponentProvider {
             if (treeId == null)
                 return;
 
-            if (!talentTreeRecordMap.containsKey(treeId)) {
+            if (MKCore.getTalentManager().getTalentTree(treeId) != null && !talentTreeRecordMap.containsKey(treeId)) {
                 TalentTreeRecord treeRecord = unlockTreeInternal(treeId);
                 if (treeRecord != null) {
                     add(treeRecord.getUpdater());
