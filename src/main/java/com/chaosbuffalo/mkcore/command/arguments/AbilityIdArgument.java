@@ -1,4 +1,4 @@
-package com.chaosbuffalo.mkcore.command;
+package com.chaosbuffalo.mkcore.command.arguments;
 
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.mojang.brigadier.StringReader;
@@ -11,6 +11,7 @@ import net.minecraft.command.ISuggestionProvider;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Stream;
 
 public class AbilityIdArgument implements ArgumentType<ResourceLocation> {
 
@@ -25,6 +26,9 @@ public class AbilityIdArgument implements ArgumentType<ResourceLocation> {
 
     @Override
     public <S> CompletableFuture<Suggestions> listSuggestions(final CommandContext<S> context, final SuggestionsBuilder builder) {
-        return ISuggestionProvider.suggest(MKCoreRegistry.ABILITIES.getKeys().stream().map(ResourceLocation::toString), builder);
+        Stream<String> values = MKCoreRegistry.ABILITIES.getKeys()
+                .stream()
+                .map(ResourceLocation::toString);
+        return ISuggestionProvider.suggest(values, builder);
     }
 }

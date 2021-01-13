@@ -3,6 +3,7 @@ package com.chaosbuffalo.mkcore.command;
 import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.abilities.MKAbilityInfo;
+import com.chaosbuffalo.mkcore.command.arguments.AbilityIdArgument;
 import com.chaosbuffalo.mkcore.core.AbilitySlot;
 import com.chaosbuffalo.mkcore.core.player.IActiveAbilityGroup;
 import com.chaosbuffalo.mkcore.core.player.PlayerAbilityKnowledge;
