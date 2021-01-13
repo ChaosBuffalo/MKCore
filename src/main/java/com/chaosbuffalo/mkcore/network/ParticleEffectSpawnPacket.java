@@ -2,11 +2,11 @@ package com.chaosbuffalo.mkcore.network;
 
 import com.chaosbuffalo.mkcore.fx.ParticleEffects;
 import net.minecraft.client.Minecraft;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.particles.IParticleData;
-import net.minecraft.particles.ParticleType;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.registry.Registry;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.network.NetworkEvent;
@@ -68,16 +68,8 @@ public class ParticleEffectSpawnPacket {
                 radiusY, radiusZ, speed, headingVec.x, headingVec.y, headingVec.z);
     }
 
-    public IParticleData read(PacketBuffer buf) {
-        return this.read(buf, Registry.PARTICLE_TYPE.getByValue(buf.readVarInt()));
-    }
-
-    private <T extends IParticleData> T read(PacketBuffer buf, ParticleType<T> type) {
-        return type.getDeserializer().read(type, buf);
-    }
-
     public ParticleEffectSpawnPacket(PacketBuffer buf) {
-        this.particleID = read(buf);
+        this.particleID = DataSerializers.PARTICLE_DATA.read(buf);
         this.motionType = buf.readInt();
         this.data = buf.readInt();
         this.count = buf.readInt();
@@ -94,7 +86,7 @@ public class ParticleEffectSpawnPacket {
     }
 
     public void toBytes(PacketBuffer buf) {
-        buf.writeVarInt(Registry.PARTICLE_TYPE.getId(particleID.getType()));
+        DataSerializers.PARTICLE_DATA.write(buf, particleID);
         buf.writeInt(this.motionType);
         buf.writeInt(this.data);
         buf.writeInt(this.count);
@@ -112,13 +104,16 @@ public class ParticleEffectSpawnPacket {
 
     @OnlyIn(Dist.CLIENT)
     private void handleClient() {
-        //            MKCore.LOGGER.info("Got spawn particle packet");
+        PlayerEntity player = Minecraft.getInstance().player;
+        if (player == null)
+            return;
+
         ParticleEffects.spawnParticleEffect(
                 particleID, motionType, data, speed, count,
                 new Vector3d(xPos, yPos, zPos),
                 new Vector3d(radiusX, radiusY, radiusZ),
                 new Vector3d(headingX, headingY, headingZ),
-                Minecraft.getInstance().player.world);
+                player.world);
     }
 
     public void handle(Supplier<NetworkEvent.Context> supplier) {
