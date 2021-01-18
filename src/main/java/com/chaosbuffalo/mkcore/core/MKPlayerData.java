@@ -9,6 +9,7 @@ import com.chaosbuffalo.mkcore.sync.UpdateEngine;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraftforge.fml.LogicalSide;
 
 public class MKPlayerData implements IMKEntityData {
 
@@ -119,6 +120,10 @@ public class MKPlayerData implements IMKEntityData {
         return player instanceof ServerPlayerEntity;
     }
 
+    public LogicalSide getSide() {
+        return isServerSide() ? LogicalSide.SERVER : LogicalSide.CLIENT;
+    }
+
     public void update() {
         getEntity().getEntityWorld().getProfiler().startSection("MKPlayerData.update");
 
@@ -136,6 +141,7 @@ public class MKPlayerData implements IMKEntityData {
             syncState();
         }
         getEntity().getEntityWorld().getProfiler().endSection();
+
         getEntity().getEntityWorld().getProfiler().endSection();
     }
 
@@ -160,6 +166,7 @@ public class MKPlayerData implements IMKEntityData {
         getTalentHandler().onPersonaActivated();
         getAbilityExecutor().onPersonaActivated();
         getStats().onPersonaActivated();
+        getAbilityLoadout().onPersonaSwitch();
     }
 
     public void onPersonaDeactivated() {

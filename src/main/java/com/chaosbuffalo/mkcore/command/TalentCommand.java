@@ -386,7 +386,7 @@ public class TalentCommand {
                 return;
             }
 
-            TalentTreeDefinition.TalentLineDefinition lineDefinition = treeDefinition.getLine(line);
+            TalentLineDefinition lineDefinition = treeDefinition.getLine(line);
             if (lineDefinition == null) {
                 TextUtils.sendPlayerChatMessage(player, String.format("Tree %s does not have line %s", treeId, line));
                 return;

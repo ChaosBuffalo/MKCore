@@ -56,7 +56,6 @@ public class PlayerKnowledge implements IMKEntityKnowledge, IPlayerSyncComponent
     }
 
     public void onPersonaActivated() {
-        loadout.onPersonaSwitch();
     }
 
     public void onPersonaDeactivated() {

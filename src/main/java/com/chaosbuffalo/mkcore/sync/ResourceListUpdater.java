@@ -17,6 +17,6 @@ public class ResourceListUpdater extends SyncListUpdater<ResourceLocation> {
     }
 
     private static ResourceLocation decode(INBT nbt) {
-        return new ResourceLocation(nbt.getString());
+        return ResourceLocation.tryCreate(nbt.getString());
     }
 }

@@ -7,6 +7,7 @@ import net.minecraft.tags.ItemTags;
 
 public class ModTags {
     public static class Items {
+        public static final ITag.INamedTag<Item> ARMOR = tag("armor");
         public static final ITag.INamedTag<Item> LIGHT_ARMOR = tag("armor/light");
         public static final ITag.INamedTag<Item> MEDIUM_ARMOR = tag("armor/medium");
         public static final ITag.INamedTag<Item> HEAVY_ARMOR = tag("armor/heavy");

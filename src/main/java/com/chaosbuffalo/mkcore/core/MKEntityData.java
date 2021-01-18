@@ -34,8 +34,8 @@ public class MKEntityData implements IMKEntityData {
         getStats().tick();
         getEntity().getEntityWorld().getProfiler().endStartSection("EntityCombat.tick");
         getCombatExtension().tick();
-
         getEntity().getEntityWorld().getProfiler().endSection();
+
         getEntity().getEntityWorld().getProfiler().endSection();
     }
 

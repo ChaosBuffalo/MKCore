@@ -7,6 +7,7 @@ import com.google.gson.JsonElement;
 import com.mojang.serialization.JsonOps;
 import net.minecraft.block.Block;
 import net.minecraft.data.*;
+import net.minecraft.item.Item;
 import net.minecraft.item.Items;
 import net.minecraft.tags.ITag;
 import net.minecraft.util.ResourceLocation;
@@ -92,9 +93,14 @@ public class DataGenerators {
 
         @Override
         protected void registerTags() {
-            getOrCreateBuilder(ModTags.Items.LIGHT_ARMOR).add(Items.LEATHER_HELMET, Items.LEATHER_CHESTPLATE, Items.LEATHER_LEGGINGS, Items.LEATHER_BOOTS);
-            getOrCreateBuilder(ModTags.Items.MEDIUM_ARMOR).add(Items.IRON_HELMET, Items.IRON_CHESTPLATE, Items.IRON_LEGGINGS, Items.IRON_BOOTS);
-            getOrCreateBuilder(ModTags.Items.HEAVY_ARMOR).add(Items.DIAMOND_HELMET, Items.DIAMOND_CHESTPLATE, Items.DIAMOND_LEGGINGS, Items.DIAMOND_BOOTS);
+            tag(ModTags.Items.LIGHT_ARMOR).add(Items.LEATHER_HELMET, Items.LEATHER_CHESTPLATE, Items.LEATHER_LEGGINGS, Items.LEATHER_BOOTS);
+            tag(ModTags.Items.MEDIUM_ARMOR).add(Items.IRON_HELMET, Items.IRON_CHESTPLATE, Items.IRON_LEGGINGS, Items.IRON_BOOTS);
+            tag(ModTags.Items.HEAVY_ARMOR).add(Items.DIAMOND_HELMET, Items.DIAMOND_CHESTPLATE, Items.DIAMOND_LEGGINGS, Items.DIAMOND_BOOTS);
+            tag(ModTags.Items.ARMOR).addTag(ModTags.Items.LIGHT_ARMOR).addTag(ModTags.Items.MEDIUM_ARMOR).addTag(ModTags.Items.HEAVY_ARMOR);
+        }
+
+        private TagsProvider.Builder<Item> tag(ITag.INamedTag<Item> tag) {
+            return this.getOrCreateBuilder(tag);
         }
 
         @Nonnull
