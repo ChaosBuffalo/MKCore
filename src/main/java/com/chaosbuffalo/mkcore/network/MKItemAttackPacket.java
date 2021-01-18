@@ -39,6 +39,7 @@ public class MKItemAttackPacket {
             if (target != null) {
                 if (entity.getDistanceSq(target) <= reach * reach) {
                     entity.attackTargetEntityWithCurrentItem(target);
+                    entity.resetCooldown();
                     MKCore.getEntityData(entity).ifPresent(cap -> cap.getCombatExtension().recordSwing());
                     MinecraftForge.EVENT_BUS.post(new PostAttackEvent(entity));
                 }
