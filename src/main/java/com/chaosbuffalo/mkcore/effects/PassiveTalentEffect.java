@@ -5,11 +5,11 @@ import net.minecraft.potion.EffectType;
 
 public abstract class PassiveTalentEffect extends PassivePeriodicEffect {
     protected PassiveTalentEffect() {
-        super(EffectType.BENEFICIAL, 0, 1, false);
+        super(EffectType.BENEFICIAL, 0);
     }
 
     protected PassiveTalentEffect(int period){
-        super(EffectType.BENEFICIAL, 0, period, true);
+        super(EffectType.BENEFICIAL, 0, period);
     }
 
     @Override

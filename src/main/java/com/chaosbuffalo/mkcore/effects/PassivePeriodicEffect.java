@@ -9,13 +9,15 @@ public abstract class PassivePeriodicEffect extends PassiveEffect {
     private final boolean doPeriodicTick;
 
     protected PassivePeriodicEffect(EffectType typeIn, int liquidColorIn) {
-        this(typeIn, liquidColorIn, 1, false);
+        super(typeIn, liquidColorIn);
+        period = 1;
+        this.doPeriodicTick = false;
     }
 
-    protected PassivePeriodicEffect(EffectType typeIn, int liquidColorIn, int periodIn, boolean doPeriodicTickIn){
+    protected PassivePeriodicEffect(EffectType typeIn, int liquidColorIn, int periodIn){
         super(typeIn, liquidColorIn);
         this.period = periodIn;
-        this.doPeriodicTick = doPeriodicTickIn;
+        this.doPeriodicTick = true;
     }
 
     @Override
