@@ -52,11 +52,6 @@ public class ClericHealEffect extends SpellEffectBase {
     }
 
     @Override
-    public boolean canSelfCast() {
-        return true;
-    }
-
-    @Override
     public void doEffect(Entity applier, Entity caster, LivingEntity target, int amplifier, SpellCast cast) {
         float value = cast.getScaledValue(amplifier);
         MKHealing.healEntityFrom(target, value,
