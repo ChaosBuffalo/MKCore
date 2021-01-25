@@ -98,13 +98,12 @@ public class HealingRain extends MKAbility {
                     .disableParticle()
                     .spawn();
 
-            PacketHandler.sendToTrackingMaybeSelf(
-                    new ParticleEffectSpawnPacket(
-                            ParticleTypes.BUBBLE,
-                            ParticleEffects.RAIN_EFFECT, 30, 4,
-                            entity.getPosX(), entity.getPosY() + 3.0,
-                            entity.getPosZ(), dist, 0.5, dist, 1.0,
-                            entity.getLookVec()), entity);
+            PacketHandler.sendToTrackingAndSelf(new ParticleEffectSpawnPacket(
+                                ParticleTypes.BUBBLE,
+                                ParticleEffects.RAIN_EFFECT, 30, 4,
+                                entity.getPosX(), entity.getPosY() + 3.0,
+                                entity.getPosZ(), dist, 0.5, dist, 1.0,
+                                entity.getLookVec()), entity);
         }
     }
 }

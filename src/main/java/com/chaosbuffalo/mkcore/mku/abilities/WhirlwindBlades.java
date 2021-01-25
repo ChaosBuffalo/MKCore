@@ -118,13 +118,12 @@ public class WhirlwindBlades extends MKAbility {
                     .particle(ParticleTypes.CRIT)
                     .spawn();
 
-            PacketHandler.sendToTrackingMaybeSelf(
-                    new ParticleEffectSpawnPacket(
-                            ParticleTypes.SWEEP_ATTACK,
-                            ParticleEffects.SPHERE_MOTION, 16, 4,
-                            entity.getPosX(), entity.getPosY() + 1.0,
-                            entity.getPosZ(), 1.0, 1.0, 1.0, 1.5,
-                            entity.getLookVec()), entity);
+            PacketHandler.sendToTrackingAndSelf(new ParticleEffectSpawnPacket(
+                                ParticleTypes.SWEEP_ATTACK,
+                                ParticleEffects.SPHERE_MOTION, 16, 4,
+                                entity.getPosX(), entity.getPosY() + 1.0,
+                                entity.getPosZ(), 1.0, 1.0, 1.0, 1.5,
+                                entity.getLookVec()), entity);
         }
     }
 }

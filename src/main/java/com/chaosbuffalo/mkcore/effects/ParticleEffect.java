@@ -60,7 +60,7 @@ public class ParticleEffect extends SpellEffectBase {
         if (!particleCast.includeSelf && target.equals(caster)) {
             return;
         }
-        PacketHandler.sendToTrackingMaybeSelf(particleCast.createPacket(target), target);
+        PacketHandler.sendToTrackingAndSelf(particleCast.createPacket(target), target);
     }
 
     public static class ParticleCast extends SpellCast {

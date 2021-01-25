@@ -281,14 +281,12 @@ public class SpellTriggers {
                                        CritMessagePacket packet) {
         PacketHandler.sendToTrackingAndSelf(packet, playerSource);
         Vector3d lookVec = livingTarget.getLookVec();
-        PacketHandler.sendToTrackingMaybeSelf(
-                new ParticleEffectSpawnPacket(
+        PacketHandler.sendToTrackingAndSelf(new ParticleEffectSpawnPacket(
                         ParticleTypes.ENCHANTED_HIT,
                         ParticleEffects.SPHERE_MOTION, 12, 4,
                         livingTarget.getPosX(), livingTarget.getPosY() + 1.0f,
                         livingTarget.getPosZ(), .5f, .5f, .5f, 0.2,
-                        lookVec),
-                livingTarget);
+                        lookVec), livingTarget);
     }
 
     static <T> void selectiveTrigger(LivingEntity entity, Map<SpellEffectBase, T> triggers, BiConsumer<T, EffectInstance> consumer) {

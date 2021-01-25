@@ -57,14 +57,12 @@ public abstract class SongCasterEffect extends SongEffectBase implements IMKInfi
                 entity.addPotionEffect(toCast.setTarget(entity).toPotionEffect(getPeriod(), amplifier));
             }
 
-            PacketHandler.sendToTrackingMaybeSelf(
-                    new ParticleEffectSpawnPacket(
-                            ParticleTypes.NOTE,
-                            ParticleEffects.CIRCLE_MOTION, 12, 4,
-                            target.getPosX(), target.getPosY() + 1.0f,
-                            target.getPosZ(), .25, .25, .25, .5,
-                            target.getLookVec()),
-                    target);
+            PacketHandler.sendToTrackingAndSelf(new ParticleEffectSpawnPacket(
+                                ParticleTypes.NOTE,
+                                ParticleEffects.CIRCLE_MOTION, 12, 4,
+                                target.getPosX(), target.getPosY() + 1.0f,
+                                target.getPosZ(), .25, .25, .25, .5,
+                                target.getLookVec()), target);
         });
     }
 
