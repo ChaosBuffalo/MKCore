@@ -6,18 +6,18 @@ import net.minecraft.potion.EffectType;
 
 public abstract class PassivePeriodicEffect extends PassiveEffect {
     private final int period;
-    private final boolean doPeriodicTick;
+    private final boolean isPeriodic;
 
-    protected PassivePeriodicEffect(EffectType typeIn, int liquidColorIn) {
-        super(typeIn, liquidColorIn);
+    protected PassivePeriodicEffect(EffectType effectType, int color) {
+        super(effectType, color);
         period = 1;
-        this.doPeriodicTick = false;
+        this.isPeriodic = false;
     }
 
-    protected PassivePeriodicEffect(EffectType typeIn, int liquidColorIn, int periodIn){
-        super(typeIn, liquidColorIn);
-        this.period = periodIn;
-        this.doPeriodicTick = true;
+    protected PassivePeriodicEffect(EffectType effectType, int color, int period) {
+        super(effectType, color);
+        this.period = period;
+        this.isPeriodic = true;
     }
 
     @Override
@@ -29,16 +29,16 @@ public abstract class PassivePeriodicEffect extends PassiveEffect {
     public void doEffect(Entity source, Entity indirectSource, LivingEntity target, int amplifier, SpellCast cast) {
         if (!attemptInfiniteEffectRefresh(target, this, getPeriod()) || !isPeriodic())
             return;
-        periodicEffect(source, indirectSource, target ,amplifier, cast);
+        periodicEffect(source, indirectSource, target, amplifier, cast);
     }
 
     public void periodicEffect(Entity source, Entity indirectSource, LivingEntity target,
-                               int amplifier, SpellCast cast){
+                               int amplifier, SpellCast cast) {
 
     }
 
-    public boolean isPeriodic(){
-        return doPeriodicTick;
+    public boolean isPeriodic() {
+        return isPeriodic;
     }
 
     public int getPeriod() {

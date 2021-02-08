@@ -8,7 +8,7 @@ public abstract class PassiveTalentEffect extends PassivePeriodicEffect {
         super(EffectType.BENEFICIAL, 0);
     }
 
-    protected PassiveTalentEffect(int period){
+    protected PassiveTalentEffect(int period) {
         super(EffectType.BENEFICIAL, 0, period);
     }
 
