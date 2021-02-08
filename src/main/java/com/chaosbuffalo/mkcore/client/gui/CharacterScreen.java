@@ -99,6 +99,18 @@ public class CharacterScreen extends AbilityPanelScreen {
         STAT_PANEL_ATTRIBUTES.add(MKAttributes.RANGED_CRIT_MULTIPLIER);
         STAT_PANEL_ATTRIBUTES.add(MKAttributes.SPELL_CRIT);
         STAT_PANEL_ATTRIBUTES.add(MKAttributes.SPELL_CRIT_MULTIPLIER);
+        STAT_PANEL_ATTRIBUTES.add(MKAttributes.ABJURATION);
+        STAT_PANEL_ATTRIBUTES.add(MKAttributes.ALTERATON);
+        STAT_PANEL_ATTRIBUTES.add(MKAttributes.CONJURATION);
+        STAT_PANEL_ATTRIBUTES.add(MKAttributes.DIVINATION);
+        STAT_PANEL_ATTRIBUTES.add(MKAttributes.ENCHANTMENT);
+        STAT_PANEL_ATTRIBUTES.add(MKAttributes.EVOCATION);
+        STAT_PANEL_ATTRIBUTES.add(MKAttributes.PHANTASM);
+        STAT_PANEL_ATTRIBUTES.add(MKAttributes.NECROMANCY);
+        STAT_PANEL_ATTRIBUTES.add(MKAttributes.RESTORATION);
+        STAT_PANEL_ATTRIBUTES.add(MKAttributes.ARETE);
+        STAT_PANEL_ATTRIBUTES.add(MKAttributes.PNEUMA);
+        STAT_PANEL_ATTRIBUTES.add(MKAttributes.PANKRATION);
     }
 
     public CharacterScreen() {

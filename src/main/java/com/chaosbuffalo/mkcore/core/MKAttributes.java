@@ -152,6 +152,66 @@ public class MKAttributes {
             .setRegistryName(MKCore.makeRL("attack_reach"))
             .setShouldWatch(true);
 
+    public static final RangedAttribute ABJURATION = (RangedAttribute) new RangedAttribute(
+            "attribute.name.mk.abjuration", 0, -10, 10)
+            .setRegistryName(MKCore.makeRL("abjuration"))
+            .setShouldWatch(true);
+
+    public static final RangedAttribute ALTERATON = (RangedAttribute) new RangedAttribute(
+            "attribute.name.mk.alteration", 0, -10, 10)
+            .setRegistryName(MKCore.makeRL("alteration"))
+            .setShouldWatch(true);
+
+    public static final RangedAttribute CONJURATION = (RangedAttribute) new RangedAttribute(
+            "attribute.name.mk.conjuration", 0, -10, 10)
+            .setRegistryName(MKCore.makeRL("conjuration"))
+            .setShouldWatch(true);
+
+    public static final RangedAttribute DIVINATION = (RangedAttribute) new RangedAttribute(
+            "attribute.name.mk.divination", 0, -10, 10)
+            .setRegistryName(MKCore.makeRL("divination"))
+            .setShouldWatch(true);
+
+    public static final RangedAttribute ENCHANTMENT = (RangedAttribute) new RangedAttribute(
+            "attribute.name.mk.enchantment", 0, -10, 10)
+            .setRegistryName(MKCore.makeRL("enchantment"))
+            .setShouldWatch(true);
+
+    public static final RangedAttribute PHANTASM = (RangedAttribute) new RangedAttribute(
+            "attribute.name.mk.phantasm", 0, -10, 10)
+            .setRegistryName(MKCore.makeRL("phantasm"))
+            .setShouldWatch(true);
+
+    public static final RangedAttribute NECROMANCY = (RangedAttribute) new RangedAttribute(
+            "attribute.name.mk.necromancy", 0, -10, 10)
+            .setRegistryName(MKCore.makeRL("necromancy"))
+            .setShouldWatch(true);
+
+    public static final RangedAttribute RESTORATION = (RangedAttribute) new RangedAttribute(
+            "attribute.name.mk.restoration", 0, -10, 10)
+            .setRegistryName(MKCore.makeRL("restoration"))
+            .setShouldWatch(true);
+
+    public static final RangedAttribute ARETE = (RangedAttribute) new RangedAttribute(
+            "attribute.name.mk.arete", 0, -10, 10)
+            .setRegistryName(MKCore.makeRL("arete"))
+            .setShouldWatch(true);
+
+    public static final RangedAttribute PNEUMA = (RangedAttribute) new RangedAttribute(
+            "attribute.name.mk.pneuma", 0, -10, 10)
+            .setRegistryName(MKCore.makeRL("pneuma"))
+            .setShouldWatch(true);
+
+    public static final RangedAttribute PANKRATION = (RangedAttribute) new RangedAttribute(
+            "attribute.name.mk.pankration", 0, -10, 10)
+            .setRegistryName(MKCore.makeRL("pankration"))
+            .setShouldWatch(true);
+
+    public static final RangedAttribute EVOCATION = (RangedAttribute) new RangedAttribute(
+            "attribute.name.mk.evocation", 0, -10, 10)
+            .setRegistryName(MKCore.makeRL("evocation"))
+            .setShouldWatch(true);
+
     public static void registerEntityAttributes(Consumer<Attribute> attributes) {
 //        MKCore.LOGGER.info("Adding entity attributes");
         attributes.accept(COOLDOWN);
@@ -177,6 +237,18 @@ public class MKAttributes {
         attributes.accept(POISON_RESISTANCE);
         attributes.accept(BLEED_DAMAGE);
         attributes.accept(BLEED_RESISTANCE);
+        attributes.accept(ABJURATION);
+        attributes.accept(ALTERATON);
+        attributes.accept(CONJURATION);
+        attributes.accept(DIVINATION);
+        attributes.accept(ENCHANTMENT);
+        attributes.accept(PHANTASM);
+        attributes.accept(NECROMANCY);
+        attributes.accept(RESTORATION);
+        attributes.accept(ARETE);
+        attributes.accept(PNEUMA);
+        attributes.accept(PANKRATION);
+        attributes.accept(EVOCATION);
     }
 
     public static void registerPlayerAttributes(Consumer<Attribute> attributes) {
@@ -192,6 +264,18 @@ public class MKAttributes {
         attributes.accept(RANGED_CRIT_MULTIPLIER);
         attributes.accept(RANGED_DAMAGE);
         attributes.accept(RANGED_RESISTANCE);
+        attributes.accept(ABJURATION);
+        attributes.accept(ALTERATON);
+        attributes.accept(CONJURATION);
+        attributes.accept(DIVINATION);
+        attributes.accept(ENCHANTMENT);
+        attributes.accept(PHANTASM);
+        attributes.accept(NECROMANCY);
+        attributes.accept(RESTORATION);
+        attributes.accept(ARETE);
+        attributes.accept(PNEUMA);
+        attributes.accept(PANKRATION);
+        attributes.accept(EVOCATION);
     }
 
     @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)

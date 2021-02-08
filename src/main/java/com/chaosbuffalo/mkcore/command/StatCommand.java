@@ -66,6 +66,18 @@ public class StatCommand {
                 .then(createAttributeStat("ranged_resist", MKAttributes.RANGED_RESISTANCE))
                 .then(createAttributeStat("cast_speed", MKAttributes.CASTING_SPEED))
                 .then(createAttributeStat("buff_duration", MKAttributes.BUFF_DURATION))
+                .then(createAttributeStat("abjuration", MKAttributes.ABJURATION))
+                .then(createAttributeStat("alteration", MKAttributes.ALTERATON))
+                .then(createAttributeStat("conjuration", MKAttributes.CONJURATION))
+                .then(createAttributeStat("divination", MKAttributes.DIVINATION))
+                .then(createAttributeStat("enchantment", MKAttributes.ENCHANTMENT))
+                .then(createAttributeStat("phantasm", MKAttributes.PHANTASM))
+                .then(createAttributeStat("necromancy", MKAttributes.NECROMANCY))
+                .then(createAttributeStat("restoration", MKAttributes.RESTORATION))
+                .then(createAttributeStat("arete", MKAttributes.ARETE))
+                .then(createAttributeStat("pneuma", MKAttributes.PNEUMA))
+                .then(createAttributeStat("pankration", MKAttributes.PANKRATION))
+                .then(createAttributeStat("evocation", MKAttributes.EVOCATION))
                 ;
     }
 

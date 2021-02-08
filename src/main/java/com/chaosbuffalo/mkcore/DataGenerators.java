@@ -30,17 +30,19 @@ public class DataGenerators {
         if (event.includeServer()) {
             MKBlockTagsProvider blockTagsProvider = new MKBlockTagsProvider(generator);
             generator.addProvider(blockTagsProvider);
-            generator.addProvider(new AbilityDataGenerator(generator));
+            generator.addProvider(new AbilityDataGenerator(generator, MKCore.MOD_ID));
             generator.addProvider(new ArmorClassItemTagProvider(generator, blockTagsProvider, event.getExistingFileHelper()));
         }
     }
 
-    static class AbilityDataGenerator implements IDataProvider {
+    public static class AbilityDataGenerator implements IDataProvider {
         private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
         private final DataGenerator generator;
+        private final String modId;
 
-        public AbilityDataGenerator(DataGenerator generator) {
+        public AbilityDataGenerator(DataGenerator generator, String modId) {
             this.generator = generator;
+            this.modId = modId;
         }
 
         @Override
@@ -48,6 +50,10 @@ public class DataGenerators {
             Path outputFolder = this.generator.getOutputFolder();
             MKCoreRegistry.ABILITIES.forEach(ability -> {
                 ResourceLocation key = ability.getAbilityId();
+                if (!key.getNamespace().equals(modId)){
+                    MKCore.LOGGER.info("Skipping ability {} not from this mod", key);
+                    return;
+                }
                 MKCore.LOGGER.info("Dumping ability {}", key);
                 if (!key.getPath().startsWith("ability.")) {
                     MKCore.LOGGER.warn("Skipping {} because it did not have the 'ability.' prefix", key);
