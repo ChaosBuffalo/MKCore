@@ -42,13 +42,6 @@ public class ParticleEffect extends SpellEffectBase {
     }
 
     @Override
-    public boolean canSelfCast() {
-        // Since this can be configured per-cast we return true here and then filter in doEffect where we have the
-        // SpellCast object carrying the state
-        return true;
-    }
-
-    @Override
     public void doEffect(Entity applier, Entity caster,
                          LivingEntity target, int amplifier, SpellCast cast) {
         if (!(cast instanceof ParticleCast)) {
@@ -60,7 +53,7 @@ public class ParticleEffect extends SpellEffectBase {
         if (!particleCast.includeSelf && target.equals(caster)) {
             return;
         }
-        PacketHandler.sendToTrackingMaybeSelf(particleCast.createPacket(target), target);
+        PacketHandler.sendToTrackingAndSelf(particleCast.createPacket(target), target);
     }
 
     public static class ParticleCast extends SpellCast {

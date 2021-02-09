@@ -212,70 +212,74 @@ public class MKAttributes {
             .setRegistryName(MKCore.makeRL("evocation"))
             .setShouldWatch(true);
 
-    public static void registerEntityAttributes(Consumer<Attribute> attributes) {
-//        MKCore.LOGGER.info("Adding entity attributes");
-        attributes.accept(COOLDOWN);
-        attributes.accept(CASTING_SPEED);
-        attributes.accept(HEAL_BONUS);
-        attributes.accept(BUFF_DURATION);
-        attributes.accept(ATTACK_REACH);
-        attributes.accept(ELEMENTAL_DAMAGE);
-        attributes.accept(ELEMENTAL_RESISTANCE);
-        attributes.accept(ARCANE_DAMAGE);
-        attributes.accept(ARCANE_RESISTANCE);
-        attributes.accept(FIRE_DAMAGE);
-        attributes.accept(FIRE_RESISTANCE);
-        attributes.accept(FROST_DAMAGE);
-        attributes.accept(FROST_RESISTANCE);
-        attributes.accept(SHADOW_DAMAGE);
-        attributes.accept(SHADOW_RESISTANCE);
-        attributes.accept(HOLY_DAMAGE);
-        attributes.accept(HOLY_RESISTANCE);
-        attributes.accept(NATURE_DAMAGE);
-        attributes.accept(NATURE_RESISTANCE);
-        attributes.accept(POISON_DAMAGE);
-        attributes.accept(POISON_RESISTANCE);
-        attributes.accept(BLEED_DAMAGE);
-        attributes.accept(BLEED_RESISTANCE);
-        attributes.accept(ABJURATION);
-        attributes.accept(ALTERATON);
-        attributes.accept(CONJURATION);
-        attributes.accept(DIVINATION);
-        attributes.accept(ENCHANTMENT);
-        attributes.accept(PHANTASM);
-        attributes.accept(NECROMANCY);
-        attributes.accept(RESTORATION);
-        attributes.accept(ARETE);
-        attributes.accept(PNEUMA);
-        attributes.accept(PANKRATION);
-        attributes.accept(EVOCATION);
+
+    public static void iterateEntityAttributes(Consumer<Attribute> consumer) {
+        consumer.accept(COOLDOWN);
+        consumer.accept(CASTING_SPEED);
+        consumer.accept(HEAL_BONUS);
+        consumer.accept(BUFF_DURATION);
+        consumer.accept(ATTACK_REACH);
+        consumer.accept(ELEMENTAL_DAMAGE);
+        consumer.accept(ELEMENTAL_RESISTANCE);
+        consumer.accept(ARCANE_DAMAGE);
+        consumer.accept(ARCANE_RESISTANCE);
+        consumer.accept(FIRE_DAMAGE);
+        consumer.accept(FIRE_RESISTANCE);
+        consumer.accept(FROST_DAMAGE);
+        consumer.accept(FROST_RESISTANCE);
+        consumer.accept(SHADOW_DAMAGE);
+        consumer.accept(SHADOW_RESISTANCE);
+        consumer.accept(HOLY_DAMAGE);
+        consumer.accept(HOLY_RESISTANCE);
+        consumer.accept(NATURE_DAMAGE);
+        consumer.accept(NATURE_RESISTANCE);
+        consumer.accept(POISON_DAMAGE);
+        consumer.accept(POISON_RESISTANCE);
+        consumer.accept(BLEED_DAMAGE);
+        consumer.accept(BLEED_RESISTANCE);
+        consumer.accept(RANGED_DAMAGE);
+        consumer.accept(RANGED_RESISTANCE);
+
+        consumer.accept(ABJURATION);
+        consumer.accept(ALTERATON);
+        consumer.accept(CONJURATION);
+        consumer.accept(DIVINATION);
+        consumer.accept(ENCHANTMENT);
+        consumer.accept(PHANTASM);
+        consumer.accept(NECROMANCY);
+        consumer.accept(RESTORATION);
+        consumer.accept(ARETE);
+        consumer.accept(PNEUMA);
+        consumer.accept(PANKRATION);
+        consumer.accept(EVOCATION);
     }
 
-    public static void registerPlayerAttributes(Consumer<Attribute> attributes) {
-//        MKCore.LOGGER.info("Adding player attributes");
-        attributes.accept(MAX_MANA);
-        attributes.accept(MANA_REGEN);
-        attributes.accept(MELEE_CRIT);
-        attributes.accept(MELEE_CRIT_MULTIPLIER);
-        attributes.accept(SPELL_CRIT);
-        attributes.accept(SPELL_CRIT_MULTIPLIER);
+    public static void iteratePlayerAttributes(Consumer<Attribute> consumer) {
+        consumer.accept(MAX_MANA);
+        consumer.accept(MANA_REGEN);
+        consumer.accept(MELEE_CRIT);
+        consumer.accept(MELEE_CRIT_MULTIPLIER);
+        consumer.accept(SPELL_CRIT);
+        consumer.accept(SPELL_CRIT_MULTIPLIER);
 
-        attributes.accept(RANGED_CRIT);
-        attributes.accept(RANGED_CRIT_MULTIPLIER);
-        attributes.accept(RANGED_DAMAGE);
-        attributes.accept(RANGED_RESISTANCE);
-        attributes.accept(ABJURATION);
-        attributes.accept(ALTERATON);
-        attributes.accept(CONJURATION);
-        attributes.accept(DIVINATION);
-        attributes.accept(ENCHANTMENT);
-        attributes.accept(PHANTASM);
-        attributes.accept(NECROMANCY);
-        attributes.accept(RESTORATION);
-        attributes.accept(ARETE);
-        attributes.accept(PNEUMA);
-        attributes.accept(PANKRATION);
-        attributes.accept(EVOCATION);
+        consumer.accept(RANGED_CRIT);
+        consumer.accept(RANGED_CRIT_MULTIPLIER);
+        consumer.accept(RANGED_DAMAGE);
+        consumer.accept(RANGED_RESISTANCE);
+
+        consumer.accept(ABJURATION);
+        consumer.accept(ALTERATON);
+        consumer.accept(CONJURATION);
+        consumer.accept(DIVINATION);
+        consumer.accept(ENCHANTMENT);
+        consumer.accept(PHANTASM);
+        consumer.accept(NECROMANCY);
+        consumer.accept(RESTORATION);
+        consumer.accept(ARETE);
+        consumer.accept(PNEUMA);
+        consumer.accept(PANKRATION);
+        consumer.accept(EVOCATION);
+
     }
 
     @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
@@ -283,8 +287,8 @@ public class MKAttributes {
 
         @SubscribeEvent
         public static void registerAttributes(RegistryEvent.Register<Attribute> event) {
-            registerEntityAttributes(event.getRegistry()::register);
-            registerPlayerAttributes(event.getRegistry()::register);
+            iterateEntityAttributes(event.getRegistry()::register);
+            iteratePlayerAttributes(event.getRegistry()::register);
         }
     }
 }

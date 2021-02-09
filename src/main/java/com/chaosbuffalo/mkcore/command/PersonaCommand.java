@@ -16,6 +16,8 @@ import net.minecraft.command.ISuggestionProvider;
 import net.minecraft.entity.player.ServerPlayerEntity;
 
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 public class PersonaCommand {
@@ -32,15 +34,29 @@ public class PersonaCommand {
                                 .executes(PersonaCommand::switchPersona)))
                 .then(Commands.literal("delete")
                         .then(Commands.argument("name", StringArgumentType.string())
-                                .suggests(PersonaCommand::suggestKnownPersonas)
+                                .suggests(PersonaCommand::suggestInactivePersonas)
                                 .executes(PersonaCommand::deletePersona)))
                 ;
     }
 
     static CompletableFuture<Suggestions> suggestKnownPersonas(final CommandContext<CommandSource> context, final SuggestionsBuilder builder) throws CommandSyntaxException {
+        return suggestPersonas(context, builder, false);
+    }
+
+    static CompletableFuture<Suggestions> suggestInactivePersonas(final CommandContext<CommandSource> context, final SuggestionsBuilder builder) throws CommandSyntaxException {
+        return suggestPersonas(context, builder, true);
+    }
+
+    static CompletableFuture<Suggestions> suggestPersonas(final CommandContext<CommandSource> context, final SuggestionsBuilder builder, boolean inactive) throws CommandSyntaxException {
         ServerPlayerEntity player = context.getSource().asPlayer();
-        return ISuggestionProvider.suggest(MKCore.getPlayer(player).map(playerData ->
-                playerData.getPersonaManager().getPersonaNames()).orElse(Collections.emptyList()), builder);
+        return ISuggestionProvider.suggest(MKCore.getPlayer(player).map(playerData -> {
+            PersonaManager manager = playerData.getPersonaManager();
+            Set<String> names = new HashSet<>(manager.getPersonaNames());
+            if (inactive) {
+                names.remove(manager.getActivePersona().getName());
+            }
+            return names;
+        }).orElse(Collections.emptySet()), builder);
     }
 
     static int listPersonas(CommandContext<CommandSource> ctx) throws CommandSyntaxException {

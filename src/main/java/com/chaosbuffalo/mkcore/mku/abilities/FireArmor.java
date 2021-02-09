@@ -101,8 +101,7 @@ public class FireArmor extends MKAbility {
                 .color(16762905).radius(getDistance(entity), true)
                 .spawn();
 
-        PacketHandler.sendToTrackingMaybeSelf(
-                new ParticleEffectSpawnPacket(
+        PacketHandler.sendToTrackingAndSelf(new ParticleEffectSpawnPacket(
                         ParticleTypes.FLAME,
                         ParticleEffects.CIRCLE_MOTION, 50, 0,
                         entity.getPosX(), entity.getPosY() + 1.0,

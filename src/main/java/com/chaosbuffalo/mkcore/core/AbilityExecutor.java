@@ -127,7 +127,7 @@ public class AbilityExecutor {
         if (startCastCallback != null) {
             startCastCallback.accept(abilityInfo.getAbility());
         }
-        PacketHandler.sendToTrackingMaybeSelf(EntityCastPacket.start(entityData, abilityInfo.getId(), castTime), entityData.getEntity());
+        PacketHandler.sendToTrackingAndSelf(EntityCastPacket.start(entityData, abilityInfo.getId(), castTime), entityData.getEntity());
     }
 
     public void startCastClient(ResourceLocation abilityId, int castTicks) {
@@ -307,7 +307,7 @@ public class AbilityExecutor {
         @Override
         void interrupt() {
             super.interrupt();
-            PacketHandler.sendToTrackingMaybeSelf(EntityCastPacket.interrupt(executor.entityData), executor.entityData.getEntity());
+            PacketHandler.sendToTrackingAndSelf(EntityCastPacket.interrupt(executor.entityData), executor.entityData.getEntity());
         }
     }
 

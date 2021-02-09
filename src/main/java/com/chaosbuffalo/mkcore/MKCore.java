@@ -82,9 +82,9 @@ public class MKCore {
         Attributes.ATTACK_DAMAGE.setShouldWatch(true);
 
         AttributeFixer.addAttributesToAll(builder ->
-                MKAttributes.registerEntityAttributes(builder::createMutableAttribute));
+                MKAttributes.iterateEntityAttributes(builder::createMutableAttribute));
         AttributeFixer.addAttributes(EntityType.PLAYER, builder ->
-                MKAttributes.registerPlayerAttributes(builder::createMutableAttribute));
+                MKAttributes.iteratePlayerAttributes(builder::createMutableAttribute));
 
         GlobalEntityTypeAttributes.getAttributesForEntity(EntityType.PLAYER).attributeMap.forEach(((attribute, modifiableAttributeInstance) -> {
             if (!ForgeRegistries.ATTRIBUTES.containsKey(attribute.getRegistryName())) {

@@ -20,11 +20,6 @@ public abstract class SongEffectBase extends SpellPeriodicEffectBase {
     }
 
     @Override
-    public boolean canSelfCast() {
-        return true;
-    }
-
-    @Override
     public boolean canPersistAcrossSessions() {
         return false;
     }

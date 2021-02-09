@@ -24,10 +24,6 @@ public abstract class SpellEffectBase extends Effect {
 
     public abstract TargetingContext getTargetContext();
 
-    public boolean canSelfCast() {
-        return false;
-    }
-
     protected boolean isServerSideOnly() {
         return true;
     }

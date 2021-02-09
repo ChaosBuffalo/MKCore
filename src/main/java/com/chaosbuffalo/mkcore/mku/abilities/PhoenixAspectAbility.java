@@ -102,7 +102,7 @@ public class PhoenixAspectAbility extends MKAbility {
                 .color(65480).radius(getDistance(entity), true)
                 .spawn();
 
-        PacketHandler.sendToTrackingMaybeSelf(new ParticleEffectSpawnPacket(
+        PacketHandler.sendToTrackingAndSelf(new ParticleEffectSpawnPacket(
                 ParticleTypes.FIREWORK,
                 ParticleEffects.CIRCLE_MOTION, 50, 0,
                 entity.getPosX(), entity.getPosY() + 1.5,
