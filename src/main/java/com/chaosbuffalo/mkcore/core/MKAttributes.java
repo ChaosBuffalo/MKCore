@@ -261,25 +261,8 @@ public class MKAttributes {
         consumer.accept(MELEE_CRIT_MULTIPLIER);
         consumer.accept(SPELL_CRIT);
         consumer.accept(SPELL_CRIT_MULTIPLIER);
-
         consumer.accept(RANGED_CRIT);
         consumer.accept(RANGED_CRIT_MULTIPLIER);
-        consumer.accept(RANGED_DAMAGE);
-        consumer.accept(RANGED_RESISTANCE);
-
-        consumer.accept(ABJURATION);
-        consumer.accept(ALTERATON);
-        consumer.accept(CONJURATION);
-        consumer.accept(DIVINATION);
-        consumer.accept(ENCHANTMENT);
-        consumer.accept(PHANTASM);
-        consumer.accept(NECROMANCY);
-        consumer.accept(RESTORATION);
-        consumer.accept(ARETE);
-        consumer.accept(PNEUMA);
-        consumer.accept(PANKRATION);
-        consumer.accept(EVOCATION);
-
     }
 
     @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
