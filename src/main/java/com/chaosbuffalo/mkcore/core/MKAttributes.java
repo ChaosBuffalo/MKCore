@@ -47,6 +47,8 @@ public class MKAttributes {
             .setRegistryName(MKCore.makeRL("ranged_crit_multiplier"))
             .setShouldWatch(true);
 
+    // Everyone Attributes
+
     public static final RangedAttribute RANGED_DAMAGE = (RangedAttribute) new RangedAttribute("attribute.name.mk.ranged_damage", 0.0, 0.0, 2048)
             .setRegistryName(MKCore.makeRL("ranged_damage"))
             .setShouldWatch(true);
@@ -54,8 +56,6 @@ public class MKAttributes {
     public static final RangedAttribute RANGED_RESISTANCE = (RangedAttribute) new RangedAttribute("attribute.name.mk.ranged_resistance", 0, -1.0, 1.0)
             .setRegistryName(MKCore.makeRL("ranged_resistance"))
             .setShouldWatch(true);
-
-    // Everyone Attributes
 
     // This is slightly confusing.
     // 1.5 max means the cooldown will progress at most 50% faster than the normal rate. This translates into a 50% reduction in the observed cooldown.
