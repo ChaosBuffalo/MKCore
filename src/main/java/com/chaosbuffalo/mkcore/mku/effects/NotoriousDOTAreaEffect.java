@@ -6,6 +6,7 @@ import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.effects.AreaEffectBuilder;
 import com.chaosbuffalo.mkcore.effects.SongAreaEffect;
 import com.chaosbuffalo.mkcore.effects.SpellCast;
+import com.chaosbuffalo.mkcore.effects.instant.AbilityMagicDamage;
 import com.chaosbuffalo.mkcore.init.ModSounds;
 import com.chaosbuffalo.mkcore.mku.abilities.NotoriousDOT;
 import com.chaosbuffalo.mkcore.utils.SoundUtils;
