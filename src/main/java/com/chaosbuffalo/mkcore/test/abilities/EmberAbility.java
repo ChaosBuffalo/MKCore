@@ -1,4 +1,4 @@
-package com.chaosbuffalo.mkcore.mku.abilities;
+package com.chaosbuffalo.mkcore.test.abilities;
 
 import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.MKCore;
@@ -39,7 +39,7 @@ public class EmberAbility extends MKAbility {
     }
 
     private EmberAbility() {
-        super(MKCore.makeRL("ability.ember"));
+        super(MKCore.makeRL("ability.test_ember"));
         setCastTime(GameConstants.TICKS_PER_SECOND / 2);
         setCooldownSeconds(4);
         setManaCost(6);

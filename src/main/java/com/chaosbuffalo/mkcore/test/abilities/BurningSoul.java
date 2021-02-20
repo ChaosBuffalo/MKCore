@@ -1,10 +1,10 @@
-package com.chaosbuffalo.mkcore.mku.abilities;
+package com.chaosbuffalo.mkcore.test.abilities;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.abilities.PassiveTalentAbility;
 import com.chaosbuffalo.mkcore.effects.PassiveTalentEffect;
-import com.chaosbuffalo.mkcore.mku.effects.BurningSoulPotion;
+import com.chaosbuffalo.mkcore.test.effects.BurningSoulPotion;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -20,7 +20,7 @@ public class BurningSoul extends PassiveTalentAbility {
     }
 
     public BurningSoul() {
-        super(MKCore.makeRL("ability.burning_soul"));
+        super(MKCore.makeRL("ability.test_burning_soul"));
     }
 
     @Override

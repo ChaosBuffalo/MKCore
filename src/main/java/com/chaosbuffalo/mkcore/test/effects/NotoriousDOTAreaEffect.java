@@ -1,4 +1,4 @@
-package com.chaosbuffalo.mkcore.mku.effects;
+package com.chaosbuffalo.mkcore.test.effects;
 
 import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.MKCore;
@@ -7,7 +7,7 @@ import com.chaosbuffalo.mkcore.effects.AreaEffectBuilder;
 import com.chaosbuffalo.mkcore.effects.SongAreaEffect;
 import com.chaosbuffalo.mkcore.effects.SpellCast;
 import com.chaosbuffalo.mkcore.effects.instant.AbilityMagicDamage;
-import com.chaosbuffalo.mkcore.mku.abilities.NotoriousDOT;
+import com.chaosbuffalo.mkcore.test.abilities.NotoriousDOT;
 import com.chaosbuffalo.targeting_api.TargetingContext;
 import com.chaosbuffalo.targeting_api.TargetingContexts;
 import net.minecraft.entity.Entity;
@@ -45,7 +45,7 @@ public class NotoriousDOTAreaEffect extends SongAreaEffect {
 
     private NotoriousDOTAreaEffect() {
         super(PERIOD, EffectType.NEUTRAL, 16750080);
-        setRegistryName("effect.notorious_dot");
+        setRegistryName("effect.test_notorious_dot");
     }
 
     @Override

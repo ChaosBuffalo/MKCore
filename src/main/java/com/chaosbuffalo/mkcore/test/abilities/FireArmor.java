@@ -1,4 +1,4 @@
-package com.chaosbuffalo.mkcore.mku.abilities;
+package com.chaosbuffalo.mkcore.test.abilities;
 
 import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.MKCore;
@@ -39,7 +39,7 @@ public class FireArmor extends MKAbility {
     public static int DURATION_SCALE = 30;
 
     private FireArmor() {
-        super(MKCore.makeRL("ability.fire_armor"));
+        super(MKCore.makeRL("ability.test_fire_armor"));
         setCastTime(GameConstants.TICKS_PER_SECOND);
         setCooldownSeconds(135);
         setManaCost(12);

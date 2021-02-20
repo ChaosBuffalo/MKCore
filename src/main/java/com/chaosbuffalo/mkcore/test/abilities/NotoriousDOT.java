@@ -1,4 +1,4 @@
-package com.chaosbuffalo.mkcore.mku.abilities;
+package com.chaosbuffalo.mkcore.test.abilities;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.abilities.AbilityTargetSelector;
@@ -8,10 +8,9 @@ import com.chaosbuffalo.mkcore.abilities.MKSongAbility;
 import com.chaosbuffalo.mkcore.abilities.ai.conditions.MeleeUseCondition;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.fx.ParticleEffects;
-import com.chaosbuffalo.mkcore.mku.effects.NotoriousDOTCasterEffect;
+import com.chaosbuffalo.mkcore.test.effects.NotoriousDOTCasterEffect;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.ParticleEffectSpawnPacket;
-import com.chaosbuffalo.mkcore.utils.SoundUtils;
 import com.chaosbuffalo.targeting_api.TargetingContext;
 import com.chaosbuffalo.targeting_api.TargetingContexts;
 import net.minecraft.entity.LivingEntity;
@@ -40,7 +39,7 @@ public class NotoriousDOT extends MKSongAbility {
     public static int BASE_DURATION = 32767;
 
     private NotoriousDOT() {
-        super(MKCore.makeRL("ability.notorious_dot"));
+        super(MKCore.makeRL("ability.test_notorious_dot"));
         setUseCondition(new MeleeUseCondition(this));
     }
 

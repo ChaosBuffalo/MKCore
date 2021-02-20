@@ -1,4 +1,4 @@
-package com.chaosbuffalo.mkcore.mku.abilities;
+package com.chaosbuffalo.mkcore.test.abilities;
 
 import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.MKCore;
@@ -40,7 +40,7 @@ public class WhirlwindBlades extends MKAbility {
     public static float DAMAGE_SCALE = 1.0f;
 
     private WhirlwindBlades() {
-        super(MKCore.makeRL("ability.whirlwind_blades"));
+        super(MKCore.makeRL("ability.test_whirlwind_blades"));
         setCastTime(GameConstants.TICKS_PER_SECOND * 3);
         setCooldownSeconds(20);
         setManaCost(6);

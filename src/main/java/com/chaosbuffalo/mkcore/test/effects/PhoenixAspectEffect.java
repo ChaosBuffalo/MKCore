@@ -1,4 +1,4 @@
-package com.chaosbuffalo.mkcore.mku.effects;
+package com.chaosbuffalo.mkcore.test.effects;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.MKAttributes;
@@ -39,7 +39,7 @@ public class PhoenixAspectEffect extends PassiveEffect {
 
     private PhoenixAspectEffect() {
         super(EffectType.BENEFICIAL, 4393423);
-        setRegistryName("effect.phoenix_aspect");
+        setRegistryName("effect.test_phoenix_aspect");
     }
 
     @Override

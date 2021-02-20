@@ -1,4 +1,4 @@
-package com.chaosbuffalo.mkcore.mku.effects;
+package com.chaosbuffalo.mkcore.test.effects;
 
 import com.chaosbuffalo.mkcore.MKConfig;
 import com.chaosbuffalo.mkcore.MKCore;
@@ -6,7 +6,7 @@ import com.chaosbuffalo.mkcore.core.healing.MKHealSource;
 import com.chaosbuffalo.mkcore.core.healing.MKHealing;
 import com.chaosbuffalo.mkcore.effects.SpellCast;
 import com.chaosbuffalo.mkcore.effects.SpellEffectBase;
-import com.chaosbuffalo.mkcore.mku.abilities.ClericHeal;
+import com.chaosbuffalo.mkcore.test.abilities.ClericHeal;
 import com.chaosbuffalo.targeting_api.TargetingContext;
 import com.chaosbuffalo.targeting_api.TargetingContexts;
 import net.minecraft.entity.Entity;
@@ -37,7 +37,7 @@ public class ClericHealEffect extends SpellEffectBase {
 
     private ClericHealEffect() {
         super(EffectType.BENEFICIAL, 4393481);
-        setRegistryName("effect.cleric_heal");
+        setRegistryName("effect.test_cleric_heal");
     }
 
     @Override
