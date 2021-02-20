@@ -204,6 +204,11 @@ public class MKAttributes {
             .setRegistryName(MKCore.makeRL("evocation"))
             .setShouldWatch(true);
 
+    public static final RangedAttribute MARKSMANSHIP = (RangedAttribute) new RangedAttribute(
+            "attribute.name.mk.marksmanship", 0, -10, 10)
+            .setRegistryName(MKCore.makeRL("marksmanship"))
+            .setShouldWatch(true);
+
 
     public static void iterateEntityAttributes(Consumer<Attribute> consumer) {
         consumer.accept(COOLDOWN);
@@ -242,6 +247,7 @@ public class MKAttributes {
         consumer.accept(PNEUMA);
         consumer.accept(PANKRATION);
         consumer.accept(EVOCATION);
+        consumer.accept(MARKSMANSHIP);
     }
 
     public static void iteratePlayerAttributes(Consumer<Attribute> consumer) {
