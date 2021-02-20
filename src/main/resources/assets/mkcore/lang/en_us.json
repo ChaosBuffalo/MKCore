@@ -114,6 +114,6 @@
   "mkcore.crit.ability.other": "%s's %s spell just crit %s for %s",
   "effect.mkcore.effect.stun": "Stun",
   "mkcore.subtitle.casting_default": "The sound of spell casting",
-  "mkcore.subtitle.spell_cast": "The sound of a spell cast going off"
-
+  "mkcore.subtitle.spell_cast": "The sound of a spell cast going off",
+  "mkcore.ability.description.per_level": "per skill level"
 }

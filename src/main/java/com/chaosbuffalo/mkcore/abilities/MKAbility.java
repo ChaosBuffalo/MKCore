@@ -125,6 +125,19 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
         return damageStr;
     }
 
+    public ITextComponent getHealDescription(IMKEntityData entityData, float value,
+                                             float scale, int level, float modifierScaling){
+        float bonus = entityData.getStats().getHealBonus() * modifierScaling;
+        float abilityDamage = value + (scale * level) + bonus;
+        IFormattableTextComponent healStr = StringTextComponent.EMPTY.deepCopy();
+        healStr.append(new StringTextComponent(String.format("%.1f", abilityDamage)).mergeStyle(TextFormatting.UNDERLINE));
+        if (bonus != 0) {
+            healStr.append(new StringTextComponent(String.format(" (+%.1f)", bonus)).mergeStyle(TextFormatting.BOLD));
+        }
+        healStr.mergeStyle(TextFormatting.GREEN);
+        return healStr;
+    }
+
     public ITextComponent getSkillDescription(IMKEntityData entityData){
         StringBuilder finalSkillList = new StringBuilder();
         Set<Attribute> attributes = getSkillAttributes();
