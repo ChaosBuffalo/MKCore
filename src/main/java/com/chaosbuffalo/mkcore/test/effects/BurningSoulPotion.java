@@ -1,4 +1,4 @@
-package com.chaosbuffalo.mkcore.mku.effects;
+package com.chaosbuffalo.mkcore.test.effects;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.MKAttributes;
@@ -28,7 +28,7 @@ public class BurningSoulPotion extends PassiveTalentEffect {
 
     private BurningSoulPotion() {
         super();
-        setRegistryName("effect.burning_soul");
+        setRegistryName("effect.test_burning_soul");
     }
 
 }

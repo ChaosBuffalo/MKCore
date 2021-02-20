@@ -1,4 +1,4 @@
-package com.chaosbuffalo.mkcore.mku.effects;
+package com.chaosbuffalo.mkcore.test.effects;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
@@ -38,7 +38,7 @@ public class SkinLikeWoodEffect extends PassiveEffect {
 
     private SkinLikeWoodEffect() {
         super(EffectType.BENEFICIAL, 1665535);
-        setRegistryName("effect.skin_like_wood");
+        setRegistryName("effect.test_skin_like_wood");
         SpellTriggers.ENTITY_HURT_PLAYER.registerPreScale(this::playerHurtPreScale);
     }
 

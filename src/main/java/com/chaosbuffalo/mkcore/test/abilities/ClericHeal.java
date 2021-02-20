@@ -1,4 +1,4 @@
-package com.chaosbuffalo.mkcore.mku.abilities;
+package com.chaosbuffalo.mkcore.test.abilities;
 
 import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.MKCore;
@@ -7,11 +7,9 @@ import com.chaosbuffalo.mkcore.abilities.ai.conditions.HealCondition;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.effects.SpellCast;
 import com.chaosbuffalo.mkcore.fx.ParticleEffects;
-import com.chaosbuffalo.mkcore.init.CoreSounds;
-import com.chaosbuffalo.mkcore.mku.effects.ClericHealEffect;
+import com.chaosbuffalo.mkcore.test.effects.ClericHealEffect;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.ParticleEffectSpawnPacket;
-import com.chaosbuffalo.mkcore.utils.SoundUtils;
 import com.chaosbuffalo.targeting_api.TargetingContext;
 import com.chaosbuffalo.targeting_api.TargetingContexts;
 import com.google.common.collect.ImmutableSet;
@@ -37,7 +35,7 @@ public class ClericHeal extends MKAbility {
     public static float VALUE_SCALE = 5.0f;
 
     private ClericHeal() {
-        super(MKCore.makeRL("ability.heal"));
+        super(MKCore.makeRL("ability.test_heal"));
         setCastTime(GameConstants.TICKS_PER_SECOND / 4);
         setCooldownSeconds(5);
         setManaCost(4);

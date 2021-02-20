@@ -1,4 +1,4 @@
-package com.chaosbuffalo.mkcore.mku.abilities;
+package com.chaosbuffalo.mkcore.test.abilities;
 
 import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.MKCore;
@@ -11,7 +11,7 @@ import com.chaosbuffalo.mkcore.effects.AreaEffectBuilder;
 import com.chaosbuffalo.mkcore.effects.ParticleEffect;
 import com.chaosbuffalo.mkcore.effects.SpellCast;
 import com.chaosbuffalo.mkcore.fx.ParticleEffects;
-import com.chaosbuffalo.mkcore.mku.effects.ClericHealEffect;
+import com.chaosbuffalo.mkcore.test.effects.ClericHealEffect;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.ParticleEffectSpawnPacket;
 import com.chaosbuffalo.targeting_api.TargetingContext;
@@ -37,7 +37,7 @@ public class HealingRain extends MKAbility {
 
 
     public HealingRain() {
-        super(MKCore.makeRL("ability.healing_rain"));
+        super(MKCore.makeRL("ability.test_healing_rain"));
         setCastTime(2 * GameConstants.TICKS_PER_SECOND);
         setManaCost(10);
         setCooldownSeconds(20);

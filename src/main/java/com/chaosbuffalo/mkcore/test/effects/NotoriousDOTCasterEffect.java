@@ -1,4 +1,4 @@
-package com.chaosbuffalo.mkcore.mku.effects;
+package com.chaosbuffalo.mkcore.test.effects;
 
 import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.MKCore;
@@ -31,7 +31,7 @@ public class NotoriousDOTCasterEffect extends SongCasterEffect {
 
     private NotoriousDOTCasterEffect() {
         super(PERIOD, EffectType.NEUTRAL, 16750080);
-        setRegistryName("effect.notorious_dot_song");
+        setRegistryName("effect.test_notorious_dot_song");
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.chaosbuffalo.mkcore.mku.abilities;
+package com.chaosbuffalo.mkcore.test.abilities;
 
 import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.MKCore;
@@ -11,8 +11,8 @@ import com.chaosbuffalo.mkcore.effects.AreaEffectBuilder;
 import com.chaosbuffalo.mkcore.effects.ParticleEffect;
 import com.chaosbuffalo.mkcore.effects.SpellCast;
 import com.chaosbuffalo.mkcore.fx.ParticleEffects;
-import com.chaosbuffalo.mkcore.mku.effects.FeatherFallEffect;
-import com.chaosbuffalo.mkcore.mku.effects.PhoenixAspectEffect;
+import com.chaosbuffalo.mkcore.test.effects.FeatherFallEffect;
+import com.chaosbuffalo.mkcore.test.effects.PhoenixAspectEffect;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.ParticleEffectSpawnPacket;
 import com.chaosbuffalo.targeting_api.TargetingContext;
@@ -38,7 +38,7 @@ public class PhoenixAspectAbility extends MKAbility {
     public static int DURATION_SCALE = 60;
 
     private PhoenixAspectAbility() {
-        super(MKCore.makeRL("ability.phoenix_aspect"));
+        super(MKCore.makeRL("ability.test_phoenix_aspect"));
         setCastTime(GameConstants.TICKS_PER_SECOND * 3);
         setCooldownSeconds(400);
         setManaCost(15);

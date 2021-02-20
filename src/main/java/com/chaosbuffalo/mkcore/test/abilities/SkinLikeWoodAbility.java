@@ -1,4 +1,4 @@
-package com.chaosbuffalo.mkcore.mku.abilities;
+package com.chaosbuffalo.mkcore.test.abilities;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
@@ -7,7 +7,7 @@ import com.chaosbuffalo.mkcore.abilities.ai.conditions.NeedsBuffCondition;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.effects.PassiveEffect;
 import com.chaosbuffalo.mkcore.fx.ParticleEffects;
-import com.chaosbuffalo.mkcore.mku.effects.SkinLikeWoodEffect;
+import com.chaosbuffalo.mkcore.test.effects.SkinLikeWoodEffect;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.ParticleEffectSpawnPacket;
 import com.chaosbuffalo.targeting_api.TargetingContext;
@@ -31,7 +31,7 @@ public class SkinLikeWoodAbility extends MKToggleAbility {
     }
 
     private SkinLikeWoodAbility() {
-        super(MKCore.makeRL("ability.skin_like_wood"));
+        super(MKCore.makeRL("ability.test_skin_like_wood"));
         setCooldownSeconds(3);
         setManaCost(2);
         setUseCondition(new NeedsBuffCondition(this, SkinLikeWoodEffect.INSTANCE).setSelfOnly(true));

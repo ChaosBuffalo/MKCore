@@ -1,4 +1,4 @@
-package com.chaosbuffalo.mkcore.mku.effects;
+package com.chaosbuffalo.mkcore.test.effects;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.effects.PassiveEffect;
@@ -34,7 +34,7 @@ public class FeatherFallEffect extends PassiveEffect {
 
     private FeatherFallEffect() {
         super(EffectType.BENEFICIAL, 16750080);
-        setRegistryName("effect.featherfall");
+        setRegistryName("effect.test_featherfall");
         SpellTriggers.FALL.register(this::onFall);
     }
 
