@@ -5,6 +5,7 @@ import com.chaosbuffalo.mkcore.core.MKAttributes;
 import com.chaosbuffalo.mkcore.core.damage.MKDamageType;
 import com.chaosbuffalo.mkcore.core.damage.MeleeDamageType;
 import com.chaosbuffalo.mkcore.core.damage.RangedDamageType;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -12,7 +13,7 @@ import net.minecraftforge.registries.ObjectHolder;
 
 @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 @ObjectHolder(MKCore.MOD_ID)
-public class ModDamageTypes {
+public class CoreDamageTypes {
 
     @ObjectHolder("damage.shadow")
     public static MKDamageType ShadowDamage;
@@ -51,26 +52,31 @@ public class ModDamageTypes {
     @SubscribeEvent
     public static void registerDamageTypes(RegistryEvent.Register<MKDamageType> evt) {
         evt.getRegistry().register(new MKDamageType(MKCore.makeRL("damage.fire"), MKAttributes.FIRE_DAMAGE,
-                MKAttributes.FIRE_RESISTANCE, MKAttributes.SPELL_CRIT, MKAttributes.SPELL_CRIT_MULTIPLIER));
+                MKAttributes.FIRE_RESISTANCE, MKAttributes.SPELL_CRIT, MKAttributes.SPELL_CRIT_MULTIPLIER,
+                TextFormatting.RED));
         evt.getRegistry().register(new MKDamageType(MKCore.makeRL("damage.frost"), MKAttributes.FROST_DAMAGE,
-                MKAttributes.FROST_RESISTANCE, MKAttributes.SPELL_CRIT, MKAttributes.SPELL_CRIT_MULTIPLIER));
+                MKAttributes.FROST_RESISTANCE, MKAttributes.SPELL_CRIT, MKAttributes.SPELL_CRIT_MULTIPLIER,
+                TextFormatting.AQUA));
         evt.getRegistry().register(new MKDamageType(MKCore.makeRL("damage.holy"), MKAttributes.HOLY_DAMAGE,
-                MKAttributes.HOLY_RESISTANCE, MKAttributes.SPELL_CRIT, MKAttributes.SPELL_CRIT_MULTIPLIER)
+                MKAttributes.HOLY_RESISTANCE, MKAttributes.SPELL_CRIT, MKAttributes.SPELL_CRIT_MULTIPLIER,
+                TextFormatting.GOLD)
                 .setCritMultiplier(2.0f));
         evt.getRegistry().register(new MKDamageType(MKCore.makeRL("damage.poison"), MKAttributes.POISON_DAMAGE,
-                MKAttributes.POISON_RESISTANCE, MKAttributes.SPELL_CRIT, MKAttributes.SPELL_CRIT_MULTIPLIER));
+                MKAttributes.POISON_RESISTANCE, MKAttributes.SPELL_CRIT, MKAttributes.SPELL_CRIT_MULTIPLIER,
+                TextFormatting.GREEN));
         evt.getRegistry().register(new MKDamageType(MKCore.makeRL("damage.shadow"), MKAttributes.SHADOW_DAMAGE,
-                MKAttributes.SHADOW_RESISTANCE, MKAttributes.SPELL_CRIT, MKAttributes.SPELL_CRIT_MULTIPLIER));
+                MKAttributes.SHADOW_RESISTANCE, MKAttributes.SPELL_CRIT, MKAttributes.SPELL_CRIT_MULTIPLIER,
+                TextFormatting.DARK_PURPLE));
         evt.getRegistry().register(new MKDamageType(MKCore.makeRL("damage.arcane"), MKAttributes.ARCANE_DAMAGE,
-                MKAttributes.ARCANE_RESISTANCE, MKAttributes.SPELL_CRIT, MKAttributes.SPELL_CRIT_MULTIPLIER));
+                MKAttributes.ARCANE_RESISTANCE, MKAttributes.SPELL_CRIT, MKAttributes.SPELL_CRIT_MULTIPLIER,
+                TextFormatting.LIGHT_PURPLE));
         evt.getRegistry().register(new MKDamageType(MKCore.makeRL("damage.nature"), MKAttributes.NATURE_DAMAGE,
-                MKAttributes.NATURE_RESISTANCE, MKAttributes.SPELL_CRIT, MKAttributes.SPELL_CRIT_MULTIPLIER));
+                MKAttributes.NATURE_RESISTANCE, MKAttributes.SPELL_CRIT, MKAttributes.SPELL_CRIT_MULTIPLIER,
+                TextFormatting.DARK_GREEN));
         evt.getRegistry().register(new MeleeDamageType(MKCore.makeRL("damage.melee")));
         evt.getRegistry().register(new RangedDamageType(MKCore.makeRL("damage.ranged")));
-        evt.getRegistry().register(new MKDamageType(MKCore.makeRL("damage.elemental"), MKAttributes.ELEMENTAL_DAMAGE,
-                MKAttributes.ELEMENTAL_RESISTANCE, MKAttributes.SPELL_CRIT, MKAttributes.SPELL_CRIT_MULTIPLIER)
-                .setShouldDisplay(false));
         evt.getRegistry().register(new MKDamageType(MKCore.makeRL("damage.bleed"), MKAttributes.BLEED_DAMAGE,
-                MKAttributes.BLEED_RESISTANCE, MKAttributes.MELEE_CRIT, MKAttributes.MELEE_CRIT_MULTIPLIER));
+                MKAttributes.BLEED_RESISTANCE, MKAttributes.MELEE_CRIT, MKAttributes.MELEE_CRIT_MULTIPLIER,
+                TextFormatting.DARK_RED));
     }
 }

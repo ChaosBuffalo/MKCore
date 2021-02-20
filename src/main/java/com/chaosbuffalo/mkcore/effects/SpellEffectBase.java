@@ -143,6 +143,8 @@ public abstract class SpellEffectBase extends Effect {
         return false;
     }
 
+    protected boolean shouldShowIcon() { return true; }
+
     protected boolean isAmbient() {
         return false;
     }

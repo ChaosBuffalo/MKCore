@@ -1,0 +1,21 @@
+{
+  "casting_general": {
+    "category": "player",
+    "subtitle": "mkcore.subtitle.casting_default",
+    "sounds": [
+      {
+        "name": "mkcore:casting/general_loop",
+        "stream": true
+      }
+    ]
+  },
+  "spell_cast_default": {
+    "category": "player",
+    "subtitle": "mkcore.subtitle.spell_cast",
+    "sounds": [
+      {
+        "name": "mkcore:spells/default_cast"
+      }
+    ]
+  }
+}

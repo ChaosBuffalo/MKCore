@@ -14,7 +14,6 @@ import net.minecraft.util.math.*;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.event.ForgeEventFactory;
@@ -31,8 +30,6 @@ public abstract class BaseProjectileEntity extends ProjectileEntity {
     @Nullable
     private BlockState inBlockState;
     protected boolean inGround;
-
-    public UUID shootingEntity;
 
     public static final float ONE_DEGREE = 0.017453292F;
     public static final double MAX_INACCURACY = 0.0075;
@@ -223,29 +220,22 @@ public abstract class BaseProjectileEntity extends ProjectileEntity {
         this.prevRotationPitch = this.rotationPitch;
     }
 
-    protected boolean onGroundProc(LivingEntity caster, int amplifier) {
+    protected boolean onGroundProc(Entity caster, int amplifier) {
         return false;
     }
 
-    protected boolean onImpact(LivingEntity caster, RayTraceResult result, int amplifier) {
+    protected boolean onImpact(Entity caster, RayTraceResult result, int amplifier) {
         return false;
     }
 
 
-    protected boolean onAirProc(LivingEntity caster, int amplifier) {
+    protected boolean onAirProc(Entity caster, int amplifier) {
         return false;
     }
 
     @Nullable
-    public LivingEntity getShooter() {
-        if (shootingEntity != null && world instanceof ServerWorld) {
-            ServerWorld serverWorld = (ServerWorld) world;
-            Entity entity = serverWorld.getEntityByUuid(shootingEntity);
-            if (entity instanceof LivingEntity) {
-                return (LivingEntity) entity;
-            }
-        }
-        return null;
+    public Entity getShooter() {
+        return func_234616_v_();
     }
 
     protected boolean isValidEntityTargetGeneric(Entity entity) {
@@ -318,7 +308,13 @@ public abstract class BaseProjectileEntity extends ProjectileEntity {
     }
 
 //    @Override
-//    public void writeAdditional(CompoundNBT compound) {
+//    protected void writeAdditional(CompoundNBT compound) {
+//        compound.putBoolean("doAirProc", this.getDoAirProc());
+//        compound.putBoolean("doGroundProc", this.getDoGroundProc());
+//        compound.putInt("airProcTime", this.getAirProcTime());
+//        compound.putInt("groundProcTime", this.getGroundProcTime());
+//        compound.putInt("deathTime", this.getDeathTime());
+//        compound.putInt("amplifier", this.getAmplifier());
 //        compound.putInt("ticksInGround", this.ticksInGround);
 //        compound.putInt("ticksInAir", this.ticksInAir);
 //        if (this.inBlockState != null) {
@@ -329,16 +325,10 @@ public abstract class BaseProjectileEntity extends ProjectileEntity {
 //        if (this.shootingEntity != null) {
 //            compound.putUniqueId("OwnerUUID", this.shootingEntity);
 //        }
-//
-//        compound.putBoolean("doAirProc", this.getDoAirProc());
-//        compound.putBoolean("doGroundProc", this.getDoGroundProc());
-//        compound.putInt("airProcTime", this.getAirProcTime());
-//        compound.putInt("groundProcTime", this.getGroundProcTime());
-//        compound.putInt("deathTime", this.getDeathTime());
-//        compound.putInt("amplifier", this.getAmplifier());
 //    }
 //
-//    public void readAdditional(CompoundNBT compound) {
+//    @Override
+//    protected void readAdditional(CompoundNBT compound) {
 //        this.ticksInGround = compound.getInt("ticksInGround");
 //        this.ticksInAir = compound.getInt("ticksInAir");
 //        if (compound.contains("inBlockState", 10)) {
@@ -359,17 +349,6 @@ public abstract class BaseProjectileEntity extends ProjectileEntity {
 //        this.setDeathTime(compound.getInt("deathTime"));
 //        this.setAmplifier(compound.getInt("amplifier"));
 //    }
-
-
-    @Override
-    protected void writeAdditional(CompoundNBT compound) {
-
-    }
-
-    @Override
-    protected void readAdditional(CompoundNBT compound) {
-
-    }
 
     @Override
     public boolean writeUnlessPassenger(CompoundNBT compound) {
@@ -444,14 +423,13 @@ public abstract class BaseProjectileEntity extends ProjectileEntity {
                 trace = entityRayTrace;
             }
 
-            if (trace != null && trace.getType() != RayTraceResult.Type.MISS &&
-                    !ForgeEventFactory.onProjectileImpact(this, trace)) {
+            if (trace.getType() != RayTraceResult.Type.MISS && !ForgeEventFactory.onProjectileImpact(this, trace)) {
                 if (this.onHit(trace)) {
                     this.remove();
                 }
                 this.isAirBorne = true;
             }
-
+            motion = getMotion();
             float xyMag = MathHelper.sqrt(horizontalMag(motion));
             this.rotationYaw = (float) (MathHelper.atan2(motion.x, motion.z) * (double) (180F / (float) Math.PI));
             this.rotationPitch = (float) (MathHelper.atan2(motion.y, xyMag) * (double) (180F / (float) Math.PI));

@@ -9,7 +9,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
-public class ModEntities {
+public class CoreEntities {
 
     @SubscribeEvent
     public static void registerEntities(RegistryEvent.Register<EntityType<?>> evt) {

@@ -1,7 +1,7 @@
 package com.chaosbuffalo.mkcore.core.healing;
 
 import com.chaosbuffalo.mkcore.core.damage.MKDamageType;
-import com.chaosbuffalo.mkcore.init.ModDamageTypes;
+import com.chaosbuffalo.mkcore.init.CoreDamageTypes;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
 
@@ -29,12 +29,12 @@ public class MKHealSource {
 
     public static MKHealSource getHolyHeal(ResourceLocation abilityId, Entity source,
                                            @Nullable Entity trueSourceIn, float modifierScaling) {
-        return new MKHealSource(abilityId, source, trueSourceIn, ModDamageTypes.HolyDamage, modifierScaling);
+        return new MKHealSource(abilityId, source, trueSourceIn, CoreDamageTypes.HolyDamage, modifierScaling);
     }
 
     public static MKHealSource getNatureHeal(ResourceLocation abilityId, Entity source,
                                              @Nullable Entity trueSourceIn, float modifierScaling) {
-        return new MKHealSource(abilityId, source, trueSourceIn, ModDamageTypes.NatureDamage, modifierScaling);
+        return new MKHealSource(abilityId, source, trueSourceIn, CoreDamageTypes.NatureDamage, modifierScaling);
     }
 
     public MKDamageType getDamageType() {

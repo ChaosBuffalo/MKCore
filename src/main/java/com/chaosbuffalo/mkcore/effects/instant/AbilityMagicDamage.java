@@ -1,4 +1,4 @@
-package com.chaosbuffalo.mkcore.mku.effects;
+package com.chaosbuffalo.mkcore.effects.instant;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.effects.SpellCast;

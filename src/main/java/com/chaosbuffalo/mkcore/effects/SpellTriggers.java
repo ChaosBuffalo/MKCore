@@ -8,7 +8,7 @@ import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.damage.MKDamageSource;
 import com.chaosbuffalo.mkcore.events.ServerSideLeftClickEmpty;
 import com.chaosbuffalo.mkcore.fx.ParticleEffects;
-import com.chaosbuffalo.mkcore.init.ModDamageTypes;
+import com.chaosbuffalo.mkcore.init.CoreDamageTypes;
 import com.chaosbuffalo.mkcore.network.CritMessagePacket;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.ParticleEffectSpawnPacket;
@@ -201,8 +201,8 @@ public class SpellTriggers {
                                              ServerPlayerEntity playerSource, IMKEntityData sourceData) {
 
             Entity projectile = source.getImmediateSource();
-            if (projectile != null && ModDamageTypes.RANGED.rollCrit(playerSource, livingTarget, projectile)) {
-                float newDamage = ModDamageTypes.RANGED.applyCritDamage(playerSource, livingTarget, projectile, event.getAmount());
+            if (projectile != null && CoreDamageTypes.RANGED.rollCrit(playerSource, livingTarget, projectile)) {
+                float newDamage = CoreDamageTypes.RANGED.applyCritDamage(playerSource, livingTarget, projectile, event.getAmount());
                 event.setAmount(newDamage);
                 sendCritPacket(livingTarget, playerSource,
                         new CritMessagePacket(livingTarget.getEntityId(), playerSource.getUniqueID(), newDamage,
@@ -224,8 +224,8 @@ public class SpellTriggers {
         private static void handleVanillaMelee(LivingHurtEvent event, DamageSource source, LivingEntity livingTarget,
                                                ServerPlayerEntity playerSource, IMKEntityData sourceData) {
             if (sourceData instanceof MKPlayerData) {
-                if (ModDamageTypes.MeleeDamage.rollCrit(playerSource, livingTarget)) {
-                    float newDamage = ModDamageTypes.MeleeDamage.applyCritDamage(playerSource, livingTarget, event.getAmount());
+                if (CoreDamageTypes.MeleeDamage.rollCrit(playerSource, livingTarget)) {
+                    float newDamage = CoreDamageTypes.MeleeDamage.applyCritDamage(playerSource, livingTarget, event.getAmount());
                     event.setAmount(newDamage);
                     sendCritPacket(livingTarget, playerSource,
                             new CritMessagePacket(livingTarget.getEntityId(), playerSource.getUniqueID(), newDamage));

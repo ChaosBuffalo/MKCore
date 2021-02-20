@@ -7,12 +7,14 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.Attribute;
 import net.minecraft.util.CombatRules;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.TextFormatting;
 
 import java.util.function.Consumer;
 
 public class RangedDamageType extends MKDamageType {
     public RangedDamageType(ResourceLocation name) {
-        super(name, MKAttributes.RANGED_DAMAGE, MKAttributes.RANGED_RESISTANCE, MKAttributes.RANGED_CRIT, MKAttributes.RANGED_CRIT_MULTIPLIER);
+        super(name, MKAttributes.RANGED_DAMAGE, MKAttributes.RANGED_RESISTANCE, MKAttributes.RANGED_CRIT, MKAttributes.RANGED_CRIT_MULTIPLIER,
+                TextFormatting.DARK_BLUE);
     }
 
     @Override

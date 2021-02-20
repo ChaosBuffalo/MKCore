@@ -12,7 +12,7 @@ import com.chaosbuffalo.mkcore.effects.AreaEffectBuilder;
 import com.chaosbuffalo.mkcore.effects.ParticleEffect;
 import com.chaosbuffalo.mkcore.effects.SpellCast;
 import com.chaosbuffalo.mkcore.fx.ParticleEffects;
-import com.chaosbuffalo.mkcore.mku.effects.AbilityMagicDamage;
+import com.chaosbuffalo.mkcore.effects.instant.AbilityMagicDamage;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.ParticleEffectSpawnPacket;
 import com.chaosbuffalo.targeting_api.TargetingContext;
