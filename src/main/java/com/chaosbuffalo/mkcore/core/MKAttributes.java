@@ -76,14 +76,6 @@ public class MKAttributes {
             .setRegistryName(MKCore.makeRL("buff_duration"))
             .setShouldWatch(true);
 
-    public static final RangedAttribute ELEMENTAL_RESISTANCE = (RangedAttribute) new RangedAttribute("attribute.name.mk.elemental_resistance", 0, -1.0, 1.0)
-            .setRegistryName(MKCore.makeRL("elemental_resistance"))
-            .setShouldWatch(true);
-
-    public static final RangedAttribute ELEMENTAL_DAMAGE = (RangedAttribute) new RangedAttribute("attribute.name.mk.elemental_damage", 0, 0, 2048)
-            .setRegistryName(MKCore.makeRL("elemental_damage"))
-            .setShouldWatch(true);
-
     public static final RangedAttribute ARCANE_RESISTANCE = (RangedAttribute) new RangedAttribute("attribute.name.mk.arcane_resistance", 0, -1.0, 1.0)
             .setRegistryName(MKCore.makeRL("arcane_resistance"))
             .setShouldWatch(true);
@@ -219,8 +211,6 @@ public class MKAttributes {
         consumer.accept(HEAL_BONUS);
         consumer.accept(BUFF_DURATION);
         consumer.accept(ATTACK_REACH);
-        consumer.accept(ELEMENTAL_DAMAGE);
-        consumer.accept(ELEMENTAL_RESISTANCE);
         consumer.accept(ARCANE_DAMAGE);
         consumer.accept(ARCANE_RESISTANCE);
         consumer.accept(FIRE_DAMAGE);

@@ -2,7 +2,7 @@ package com.chaosbuffalo.mkcore.item;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.MKAttributes;
-import com.chaosbuffalo.mkcore.init.ModTags;
+import com.chaosbuffalo.mkcore.init.CoreTags;
 import net.minecraft.entity.ai.attributes.Attribute;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.Attributes;
@@ -20,17 +20,17 @@ import java.util.*;
 
 public class ArmorClass {
 
-    public static final ArmorClass LIGHT = new ArmorClass(MKCore.makeRL("armor_class.light"), ModTags.Items.LIGHT_ARMOR)
+    public static final ArmorClass LIGHT = new ArmorClass(MKCore.makeRL("armor_class.light"), CoreTags.Items.LIGHT_ARMOR)
             .addPositiveEffect(Attributes.MOVEMENT_SPEED, 0.025, AttributeModifier.Operation.MULTIPLY_TOTAL)
             .addPositiveEffect(MKAttributes.CASTING_SPEED, 0.025, AttributeModifier.Operation.MULTIPLY_TOTAL)
             .addPositiveEffect(MKAttributes.MANA_REGEN, 0.025, AttributeModifier.Operation.MULTIPLY_TOTAL)
             .addNegativeEffect(Attributes.ARMOR, -0.04, AttributeModifier.Operation.MULTIPLY_TOTAL);
-    public static final ArmorClass MEDIUM = new ArmorClass(MKCore.makeRL("armor_class.medium"), ModTags.Items.MEDIUM_ARMOR)
+    public static final ArmorClass MEDIUM = new ArmorClass(MKCore.makeRL("armor_class.medium"), CoreTags.Items.MEDIUM_ARMOR)
             .addPositiveEffect(MKAttributes.MELEE_CRIT, 0.03, AttributeModifier.Operation.ADDITION)
             .addPositiveEffect(Attributes.ATTACK_SPEED, 0.03, AttributeModifier.Operation.MULTIPLY_TOTAL)
             .addNegativeEffect(MKAttributes.COOLDOWN, -0.02, AttributeModifier.Operation.MULTIPLY_TOTAL)
             .addNegativeEffect(MKAttributes.CASTING_SPEED, -0.02, AttributeModifier.Operation.MULTIPLY_TOTAL);
-    public static final ArmorClass HEAVY = new ArmorClass(MKCore.makeRL("armor_class.heavy"), ModTags.Items.HEAVY_ARMOR)
+    public static final ArmorClass HEAVY = new ArmorClass(MKCore.makeRL("armor_class.heavy"), CoreTags.Items.HEAVY_ARMOR)
             .addPositiveEffect(Attributes.ATTACK_DAMAGE, 0.025, AttributeModifier.Operation.MULTIPLY_TOTAL)
             .addPositiveEffect(MKAttributes.ARCANE_RESISTANCE, 0.015, AttributeModifier.Operation.MULTIPLY_TOTAL)
             .addPositiveEffect(MKAttributes.FIRE_RESISTANCE, 0.015, AttributeModifier.Operation.MULTIPLY_TOTAL)

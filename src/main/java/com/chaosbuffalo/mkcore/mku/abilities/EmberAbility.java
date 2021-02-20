@@ -8,24 +8,20 @@ import com.chaosbuffalo.mkcore.abilities.attributes.IntAttribute;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.core.damage.MKDamageSource;
 import com.chaosbuffalo.mkcore.fx.ParticleEffects;
-import com.chaosbuffalo.mkcore.init.ModDamageTypes;
-import com.chaosbuffalo.mkcore.init.ModSounds;
+import com.chaosbuffalo.mkcore.init.CoreDamageTypes;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.ParticleEffectSpawnPacket;
-import com.chaosbuffalo.mkcore.utils.SoundUtils;
 import com.chaosbuffalo.targeting_api.TargetingContext;
 import com.chaosbuffalo.targeting_api.TargetingContexts;
 import com.google.common.collect.ImmutableSet;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
 import net.minecraft.particles.ParticleTypes;
-import net.minecraft.util.SoundEvent;
 import net.minecraft.util.text.*;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-import javax.annotation.Nullable;
 import java.util.Random;
 import java.util.Set;
 
@@ -52,14 +48,7 @@ public class EmberAbility extends MKAbility {
 
     @Override
     protected ITextComponent getAbilityDescription(IMKEntityData entityData) {
-        float bonus = entityData.getStats().getDamageTypeBonus(ModDamageTypes.FireDamage);
-        IFormattableTextComponent damageStr = StringTextComponent.EMPTY.deepCopy();
-        damageStr.append(new StringTextComponent(String.format("%.1f", damage.getValue() + bonus)).mergeStyle(TextFormatting.UNDERLINE));
-        if (bonus != 0) {
-            damageStr.append(new StringTextComponent(String.format(" (+%.1f)", bonus)).mergeStyle(TextFormatting.BOLD));
-        }
-        damageStr.appendString(" ")
-                .append(ModDamageTypes.FireDamage.getDisplayName().mergeStyle(TextFormatting.DARK_RED));
+        ITextComponent damageStr = getDamageDescription(entityData, CoreDamageTypes.FireDamage, damage.getValue(), 0.0f, 0, 1.0f);
         ITextComponent burn = new StringTextComponent(burnTime.getValue().toString()).mergeStyle(TextFormatting.UNDERLINE);
         return new TranslationTextComponent(getDescriptionTranslationKey(), damageStr, burn);
     }
@@ -74,16 +63,6 @@ public class EmberAbility extends MKAbility {
         return 25.0f;
     }
 
-    @Nullable
-    @Override
-    public SoundEvent getSpellCompleteSoundEvent() {
-        return ModSounds.spell_cast_7;
-    }
-
-    @Override
-    public SoundEvent getCastingSoundEvent() {
-        return ModSounds.casting_fire;
-    }
 
     @Override
     public void continueCastClient(LivingEntity entity, IMKEntityData data, int castTimeLeft) {
@@ -102,9 +81,9 @@ public class EmberAbility extends MKAbility {
             float amount = damage.getValue();
             MKCore.LOGGER.info("Ember damage {} burnTime {}", amount, burnDuration);
             targetEntity.setFire(burnDuration);
-            targetEntity.attackEntityFrom(MKDamageSource.causeAbilityDamage(ModDamageTypes.FireDamage,
+            targetEntity.attackEntityFrom(MKDamageSource.causeAbilityDamage(CoreDamageTypes.FireDamage,
                     getAbilityId(), entity, entity), damage.getValue());
-            SoundUtils.playSoundAtEntity(targetEntity, ModSounds.spell_fire_6);
+//            SoundUtils.playSoundAtEntity(targetEntity, ModSounds.spell_fire_6);
             PacketHandler.sendToTrackingAndSelf(new ParticleEffectSpawnPacket(
                                 ParticleTypes.FLAME,
                                 ParticleEffects.CIRCLE_PILLAR_MOTION, 60, 10,

@@ -24,10 +24,11 @@ public class MKDamageType extends ForgeRegistryEntry<MKDamageType> {
     private final ResourceLocation iconLoc;
     private float critMultiplier;
     private boolean shouldDisplay;
+    private final TextFormatting formatting;
 
     public MKDamageType(ResourceLocation name, RangedAttribute damageAttribute,
                         RangedAttribute resistanceAttribute, RangedAttribute critAttribute,
-                        RangedAttribute critMultiplierAttribute) {
+                        RangedAttribute critMultiplierAttribute, TextFormatting formatting) {
         setRegistryName(name);
         this.damageAttribute = damageAttribute;
         this.resistanceAttribute = resistanceAttribute;
@@ -35,6 +36,7 @@ public class MKDamageType extends ForgeRegistryEntry<MKDamageType> {
         this.critAttribute = critAttribute;
         this.critMultiplier = 1.0f;
         this.shouldDisplay = true;
+        this.formatting = formatting;
         iconLoc = new ResourceLocation(name.getNamespace(), String.format("textures/damage_types/%s.png",
                 name.getPath().substring(7)));
     }
@@ -42,6 +44,10 @@ public class MKDamageType extends ForgeRegistryEntry<MKDamageType> {
     public MKDamageType setCritMultiplier(float value) {
         this.critMultiplier = value;
         return this;
+    }
+
+    public TextFormatting getFormatting() {
+        return formatting;
     }
 
     public MKDamageType setShouldDisplay(boolean shouldDisplay) {

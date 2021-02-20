@@ -7,11 +7,9 @@ import com.chaosbuffalo.mkcore.abilities.ai.conditions.NeedsBuffCondition;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.effects.PassiveEffect;
 import com.chaosbuffalo.mkcore.fx.ParticleEffects;
-import com.chaosbuffalo.mkcore.init.ModSounds;
 import com.chaosbuffalo.mkcore.mku.effects.SkinLikeWoodEffect;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.ParticleEffectSpawnPacket;
-import com.chaosbuffalo.mkcore.utils.SoundUtils;
 import com.chaosbuffalo.targeting_api.TargetingContext;
 import com.chaosbuffalo.targeting_api.TargetingContexts;
 import net.minecraft.entity.LivingEntity;
@@ -64,7 +62,7 @@ public class SkinLikeWoodAbility extends MKToggleAbility {
     public void applyEffect(LivingEntity entity, IMKEntityData entityData) {
         super.applyEffect(entity, entityData);
         int amplifier = 0;
-        SoundUtils.playSoundAtEntity(entity, ModSounds.spell_earth_7);
+//        SoundUtils.playSoundAtEntity(entity, ModSounds.spell_earth_7);
         // What to do for each target hit
         entity.addPotionEffect(getToggleEffect().createSelfCastEffectInstance(entity, amplifier));
 

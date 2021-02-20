@@ -11,7 +11,6 @@ import com.chaosbuffalo.mkcore.effects.AreaEffectBuilder;
 import com.chaosbuffalo.mkcore.effects.ParticleEffect;
 import com.chaosbuffalo.mkcore.effects.SpellCast;
 import com.chaosbuffalo.mkcore.fx.ParticleEffects;
-import com.chaosbuffalo.mkcore.init.ModSounds;
 import com.chaosbuffalo.mkcore.mku.effects.ClericHealEffect;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.ParticleEffectSpawnPacket;
@@ -19,7 +18,6 @@ import com.chaosbuffalo.targeting_api.TargetingContext;
 import com.chaosbuffalo.targeting_api.TargetingContexts;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.particles.ParticleTypes;
-import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -60,10 +58,6 @@ public class HealingRain extends MKAbility {
         return TargetingContexts.FRIENDLY;
     }
 
-    @Override
-    public SoundEvent getCastingSoundEvent() {
-        return ModSounds.casting_rain;
-    }
 
     @Override
     public float getDistance(LivingEntity entity) {

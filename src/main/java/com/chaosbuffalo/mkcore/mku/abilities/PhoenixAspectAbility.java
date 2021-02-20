@@ -11,7 +11,6 @@ import com.chaosbuffalo.mkcore.effects.AreaEffectBuilder;
 import com.chaosbuffalo.mkcore.effects.ParticleEffect;
 import com.chaosbuffalo.mkcore.effects.SpellCast;
 import com.chaosbuffalo.mkcore.fx.ParticleEffects;
-import com.chaosbuffalo.mkcore.init.ModSounds;
 import com.chaosbuffalo.mkcore.mku.effects.FeatherFallEffect;
 import com.chaosbuffalo.mkcore.mku.effects.PhoenixAspectEffect;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
@@ -20,13 +19,11 @@ import com.chaosbuffalo.targeting_api.TargetingContext;
 import com.chaosbuffalo.targeting_api.TargetingContexts;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.particles.ParticleTypes;
-import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-import javax.annotation.Nullable;
 
 @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class PhoenixAspectAbility extends MKAbility {
@@ -65,17 +62,6 @@ public class PhoenixAspectAbility extends MKAbility {
     @Override
     public AbilityTargetSelector getTargetSelector() {
         return AbilityTargeting.PBAOE;
-    }
-
-    @Override
-    public SoundEvent getCastingSoundEvent() {
-        return ModSounds.casting_fire;
-    }
-
-    @Nullable
-    @Override
-    public SoundEvent getSpellCompleteSoundEvent() {
-        return ModSounds.spell_buff_8;
     }
 
     @Override

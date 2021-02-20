@@ -19,7 +19,7 @@ public class MeleeDamageType extends MKDamageType {
     public MeleeDamageType(ResourceLocation name) {
         super(name, (RangedAttribute) Attributes.ATTACK_DAMAGE,
                 (RangedAttribute) Attributes.ARMOR_TOUGHNESS, MKAttributes.MELEE_CRIT,
-                MKAttributes.MELEE_CRIT_MULTIPLIER);
+                MKAttributes.MELEE_CRIT_MULTIPLIER, TextFormatting.DARK_GRAY);
     }
 
     @Override

@@ -8,7 +8,7 @@ import net.minecraft.item.Items;
 import javax.annotation.Nonnull;
 import java.util.function.Supplier;
 
-public class ModItemGroups {
+public class CoreItemGroups {
     public static final ItemGroup MOD_ITEM_GROUP = new ModItemGroup(MKCore.MOD_ID, () -> new ItemStack(Items.PUMPKIN));
 
     public static final class ModItemGroup extends ItemGroup {

@@ -58,8 +58,6 @@ public class StatCommand {
                 .then(createAttributeStat("shadow_resist", MKAttributes.SHADOW_RESISTANCE))
                 .then(createAttributeStat("poison_damage", MKAttributes.POISON_DAMAGE))
                 .then(createAttributeStat("poison_resist", MKAttributes.POISON_RESISTANCE))
-                .then(createAttributeStat("elemental_damage", MKAttributes.ELEMENTAL_DAMAGE))
-                .then(createAttributeStat("elemental_resist", MKAttributes.ELEMENTAL_RESISTANCE))
                 .then(createAttributeStat("ranged_damage", MKAttributes.RANGED_DAMAGE))
                 .then(createAttributeStat("ranged_crit", MKAttributes.RANGED_CRIT))
                 .then(createAttributeStat("ranged_crit_multiplier", MKAttributes.RANGED_CRIT_MULTIPLIER))

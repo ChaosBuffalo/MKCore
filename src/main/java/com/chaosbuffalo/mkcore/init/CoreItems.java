@@ -14,7 +14,7 @@ import net.minecraftforge.registries.ObjectHolder;
 
 @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 @ObjectHolder(MKCore.MOD_ID)
-public class ModItems {
+public class CoreItems {
 
     @ObjectHolder("ability_chest")
     public static Item test_armor;

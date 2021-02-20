@@ -19,7 +19,7 @@ import java.util.UUID;
 
 @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 //@ObjectHolder(MKCore.MOD_ID)
-public class ModTalents {
+public class CoreTalents {
 
     private static void registerVanillaAttributeTalents(RegistryEvent.Register<MKTalent> event) {
         // Vanilla Attributes

@@ -9,8 +9,9 @@ import com.chaosbuffalo.mkcore.core.AbilitySlot;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.core.MKAttributes;
 import com.chaosbuffalo.mkcore.core.MKCombatFormulas;
+import com.chaosbuffalo.mkcore.core.damage.MKDamageType;
 import com.chaosbuffalo.mkcore.entities.BaseProjectileEntity;
-import com.chaosbuffalo.mkcore.init.ModSounds;
+import com.chaosbuffalo.mkcore.init.CoreSounds;
 import com.chaosbuffalo.mkcore.utils.EntityUtils;
 import com.chaosbuffalo.mkcore.utils.RayTraceUtils;
 import com.chaosbuffalo.targeting_api.Targeting;
@@ -33,8 +34,7 @@ import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.EntityRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.util.text.*;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.ForgeRegistryEntry;
@@ -110,6 +110,19 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
     protected MKAbility addSkillAttribute(Attribute attribute){
         this.skillAttributes.add(attribute);
         return this;
+    }
+
+    public ITextComponent getDamageDescription(IMKEntityData entityData, MKDamageType damageType, float damage,
+                                               float scale, int level, float modifierScaling){
+        float bonus = entityData.getStats().getDamageTypeBonus(damageType) * modifierScaling;
+        float abilityDamage = damage + (scale * level) + bonus;
+        IFormattableTextComponent damageStr = StringTextComponent.EMPTY.deepCopy();
+        damageStr.append(new StringTextComponent(String.format("%.1f", abilityDamage)).mergeStyle(TextFormatting.UNDERLINE));
+        if (bonus != 0) {
+            damageStr.append(new StringTextComponent(String.format(" (+%.1f)", bonus)).mergeStyle(TextFormatting.BOLD));
+        }
+        damageStr.appendString(" ").append(damageType.getDisplayName().mergeStyle(damageType.getFormatting()));
+        return damageStr;
     }
 
     public ITextComponent getSkillDescription(IMKEntityData entityData){
@@ -313,12 +326,12 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
 
     @Nullable
     public SoundEvent getCastingSoundEvent() {
-        return ModSounds.casting_general;
+        return CoreSounds.casting_default;
     }
 
     @Nullable
     public SoundEvent getSpellCompleteSoundEvent() {
-        return ModSounds.spell_cast_3;
+        return CoreSounds.spell_cast_default;
     }
 
     public void executeWithContext(IMKEntityData entityData, AbilityContext context) {

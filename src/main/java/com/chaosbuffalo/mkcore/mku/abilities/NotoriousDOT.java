@@ -8,7 +8,6 @@ import com.chaosbuffalo.mkcore.abilities.MKSongAbility;
 import com.chaosbuffalo.mkcore.abilities.ai.conditions.MeleeUseCondition;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.fx.ParticleEffects;
-import com.chaosbuffalo.mkcore.init.ModSounds;
 import com.chaosbuffalo.mkcore.mku.effects.NotoriousDOTCasterEffect;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.ParticleEffectSpawnPacket;
@@ -81,7 +80,7 @@ public class NotoriousDOT extends MKSongAbility {
         super.applyEffect(entity, entityData);
         int level = 1;
         entity.addPotionEffect(NotoriousDOTCasterEffect.INSTANCE.createSelfCastEffectInstance(entity, level));
-        SoundUtils.playSoundAtEntity(entity, ModSounds.spell_shadow_9);
+//        SoundUtils.playSoundAtEntity(entity, ModSounds.spell_shadow_9);
         PacketHandler.sendToTrackingAndSelf(new ParticleEffectSpawnPacket(
                         ParticleTypes.NOTE,
                         ParticleEffects.SPHERE_MOTION, 50, 5,
