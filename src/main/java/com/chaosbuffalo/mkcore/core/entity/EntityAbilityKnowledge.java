@@ -2,6 +2,7 @@ package com.chaosbuffalo.mkcore.core.entity;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
+import com.chaosbuffalo.mkcore.abilities.AbilitySource;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.abilities.MKAbilityInfo;
 import com.chaosbuffalo.mkcore.core.IMKAbilityKnowledge;
@@ -29,12 +30,6 @@ public class EntityAbilityKnowledge implements IMKEntityKnowledge, IMKAbilityKno
         return this;
     }
 
-    @Nullable
-    @Override
-    public MKAbilityInfo getAbilityInfo(ResourceLocation abilityId) {
-        return abilityInfoMap.get(abilityId);
-    }
-
     @Override
     public Collection<MKAbilityInfo> getAllAbilities() {
         return Collections.unmodifiableCollection(abilityInfoMap.values());
@@ -50,9 +45,9 @@ public class EntityAbilityKnowledge implements IMKEntityKnowledge, IMKAbilityKno
     }
 
     private boolean learnAbilityInternal(MKAbility ability) {
-        MKAbilityInfo info = getAbilityInfo(ability.getAbilityId());
+        MKAbilityInfo info = abilityInfoMap.get(ability.getAbilityId());
         if (info == null) {
-            info = ability.createAbilityInfo();
+            info = ability.createAbilityInfo(AbilitySource.TRAINED);
         } else if (info.isCurrentlyKnown()) {
             return true;
         }
@@ -76,8 +71,12 @@ public class EntityAbilityKnowledge implements IMKEntityKnowledge, IMKAbilityKno
         return ret;
     }
 
-    @Override
     public boolean learnAbility(MKAbility ability) {
+        return learnAbility(ability, AbilitySource.TRAINED);
+    }
+
+    @Override
+    public boolean learnAbility(MKAbility ability, AbilitySource source) {
         return learnAbility(ability, 1);
     }
 
@@ -97,7 +96,7 @@ public class EntityAbilityKnowledge implements IMKEntityKnowledge, IMKAbilityKno
     @Nullable
     @Override
     public MKAbilityInfo getKnownAbility(ResourceLocation abilityId) {
-        MKAbilityInfo info = getAbilityInfo(abilityId);
+        MKAbilityInfo info = abilityInfoMap.get(abilityId);
         if (info == null)
             return null;
         return info;
@@ -120,7 +119,7 @@ public class EntityAbilityKnowledge implements IMKEntityKnowledge, IMKAbilityKno
         if (ability == null)
             return null;
 
-        return ability.createAbilityInfo();
+        return ability.createAbilityInfo(AbilitySource.TRAINED);
     }
 
     @Override

@@ -5,14 +5,16 @@ import com.chaosbuffalo.mkcore.core.MKCombatFormulas;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.AbstractAttributeMap;
+import net.minecraft.entity.ai.attributes.Attribute;
 import net.minecraft.entity.ai.attributes.RangedAttribute;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.registries.ForgeRegistryEntry;
+
+import java.util.function.Consumer;
 
 
 public class MKDamageType extends ForgeRegistryEntry<MKDamageType> {
@@ -23,10 +25,11 @@ public class MKDamageType extends ForgeRegistryEntry<MKDamageType> {
     private final ResourceLocation iconLoc;
     private float critMultiplier;
     private boolean shouldDisplay;
+    private final TextFormatting formatting;
 
     public MKDamageType(ResourceLocation name, RangedAttribute damageAttribute,
                         RangedAttribute resistanceAttribute, RangedAttribute critAttribute,
-                        RangedAttribute critMultiplierAttribute) {
+                        RangedAttribute critMultiplierAttribute, TextFormatting formatting) {
         setRegistryName(name);
         this.damageAttribute = damageAttribute;
         this.resistanceAttribute = resistanceAttribute;
@@ -34,6 +37,7 @@ public class MKDamageType extends ForgeRegistryEntry<MKDamageType> {
         this.critAttribute = critAttribute;
         this.critMultiplier = 1.0f;
         this.shouldDisplay = true;
+        this.formatting = formatting;
         iconLoc = new ResourceLocation(name.getNamespace(), String.format("textures/damage_types/%s.png",
                 name.getPath().substring(7)));
     }
@@ -41,6 +45,10 @@ public class MKDamageType extends ForgeRegistryEntry<MKDamageType> {
     public MKDamageType setCritMultiplier(float value) {
         this.critMultiplier = value;
         return this;
+    }
+
+    public TextFormatting getFormatting() {
+        return formatting;
     }
 
     public MKDamageType setShouldDisplay(boolean shouldDisplay) {
@@ -52,8 +60,8 @@ public class MKDamageType extends ForgeRegistryEntry<MKDamageType> {
         return shouldDisplay;
     }
 
-    public String getDisplayName() {
-        return I18n.format(String.format("%s.%s.name", getRegistryName().getNamespace(),
+    public IFormattableTextComponent getDisplayName() {
+        return new TranslationTextComponent(String.format("%s.%s.name", getRegistryName().getNamespace(),
                 getRegistryName().getPath()));
     }
 
@@ -77,49 +85,45 @@ public class MKDamageType extends ForgeRegistryEntry<MKDamageType> {
         return resistanceAttribute;
     }
 
-    public void addAttributes(AbstractAttributeMap attributeMap) {
-        attributeMap.registerAttribute(getDamageAttribute());
-        attributeMap.registerAttribute(getResistanceAttribute());
+    public void registerAttributes(Consumer<Attribute> attributeMap) {
+        attributeMap.accept(getDamageAttribute());
+        attributeMap.accept(getResistanceAttribute());
     }
 
     public ITextComponent getEffectCritMessage(LivingEntity source, LivingEntity target, float damage,
-                                               String damageType, boolean isSelf){
-        Style messageStyle = new Style();
-        messageStyle.setColor(TextFormatting.DARK_PURPLE);
-        String msg;
+                                               String damageType, boolean isSelf) {
+        TranslationTextComponent msg;
         if (isSelf) {
-            msg = String.format("Your %s just crit %s for %s",
-                    damageType,
-                    target.getDisplayName().getFormattedText(),
+            msg = new TranslationTextComponent("mkcore.crit.effect.self",
+                    I18n.format(damageType),
+                    target.getDisplayName(),
                     Math.round(damage));
         } else {
-            msg = String.format("%s's %s %s just crit %s for %s",
-                    source.getDisplayName().getFormattedText(),
-                    damageType,
-                    target.getDisplayName().getFormattedText(),
+            msg = new TranslationTextComponent("mkcore.crit.effect.other",
+                    source.getDisplayName(),
+                    I18n.format(damageType),
+                    target.getDisplayName(),
                     Math.round(damage));
         }
-        return new StringTextComponent(msg).setStyle(messageStyle);
+        return msg.mergeStyle(TextFormatting.DARK_PURPLE);
     }
 
     public ITextComponent getAbilityCritMessage(LivingEntity source, LivingEntity target, float damage,
                                                 MKAbility ability, boolean isSelf) {
-        Style messageStyle = new Style();
-        messageStyle.setColor(TextFormatting.AQUA);
-        String msg;
+        TranslationTextComponent msg;
         if (isSelf) {
-            msg = String.format("Your %s spell just crit %s for %s",
+            msg = new TranslationTextComponent("mkcore.crit.ability.self",
                     ability.getAbilityName(),
-                    target.getDisplayName().getFormattedText(),
+                    target.getDisplayName(),
                     Math.round(damage));
         } else {
-            msg = String.format("%s's %s spell just crit %s for %s",
-                    source.getDisplayName().getFormattedText(),
+            msg = new TranslationTextComponent("mkcore.crit.ability.self",
+                    source.getDisplayName(),
                     ability.getAbilityName(),
-                    target.getDisplayName().getFormattedText(),
+                    target.getDisplayName(),
                     Math.round(damage));
         }
-        return new StringTextComponent(msg).setStyle(messageStyle);
+        return msg.mergeStyle(TextFormatting.AQUA);
     }
 
     public float applyDamage(LivingEntity source, LivingEntity target, float originalDamage, float modifierScaling) {
@@ -139,7 +143,7 @@ public class MKDamageType extends ForgeRegistryEntry<MKDamageType> {
     }
 
     public boolean rollCrit(LivingEntity source, LivingEntity target, Entity immediate) {
-        if (target.isEntityUndead()){
+        if (target.isEntityUndead()) {
             return false;
         }
         float critChance = getCritChance(source, target, immediate);

@@ -15,7 +15,7 @@ public class MKItemAttackPacket {
 
     private int entityId;
 
-    public MKItemAttackPacket(Entity entity){
+    public MKItemAttackPacket(Entity entity) {
         this.entityId = entity.getEntityId();
     }
 
@@ -37,8 +37,9 @@ public class MKItemAttackPacket {
             Entity target = entity.getServerWorld().getEntityByID(entityId);
             double reach = entity.getAttribute(MKAttributes.ATTACK_REACH).getValue();
             if (target != null) {
-                if (entity.getDistanceSq(target) <= reach * reach){
+                if (entity.getDistanceSq(target) <= reach * reach) {
                     entity.attackTargetEntityWithCurrentItem(target);
+                    entity.resetCooldown();
                     MKCore.getEntityData(entity).ifPresent(cap -> cap.getCombatExtension().recordSwing());
                     MinecraftForge.EVENT_BUS.post(new PostAttackEvent(entity));
                 }

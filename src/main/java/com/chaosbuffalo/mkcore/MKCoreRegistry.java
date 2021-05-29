@@ -2,8 +2,7 @@ package com.chaosbuffalo.mkcore;
 
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.core.damage.MKDamageType;
-import com.chaosbuffalo.mkcore.core.talents.BaseTalent;
-import net.minecraft.block.Block;
+import com.chaosbuffalo.mkcore.core.talents.MKTalent;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -19,7 +18,7 @@ public class MKCoreRegistry {
     public static ResourceLocation INVALID_TALENT = new ResourceLocation(MKCore.MOD_ID, "talent.invalid");
     public static IForgeRegistry<MKAbility> ABILITIES = null;
     public static IForgeRegistry<MKDamageType> DAMAGE_TYPES = null;
-    public static IForgeRegistry<BaseTalent> TALENT_TYPES = null;
+    public static IForgeRegistry<MKTalent> TALENTS = null;
 
     @Nullable
     public static MKAbility getAbility(ResourceLocation abilityId) {
@@ -39,13 +38,13 @@ public class MKCoreRegistry {
                 .setIDRange(0, Integer.MAX_VALUE - 1)
                 .create();
         DAMAGE_TYPES = new RegistryBuilder<MKDamageType>()
-                .setName(MKCore.makeRL("damage_types"))
+                .setName(MKCore.makeRL("aaa_damage_types"))
                 .setType(MKDamageType.class)
                 .setIDRange(0, Integer.MAX_VALUE - 1)
                 .create();
-        TALENT_TYPES = new RegistryBuilder<BaseTalent>()
-                .setName(MKCore.makeRL("talent_types"))
-                .setType(BaseTalent.class)
+        TALENTS = new RegistryBuilder<MKTalent>()
+                .setName(MKCore.makeRL("talents"))
+                .setType(MKTalent.class)
                 .create();
     }
 }

@@ -130,11 +130,11 @@ public class SpellCast {
     }
 
     public EffectInstance toPotionEffect(int amplifier) {
-        return new EffectInstance(potion, 1, amplifier, potion.isAmbient(), potion.shouldShowParticles());
+        return new EffectInstance(potion, 1, amplifier, potion.isAmbient(), potion.shouldShowParticles(), potion.shouldShowIcon());
     }
 
     public EffectInstance toPotionEffect(int duration, int amplifier) {
-        return new EffectInstance(potion, duration, amplifier, potion.isAmbient(), potion.shouldShowParticles());
+        return new EffectInstance(potion, duration, amplifier, potion.isAmbient(), potion.shouldShowParticles(), potion.shouldShowIcon());
     }
 
     @Override

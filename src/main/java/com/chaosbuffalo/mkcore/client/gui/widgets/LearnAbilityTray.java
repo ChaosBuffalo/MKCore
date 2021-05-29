@@ -18,6 +18,7 @@ import com.chaosbuffalo.mkwidgets.client.gui.widgets.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 
@@ -62,8 +63,7 @@ public class LearnAbilityTray extends MKStackLayoutVertical {
         MKImage background = GuiTextures.CORE_TEXTURES.getImageForRegion(
                 GuiTextures.BACKGROUND_180_200, xPos, yPos, POPUP_WIDTH, POPUP_HEIGHT);
         popup.addWidget(background);
-        String promptText = I18n.format("mkcore.gui.character.forget_ability",
-                getAbility().getAbilityName());
+        String promptText = I18n.format("mkcore.gui.character.forget_ability", getAbility().getAbilityName());
         MKText prompt = new MKText(font, promptText, xPos + 6, yPos + 6);
         prompt.setWidth(POPUP_WIDTH - 10);
         prompt.setMultiline(true);
@@ -125,12 +125,12 @@ public class LearnAbilityTray extends MKStackLayoutVertical {
             reqlayout.setPaddingBot(1);
             reqlayout.setPaddingTop(1);
             reqScrollView.addWidget(reqlayout);
-            ArrayList<String> texts = unmetRequirements.stream()
-                    .map((x) -> new StringTextComponent(
-                            String.format("  - %s", x.requirementDescription.getFormattedText()))
-                            .applyTextStyle(x.isMet ? TextFormatting.DARK_GREEN : TextFormatting.BLACK).getFormattedText())
+            List<ITextComponent> texts = unmetRequirements.stream()
+                    .map((x) -> new StringTextComponent("  - ")
+                            .append(x.requirementDescription)
+                            .mergeStyle(x.isMet ? TextFormatting.DARK_GREEN : TextFormatting.BLACK))
                     .collect(Collectors.toCollection(ArrayList::new));
-            for (String text : texts) {
+            for (ITextComponent text : texts) {
                 MKText reqText = new MKText(font, text);
                 reqText.setMultiline(true);
                 reqlayout.addConstraintToWidget(new LayoutRelativeWidthConstraint(1.0f), reqText);

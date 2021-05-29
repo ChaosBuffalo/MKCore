@@ -3,7 +3,6 @@ package com.chaosbuffalo.mkcore.core;
 import com.chaosbuffalo.mkcore.core.entity.EntityAbilityKnowledge;
 import com.chaosbuffalo.mkcore.core.entity.EntityStatsModule;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.AbstractAttributeMap;
 import net.minecraft.nbt.CompoundNBT;
 
 public class MKEntityData implements IMKEntityData {
@@ -24,18 +23,20 @@ public class MKEntityData implements IMKEntityData {
         abilityExecutor = new AbilityExecutor(this);
         stats = new EntityStatsModule(this);
         combatExtensionModule = new CombatExtensionModule(this);
-        registerAttributes();
-    }
-
-    private void registerAttributes() {
-        AbstractAttributeMap attributes = entity.getAttributes();
-        MKAttributes.registerEntityAttributes(attributes);
     }
 
     public void update() {
+        getEntity().getEntityWorld().getProfiler().startSection("MKEntityData.update");
+
+        getEntity().getEntityWorld().getProfiler().startSection("AbilityExecutor.tick");
         getAbilityExecutor().tick();
+        getEntity().getEntityWorld().getProfiler().endStartSection("EntityStats.tick");
         getStats().tick();
+        getEntity().getEntityWorld().getProfiler().endStartSection("EntityCombat.tick");
         getCombatExtension().tick();
+        getEntity().getEntityWorld().getProfiler().endSection();
+
+        getEntity().getEntityWorld().getProfiler().endSection();
     }
 
     @Override

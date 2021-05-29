@@ -3,12 +3,13 @@ package com.chaosbuffalo.mkcore.command;
 import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
+import com.chaosbuffalo.mkcore.command.arguments.TalentIdArgument;
+import com.chaosbuffalo.mkcore.command.arguments.TalentLineIdArgument;
+import com.chaosbuffalo.mkcore.command.arguments.TalentTreeIdArgument;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.talents.*;
 import com.chaosbuffalo.mkcore.utils.TextUtils;
 import com.mojang.brigadier.Command;
-import com.mojang.brigadier.StringReader;
-import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -21,7 +22,6 @@ import net.minecraft.command.Commands;
 import net.minecraft.command.ISuggestionProvider;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.registries.ForgeRegistryEntry;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -308,7 +308,6 @@ public class TalentCommand {
             } else {
                 TextUtils.sendChatMessage(player, String.format("Failed to spend point in (%s, %s, %d)", talentId, line, index));
             }
-
         });
 
         return Command.SINGLE_SUCCESS;
@@ -386,12 +385,11 @@ public class TalentCommand {
                 return;
             }
 
-            TalentTreeDefinition.TalentLineDefinition lineDefinition = treeDefinition.getLine(line);
+            TalentLineDefinition lineDefinition = treeDefinition.getLine(line);
             if (lineDefinition == null) {
                 TextUtils.sendPlayerChatMessage(player, String.format("Tree %s does not have line %s", treeId, line));
                 return;
             }
-
 
             TextUtils.sendPlayerChatMessage(player, String.format("%s - %s", treeId, line));
             lineDefinition.getNodes().stream()
@@ -432,49 +430,6 @@ public class TalentCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    public static class TalentTreeIdArgument implements ArgumentType<ResourceLocation> {
-
-        public static TalentTreeIdArgument talent() {
-            return new TalentTreeIdArgument();
-        }
-
-        @Override
-        public ResourceLocation parse(final StringReader reader) throws CommandSyntaxException {
-            return ResourceLocation.read(reader);
-        }
-
-        @Override
-        public <S> CompletableFuture<Suggestions> listSuggestions(final CommandContext<S> context,
-                                                                  final SuggestionsBuilder builder) {
-            return ISuggestionProvider.suggest(MKCore.getTalentManager().getTreeNames().stream().map(ResourceLocation::toString), builder);
-        }
-    }
-
-    public static class TalentLineIdArgument implements ArgumentType<String> {
-
-        public static TalentLineIdArgument talentLine() {
-            return new TalentLineIdArgument();
-        }
-
-        @Override
-        public String parse(final StringReader reader) throws CommandSyntaxException {
-            return reader.readString();
-        }
-
-        @Override
-        public <S> CompletableFuture<Suggestions> listSuggestions(final CommandContext<S> context,
-                                                                  final SuggestionsBuilder builder) {
-            ResourceLocation treeId = context.getArgument("tree", ResourceLocation.class);
-
-            TalentTreeDefinition treeDef = MKCore.getTalentManager().getTalentTree(treeId);
-            if (treeDef != null) {
-                return ISuggestionProvider.suggest(treeDef.getTalentLines().keySet(), builder);
-            }
-
-            return ISuggestionProvider.suggest(Collections.emptyList(), builder);
-        }
-    }
-
     static CompletableFuture<Suggestions> suggestKnownPassives(final CommandContext<CommandSource> context,
                                                                final SuggestionsBuilder builder) throws CommandSyntaxException {
         return suggestKnownTalents(context, builder, TalentType.PASSIVE);
@@ -492,26 +447,6 @@ public class TalentCommand {
 
     public static TalentIdArgument makeUltimateTalentId() {
         return new TalentIdArgument(TalentType.ULTIMATE);
-    }
-
-    public static class TalentIdArgument extends AbilityIdArgument {
-        private final TalentType<?> type;
-
-        public TalentIdArgument(TalentType<?> type) {
-            this.type = type;
-        }
-
-        @Override
-        public <S> CompletableFuture<Suggestions> listSuggestions(final CommandContext<S> context, final SuggestionsBuilder builder) {
-            Stream<String> all = MKCoreRegistry.TALENT_TYPES.getValues()
-                    .stream()
-                    .filter(talent -> talent.getTalentType() == type)
-                    .map(ForgeRegistryEntry::getRegistryName)
-                    .filter(Objects::nonNull)
-                    .map(ResourceLocation::toString);
-
-            return ISuggestionProvider.suggest(all, builder);
-        }
     }
 
     static CompletableFuture<Suggestions> suggestKnownTalents(final CommandContext<CommandSource> context,

@@ -25,11 +25,6 @@ public abstract class PassiveEffect extends SpellEffectBase implements IMKInfini
     }
 
     @Override
-    public boolean canSelfCast() {
-        return true;
-    }
-
-    @Override
     public boolean isReady(int duration, int amplitude) {
         // Don't do anything until it's time to refresh
         return isInfiniteDuration() && needsInfiniteEffectRefresh(duration);

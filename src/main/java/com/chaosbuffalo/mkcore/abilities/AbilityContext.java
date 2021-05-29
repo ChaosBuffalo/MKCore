@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Optional;
 
 public class AbilityContext {
-    public static AbilityContext EMPTY = new AbilityContext(ImmutableMap.of());
+    public static final AbilityContext EMPTY = new AbilityContext(ImmutableMap.of());
 
     private final Map<MemoryModuleType<?>, Optional<?>> memories;
 

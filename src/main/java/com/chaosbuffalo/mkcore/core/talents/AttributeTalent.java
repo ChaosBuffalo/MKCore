@@ -1,16 +1,17 @@
 package com.chaosbuffalo.mkcore.core.talents;
 
 import com.chaosbuffalo.mkcore.MKCore;
-import com.mojang.datafixers.Dynamic;
-import net.minecraft.client.resources.I18n;
+import com.mojang.serialization.Dynamic;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.RangedAttribute;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.TranslationTextComponent;
 
 import java.util.UUID;
 
-public class AttributeTalent extends BaseTalent {
+public class AttributeTalent extends MKTalent {
     private final UUID id;
     private final RangedAttribute attribute;
     private AttributeModifier.Operation operation;
@@ -61,7 +62,7 @@ public class AttributeTalent extends BaseTalent {
 
     @Override
     public String toString() {
-        return String.format("AttributeTalent[%s, %s, %s]", attribute.getName(), id, operation);
+        return String.format("AttributeTalent[%s, %s, %s]", attribute.getAttributeName(), id, operation);
     }
 
     private String getDescriptionTranslationKey() {
@@ -69,7 +70,7 @@ public class AttributeTalent extends BaseTalent {
     }
 
     @Override
-    public String getTalentDescription(TalentRecord record) {
+    public ITextComponent getTalentDescription(TalentRecord record) {
         double perRank = 0;
         double currentValue = 0;
         if (record.getNode() instanceof AttributeTalentNode) {
@@ -89,11 +90,11 @@ public class AttributeTalent extends BaseTalent {
             totalAmount = String.format("%.2f", currentValue);
         }
         String finalAmount = String.format("%s (%s)", amount, totalAmount);
-        return TextFormatting.GRAY + I18n.format(getDescriptionTranslationKey(), finalAmount);
+        return new TranslationTextComponent(getDescriptionTranslationKey(), finalAmount).mergeStyle(TextFormatting.GRAY);
     }
 
     public AttributeModifier createModifier(double value) {
-        return new AttributeModifier(getUUID(), getRegistryName().toString(), value, getOp()).setSaved(false);
+        return new AttributeModifier(getUUID(), () -> getRegistryName().toString(), value, getOp());
     }
 
     public double getDefaultPerRank() {

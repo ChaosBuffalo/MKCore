@@ -3,7 +3,7 @@ package com.chaosbuffalo.mkcore.core.talents;
 import com.chaosbuffalo.mkcore.abilities.PassiveTalentAbility;
 import net.minecraft.util.ResourceLocation;
 
-public class PassiveTalent extends BaseTalent implements IAbilityTalent<PassiveTalentAbility> {
+public class PassiveTalent extends MKTalent implements IAbilityTalent<PassiveTalentAbility> {
     private final PassiveTalentAbility ability;
 
     public PassiveTalent(ResourceLocation name, PassiveTalentAbility ability) {

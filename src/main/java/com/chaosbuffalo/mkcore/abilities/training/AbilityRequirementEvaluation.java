@@ -4,8 +4,8 @@ import net.minecraft.util.text.ITextComponent;
 
 
 public class AbilityRequirementEvaluation {
-    public ITextComponent requirementDescription;
-    public boolean isMet;
+    public final ITextComponent requirementDescription;
+    public final boolean isMet;
 
     public AbilityRequirementEvaluation(ITextComponent description, boolean isMet) {
         this.requirementDescription = description;

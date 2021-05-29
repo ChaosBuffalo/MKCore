@@ -7,12 +7,14 @@ import javax.annotation.Nullable;
 
 public class AbilityTargetingDecision {
     public static final AbilityTargetingDecision UNDECIDED = new AbilityTargetingDecision(null, null);
+
     public enum MovementSuggestion {
         STATIONARY,
         FOLLOW,
         KITE,
         MELEE
     }
+
     private final LivingEntity target;
     private final MovementSuggestion movementSuggestion;
     private final MKAbility ability;

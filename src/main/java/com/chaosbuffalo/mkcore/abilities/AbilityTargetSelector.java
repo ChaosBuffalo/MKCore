@@ -1,16 +1,16 @@
 package com.chaosbuffalo.mkcore.abilities;
 
-import com.chaosbuffalo.mkcore.abilities.description.AbilityDescriptions;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 
 public class AbilityTargetSelector {
 
@@ -37,7 +37,7 @@ public class AbilityTargetSelector {
         return this;
     }
 
-    public AbilityTargetSelector addDescription(BiFunction<MKAbility, IMKEntityData, ITextComponent> description) {
+    public AbilityTargetSelector addDynamicDescription(BiFunction<MKAbility, IMKEntityData, ITextComponent> description) {
         additionalDescriptors.add(description);
         return this;
     }
@@ -46,28 +46,33 @@ public class AbilityTargetSelector {
         return showTargetType;
     }
 
-    public void fillAbilityDescription(List<ITextComponent> descriptions, MKAbility ability, IMKEntityData entityData) {
-        descriptions.add(getLocalizedDescriptionForContext());
+    public void buildDescription(MKAbility ability, IMKEntityData entityData, Consumer<ITextComponent> consumer) {
+        consumer.accept(getDescriptionWithHeading());
         if (doShowTargetType()) {
-            descriptions.add(AbilityDescriptions.getTargetTypeDescription(ability));
+            consumer.accept(ability.getTargetContextLocalization());
         }
-        additionalDescriptors.forEach(func -> {
-            descriptions.add(func.apply(ability, entityData));
-        });
+        additionalDescriptors.forEach(func -> consumer.accept(func.apply(ability, entityData)));
     }
 
-    public ITextComponent getLocalizedDescriptionForContext() {
-        return new TranslationTextComponent("mkcore.ability_description.target",
-                I18n.format(getDescriptionKey()));
+    private ITextComponent getDescriptionWithHeading() {
+        return new TranslationTextComponent("mkcore.ability_description.target", getDescription());
     }
 
-    public String getDescriptionKey() {
-        return descriptionKey;
+    public ITextComponent getDescription() {
+        return new TranslationTextComponent(descriptionKey);
     }
 
     public AbilityTargetSelector setRequiredMemories(Set<MemoryModuleType<?>> types) {
         requiredMemories = types;
         return this;
+    }
+
+    public Set<MemoryModuleType<?>> getRequiredMemories() {
+        if (requiredMemories != null) {
+            return Collections.unmodifiableSet(requiredMemories);
+        } else {
+            return Collections.emptySet();
+        }
     }
 
     public BiFunction<IMKEntityData, MKAbility, AbilityContext> getSelector() {

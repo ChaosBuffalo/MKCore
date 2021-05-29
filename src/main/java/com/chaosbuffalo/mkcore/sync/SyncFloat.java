@@ -3,7 +3,7 @@ package com.chaosbuffalo.mkcore.sync;
 import net.minecraft.nbt.CompoundNBT;
 
 public class SyncFloat implements ISyncObject {
-    String name;
+    private final String name;
     private float value;
     private boolean dirty;
     private ISyncNotifier parentNotifier = ISyncNotifier.NONE;

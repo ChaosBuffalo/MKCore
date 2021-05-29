@@ -10,10 +10,12 @@ import javax.annotation.Nonnull;
 public class MKAbilityInfo implements IMKSerializable<CompoundNBT> {
     private final MKAbility ability;
     private boolean known;
+    private AbilitySource source = AbilitySource.TRAINED;
 
-    public MKAbilityInfo(MKAbility ability) {
+    public MKAbilityInfo(MKAbility ability, AbilitySource source) {
         this.ability = ability;
         known = false;
+        this.source = source;
     }
 
     @Nonnull
@@ -33,10 +35,19 @@ public class MKAbilityInfo implements IMKSerializable<CompoundNBT> {
         this.known = learn;
     }
 
+    public void setSource(AbilitySource source) {
+        this.source = source;
+    }
+
+    public AbilitySource getSource() {
+        return source;
+    }
+
     @Override
     public CompoundNBT serialize() {
         CompoundNBT tag = new CompoundNBT();
         tag.putBoolean("known", known);
+        tag.putString("source", source.name());
         return tag;
     }
 
@@ -44,6 +55,9 @@ public class MKAbilityInfo implements IMKSerializable<CompoundNBT> {
     public boolean deserialize(CompoundNBT tag) {
         if (tag.contains("known")) {
             known = tag.getBoolean("known");
+        }
+        if (tag.contains("source")) {
+            source = AbilitySource.valueOf(tag.getString("source"));
         }
         return true;
     }

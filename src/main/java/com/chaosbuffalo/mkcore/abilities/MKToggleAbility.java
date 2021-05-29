@@ -4,6 +4,7 @@ import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.abilities.description.AbilityDescriptions;
 import com.chaosbuffalo.mkcore.client.gui.MKOverlay;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.entity.LivingEntity;
@@ -13,11 +14,11 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-import java.util.List;
+import java.util.function.Consumer;
 
 public abstract class MKToggleAbility extends MKAbility {
 
-    private static final ResourceLocation TOGGLE_EFFECT = MKCore.makeRL("textures/class/abilities/ability_toggle.png");
+    private static final ResourceLocation TOGGLE_EFFECT = MKCore.makeRL("textures/abilities/ability_toggle.png");
 
     public MKToggleAbility(ResourceLocation abilityId) {
         super(abilityId);
@@ -38,10 +39,9 @@ public abstract class MKToggleAbility extends MKAbility {
     }
 
     @Override
-    public List<ITextComponent> getDescriptionsForEntity(IMKEntityData entityData) {
-        List<ITextComponent> ret = super.getDescriptionsForEntity(entityData);
-        ret.addAll(AbilityDescriptions.getEffectModifiers(getToggleEffect(), entityData, false));
-        return ret;
+    public void buildDescription(IMKEntityData entityData, Consumer<ITextComponent> consumer) {
+        super.buildDescription(entityData, consumer);
+        AbilityDescriptions.getEffectModifiers(getToggleEffect(), entityData, false).forEach(consumer);
     }
 
     @Override
@@ -85,11 +85,12 @@ public abstract class MKToggleAbility extends MKAbility {
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void drawAbilityBarEffect(Minecraft mc, int slotX, int slotY) {
+    public void drawAbilityBarEffect(MatrixStack matrixStack, Minecraft mc, int slotX, int slotY) {
         if (mc.player != null && mc.player.isPotionActive(getToggleEffect())) {
             int iconSize = MKOverlay.ABILITY_ICON_SIZE + 2;
             mc.getTextureManager().bindTexture(TOGGLE_EFFECT);
-            AbstractGui.blit(slotX - 1, slotY - 1, 0, 0, iconSize, iconSize, iconSize, iconSize);
+
+            AbstractGui.blit(matrixStack, slotX - 1, slotY - 1, 0, 0, iconSize, iconSize, iconSize, iconSize);
         }
     }
 }

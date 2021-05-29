@@ -2,12 +2,13 @@ package com.chaosbuffalo.mkcore.core.player;
 
 import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
-import com.chaosbuffalo.mkcore.abilities.MKAbility;
+import com.chaosbuffalo.mkcore.abilities.MKAbilityInfo;
 import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.IntStream;
 
 public interface IActiveAbilityGroup {
 
@@ -15,7 +16,7 @@ public interface IActiveAbilityGroup {
 
     void setSlot(int index, ResourceLocation abilityId);
 
-    default int trySlot(ResourceLocation abilityId) {
+    default int tryEquip(ResourceLocation abilityId) {
         return GameConstants.ACTION_BAR_INVALID_SLOT;
     }
 
@@ -32,18 +33,40 @@ public interface IActiveAbilityGroup {
 
     int getMaximumSlotCount();
 
+    default int getFilledSlotCount() {
+        return (int) IntStream.range(0, getCurrentSlotCount())
+                .filter(this::isSlotFilled)
+                .count();
+    }
+
+    default int getHighestFilledSlot() {
+        return IntStream.range(0, getCurrentSlotCount())
+                .filter(this::isSlotFilled)
+                .max()
+                .orElse(-1);
+    }
+
+    default boolean isSlotFilled(int slot) {
+        if (!isSlotUnlocked(slot)) {
+            return false;
+        }
+        return !getSlot(slot).equals(MKCoreRegistry.INVALID_ABILITY);
+    }
+
     boolean setSlots(int count);
 
     void clearSlot(int slot);
 
     void clearAbility(ResourceLocation abilityId);
 
-    default void onAbilityLearned(MKAbility ability) {
-
+    default void onAbilityLearned(MKAbilityInfo info) {
+        if (info.getSource().placeOnBarWhenLearned()) {
+            tryEquip(info.getId());
+        }
     }
 
-    default void onAbilityUnlearned(MKAbility ability) {
-        clearAbility(ability.getAbilityId());
+    default void onAbilityUnlearned(MKAbilityInfo info) {
+        clearAbility(info.getId());
     }
 
     default boolean isSlotUnlocked(int slot) {

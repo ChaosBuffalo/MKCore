@@ -18,17 +18,17 @@ public class AbilityTargeting {
 
     public static AbilityTargetSelector SINGLE_TARGET = new AbilityTargetSelector(AbilityTargeting::selectSingle)
             .setRequiredMemories(ImmutableSet.of(MKAbilityMemories.ABILITY_TARGET))
-            .addDescription(AbilityDescriptions::getRangeDescription)
+            .addDynamicDescription(AbilityDescriptions::getRangeDescription)
             .setDescriptionKey("mkcore.ability_target.single_target");
 
     public static AbilityTargetSelector SINGLE_TARGET_OR_SELF = new AbilityTargetSelector(AbilityTargeting::selectSingleOrSelf)
             .setRequiredMemories(ImmutableSet.of(MKAbilityMemories.ABILITY_TARGET))
-            .addDescription(AbilityDescriptions::getRangeDescription)
+            .addDynamicDescription(AbilityDescriptions::getRangeDescription)
             .setDescriptionKey("mkcore.ability_target.single_target_self");
 
     public static AbilityTargetSelector PBAOE = new AbilityTargetSelector((entityData, mkAbility) -> AbilityContext.EMPTY)
             .setDescriptionKey("mkcore.ability_target.pbaoe")
-            .addDescription(AbilityDescriptions::getRangeDescription);
+            .addDynamicDescription(AbilityDescriptions::getRangeDescription);
 
 
     private static AbilityContext selectSelf(IMKEntityData entityData, MKAbility ability) {

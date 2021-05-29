@@ -29,23 +29,22 @@ public class AbilityInfoWidget extends MKStackLayoutVertical {
         setup();
     }
 
+    private void addDescriptionLine(ITextComponent component) {
+        MKText text = new MKText(fontRenderer, component);
+        text.setColor(0xaaffffff);
+        text.setMultiline(true);
+        addWidget(text);
+    }
+
     public void setup() {
         if (ability == null) {
             MKText noSelectPrompt = new MKText(fontRenderer, new TranslationTextComponent("mkcore.gui.select_ability"));
             noSelectPrompt.setColor(0xffffffff);
             addWidget(noSelectPrompt);
         } else {
-            IconText abilityIcon = new AbilityIconText(0, 0, 16,
-                    this.ability.getAbilityName(),
-                    this.ability.getAbilityIcon(),
-                    fontRenderer, 16, screen, this.ability);
+            IconText abilityIcon = new AbilityIconText(0, 0, 16, fontRenderer, 16, screen, this.ability);
             addWidget(abilityIcon);
-            for (ITextComponent desc : this.ability.getDescriptionsForEntity(playerData)) {
-                MKText text = new MKText(fontRenderer, desc);
-                text.setColor(0xaaffffff);
-                text.setMultiline(true);
-                addWidget(text);
-            }
+            ability.buildDescription(playerData, this::addDescriptionLine);
         }
     }
 

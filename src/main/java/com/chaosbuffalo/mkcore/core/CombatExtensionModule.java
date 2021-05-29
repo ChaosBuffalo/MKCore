@@ -12,9 +12,9 @@ public class CombatExtensionModule {
     private int ticksSinceProjectileHit;
     private boolean midCombo;
     private boolean midProjectileCombo;
-    private IMKEntityData entityData;
+    private final IMKEntityData entityData;
 
-    public CombatExtensionModule(IMKEntityData entityData){
+    public CombatExtensionModule(IMKEntityData entityData) {
         this.entityData = entityData;
         ticksSinceSwing = 0;
         currentSwingCount = 0;
@@ -28,14 +28,14 @@ public class CombatExtensionModule {
         return entityData;
     }
 
-    public void tick(){
+    public void tick() {
         incrementTicksSinceSwing();
         incrementTicksSinceProjectileHit();
-        if (midCombo && getTicksSinceSwing() >= COMBAT_TIMEOUT){
+        if (midCombo && getTicksSinceSwing() >= COMBAT_TIMEOUT) {
             setCurrentSwingCount(0);
             midCombo = false;
         }
-        if (midProjectileCombo && ticksSinceProjectileHit >= PROJECTILE_COMBO_TIMEOUT){
+        if (midProjectileCombo && ticksSinceProjectileHit >= PROJECTILE_COMBO_TIMEOUT) {
             setCurrentProjectileHitCount(0);
             midProjectileCombo = false;
         }
@@ -49,7 +49,7 @@ public class CombatExtensionModule {
         this.currentSwingCount = currentSwingCount;
     }
 
-    protected void incrementTicksSinceSwing(){
+    protected void incrementTicksSinceSwing() {
         ticksSinceSwing++;
     }
 
@@ -61,35 +61,35 @@ public class CombatExtensionModule {
         return ticksSinceProjectileHit;
     }
 
-    protected void incrementTicksSinceProjectileHit(){
+    protected void incrementTicksSinceProjectileHit() {
         ticksSinceProjectileHit++;
     }
 
-    public void setEntityTicksSinceLastSwing(int newTicks){
+    public void setEntityTicksSinceLastSwing(int newTicks) {
         getEntityData().getEntity().ticksSinceLastSwing = newTicks;
     }
 
-    public int getEntityTicksSinceLastSwing(){
+    public int getEntityTicksSinceLastSwing() {
         return getEntityData().getEntity().ticksSinceLastSwing;
     }
 
-    public void addEntityTicksSinceLastSwing(int toAdd){
+    public void addEntityTicksSinceLastSwing(int toAdd) {
         getEntityData().getEntity().ticksSinceLastSwing += toAdd;
     }
 
-    public void recordSwing(){
+    public void recordSwing() {
         ticksSinceSwing = 0;
         setCurrentSwingCount(getCurrentSwingCount() + 1);
         midCombo = true;
     }
 
-    public void recordProjectileHit(){
+    public void recordProjectileHit() {
         midProjectileCombo = true;
         setCurrentProjectileHitCount(getCurrentProjectileHitCount() + 1);
         ticksSinceProjectileHit = 0;
     }
 
-    public void projectileMiss(){
+    public void projectileMiss() {
         midProjectileCombo = false;
         setCurrentProjectileHitCount(0);
     }

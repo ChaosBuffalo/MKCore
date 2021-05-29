@@ -1,7 +1,8 @@
 package com.chaosbuffalo.mkcore.abilities.attributes;
 
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
+
+import com.mojang.serialization.Dynamic;
+import com.mojang.serialization.DynamicOps;
 
 public interface IAbilityAttribute<T> {
     T getValue();

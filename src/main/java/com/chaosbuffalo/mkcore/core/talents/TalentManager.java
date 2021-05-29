@@ -8,9 +8,10 @@ import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.TalentDefinitionSyncPacket;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.JsonOps;
+import com.mojang.serialization.Dynamic;
+import com.mojang.serialization.JsonOps;
 import net.minecraft.client.resources.JsonReloadListener;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.profiler.IProfiler;
@@ -19,6 +20,8 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent;
+import net.minecraftforge.fml.event.server.FMLServerStoppingEvent;
 
 import javax.annotation.Nonnull;
 import java.util.Collection;
@@ -31,6 +34,7 @@ public class TalentManager extends JsonReloadListener {
     private static final Gson GSON = (new GsonBuilder()).setPrettyPrinting().disableHtmlEscaping().create();
 
     private final Map<ResourceLocation, TalentTreeDefinition> talentTreeMap = new HashMap<>();
+    private boolean serverStarted = false;
 
     public TalentManager() {
         super(GSON, "player_talents");
@@ -38,22 +42,33 @@ public class TalentManager extends JsonReloadListener {
         MinecraftForge.EVENT_BUS.register(this);
     }
 
+    @SubscribeEvent
+    public void serverStart(FMLServerAboutToStartEvent event) {
+        // Can't start sending packets before this event
+        serverStarted = true;
+    }
+
+    @SubscribeEvent
+    public void serverStop(FMLServerStoppingEvent event) {
+        serverStarted = false;
+    }
+
     @Override
-    protected void apply(@Nonnull Map<ResourceLocation, JsonObject> objectIn,
+    protected void apply(@Nonnull Map<ResourceLocation, JsonElement> objectIn,
                          @Nonnull IResourceManager resourceManagerIn,
                          @Nonnull IProfiler profilerIn) {
 
         MKCore.LOGGER.info("Loading Talent definitions from json");
         boolean wasChanged = false;
-        for (Map.Entry<ResourceLocation, JsonObject> entry : objectIn.entrySet()) {
+        for (Map.Entry<ResourceLocation, JsonElement> entry : objectIn.entrySet()) {
             ResourceLocation location = entry.getKey();
             if (location.getPath().startsWith("_"))
                 continue; //Forge: filter anything beginning with "_" as it's used for metadata.
-            if (parse(entry.getKey(), entry.getValue())) {
+            if (parse(entry.getKey(), entry.getValue().getAsJsonObject())) {
                 wasChanged = true;
             }
         }
-        if (wasChanged) {
+        if (serverStarted && wasChanged) {
             syncToPlayers();
         }
 
@@ -90,7 +105,7 @@ public class TalentManager extends JsonReloadListener {
     }
 
     public static MKAbility getTalentAbility(ResourceLocation talentId) {
-        BaseTalent talent = MKCoreRegistry.TALENT_TYPES.getValue(talentId);
+        MKTalent talent = MKCoreRegistry.TALENTS.getValue(talentId);
         if (talent instanceof IAbilityTalent<?>) {
             return ((IAbilityTalent<?>) talent).getAbility();
         } else {

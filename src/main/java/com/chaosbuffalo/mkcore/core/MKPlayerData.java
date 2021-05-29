@@ -6,14 +6,10 @@ import com.chaosbuffalo.mkcore.core.persona.PersonaManager;
 import com.chaosbuffalo.mkcore.core.player.*;
 import com.chaosbuffalo.mkcore.core.talents.PlayerTalentModule;
 import com.chaosbuffalo.mkcore.sync.UpdateEngine;
-import net.minecraft.entity.ai.attributes.AbstractAttributeMap;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
-
-import java.util.HashSet;
-import java.util.Set;
+import net.minecraftforge.fml.LogicalSide;
 
 public class MKPlayerData implements IMKEntityData {
 
@@ -26,7 +22,6 @@ public class MKPlayerData implements IMKEntityData {
     private PlayerTalentModule talentModule;
     private PlayerEquipmentModule equipmentModule;
     private PlayerCombatExtensionModule combatExtensionModule;
-    private final Set<String> spellTag = new HashSet<>();
 
     public MKPlayerData() {
 
@@ -48,39 +43,11 @@ public class MKPlayerData implements IMKEntityData {
 
         talentModule = new PlayerTalentModule(this);
         equipmentModule = new PlayerEquipmentModule(this);
-
-        registerAttributes();
-        if (isServerSide())
-            setupFakeStats();
-    }
-
-    void setupFakeStats() {
-        AttributeModifier mod = new AttributeModifier("test max mana", 20, AttributeModifier.Operation.ADDITION).setSaved(false);
-        player.getAttribute(MKAttributes.MAX_MANA).applyModifier(mod);
-
-        AttributeModifier mod2 = new AttributeModifier("test mana regen", 1, AttributeModifier.Operation.ADDITION).setSaved(false);
-        player.getAttribute(MKAttributes.MANA_REGEN).applyModifier(mod2);
-
-        AttributeModifier mod3 = new AttributeModifier("test cdr", 0.1, AttributeModifier.Operation.ADDITION).setSaved(false);
-        player.getAttribute(MKAttributes.COOLDOWN).applyModifier(mod3);
-
-        AttributeModifier mod4 = new AttributeModifier("test haste", 0.1, AttributeModifier.Operation.ADDITION).setSaved(false);
-        player.getAttribute(MKAttributes.CASTING_SPEED).applyModifier(mod4);
-    }
-
-    private void registerAttributes() {
-        AbstractAttributeMap attributes = player.getAttributes();
-        MKAttributes.registerEntityAttributes(attributes);
-        attributes.registerAttribute(MKAttributes.MAX_MANA);
-        attributes.registerAttribute(MKAttributes.MANA_REGEN);
-        attributes.registerAttribute(MKAttributes.MELEE_CRIT);
-        attributes.registerAttribute(MKAttributes.MELEE_CRIT_MULTIPLIER);
-        attributes.registerAttribute(MKAttributes.SPELL_CRIT);
-        attributes.registerAttribute(MKAttributes.SPELL_CRIT_MULTIPLIER);
     }
 
     public void onJoinWorld() {
         getPersonaManager().ensurePersonaLoaded();
+        getStats().onJoinWorld();
         getAbilityExecutor().onJoinWorld();
         getTalentHandler().onJoinWorld();
         if (isServerSide()) {
@@ -97,7 +64,7 @@ public class MKPlayerData implements IMKEntityData {
     }
 
     @Override
-    public CombatExtensionModule getCombatExtension() {
+    public PlayerCombatExtensionModule getCombatExtension() {
         return combatExtensionModule;
     }
 
@@ -153,18 +120,29 @@ public class MKPlayerData implements IMKEntityData {
         return player instanceof ServerPlayerEntity;
     }
 
+    public LogicalSide getSide() {
+        return isServerSide() ? LogicalSide.SERVER : LogicalSide.CLIENT;
+    }
+
     public void update() {
+        getEntity().getEntityWorld().getProfiler().startSection("MKPlayerData.update");
+
+        getEntity().getEntityWorld().getProfiler().startSection("PlayerStats.tick");
         getStats().tick();
+        getEntity().getEntityWorld().getProfiler().endStartSection("AbilityExecutor.tick");
         getAbilityExecutor().tick();
+        getEntity().getEntityWorld().getProfiler().endStartSection("Animation.tick");
         getAnimationModule().tick();
+        getEntity().getEntityWorld().getProfiler().endStartSection("PlayerCombat.tick");
         getCombatExtension().tick();
 
-        if (!isServerSide()) {
-            // client-only handling here
-            return;
+        if (isServerSide()) {
+            getEntity().getEntityWorld().getProfiler().endStartSection("Updater.sync");
+            syncState();
         }
+        getEntity().getEntityWorld().getProfiler().endSection();
 
-        syncState();
+        getEntity().getEntityWorld().getProfiler().endSection();
     }
 
     private void syncState() {
@@ -188,6 +166,7 @@ public class MKPlayerData implements IMKEntityData {
         getTalentHandler().onPersonaActivated();
         getAbilityExecutor().onPersonaActivated();
         getStats().onPersonaActivated();
+        getAbilityLoadout().onPersonaSwitch();
     }
 
     public void onPersonaDeactivated() {
@@ -213,17 +192,5 @@ public class MKPlayerData implements IMKEntityData {
     public void deserialize(CompoundNBT tag) {
         personaManager.deserialize(tag.getCompound("persona"));
         getStats().deserialize(tag.getCompound("stats"));
-    }
-
-    public void addSpellTag(String tag) {
-        spellTag.add(tag);
-    }
-
-    public void removeSpellTag(String tag) {
-        spellTag.remove(tag);
-    }
-
-    public boolean hasSpellTag(String tag) {
-        return spellTag.contains(tag);
     }
 }

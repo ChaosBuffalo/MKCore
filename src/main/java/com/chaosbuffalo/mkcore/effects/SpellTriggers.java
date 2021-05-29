@@ -1,7 +1,6 @@
 package com.chaosbuffalo.mkcore.effects;
 
 import com.chaosbuffalo.mkcore.CoreCapabilities;
-import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
@@ -9,7 +8,7 @@ import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.damage.MKDamageSource;
 import com.chaosbuffalo.mkcore.events.ServerSideLeftClickEmpty;
 import com.chaosbuffalo.mkcore.fx.ParticleEffects;
-import com.chaosbuffalo.mkcore.init.ModDamageTypes;
+import com.chaosbuffalo.mkcore.init.CoreDamageTypes;
 import com.chaosbuffalo.mkcore.network.CritMessagePacket;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.ParticleEffectSpawnPacket;
@@ -21,7 +20,7 @@ import net.minecraft.particles.ParticleTypes;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingEquipmentChangeEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
@@ -54,10 +53,10 @@ public class SpellTriggers {
         if (source instanceof PlayerEntity) {
 //            Log.info("startTrigger - %s", tag);
             return source.getCapability(CoreCapabilities.PLAYER_CAPABILITY).map(cap -> {
-                if (cap.hasSpellTag(tag)) {
+                if (cap.getCombatExtension().hasSpellTag(tag)) {
                     return false;
                 }
-                cap.addSpellTag(tag);
+                cap.getCombatExtension().addSpellTag(tag);
                 return true;
             }).orElse(true);
         }
@@ -67,7 +66,7 @@ public class SpellTriggers {
     private static void endTrigger(Entity source, String tag) {
         if (source instanceof PlayerEntity) {
 //            Log.info("endTrigger - %s", tag);
-            source.getCapability(CoreCapabilities.PLAYER_CAPABILITY).ifPresent(cap -> cap.removeSpellTag(tag));
+            source.getCapability(CoreCapabilities.PLAYER_CAPABILITY).ifPresent(cap -> cap.getCombatExtension().removeSpellTag(tag));
         }
     }
 
@@ -117,7 +116,7 @@ public class SpellTriggers {
             playerHurtEntityMagicTriggers.add(trigger);
         }
 
-        public static void registerProjectile(PlayerHurtEntityTrigger trigger){
+        public static void registerProjectile(PlayerHurtEntityTrigger trigger) {
             playerHurtEntityProjectileTriggers.add(trigger);
         }
 
@@ -167,7 +166,7 @@ public class SpellTriggers {
             float newDamage = source.getMKDamageType().applyDamage(playerSource, livingTarget, immediate, event.getAmount(), source.getModifierScaling());
             if (source.getMKDamageType().rollCrit(playerSource, livingTarget, immediate)) {
                 newDamage = source.getMKDamageType().applyCritDamage(playerSource, livingTarget, immediate, event.getAmount());
-                switch (source.getOrigination()){
+                switch (source.getOrigination()) {
                     case MK_ABILITY:
                         MKAbility ability = MKCoreRegistry.getAbility(source.getAbilityId());
                         ResourceLocation abilityName;
@@ -202,8 +201,8 @@ public class SpellTriggers {
                                              ServerPlayerEntity playerSource, IMKEntityData sourceData) {
 
             Entity projectile = source.getImmediateSource();
-            if (projectile != null && ModDamageTypes.RANGED.rollCrit(playerSource, livingTarget, projectile)) {
-                float newDamage = ModDamageTypes.RANGED.applyCritDamage(playerSource, livingTarget, projectile, event.getAmount());
+            if (projectile != null && CoreDamageTypes.RANGED.rollCrit(playerSource, livingTarget, projectile)) {
+                float newDamage = CoreDamageTypes.RANGED.applyCritDamage(playerSource, livingTarget, projectile, event.getAmount());
                 event.setAmount(newDamage);
                 sendCritPacket(livingTarget, playerSource,
                         new CritMessagePacket(livingTarget.getEntityId(), playerSource.getUniqueID(), newDamage,
@@ -225,8 +224,8 @@ public class SpellTriggers {
         private static void handleVanillaMelee(LivingHurtEvent event, DamageSource source, LivingEntity livingTarget,
                                                ServerPlayerEntity playerSource, IMKEntityData sourceData) {
             if (sourceData instanceof MKPlayerData) {
-                if (ModDamageTypes.MeleeDamage.rollCrit(playerSource, livingTarget)) {
-                    float newDamage = ModDamageTypes.MeleeDamage.applyCritDamage(playerSource, livingTarget, event.getAmount());
+                if (CoreDamageTypes.MeleeDamage.rollCrit(playerSource, livingTarget)) {
+                    float newDamage = CoreDamageTypes.MeleeDamage.applyCritDamage(playerSource, livingTarget, event.getAmount());
                     event.setAmount(newDamage);
                     sendCritPacket(livingTarget, playerSource,
                             new CritMessagePacket(livingTarget.getEntityId(), playerSource.getUniqueID(), newDamage));
@@ -281,15 +280,13 @@ public class SpellTriggers {
     private static void sendCritPacket(LivingEntity livingTarget, ServerPlayerEntity playerSource,
                                        CritMessagePacket packet) {
         PacketHandler.sendToTrackingAndSelf(packet, playerSource);
-        Vec3d lookVec = livingTarget.getLookVec();
-        PacketHandler.sendToTrackingMaybeSelf(
-                new ParticleEffectSpawnPacket(
+        Vector3d lookVec = livingTarget.getLookVec();
+        PacketHandler.sendToTrackingAndSelf(new ParticleEffectSpawnPacket(
                         ParticleTypes.ENCHANTED_HIT,
                         ParticleEffects.SPHERE_MOTION, 12, 4,
                         livingTarget.getPosX(), livingTarget.getPosY() + 1.0f,
                         livingTarget.getPosZ(), .5f, .5f, .5f, 0.2,
-                        lookVec),
-                livingTarget);
+                        lookVec), livingTarget);
     }
 
     static <T> void selectiveTrigger(LivingEntity entity, Map<SpellEffectBase, T> triggers, BiConsumer<T, EffectInstance> consumer) {

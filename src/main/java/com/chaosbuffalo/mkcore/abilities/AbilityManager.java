@@ -6,47 +6,59 @@ import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.PlayerAbilitiesSyncPacket;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.JsonOps;
+import com.mojang.serialization.Dynamic;
+import com.mojang.serialization.JsonOps;
 import net.minecraft.client.resources.JsonReloadListener;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.profiler.IProfiler;
 import net.minecraft.resources.IResourceManager;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent;
+import net.minecraftforge.fml.event.server.FMLServerStoppingEvent;
 
+import javax.annotation.Nonnull;
 import java.util.Map;
 
 public class AbilityManager extends JsonReloadListener {
-    private final MinecraftServer server;
-
     private static final Gson GSON = (new GsonBuilder()).setPrettyPrinting().disableHtmlEscaping().create();
+    private boolean serverStarted = false;
 
-    public AbilityManager(MinecraftServer server) {
+    public AbilityManager() {
         super(GSON, "player_abilities");
-        this.server = server;
         MinecraftForge.EVENT_BUS.register(this);
     }
 
+    @SubscribeEvent
+    public void serverStart(FMLServerAboutToStartEvent event) {
+        serverStarted = true;
+    }
+
+    @SubscribeEvent
+    public void serverStop(FMLServerStoppingEvent event) {
+        serverStarted = false;
+    }
+
     @Override
-    protected void apply(Map<ResourceLocation, JsonObject> objectIn, IResourceManager resourceManagerIn,
-                         IProfiler profilerIn) {
+    protected void apply(Map<ResourceLocation, JsonElement> objectIn,
+                         @Nonnull IResourceManager resourceManagerIn,
+                         @Nonnull IProfiler profilerIn) {
         MKCore.LOGGER.debug("Loading ability definitions from Json");
         boolean wasChanged = false;
-        for (Map.Entry<ResourceLocation, JsonObject> entry : objectIn.entrySet()) {
+        for (Map.Entry<ResourceLocation, JsonElement> entry : objectIn.entrySet()) {
             ResourceLocation resourcelocation = entry.getKey();
             MKCore.LOGGER.debug("Found file: {}", resourcelocation);
             if (resourcelocation.getPath().startsWith("_"))
                 continue; //Forge: filter anything beginning with "_" as it's used for metadata.
-            if (parse(entry.getKey(), entry.getValue())) {
+            if (parse(entry.getKey(), entry.getValue().getAsJsonObject())) {
                 wasChanged = true;
             }
         }
-        if (wasChanged) {
+        if (serverStarted && wasChanged) {
             syncToPlayers();
         }
     }
@@ -81,4 +93,3 @@ public class AbilityManager extends JsonReloadListener {
         return true;
     }
 }
-

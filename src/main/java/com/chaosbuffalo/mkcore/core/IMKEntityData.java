@@ -11,7 +11,7 @@ public interface IMKEntityData {
 
     IMKEntityKnowledge getKnowledge();
 
-    IStatsModule getStats();
+    IMKEntityStats getStats();
 
     CombatExtensionModule getCombatExtension();
 

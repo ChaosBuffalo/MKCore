@@ -20,8 +20,8 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.util.InputMappings;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.ai.attributes.Attribute;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.ai.attributes.IAttribute;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ArmorItem;
 import net.minecraft.util.Hand;
@@ -116,10 +116,11 @@ public class ClientEventHandler {
     }
 
     @SubscribeEvent
-    public static void onRawMouseEvent(InputEvent.RawMouseEvent event){
+    public static void onRawMouseEvent(InputEvent.RawMouseEvent event) {
         Minecraft minecraft = Minecraft.getInstance();
-        if (minecraft.player != null && minecraft.player.isPotionActive(StunEffect.INSTANCE)
-                && minecraft.currentScreen == null){
+        if (minecraft.player != null &&
+                minecraft.player.isPotionActive(StunEffect.INSTANCE) &&
+                minecraft.currentScreen == null) {
             event.setCanceled(true);
         }
     }
@@ -206,8 +207,8 @@ public class ClientEventHandler {
             }
 
             event.getToolTip().add(new TranslationTextComponent("mkcore.gui.item.armor_class.name")
-                    .appendText(": ")
-                    .appendSibling(armorClass.getName()));
+                    .appendString(": ")
+                    .append(armorClass.getName()));
 
             if (MKConfig.CLIENT.showArmorClassEffectsOnTooltip.get()) {
                 List<ITextComponent> tooltip = event.getToolTip();
@@ -225,7 +226,7 @@ public class ClientEventHandler {
         }
     }
 
-    private static void addAttributeToTooltip(List<ITextComponent> tooltip, IAttribute attribute,
+    private static void addAttributeToTooltip(List<ITextComponent> tooltip, Attribute attribute,
                                               AttributeModifier modifier, TextFormatting color) {
         String suffix = "";
         double amount = modifier.getAmount();
@@ -247,15 +248,15 @@ public class ClientEventHandler {
         String prefix = amount > 0 ? "+" : "";
 
         ITextComponent component = new TranslationTextComponent("mkcore.gui.item.armor_class.effect.name")
-                .applyTextStyle(color)
-                .appendText(String.format(": %s%.2f%s ", prefix, amount, suffix))
-                .appendSibling(new TranslationTextComponent("attribute.name." + attribute.getName()));
+                .mergeStyle(color)
+                .appendString(String.format(": %s%.2f%s ", prefix, amount, suffix))
+                .append(new TranslationTextComponent(attribute.getAttributeName()));
 
         tooltip.add(component);
     }
 
-    private static void doPlayerAttack(PlayerEntity player, Entity target, Minecraft minecraft){
-        if (minecraft.playerController != null){
+    private static void doPlayerAttack(PlayerEntity player, Entity target, Minecraft minecraft) {
+        if (minecraft.playerController != null) {
             minecraft.playerController.syncCurrentPlayItem();
         }
         PacketHandler.sendMessageToServer(new MKItemAttackPacket(target));
@@ -268,17 +269,17 @@ public class ClientEventHandler {
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void onAttackReplacement(InputEvent.ClickInputEvent event){
-        if (event.isAttack() && event.getHand() == Hand.MAIN_HAND){
+    public static void onAttackReplacement(InputEvent.ClickInputEvent event) {
+        if (event.isAttack() && event.getHand() == Hand.MAIN_HAND) {
             PlayerEntity player = Minecraft.getInstance().player;
-            if (player != null){
+            if (player != null) {
                 RayTraceResult lookingAt = RayTraceUtils.getLookingAt(Entity.class,
                         player, player.getAttribute(MKAttributes.ATTACK_REACH).getValue(),
                         (e) -> true);
-                if (lookingAt != null && lookingAt.getType() == RayTraceResult.Type.ENTITY){
+                if (lookingAt != null && lookingAt.getType() == RayTraceResult.Type.ENTITY) {
                     EntityRayTraceResult traceResult = (EntityRayTraceResult) lookingAt;
                     Entity entityHit = traceResult.getEntity();
-                    if (!Targeting.isValidFriendly(player, entityHit)){
+                    if (!Targeting.isValidFriendly(player, entityHit)) {
                         doPlayerAttack(player, entityHit, Minecraft.getInstance());
                     }
                     event.setCanceled(true);

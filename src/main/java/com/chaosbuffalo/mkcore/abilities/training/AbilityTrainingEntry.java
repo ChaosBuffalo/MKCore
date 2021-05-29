@@ -7,8 +7,8 @@ import java.util.List;
 
 public class AbilityTrainingEntry {
 
-    MKAbility ability;
-    List<IAbilityLearnRequirement> requirementList;
+    private final MKAbility ability;
+    private final List<IAbilityLearnRequirement> requirementList;
 
     public AbilityTrainingEntry(MKAbility ability) {
         this.ability = ability;

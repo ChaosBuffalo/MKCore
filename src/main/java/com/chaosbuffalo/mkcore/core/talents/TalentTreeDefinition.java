@@ -1,25 +1,23 @@
 package com.chaosbuffalo.mkcore.core.talents;
 
-import com.chaosbuffalo.mkcore.MKCore;
-import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.google.common.collect.ImmutableMap;
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
-import net.minecraft.client.resources.I18n;
+import com.mojang.serialization.Dynamic;
+import com.mojang.serialization.DynamicOps;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.TextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 
 import java.util.*;
-import java.util.function.Function;
 
 public class TalentTreeDefinition {
 
     private final Map<String, TalentLineDefinition> talentLines = new HashMap<>();
     private final ResourceLocation treeId;
-    private final int version;
+    private int version;
 
-    public TalentTreeDefinition(ResourceLocation name, int version) {
+    public TalentTreeDefinition(ResourceLocation name) {
         treeId = name;
-        this.version = version;
+        version = -1;
     }
 
     public ResourceLocation getTreeId() {
@@ -34,8 +32,8 @@ public class TalentTreeDefinition {
         return Collections.unmodifiableMap(talentLines);
     }
 
-    public String getName() {
-        return I18n.format(String.format("%s.%s.name", treeId.getNamespace(), treeId.getPath()));
+    public TextComponent getName() {
+        return new TranslationTextComponent(String.format("%s.%s.name", treeId.getNamespace(), treeId.getPath()));
     }
 
     public TalentLineDefinition getLine(String name) {
@@ -66,12 +64,18 @@ public class TalentTreeDefinition {
     }
 
     public static <T> TalentTreeDefinition deserialize(ResourceLocation treeId, Dynamic<T> dynamic) {
-        int version = dynamic.get("version").asInt(1);
-
-        TalentTreeDefinition tree = new TalentTreeDefinition(treeId, version);
-        dynamic.get("lines").asList(d -> TalentLineDefinition.deserialize(tree, d)).forEach(tree::addLine);
-
+        TalentTreeDefinition tree = new TalentTreeDefinition(treeId);
+        tree.deserialize(dynamic);
         return tree;
+    }
+
+    public <T> void deserialize(Dynamic<T> dynamic) {
+        version = dynamic.get("version").asInt(1);
+
+        dynamic.get("lines")
+                .asList(d -> TalentLineDefinition.deserialize(this, d))
+                .stream().filter(Objects::nonNull)
+                .forEach(this::addLine);
     }
 
     public <T> T serialize(DynamicOps<T> ops) {
@@ -79,93 +83,5 @@ public class TalentTreeDefinition {
         builder.put(ops.createString("version"), ops.createInt(getVersion()));
         builder.put(ops.createString("lines"), ops.createList(talentLines.values().stream().map(d -> d.serialize(ops))));
         return ops.createMap(builder.build());
-    }
-
-
-    public static class TalentLineDefinition {
-        private final TalentTreeDefinition tree;
-        private final String name;
-        private final List<TalentNode> nodes;
-
-        public TalentLineDefinition(TalentTreeDefinition tree, String name) {
-            this.tree = tree;
-            this.name = name;
-            nodes = new ArrayList<>();
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public TalentTreeDefinition getTree() {
-            return tree;
-        }
-
-        public int getLength() {
-            return nodes.size();
-        }
-
-        public TalentNode getNode(int index) {
-            if (index < nodes.size()) {
-                return nodes.get(index);
-            }
-            return null;
-        }
-
-        private void addNode(TalentNode node) {
-            node.link(this, nodes.size());
-            nodes.add(node);
-        }
-
-        public List<TalentNode> getNodes() {
-            return Collections.unmodifiableList(nodes);
-        }
-
-        public static <T> TalentLineDefinition deserialize(TalentTreeDefinition tree, Dynamic<T> dynamic) {
-
-            Optional<String> nameOpt = dynamic.get("name").asString();
-            if (!nameOpt.isPresent())
-                return null;
-
-            TalentLineDefinition line = new TalentLineDefinition(tree, nameOpt.get());
-
-            List<Dynamic<T>> rawNodes = dynamic.get("talents").asList(Function.identity());
-            rawNodes.forEach(talent -> {
-                TalentNode node = line.deserializeNode(talent);
-                if (node == null) {
-                    MKCore.LOGGER.error("Stopping parsing talent line {} at index {} because it failed to deserialize", line.getName(), line.getNodes().size());
-                    return;
-                }
-
-                line.addNode(node);
-            });
-
-            return line;
-        }
-
-        <T> TalentNode deserializeNode(Dynamic<T> entry) {
-            Optional<String> nameOpt = entry.get("name").asString();
-            if (!nameOpt.isPresent()) {
-                MKCore.LOGGER.error("Tried to deserialize talent without a name!");
-                return null;
-            }
-
-            ResourceLocation nodeType = new ResourceLocation(nameOpt.get());
-            BaseTalent talentType = MKCoreRegistry.TALENT_TYPES.getValue(nodeType);
-            if (talentType == null) {
-                MKCore.LOGGER.error(String.format("Tried to deserialize talent node that referenced unknown talent type %s", nodeType));
-                return null;
-//                throw new IllegalArgumentException(String.format("Tried to deserialize talent that referenced unknown talent type %s", nodeType));
-            }
-
-            return talentType.createNode(entry);
-        }
-
-        public <T> T serialize(DynamicOps<T> ops) {
-            ImmutableMap.Builder<T, T> builder = ImmutableMap.builder();
-            builder.put(ops.createString("name"), ops.createString(name));
-            builder.put(ops.createString("talents"), ops.createList(nodes.stream().map(n -> n.serialize(ops))));
-            return ops.createMap(builder.build());
-        }
     }
 }

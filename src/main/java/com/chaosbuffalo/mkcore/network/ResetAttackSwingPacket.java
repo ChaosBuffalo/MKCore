@@ -14,7 +14,7 @@ public class ResetAttackSwingPacket {
 
     private final int ticksToSet;
 
-    public ResetAttackSwingPacket(int ticksToSet){
+    public ResetAttackSwingPacket(int ticksToSet) {
         this.ticksToSet = ticksToSet;
     }
 
@@ -32,9 +32,7 @@ public class ResetAttackSwingPacket {
         if (entity == null)
             return;
 
-        MKCore.getPlayer(entity).ifPresent(cap -> {
-            cap.getCombatExtension().setEntityTicksSinceLastSwing(ticksToSet);
-        });
+        MKCore.getPlayer(entity).ifPresent(cap -> cap.getCombatExtension().setEntityTicksSinceLastSwing(ticksToSet));
     }
 
     public void handle(Supplier<NetworkEvent.Context> supplier) {

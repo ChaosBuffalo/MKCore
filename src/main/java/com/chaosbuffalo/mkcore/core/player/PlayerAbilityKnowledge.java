@@ -3,9 +3,11 @@ package com.chaosbuffalo.mkcore.core.player;
 import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
+import com.chaosbuffalo.mkcore.abilities.AbilitySource;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.abilities.MKAbilityInfo;
-import com.chaosbuffalo.mkcore.core.*;
+import com.chaosbuffalo.mkcore.core.IMKAbilityKnowledge;
+import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.sync.SyncInt;
 import com.chaosbuffalo.mkcore.sync.SyncMapUpdater;
 import net.minecraft.nbt.CompoundNBT;
@@ -74,12 +76,6 @@ public class PlayerAbilityKnowledge implements IMKAbilityKnowledge, IPlayerSyncC
     }
 
     @Override
-    @Nullable
-    public MKAbilityInfo getAbilityInfo(ResourceLocation abilityId) {
-        return abilityInfoMap.get(abilityId);
-    }
-
-    @Override
     public Collection<MKAbilityInfo> getAllAbilities() {
         return Collections.unmodifiableCollection(abilityInfoMap.values());
     }
@@ -88,8 +84,8 @@ public class PlayerAbilityKnowledge implements IMKAbilityKnowledge, IPlayerSyncC
         return abilityInfoMap.values().stream().filter(MKAbilityInfo::isCurrentlyKnown);
     }
 
-    private boolean hasRoomForAbility(MKAbility ability) {
-        return !ability.getType().isPoolAbility() || !isAbilityPoolFull();
+    private boolean isBlockedFromLearning(MKAbility ability) {
+        return ability.getType().isPoolAbility() && isAbilityPoolFull();
     }
 
     private IActiveAbilityGroup getAbilityGroup(MKAbility ability) {
@@ -97,43 +93,28 @@ public class PlayerAbilityKnowledge implements IMKAbilityKnowledge, IPlayerSyncC
     }
 
     @Override
-    public boolean learnAbility(MKAbility ability) {
-        return learnAbility(ability, ability.getType().canPlaceOnActionBar());
-    }
-
-    public boolean learnAbility(MKAbility ability, boolean placeOnBar) {
-        if (!hasRoomForAbility(ability)) {
-            MKCore.LOGGER.warn("Player {} tried to learn pool ability {} with a full pool ({}/{})", playerData::getEntity, ability::getAbilityId, this::getCurrentPoolCount, this::getAbilityPoolSize);
+    public boolean learnAbility(MKAbility ability, AbilitySource source) {
+        if (isBlockedFromLearning(ability)) {
+            MKCore.LOGGER.warn("Player {} tried to learn pool ability {} with a full pool ({}/{})",
+                    playerData.getEntity(), ability.getAbilityId(), getCurrentPoolCount(), getAbilityPoolSize());
             return false;
         }
-        MKAbilityInfo info = getAbilityInfo(ability.getAbilityId());
-        if (info == null) {
-            info = ability.createAbilityInfo();
-        } else if (info.isCurrentlyKnown()) {
+
+        MKAbilityInfo info = abilityInfoMap.computeIfAbsent(ability.getAbilityId(), id -> ability.createAbilityInfo(source));
+        if (info.isCurrentlyKnown()) {
             MKCore.LOGGER.warn("Player {} tried to learn already-known ability {}", playerData.getEntity(), ability.getAbilityId());
             return true;
         }
 
-        if (info == null) {
-            MKCore.LOGGER.error("Failed to create PlayerAbilityInfo for ability {} for player {}", ability.getAbilityId(), playerData.getEntity());
-            return false;
-        }
-
         info.setKnown(true);
-        abilityInfoMap.put(ability.getAbilityId(), info);
         markDirty(info);
 
-        IActiveAbilityGroup container = getAbilityGroup(ability);
-        container.onAbilityLearned(ability);
-        if (placeOnBar) {
-            container.trySlot(ability.getAbilityId());
-        }
-
+        getAbilityGroup(ability).onAbilityLearned(info);
         return true;
     }
 
-    public boolean learnAbility(MKAbility ability, ResourceLocation replacingAbilityId) {
-        if (!hasRoomForAbility(ability)) {
+    public boolean learnAbility(MKAbility ability, AbilitySource source, ResourceLocation replacingAbilityId) {
+        if (isBlockedFromLearning(ability)) {
             return false;
         }
 
@@ -143,7 +124,7 @@ public class PlayerAbilityKnowledge implements IMKAbilityKnowledge, IPlayerSyncC
             }
         }
 
-        return learnAbility(ability);
+        return learnAbility(ability, source);
     }
 
     @Override
@@ -158,7 +139,7 @@ public class PlayerAbilityKnowledge implements IMKAbilityKnowledge, IPlayerSyncC
 
         MKAbility ability = info.getAbility();
         playerData.getAbilityExecutor().onAbilityUnlearned(ability);
-        getAbilityGroup(ability).onAbilityUnlearned(ability);
+        getAbilityGroup(ability).onAbilityUnlearned(info);
         return true;
     }
 
@@ -169,19 +150,26 @@ public class PlayerAbilityKnowledge implements IMKAbilityKnowledge, IPlayerSyncC
 
     @Nullable
     public MKAbilityInfo getKnownAbility(ResourceLocation abilityId) {
-        MKAbilityInfo info = getAbilityInfo(abilityId);
+        MKAbilityInfo info = abilityInfoMap.get(abilityId);
         if (info == null || !info.isCurrentlyKnown())
             return null;
         return info;
     }
 
-    public void markDirty(MKAbilityInfo info) {
+    private void markDirty(MKAbilityInfo info) {
         knownAbilityUpdater.markDirty(info.getId());
+    }
+
+    private boolean serializationFilter(ResourceLocation key, MKAbilityInfo info) {
+        // Talent abilities are granted when deserializing the talent records, so they don't need to be persisted here
+        if (info.getSource() == AbilitySource.TALENT)
+            return false;
+        return true;
     }
 
     public CompoundNBT serialize() {
         CompoundNBT tag = new CompoundNBT();
-        tag.put("known", knownAbilityUpdater.serializeStorage());
+        tag.put("known", knownAbilityUpdater.serializeStorage(this::serializationFilter));
         tag.putInt("poolSize", poolSize.get());
         return tag;
     }
@@ -196,6 +184,6 @@ public class PlayerAbilityKnowledge implements IMKAbilityKnowledge, IPlayerSyncC
         if (ability == null)
             return null;
 
-        return ability.createAbilityInfo();
+        return ability.createAbilityInfo(AbilitySource.TRAINED);
     }
 }

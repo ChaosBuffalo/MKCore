@@ -37,7 +37,7 @@ public class HealCondition extends AbilityUseCondition {
     @Nonnull
     @Override
     public AbilityTargetingDecision getDecision(AbilityDecisionContext context) {
-        if (getAbility().canSelfCast() && needsHealing(context.getCaster())) {
+        if (getAbility().getTargetContext().canTargetCaster() && needsHealing(context.getCaster())) {
             return new AbilityTargetingDecision(context.getCaster(), getAbility());
         } else if (!selfOnly) {
             List<LivingEntity> friends = context.getFriendlies();

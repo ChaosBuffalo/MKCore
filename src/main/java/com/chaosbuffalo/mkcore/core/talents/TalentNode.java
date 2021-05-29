@@ -1,22 +1,21 @@
 package com.chaosbuffalo.mkcore.core.talents;
 
 import com.google.common.collect.ImmutableMap;
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
+import com.mojang.serialization.Dynamic;
+import com.mojang.serialization.DynamicOps;
 
 public class TalentNode {
-
-    private final BaseTalent talent;
+    private final MKTalent talent;
     private final int maxRanks;
-    private TalentTreeDefinition.TalentLineDefinition line;
+    private TalentLineDefinition line;
     private int index;
 
-    public TalentNode(BaseTalent talent, Dynamic<?> entry) {
+    public TalentNode(MKTalent talent, Dynamic<?> entry) {
         this.talent = talent;
         this.maxRanks = entry.get("max_points").asInt(1);
     }
 
-    void link(TalentTreeDefinition.TalentLineDefinition line, int index) {
+    void link(TalentLineDefinition line, int index) {
         this.index = index;
         this.line = line;
     }
@@ -25,7 +24,7 @@ public class TalentNode {
         return line.getTree();
     }
 
-    public TalentTreeDefinition.TalentLineDefinition getLine() {
+    public TalentLineDefinition getLine() {
         return line;
     }
 
@@ -37,7 +36,7 @@ public class TalentNode {
         return talent.getTalentType();
     }
 
-    public BaseTalent getTalent() {
+    public MKTalent getTalent() {
         return talent;
     }
 
@@ -64,7 +63,7 @@ public class TalentNode {
 
     public <T> T serialize(DynamicOps<T> ops) {
         ImmutableMap.Builder<T, T> builder = ImmutableMap.builder();
-        builder.put(ops.createString("name"), ops.createString(talent.getRegistryName().toString()));
+        builder.put(ops.createString("name"), ops.createString(talent.getTalentId().toString()));
         builder.put(ops.createString("max_points"), ops.createInt(maxRanks));
         return ops.createMap(builder.build());
     }

@@ -127,7 +127,7 @@ public class AbilityExecutor {
         if (startCastCallback != null) {
             startCastCallback.accept(abilityInfo.getAbility());
         }
-        PacketHandler.sendToTrackingMaybeSelf(EntityCastPacket.start(entityData, abilityInfo.getId(), castTime), entityData.getEntity());
+        PacketHandler.sendToTrackingAndSelf(EntityCastPacket.start(entityData, abilityInfo.getId(), castTime), entityData.getEntity());
     }
 
     public void startCastClient(ResourceLocation abilityId, int castTicks) {
@@ -168,13 +168,13 @@ public class AbilityExecutor {
 
     public boolean startAbility(AbilityContext context, MKAbility ability) {
         if (isCasting()) {
-            MKCore.LOGGER.warn("startAbility({}) failed - {} currently casting", entityData::getEntity, ability::getAbilityId);
+            MKCore.LOGGER.warn("startAbility({}) failed - {} currently casting", ability.getAbilityId(), entityData.getEntity());
             return false;
         }
 
         MKAbilityInfo info = entityData.getKnowledge().getAbilityKnowledge().getKnownAbility(ability.getAbilityId());
         if (info == null) {
-            MKCore.LOGGER.warn("startAbility({}) failed - {} does not know", entityData::getEntity, ability::getAbilityId);
+            MKCore.LOGGER.warn("startAbility({}) failed - {} does not know", ability.getAbilityId(), entityData.getEntity());
             return false;
         }
 
@@ -307,7 +307,7 @@ public class AbilityExecutor {
         @Override
         void interrupt() {
             super.interrupt();
-            PacketHandler.sendToTrackingMaybeSelf(EntityCastPacket.interrupt(executor.entityData), executor.entityData.getEntity());
+            PacketHandler.sendToTrackingAndSelf(EntityCastPacket.interrupt(executor.entityData), executor.entityData.getEntity());
         }
     }
 
@@ -405,7 +405,7 @@ public class AbilityExecutor {
                 SpellCast cast = sp.createReapplicationCast(entity);
                 if (cast != null) {
                     // Call onPotionAdd to re-apply any non-attribute bonuses (such as granting flying)
-                    sp.onPotionAdd(cast, entity, entity.getAttributes(), e.getAmplifier());
+                    sp.onPotionAdd(cast, entity, entity.getAttributeManager(), e.getAmplifier());
                     MKCore.LOGGER.debug("AbilityExecutor.checkPassiveEffects {} {} onPotionAdd", entity, sp.getName());
                 }
             }

@@ -1,17 +1,20 @@
 package com.chaosbuffalo.mkcore.client.gui.widgets;
 
 import com.chaosbuffalo.mkcore.MKCore;
-import com.chaosbuffalo.mkcore.core.talents.BaseTalent;
+import com.chaosbuffalo.mkcore.core.talents.MKTalent;
 import com.chaosbuffalo.mkcore.core.talents.TalentRecord;
 import com.chaosbuffalo.mkwidgets.client.gui.instructions.HoveringTextInstruction;
 import com.chaosbuffalo.mkwidgets.client.gui.math.Vec2i;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKButton;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class TalentButton extends MKButton {
 
@@ -28,7 +31,7 @@ public class TalentButton extends MKButton {
     public static final int SLOT_Y_OFFSET = 4;
     public static final int TEXT_OFFSET = 4;
     public static final int SLOT_X_OFFSET = (WIDTH - SLOT_WIDTH) / 2;
-    private ArrayList<String> tooltip;
+    private final List<ITextComponent> tooltip;
 
     public final int index;
     public final String line;
@@ -41,10 +44,10 @@ public class TalentButton extends MKButton {
         this.line = line;
         this.record = record;
         this.tooltip = new ArrayList<>();
-        BaseTalent baseTalent = record.getNode().getTalent();
-        tooltip.add(baseTalent.getTalentName());
-        tooltip.add(baseTalent.getTalentTypeName());
-        tooltip.add(baseTalent.getTalentDescription(record));
+        MKTalent talent = record.getNode().getTalent();
+        tooltip.add(talent.getTalentName());
+        tooltip.add(talent.getTalentTypeName());
+        tooltip.add(talent.getTalentDescription(record));
     }
 
 
@@ -61,13 +64,13 @@ public class TalentButton extends MKButton {
 
 
     @Override
-    public void draw(Minecraft minecraft, int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks) {
+    public void draw(MatrixStack matrixStack, Minecraft minecraft, int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks) {
         if (this.isVisible()) {
             FontRenderer fontrenderer = minecraft.fontRenderer;
             minecraft.getTextureManager().bindTexture(TALENT_SLOT_GRAPHIC);
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
             RenderSystem.enableBlend();
-            mkBlitUVSizeSame(this.getX() + SLOT_X_OFFSET,
+            mkBlitUVSizeSame(matrixStack, this.getX() + SLOT_X_OFFSET,
                     this.getY() + SLOT_Y_OFFSET,
                     0, 0,
                     SLOT_WIDTH, SLOT_HEIGHT,
@@ -79,13 +82,13 @@ public class TalentButton extends MKButton {
                 icon = record.getNode().getTalent().getIcon();
             }
             minecraft.getTextureManager().bindTexture(icon);
-            mkBlitUVSizeSame(this.getX() + SLOT_X_OFFSET,
+            mkBlitUVSizeSame(matrixStack, this.getX() + SLOT_X_OFFSET,
                     this.getY() + SLOT_Y_OFFSET,
                     0, 0,
                     SLOT_WIDTH, SLOT_HEIGHT, SLOT_WIDTH, SLOT_HEIGHT);
             if (record.getRank() == record.getNode().getMaxRanks()) {
                 minecraft.getTextureManager().bindTexture(TALENT_SLOT_OVERLAY);
-                mkBlitUVSizeSame(
+                mkBlitUVSizeSame(matrixStack,
                         this.getX() + SLOT_X_OFFSET - OVERLAY_WIDTH / 2,
                         this.getY() + SLOT_Y_OFFSET - OVERLAY_HEIGHT / 2,
                         0, 0,
@@ -100,16 +103,16 @@ public class TalentButton extends MKButton {
             } else if (isHovered()) {
                 textColor = 16777120;
             }
-//            this.drawCenteredString(fontrenderer, this.buttonText, this.getX() + this.getWidth() / 2,
+//            drawCenteredString(matrixStack, fontrenderer, this.buttonText, this.getX() + this.getWidth() / 2,
 //                    this.getY() + SLOT_Y_OFFSET + SLOT_HEIGHT + OVERLAY_HEIGHT + TEXT_OFFSET, textColor);
             int rank = record.getRank();
             int maxRank = record.getNode().getMaxRanks();
             int rankOffset = SLOT_Y_OFFSET + SLOT_HEIGHT + OVERLAY_HEIGHT + TEXT_OFFSET;
-            mkFill(this.getX(), this.getY() + rankOffset - 2,
+            mkFill(matrixStack, this.getX(), this.getY() + rankOffset - 2,
                     getX() + getWidth(), getY() + rankOffset + fontrenderer.FONT_HEIGHT + 2,
                     0xff264747);
             String rankText = String.format("%d/%d", rank, maxRank);
-            this.drawCenteredString(fontrenderer, rankText,
+            drawCenteredString(matrixStack, fontrenderer, rankText,
                     this.getX() + this.getWidth() / 2,
                     this.getY() + SLOT_Y_OFFSET + SLOT_HEIGHT + OVERLAY_HEIGHT + TEXT_OFFSET,
                     textColor);

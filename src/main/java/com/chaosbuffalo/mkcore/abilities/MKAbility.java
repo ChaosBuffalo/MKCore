@@ -5,31 +5,36 @@ import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.abilities.ai.conditions.AbilityUseCondition;
 import com.chaosbuffalo.mkcore.abilities.ai.conditions.StandardUseCondition;
 import com.chaosbuffalo.mkcore.abilities.attributes.IAbilityAttribute;
-import com.chaosbuffalo.mkcore.abilities.description.AbilityDescriptions;
 import com.chaosbuffalo.mkcore.core.AbilitySlot;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.core.MKAttributes;
-import com.chaosbuffalo.mkcore.init.ModSounds;
+import com.chaosbuffalo.mkcore.core.MKCombatFormulas;
+import com.chaosbuffalo.mkcore.core.damage.MKDamageType;
+import com.chaosbuffalo.mkcore.entities.BaseProjectileEntity;
+import com.chaosbuffalo.mkcore.init.CoreSounds;
+import com.chaosbuffalo.mkcore.utils.EntityUtils;
 import com.chaosbuffalo.mkcore.utils.RayTraceUtils;
 import com.chaosbuffalo.targeting_api.Targeting;
 import com.chaosbuffalo.targeting_api.TargetingContext;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.mojang.datafixers.Dynamic;
-import com.mojang.datafixers.types.DynamicOps;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Dynamic;
+import com.mojang.serialization.DynamicOps;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.ai.attributes.Attribute;
+import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.EntityRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.text.*;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.ForgeRegistryEntry;
@@ -37,6 +42,7 @@ import net.minecraftforge.registries.ForgeRegistryEntry;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -84,6 +90,7 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
     private float manaCost;
     private final List<IAbilityAttribute<?>> attributes;
     private AbilityUseCondition useCondition;
+    private final Set<Attribute> skillAttributes;
 
 
     public MKAbility(String domain, String id) {
@@ -96,21 +103,87 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
         this.castTime = 0;
         this.manaCost = 1;
         this.attributes = new ArrayList<>();
+        this.skillAttributes = new HashSet<>();
         setUseCondition(new StandardUseCondition(this));
     }
 
-    protected List<Object> getDescriptionArgs(IMKEntityData entityData) {
-        return new ArrayList<>();
+    protected MKAbility addSkillAttribute(Attribute attribute){
+        this.skillAttributes.add(attribute);
+        return this;
     }
 
-    public List<ITextComponent> getDescriptionsForEntity(IMKEntityData entityData) {
-        List<ITextComponent> descriptions = new ArrayList<>();
-        descriptions.add(AbilityDescriptions.getManaCostDescription(this, entityData));
-        descriptions.add(AbilityDescriptions.getCooldownDescription(this, entityData));
-        descriptions.add(AbilityDescriptions.getCastTimeDescription(this, entityData));
-        getTargetSelector().fillAbilityDescription(descriptions, this, entityData);
-        descriptions.add(AbilityDescriptions.getAbilityDescription(this, entityData, this::getDescriptionArgs));
-        return descriptions;
+    public ITextComponent getDamageDescription(IMKEntityData entityData, MKDamageType damageType, float damage,
+                                               float scale, int level, float modifierScaling){
+        float bonus = entityData.getStats().getDamageTypeBonus(damageType) * modifierScaling;
+        float abilityDamage = damage + (scale * level) + bonus;
+        IFormattableTextComponent damageStr = StringTextComponent.EMPTY.deepCopy();
+        damageStr.append(new StringTextComponent(String.format("%.1f", abilityDamage)).mergeStyle(TextFormatting.BOLD));
+        if (bonus != 0) {
+            damageStr.append(new StringTextComponent(String.format(" (+%.1f)", bonus)).mergeStyle(TextFormatting.BOLD));
+        }
+        damageStr.appendString(" ").append(damageType.getDisplayName().mergeStyle(damageType.getFormatting()));
+        return damageStr;
+    }
+
+    public ITextComponent getHealDescription(IMKEntityData entityData, float value,
+                                             float scale, int level, float modifierScaling){
+        float bonus = entityData.getStats().getHealBonus() * modifierScaling;
+        float abilityDamage = value + (scale * level) + bonus;
+        IFormattableTextComponent healStr = StringTextComponent.EMPTY.deepCopy();
+        healStr.append(new StringTextComponent(String.format("%.1f", abilityDamage)).mergeStyle(TextFormatting.UNDERLINE));
+        if (bonus != 0) {
+            healStr.append(new StringTextComponent(String.format(" (+%.1f)", bonus)).mergeStyle(TextFormatting.BOLD));
+        }
+        healStr.mergeStyle(TextFormatting.GREEN);
+        return healStr;
+    }
+
+    public ITextComponent getSkillDescription(IMKEntityData entityData){
+        StringBuilder finalSkillList = new StringBuilder();
+        Set<Attribute> attributes = getSkillAttributes();
+        int count = 0;
+        for (Attribute attr : attributes){
+            boolean needsComma = attributes.size() > 1 && count < attributes.size() - 1;
+            finalSkillList.append(I18n.format(attr.getAttributeName()));
+            if (needsComma){
+                finalSkillList.append(", ");
+            }
+            count++;
+        }
+        return new TranslationTextComponent("mkcore.ability.description.skill", finalSkillList.toString());
+    }
+
+    public void buildDescription(IMKEntityData entityData, Consumer<ITextComponent> consumer) {
+        consumer.accept(getManaCostDescription(entityData));
+        consumer.accept(getCooldownDescription(entityData));
+        consumer.accept(getCastTimeDescription(entityData));
+        getTargetSelector().buildDescription(this, entityData, consumer);
+        consumer.accept(getAbilityDescription(entityData));
+        if (!skillAttributes.isEmpty()){
+            consumer.accept(getSkillDescription(entityData));
+        }
+    }
+
+    protected ITextComponent getCooldownDescription(IMKEntityData entityData) {
+        float seconds = (float) entityData.getStats().getAbilityCooldown(this) / GameConstants.TICKS_PER_SECOND;
+        return new TranslationTextComponent("mkcore.ability.description.cooldown", seconds);
+    }
+
+    protected ITextComponent getCastTimeDescription(IMKEntityData entityData) {
+        int castTicks = entityData.getStats().getAbilityCastTime(this);
+        float seconds = (float) castTicks / GameConstants.TICKS_PER_SECOND;
+        ITextComponent time = castTicks > 0 ?
+                new TranslationTextComponent("mkcore.ability.description.seconds", seconds) :
+                new TranslationTextComponent("mkcore.ability.description.instant");
+        return new TranslationTextComponent("mkcore.ability.description.cast_time", time);
+    }
+
+    protected ITextComponent getManaCostDescription(IMKEntityData entityData) {
+        return new TranslationTextComponent("mkcore.ability.description.mana_cost", getManaCost(entityData));
+    }
+
+    protected ITextComponent getAbilityDescription(IMKEntityData entityData) {
+        return new TranslationTextComponent(getDescriptionTranslationKey());
     }
 
     public void setUseCondition(AbilityUseCondition useCondition) {
@@ -139,33 +212,32 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
         return getRegistryName();
     }
 
-    public MKAbilityInfo createAbilityInfo() {
-        return new MKAbilityInfo(this);
+    public MKAbilityInfo createAbilityInfo(AbilitySource source) {
+        return new MKAbilityInfo(this, source);
     }
 
 
-    public String getAbilityName() {
-        return I18n.format(getTranslationKey());
+    public ITextComponent getAbilityName() {
+        return new TranslationTextComponent(getTranslationKey());
     }
 
-
-    public String getTranslationKey() {
-        ResourceLocation abilityId = getRegistryName();
+    protected String getTranslationKey() {
+        ResourceLocation abilityId = getAbilityId();
         return String.format("%s.%s.name", abilityId.getNamespace(), abilityId.getPath());
     }
 
-    public String getDescriptionTranslationKey() {
-        ResourceLocation abilityId = getRegistryName();
+    protected String getDescriptionTranslationKey() {
+        ResourceLocation abilityId = getAbilityId();
         return String.format("%s.%s.description", abilityId.getNamespace(), abilityId.getPath());
     }
 
     public ResourceLocation getAbilityIcon() {
-        ResourceLocation abilityId = getRegistryName();
-        return new ResourceLocation(abilityId.getNamespace(), String.format("textures/class/abilities/%s.png", abilityId.getPath().split(Pattern.quote("."))[1]));
+        ResourceLocation abilityId = getAbilityId();
+        return new ResourceLocation(abilityId.getNamespace(), String.format("textures/abilities/%s.png", abilityId.getPath().split(Pattern.quote("."))[1]));
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void drawAbilityBarEffect(Minecraft mc, int slotX, int slotY) {
+    public void drawAbilityBarEffect(MatrixStack matrixStack, Minecraft mc, int slotX, int slotY) {
 
     }
 
@@ -189,7 +261,7 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
         return 1.0f;
     }
 
-    protected float getMeleeReach(LivingEntity entity){
+    protected float getMeleeReach(LivingEntity entity) {
         return (float) entity.getAttribute(MKAttributes.ATTACK_REACH).getValue();
     }
 
@@ -214,10 +286,6 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
     }
 
     public abstract TargetingContext getTargetContext();
-
-    public boolean canSelfCast() {
-        return false;
-    }
 
     public boolean isValidTarget(LivingEntity caster, LivingEntity target) {
         return Targeting.isValidTarget(getTargetContext(), caster, target);
@@ -271,12 +339,12 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
 
     @Nullable
     public SoundEvent getCastingSoundEvent() {
-        return ModSounds.casting_general;
+        return CoreSounds.casting_default;
     }
 
     @Nullable
     public SoundEvent getSpellCompleteSoundEvent() {
-        return ModSounds.spell_cast_3;
+        return CoreSounds.spell_cast_default;
     }
 
     public void executeWithContext(IMKEntityData entityData, AbilityContext context) {
@@ -293,7 +361,7 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
     }
 
     public Set<MemoryModuleType<?>> getRequiredMemories() {
-        return ImmutableSet.of();
+        return getTargetSelector().getRequiredMemories();
     }
 
     public boolean isExecutableContext(AbilityContext context) {
@@ -317,8 +385,8 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
         return getSingleLivingTarget(caster, distance, true);
     }
 
-    protected List<LivingEntity> getTargetsInLine(LivingEntity caster, Vec3d from, Vec3d to, boolean checkValid, float growth) {
-        return RayTraceUtils.getEntitiesInLine(LivingEntity.class, caster, from, to, Vec3d.ZERO, growth,
+    protected List<LivingEntity> getTargetsInLine(LivingEntity caster, Vector3d from, Vector3d to, boolean checkValid, float growth) {
+        return RayTraceUtils.getEntitiesInLine(LivingEntity.class, caster, from, to, Vector3d.ZERO, growth,
                 e -> !checkValid || (e != null && isValidTarget(caster, e)));
     }
 
@@ -326,6 +394,7 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
         return getSingleLivingTarget(LivingEntity.class, caster, distance, checkValid);
     }
 
+    @SuppressWarnings("unchecked")
     protected <E extends LivingEntity> E getSingleLivingTarget(Class<E> clazz, LivingEntity caster,
                                                                float distance, boolean checkValid) {
         RayTraceResult lookingAt = RayTraceUtils.getLookingAt(clazz, caster, distance,
@@ -352,5 +421,35 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
     protected LivingEntity getSingleLivingTargetOrSelf(LivingEntity caster, float distance, boolean checkValid) {
         LivingEntity target = getSingleLivingTarget(caster, distance, checkValid);
         return target != null ? target : caster;
+    }
+
+    protected void shootProjectile(BaseProjectileEntity projectileEntity, float velocity, float accuracy,
+                                   LivingEntity entity, AbilityContext context){
+        Vector3d startPos = entity.getPositionVec().add(new Vector3d(0, entity.getEyeHeight(entity.getPose()), 0));
+        startPos.add(entity.getForward().mul(.5, 0.0, .5));
+        projectileEntity.setPosition(startPos.x, startPos.y, startPos.z);
+        if (entity instanceof PlayerEntity){
+            projectileEntity.shoot(entity, entity.rotationPitch, entity.rotationYaw, 0, velocity, accuracy);
+        } else {
+            context.getMemory(MKAbilityMemories.ABILITY_TARGET).ifPresent(targetEntity ->
+                    EntityUtils.shootProjectileAtTarget(projectileEntity, targetEntity, velocity, accuracy));
+        }
+    }
+
+    public static int getSkillLevel(LivingEntity entity, Attribute skillAttribute){
+        if (skillAttribute == null){
+            return 0;
+        }
+        ModifiableAttributeInstance skill = entity.getAttribute(skillAttribute);
+        return skill != null ? (int) Math.round(skill.getValue()) : 0;
+    }
+
+    public Set<Attribute> getSkillAttributes() {
+        return skillAttributes;
+    }
+
+    protected int getBuffDuration(IMKEntityData entityData, int level, int base, int scale) {
+        int duration = (base + scale * level) * GameConstants.TICKS_PER_SECOND;
+        return MKCombatFormulas.applyBuffDurationModifier(entityData, duration);
     }
 }

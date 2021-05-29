@@ -5,7 +5,7 @@ import net.minecraft.nbt.CompoundNBT;
 import java.util.function.BiConsumer;
 
 public class SyncObject<T> implements ISyncObject {
-    String name;
+    protected final String name;
     private T value;
     private boolean dirty;
     private final BiConsumer<CompoundNBT, SyncObject<T>> serializer;

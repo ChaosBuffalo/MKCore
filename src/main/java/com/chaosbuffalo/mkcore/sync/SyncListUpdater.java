@@ -1,5 +1,6 @@
 package com.chaosbuffalo.mkcore.sync;
 
+import com.chaosbuffalo.mkcore.MKCore;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.ListNBT;
@@ -91,22 +92,30 @@ public class SyncListUpdater<T> implements ISyncObject {
     }
 
     private void deserializeFullList(ListNBT list) {
-        List<T> parentList = parent.get();
         for (int i = 0; i < list.size(); i++) {
-            T decoded = valueDecoder.apply(list.get(i));
-            if (i < parentList.size()) {
-                parentList.set(i, decoded);
-            }
+            setValueInternal(i, list.get(i));
         }
     }
 
     private void deserializeSparseListUpdate(ListNBT list) {
-        List<T> abilityList = parent.get();
         for (int i = 0; i < list.size(); i++) {
             CompoundNBT entry = list.getCompound(i);
             int index = entry.getInt("i");
-            T value = valueDecoder.apply(entry.get("v"));
-            abilityList.set(index, value);
+            setValueInternal(index, entry.get("v"));
+        }
+    }
+
+    private void setValueInternal(int index, INBT encodedValue) {
+        T decoded = valueDecoder.apply(encodedValue);
+        List<T> list = parent.get();
+        if (decoded != null) {
+            if (index < list.size()) {
+                list.set(index, decoded);
+            } else {
+                MKCore.LOGGER.error("Failed set update item: Index {} out of range ({} max)", index, list.size());
+            }
+        } else {
+            MKCore.LOGGER.error("Failed to decode list entry {}: {}", index, encodedValue);
         }
     }
 

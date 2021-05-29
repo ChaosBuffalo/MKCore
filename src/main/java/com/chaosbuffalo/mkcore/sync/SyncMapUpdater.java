@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -63,7 +64,7 @@ public class SyncMapUpdater<K, V extends IMKSerializable<CompoundNBT>> implement
             return;
 
         CompoundNBT root = new CompoundNBT();
-        root.put("l", serializeMap(dirty));
+        root.put("l", serializeMap(dirty, this::defaultEntryFilter));
         tag.put(rootName, root);
 
         dirty.clear();
@@ -79,12 +80,16 @@ public class SyncMapUpdater<K, V extends IMKSerializable<CompoundNBT>> implement
         dirty.clear();
     }
 
-    private CompoundNBT serializeMap(Collection<K> keyCollection) {
+    private boolean defaultEntryFilter(K key, V value) {
+        return true;
+    }
+
+    private CompoundNBT serializeMap(Collection<K> keyCollection, BiPredicate<K, V> entryFilter) {
         CompoundNBT list = new CompoundNBT();
         Map<K, V> map = mapSupplier.get();
         keyCollection.forEach(key -> {
             V value = map.get(key);
-            if (value != null) {
+            if (value != null && entryFilter.test(key, value)) {
                 list.put(keyEncoder.apply(key), value.serialize());
             }
         });
@@ -115,7 +120,11 @@ public class SyncMapUpdater<K, V extends IMKSerializable<CompoundNBT>> implement
     }
 
     public INBT serializeStorage() {
-        return serializeMap(mapSupplier.get().keySet());
+        return serializeMap(mapSupplier.get().keySet(), this::defaultEntryFilter);
+    }
+
+    public INBT serializeStorage(BiPredicate<K, V> entryFilter) {
+        return serializeMap(mapSupplier.get().keySet(), entryFilter);
     }
 
     public void deserializeStorage(INBT tag) {

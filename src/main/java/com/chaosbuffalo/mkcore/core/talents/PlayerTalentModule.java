@@ -7,8 +7,7 @@ import java.util.Map;
 
 public class PlayerTalentModule {
     private final MKPlayerData playerData;
-    Map<TalentType<?>, TalentTypeHandler> typeHandlerMap = new HashMap<>();
-
+    private final Map<TalentType<?>, TalentTypeHandler> typeHandlerMap = new HashMap<>();
 
     public PlayerTalentModule(MKPlayerData playerData) {
         this.playerData = playerData;

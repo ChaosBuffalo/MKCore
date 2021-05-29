@@ -9,21 +9,14 @@ import java.util.List;
 import java.util.Set;
 
 public class SyncGroup implements ISyncObject, ISyncNotifier {
-    List<ISyncObject> components = new ArrayList<>();
-    private String nestedName = null;
+    private final List<ISyncObject> components = new ArrayList<>();
     private final Set<ISyncObject> dirty = new HashSet<>();
+    private String nestedName = null;
     private ISyncNotifier parentNotifier = ISyncNotifier.NONE;
     private boolean forceFull = false;
 
-    public SyncGroup(ISyncObject... syncObjects) {
-        for (ISyncObject sync : syncObjects) {
-            add(sync);
-        }
-    }
+    public SyncGroup() {
 
-    public SyncGroup(String nestedName, ISyncObject... syncObjects) {
-        this(syncObjects);
-        this.nestedName = nestedName;
     }
 
     public void setNestingName(String name) {
@@ -33,6 +26,12 @@ public class SyncGroup implements ISyncObject, ISyncNotifier {
     public void add(ISyncObject sync) {
         components.add(sync);
         sync.setNotifier(this);
+    }
+
+    public void addAll(ISyncObject... objects) {
+        for (ISyncObject object : objects) {
+            add(object);
+        }
     }
 
     public void remove(ISyncObject syncObject) {

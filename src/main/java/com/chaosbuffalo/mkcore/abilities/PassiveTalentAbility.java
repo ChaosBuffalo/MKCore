@@ -11,8 +11,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.function.Consumer;
 
 public abstract class PassiveTalentAbility extends MKAbility {
     public PassiveTalentAbility(ResourceLocation abilityId) {
@@ -31,14 +30,11 @@ public abstract class PassiveTalentAbility extends MKAbility {
 
     public abstract PassiveTalentEffect getPassiveEffect();
 
-    @Override
-    public List<ITextComponent> getDescriptionsForEntity(IMKEntityData entityData) {
-        List<ITextComponent> descriptions = new ArrayList<>();
-        descriptions.add(new TranslationTextComponent("mkcore.ability.description.passive"));
-        descriptions.add(AbilityDescriptions.getTargetTypeDescription(this));
-        descriptions.add(AbilityDescriptions.getAbilityDescription(this, entityData, this::getDescriptionArgs));
-        descriptions.addAll(AbilityDescriptions.getEffectModifiers(getPassiveEffect(), entityData, false));
-        return descriptions;
+    public void buildDescription(IMKEntityData entityData, Consumer<ITextComponent> consumer) {
+        consumer.accept(new TranslationTextComponent("mkcore.ability.description.passive"));
+        consumer.accept(getTargetContextLocalization());
+        consumer.accept(getAbilityDescription(entityData));
+        AbilityDescriptions.getEffectModifiers(getPassiveEffect(), entityData, false).forEach(consumer);
     }
 
     @Override

@@ -5,15 +5,15 @@ import com.chaosbuffalo.targeting_api.TargetingContext;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.IProjectile;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.IPacket;
 import net.minecraft.util.EntityPredicates;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.event.ForgeEventFactory;
@@ -25,13 +25,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public abstract class BaseProjectileEntity extends Entity implements IProjectile {
+public abstract class BaseProjectileEntity extends ProjectileEntity {
 
     @Nullable
     private BlockState inBlockState;
     protected boolean inGround;
-
-    public UUID shootingEntity;
 
     public static final float ONE_DEGREE = 0.017453292F;
     public static final double MAX_INACCURACY = 0.0075;
@@ -46,7 +44,7 @@ public abstract class BaseProjectileEntity extends Entity implements IProjectile
     private int groundProcTime;
     private boolean doGroundProc;
 
-    public BaseProjectileEntity(EntityType<?> entityTypeIn, World worldIn) {
+    public BaseProjectileEntity(EntityType<? extends ProjectileEntity> entityTypeIn, World worldIn) {
         super(entityTypeIn, worldIn);
         this.inBlockState = null;
         this.inGround = false;
@@ -166,7 +164,7 @@ public abstract class BaseProjectileEntity extends Entity implements IProjectile
         float y = -MathHelper.sin((rotationPitchIn + pitchOffset) * ONE_DEGREE);
         float z = MathHelper.cos(rotationYawIn * ONE_DEGREE) * MathHelper.cos(rotationPitchIn * ONE_DEGREE);
         this.shoot(x, y, z, velocity, inaccuracy);
-        this.setMotion(this.getMotion().add(source.getMotion().x, source.onGround ? 0.0D : source.getMotion().y,
+        this.setMotion(this.getMotion().add(source.getMotion().x, source.isOnGround() ? 0.0D : source.getMotion().y,
                 source.getMotion().z));
     }
 
@@ -199,7 +197,7 @@ public abstract class BaseProjectileEntity extends Entity implements IProjectile
         if (!blockstate.isAir(this.world, blockpos)) {
             VoxelShape voxelshape = blockstate.getCollisionShape(this.world, blockpos);
             if (!voxelshape.isEmpty()) {
-                Vec3d entityPos = this.getPositionVec();
+                Vector3d entityPos = this.getPositionVec();
                 for (AxisAlignedBB axisalignedbb : voxelshape.toBoundingBoxList()) {
                     if (axisalignedbb.offset(blockpos).contains(entityPos)) {
                         return true;
@@ -214,7 +212,7 @@ public abstract class BaseProjectileEntity extends Entity implements IProjectile
         return this.prevRotationPitch == 0.0F && this.prevRotationYaw == 0.0F;
     }
 
-    protected void calculateOriginalPitchYaw(Vec3d motion) {
+    protected void calculateOriginalPitchYaw(Vector3d motion) {
         float xyMag = MathHelper.sqrt(horizontalMag(motion));
         this.rotationYaw = (float) (MathHelper.atan2(motion.x, motion.z) * (double) (180F / (float) Math.PI));
         this.rotationPitch = (float) (MathHelper.atan2(motion.y, xyMag) * (double) (180F / (float) Math.PI));
@@ -222,29 +220,22 @@ public abstract class BaseProjectileEntity extends Entity implements IProjectile
         this.prevRotationPitch = this.rotationPitch;
     }
 
-    protected boolean onGroundProc(LivingEntity caster, int amplifier) {
+    protected boolean onGroundProc(Entity caster, int amplifier) {
         return false;
     }
 
-    protected boolean onImpact(LivingEntity caster, RayTraceResult result, int amplifier) {
+    protected boolean onImpact(Entity caster, RayTraceResult result, int amplifier) {
         return false;
     }
 
 
-    protected boolean onAirProc(LivingEntity caster, int amplifier) {
+    protected boolean onAirProc(Entity caster, int amplifier) {
         return false;
     }
 
     @Nullable
-    public LivingEntity getShooter() {
-        if (shootingEntity != null && world instanceof ServerWorld) {
-            ServerWorld serverWorld = (ServerWorld) world;
-            Entity entity = serverWorld.getEntityByUuid(shootingEntity);
-            if (entity instanceof LivingEntity) {
-                return (LivingEntity) entity;
-            }
-        }
-        return null;
+    public Entity getShooter() {
+        return func_234616_v_();
     }
 
     protected boolean isValidEntityTargetGeneric(Entity entity) {
@@ -259,23 +250,23 @@ public abstract class BaseProjectileEntity extends Entity implements IProjectile
         return isValidEntityTargetGeneric(entity);
     }
 
-    private EntityRayTraceResult checkRayTraceEntities(Vec3d traceStart, Vec3d traceEnd, RayTraceResult blockTrace) {
+    private EntityRayTraceResult checkRayTraceEntities(Vector3d traceStart, Vector3d traceEnd, RayTraceResult blockTrace) {
         Entity entity = null;
         EntityRayTraceResult entityResult = null;
-        Vec3d motion = getMotion();
+        Vector3d motion = getMotion();
         List<Entity> targets = this.world.getEntitiesInAABBexcluding(this,
                 this.getBoundingBox().expand(motion.getX(), motion.getY(), motion.getZ()).grow(1.0D),
                 this::isValidEntityTarget);
         double shortestEntityDistance = 0.0D;
 
-        Vec3d hitVec = null;
+        Vector3d hitVec = null;
         for (Entity hitEntity : targets) {
             if (!hitEntity.canBeCollidedWith()) {
                 continue;
             }
             if (isValidEntityTarget(hitEntity)) {
                 AxisAlignedBB mobHitBB = hitEntity.getBoundingBox().grow(0.3);
-                Optional<Vec3d> intercept = mobHitBB.rayTrace(traceStart, traceEnd);
+                Optional<Vector3d> intercept = mobHitBB.rayTrace(traceStart, traceEnd);
 
                 if (intercept.isPresent()) {
                     double distToEntity = traceStart.squareDistanceTo(intercept.get());
@@ -300,9 +291,9 @@ public abstract class BaseProjectileEntity extends Entity implements IProjectile
             BlockRayTraceResult blockraytraceresult = (BlockRayTraceResult) rayTraceResult;
             BlockState blockstate = this.world.getBlockState(blockraytraceresult.getPos());
             this.inBlockState = blockstate;
-            Vec3d vec3d = blockraytraceresult.getHitVec().subtract(this.getPosX(), this.getPosY(), this.getPosZ());
+            Vector3d vec3d = blockraytraceresult.getHitVec().subtract(this.getPosX(), this.getPosY(), this.getPosZ());
             this.setMotion(vec3d);
-            Vec3d vec3d1 = vec3d.normalize().scale(0.05F);
+            Vector3d vec3d1 = vec3d.normalize().scale(0.05F);
             this.setRawPosition(this.getPosX() - vec3d1.x, this.getPosY() - vec3d1.y,
                     this.getPosZ() - vec3d1.z);
             this.inGround = true;
@@ -317,7 +308,13 @@ public abstract class BaseProjectileEntity extends Entity implements IProjectile
     }
 
 //    @Override
-//    public void writeAdditional(CompoundNBT compound) {
+//    protected void writeAdditional(CompoundNBT compound) {
+//        compound.putBoolean("doAirProc", this.getDoAirProc());
+//        compound.putBoolean("doGroundProc", this.getDoGroundProc());
+//        compound.putInt("airProcTime", this.getAirProcTime());
+//        compound.putInt("groundProcTime", this.getGroundProcTime());
+//        compound.putInt("deathTime", this.getDeathTime());
+//        compound.putInt("amplifier", this.getAmplifier());
 //        compound.putInt("ticksInGround", this.ticksInGround);
 //        compound.putInt("ticksInAir", this.ticksInAir);
 //        if (this.inBlockState != null) {
@@ -328,16 +325,10 @@ public abstract class BaseProjectileEntity extends Entity implements IProjectile
 //        if (this.shootingEntity != null) {
 //            compound.putUniqueId("OwnerUUID", this.shootingEntity);
 //        }
-//
-//        compound.putBoolean("doAirProc", this.getDoAirProc());
-//        compound.putBoolean("doGroundProc", this.getDoGroundProc());
-//        compound.putInt("airProcTime", this.getAirProcTime());
-//        compound.putInt("groundProcTime", this.getGroundProcTime());
-//        compound.putInt("deathTime", this.getDeathTime());
-//        compound.putInt("amplifier", this.getAmplifier());
 //    }
 //
-//    public void readAdditional(CompoundNBT compound) {
+//    @Override
+//    protected void readAdditional(CompoundNBT compound) {
 //        this.ticksInGround = compound.getInt("ticksInGround");
 //        this.ticksInAir = compound.getInt("ticksInAir");
 //        if (compound.contains("inBlockState", 10)) {
@@ -359,17 +350,6 @@ public abstract class BaseProjectileEntity extends Entity implements IProjectile
 //        this.setAmplifier(compound.getInt("amplifier"));
 //    }
 
-
-    @Override
-    protected void writeAdditional(CompoundNBT compound) {
-
-    }
-
-    @Override
-    protected void readAdditional(CompoundNBT compound) {
-
-    }
-
     @Override
     public boolean writeUnlessPassenger(CompoundNBT compound) {
         return false;
@@ -389,13 +369,13 @@ public abstract class BaseProjectileEntity extends Entity implements IProjectile
             this.remove();
         }
 
-        Vec3d motion = this.getMotion();
+        Vector3d motion = this.getMotion();
 
         if (missingPrevPitchAndYaw()) {
             calculateOriginalPitchYaw(motion);
         }
 
-        BlockPos blockpos = new BlockPos(this);
+        BlockPos blockpos = getPosition();
         BlockState blockstate = this.world.getBlockState(blockpos);
         this.inGround = checkIfInGround(blockpos, blockstate);
 
@@ -429,8 +409,8 @@ public abstract class BaseProjectileEntity extends Entity implements IProjectile
                 }
             }
             RayTraceResult trace;
-            Vec3d traceStart = this.getPositionVec();
-            Vec3d traceEnd = traceStart.add(motion);
+            Vector3d traceStart = this.getPositionVec();
+            Vector3d traceEnd = traceStart.add(motion);
             RayTraceResult blockRayTrace = this.world.rayTraceBlocks(new RayTraceContext(traceStart, traceEnd,
                     RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, this));
             trace = blockRayTrace;
@@ -443,14 +423,13 @@ public abstract class BaseProjectileEntity extends Entity implements IProjectile
                 trace = entityRayTrace;
             }
 
-            if (trace != null && trace.getType() != RayTraceResult.Type.MISS &&
-                    !ForgeEventFactory.onProjectileImpact(this, trace)) {
+            if (trace.getType() != RayTraceResult.Type.MISS && !ForgeEventFactory.onProjectileImpact(this, trace)) {
                 if (this.onHit(trace)) {
                     this.remove();
                 }
                 this.isAirBorne = true;
             }
-
+            motion = getMotion();
             float xyMag = MathHelper.sqrt(horizontalMag(motion));
             this.rotationYaw = (float) (MathHelper.atan2(motion.x, motion.z) * (double) (180F / (float) Math.PI));
             this.rotationPitch = (float) (MathHelper.atan2(motion.y, xyMag) * (double) (180F / (float) Math.PI));
@@ -474,7 +453,7 @@ public abstract class BaseProjectileEntity extends Entity implements IProjectile
             this.rotationPitch = this.prevRotationPitch + (this.rotationPitch - this.prevRotationPitch) * 0.2F;
             this.rotationYaw = this.prevRotationYaw + (this.rotationYaw - this.prevRotationYaw) * 0.2F;
             if (!this.inGround && !world.isRemote) {
-                setMotion(motion.subtract(new Vec3d(0.0, getGravityVelocity(), 0.0)));
+                setMotion(motion.subtract(new Vector3d(0.0, getGravityVelocity(), 0.0)));
             }
             this.setPosition(getPosX() + motion.getX(), getPosY() + motion.getY(), getPosZ() + motion.getZ());
         }

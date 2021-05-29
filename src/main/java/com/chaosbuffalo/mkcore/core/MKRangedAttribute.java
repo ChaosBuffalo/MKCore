@@ -7,7 +7,7 @@ public class MKRangedAttribute extends RangedAttribute {
     private boolean additionIsPercentage;
 
     public MKRangedAttribute(String name, double defaultValue, double minimumValueIn, double maximumValueIn) {
-        super(null, name, defaultValue, minimumValueIn, maximumValueIn);
+        super(name, defaultValue, minimumValueIn, maximumValueIn);
     }
 
     public MKRangedAttribute setAdditionIsPercentage(boolean set) {
