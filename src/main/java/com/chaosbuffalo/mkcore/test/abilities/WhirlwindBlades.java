@@ -12,7 +12,7 @@ import com.chaosbuffalo.mkcore.effects.AreaEffectBuilder;
 import com.chaosbuffalo.mkcore.effects.ParticleEffect;
 import com.chaosbuffalo.mkcore.effects.SpellCast;
 import com.chaosbuffalo.mkcore.fx.ParticleEffects;
-import com.chaosbuffalo.mkcore.effects.instant.AbilityMagicDamage;
+import com.chaosbuffalo.mkcore.effects.instant.AbilityMagicDamageEffect;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.ParticleEffectSpawnPacket;
 import com.chaosbuffalo.targeting_api.TargetingContext;
@@ -99,7 +99,7 @@ public class WhirlwindBlades extends MKAbility {
             float baseAmount = 0.15f;
             float scaling = count * baseAmount;
             // What to do for each target hit
-            SpellCast damage = AbilityMagicDamage.Create(entity, BASE_DAMAGE, DAMAGE_SCALE, scaling);
+            SpellCast damage = AbilityMagicDamageEffect.Create(entity, BASE_DAMAGE, DAMAGE_SCALE, scaling);
             SpellCast particlePotion = ParticleEffect.Create(entity,
                     ParticleTypes.SWEEP_ATTACK,
                     ParticleEffects.CIRCLE_MOTION, false,

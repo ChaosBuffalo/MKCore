@@ -24,7 +24,7 @@ import java.util.Arrays;
 
 public class MKOverlay {
 
-    private static final ResourceLocation COOLDOWN_ICON = MKCore.makeRL("textures/class/abilities/cooldown.png");
+    private static final ResourceLocation COOLDOWN_ICON = MKCore.makeRL("textures/abilities/cooldown.png");
 
     private static final int SLOT_WIDTH = 20;
     private static final int SLOT_HEIGHT = 20;
@@ -116,6 +116,8 @@ public class MKOverlay {
 
     private int drawAbilities(MatrixStack matrixStack, MKPlayerData data, AbilitySlot type, int startingSlot, int totalSlots, float partialTicks) {
         RenderSystem.disableLighting();
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
 
         final int slotAbilityOffsetX = 2;
         final int slotAbilityOffsetY = 2;
@@ -161,7 +163,6 @@ public class MKOverlay {
             }
 
             // TODO: introduce min cooldown time so there is always a visual indicator that it's on cooldown
-
             if (cooldownFactor > 0) {
                 int coolDownHeight = (int) (cooldownFactor * ABILITY_ICON_SIZE);
                 if (coolDownHeight < 1) {
@@ -173,7 +174,7 @@ public class MKOverlay {
 
             ability.drawAbilityBarEffect(matrixStack, mc, slotX, slotY);
         }
-
+        RenderSystem.disableBlend();
         return startingSlot + slotCount;
     }
 

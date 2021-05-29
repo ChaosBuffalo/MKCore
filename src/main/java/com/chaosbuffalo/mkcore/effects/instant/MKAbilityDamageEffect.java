@@ -18,12 +18,12 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
-public class MKAbilityDamage extends SpellEffectBase {
+public class MKAbilityDamageEffect extends SpellEffectBase {
     public static final String DAMAGE_TYPE = "mk_ability_damage.damage_type";
     public static final String ABILITY_ID = "mk_ability_damage.ability_id";
     public static final String MODIFIER_SCALING = "mk_ability_damage.modifier_scaling";
 
-    public static final MKAbilityDamage INSTANCE = new MKAbilityDamage();
+    public static final MKAbilityDamageEffect INSTANCE = new MKAbilityDamageEffect();
 
     @SubscribeEvent
     public static void register(RegistryEvent.Register<Effect> event) {
@@ -43,7 +43,7 @@ public class MKAbilityDamage extends SpellEffectBase {
         return Create(source, damageType, ability, baseDamage, scaling, 1.0f);
     }
 
-    private MKAbilityDamage() {
+    private MKAbilityDamageEffect() {
         super(EffectType.HARMFUL, 123);
         setRegistryName("effect.instant_mk_damage");
     }

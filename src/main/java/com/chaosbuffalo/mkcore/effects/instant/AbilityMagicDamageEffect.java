@@ -16,12 +16,12 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
-public class AbilityMagicDamage extends SpellEffectBase {
+public class AbilityMagicDamageEffect extends SpellEffectBase {
     public static final String SCALING_CONTRIBUTION = "instant_indirect_magic_damage.scaling_contribution";
 
     public static ResourceLocation INDIRECT_MAGIC_DMG_ABILITY_ID = MKCore.makeRL("ability.instant_indirect_magic_damage");
 
-    public static final AbilityMagicDamage INSTANCE = new AbilityMagicDamage();
+    public static final AbilityMagicDamageEffect INSTANCE = new AbilityMagicDamageEffect();
 
     @SubscribeEvent
     public static void register(RegistryEvent.Register<Effect> event) {
@@ -37,7 +37,7 @@ public class AbilityMagicDamage extends SpellEffectBase {
                 .setFloat(SCALING_CONTRIBUTION, modifierScaling);
     }
 
-    private AbilityMagicDamage() {
+    private AbilityMagicDamageEffect() {
         super(EffectType.HARMFUL, 123);
         setRegistryName("effect.instant_indirect_magic_damage");
     }

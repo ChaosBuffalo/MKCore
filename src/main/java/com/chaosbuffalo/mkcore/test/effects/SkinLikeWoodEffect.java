@@ -53,7 +53,6 @@ public class SkinLikeWoodEffect extends PassiveEffect {
     }
 
     private void playerHurtPreScale(LivingHurtEvent event, DamageSource source, PlayerEntity livingTarget, MKPlayerData targetData) {
-
         if (livingTarget.isPotionActive(SkinLikeWoodEffect.INSTANCE)) {
             if (!targetData.getStats().consumeMana(1)) {
                 livingTarget.removePotionEffect(SkinLikeWoodEffect.INSTANCE);

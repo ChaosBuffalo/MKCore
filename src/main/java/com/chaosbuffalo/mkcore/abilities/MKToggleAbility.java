@@ -18,7 +18,7 @@ import java.util.function.Consumer;
 
 public abstract class MKToggleAbility extends MKAbility {
 
-    private static final ResourceLocation TOGGLE_EFFECT = MKCore.makeRL("textures/class/abilities/ability_toggle.png");
+    private static final ResourceLocation TOGGLE_EFFECT = MKCore.makeRL("textures/abilities/ability_toggle.png");
 
     public MKToggleAbility(ResourceLocation abilityId) {
         super(abilityId);

@@ -38,7 +38,7 @@ public class MKCoreRegistry {
                 .setIDRange(0, Integer.MAX_VALUE - 1)
                 .create();
         DAMAGE_TYPES = new RegistryBuilder<MKDamageType>()
-                .setName(MKCore.makeRL("damage_types"))
+                .setName(MKCore.makeRL("aaa_damage_types"))
                 .setType(MKDamageType.class)
                 .setIDRange(0, Integer.MAX_VALUE - 1)
                 .create();

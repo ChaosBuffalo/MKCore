@@ -117,7 +117,7 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
         float bonus = entityData.getStats().getDamageTypeBonus(damageType) * modifierScaling;
         float abilityDamage = damage + (scale * level) + bonus;
         IFormattableTextComponent damageStr = StringTextComponent.EMPTY.deepCopy();
-        damageStr.append(new StringTextComponent(String.format("%.1f", abilityDamage)).mergeStyle(TextFormatting.UNDERLINE));
+        damageStr.append(new StringTextComponent(String.format("%.1f", abilityDamage)).mergeStyle(TextFormatting.BOLD));
         if (bonus != 0) {
             damageStr.append(new StringTextComponent(String.format(" (+%.1f)", bonus)).mergeStyle(TextFormatting.BOLD));
         }
@@ -233,7 +233,7 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
 
     public ResourceLocation getAbilityIcon() {
         ResourceLocation abilityId = getAbilityId();
-        return new ResourceLocation(abilityId.getNamespace(), String.format("textures/class/abilities/%s.png", abilityId.getPath().split(Pattern.quote("."))[1]));
+        return new ResourceLocation(abilityId.getNamespace(), String.format("textures/abilities/%s.png", abilityId.getPath().split(Pattern.quote("."))[1]));
     }
 
     @OnlyIn(Dist.CLIENT)

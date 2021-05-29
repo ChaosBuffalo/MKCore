@@ -13,7 +13,9 @@ import net.minecraft.entity.projectile.SpectralArrowEntity;
 import net.minecraft.entity.projectile.ThrowableEntity;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.World;
 
 
 public class EntityUtils {
@@ -76,5 +78,18 @@ public class EntityUtils {
             projectile.shoot(result.lowArc.x, result.lowArc.y, result.lowArc.z, velocity, accuracy);
             return true;
         }
+    }
+
+    public static boolean canTeleportEntity(LivingEntity target){
+        return !isLargeEntity(target);
+    }
+
+    public static void safeTeleportEntity(LivingEntity targetEntity, Vector3d teleLoc) {
+        RayTraceResult colTrace = RayTraceUtils.rayTraceBlocks(targetEntity, targetEntity.getPositionVec(),
+                teleLoc, false);
+        if (colTrace.getType() == RayTraceResult.Type.BLOCK) {
+            teleLoc = colTrace.getHitVec();
+        }
+        targetEntity.setPositionAndUpdate(teleLoc.x, teleLoc.y, teleLoc.z);
     }
 }
