@@ -208,7 +208,7 @@ public class ClientEventHandler {
 
             event.getToolTip().add(new TranslationTextComponent("mkcore.gui.item.armor_class.name")
                     .appendString(": ")
-                    .append(armorClass.getName()));
+                    .appendSibling(armorClass.getName()));
 
             if (MKConfig.CLIENT.showArmorClassEffectsOnTooltip.get()) {
                 List<ITextComponent> tooltip = event.getToolTip();
@@ -250,7 +250,7 @@ public class ClientEventHandler {
         ITextComponent component = new TranslationTextComponent("mkcore.gui.item.armor_class.effect.name")
                 .mergeStyle(color)
                 .appendString(String.format(": %s%.2f%s ", prefix, amount, suffix))
-                .append(new TranslationTextComponent(attribute.getAttributeName()));
+                .appendSibling(new TranslationTextComponent(attribute.getAttributeName()));
 
         tooltip.add(component);
     }

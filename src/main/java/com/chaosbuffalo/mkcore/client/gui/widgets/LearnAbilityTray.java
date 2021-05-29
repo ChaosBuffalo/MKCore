@@ -127,7 +127,7 @@ public class LearnAbilityTray extends MKStackLayoutVertical {
             reqScrollView.addWidget(reqlayout);
             List<ITextComponent> texts = unmetRequirements.stream()
                     .map((x) -> new StringTextComponent("  - ")
-                            .append(x.requirementDescription)
+                            .appendSibling(x.requirementDescription)
                             .mergeStyle(x.isMet ? TextFormatting.DARK_GREEN : TextFormatting.BLACK))
                     .collect(Collectors.toCollection(ArrayList::new));
             for (ITextComponent text : texts) {

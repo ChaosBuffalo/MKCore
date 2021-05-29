@@ -233,10 +233,6 @@ public abstract class BaseProjectileEntity extends ProjectileEntity {
         return false;
     }
 
-    @Nullable
-    public Entity getShooter() {
-        return func_234616_v_();
-    }
 
     protected boolean isValidEntityTargetGeneric(Entity entity) {
         return entity != this && EntityPredicates.NOT_SPECTATING.test(entity) && EntityPredicates.IS_ALIVE.test(entity);

@@ -117,11 +117,11 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
         float bonus = entityData.getStats().getDamageTypeBonus(damageType) * modifierScaling;
         float abilityDamage = damage + (scale * level) + bonus;
         IFormattableTextComponent damageStr = StringTextComponent.EMPTY.deepCopy();
-        damageStr.append(new StringTextComponent(String.format("%.1f", abilityDamage)).mergeStyle(TextFormatting.BOLD));
+        damageStr.appendSibling(new StringTextComponent(String.format("%.1f", abilityDamage)).mergeStyle(TextFormatting.BOLD));
         if (bonus != 0) {
-            damageStr.append(new StringTextComponent(String.format(" (+%.1f)", bonus)).mergeStyle(TextFormatting.BOLD));
+            damageStr.appendSibling(new StringTextComponent(String.format(" (+%.1f)", bonus)).mergeStyle(TextFormatting.BOLD));
         }
-        damageStr.appendString(" ").append(damageType.getDisplayName().mergeStyle(damageType.getFormatting()));
+        damageStr.appendString(" ").appendSibling(damageType.getDisplayName().mergeStyle(damageType.getFormatting()));
         return damageStr;
     }
 
@@ -130,9 +130,9 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
         float bonus = entityData.getStats().getHealBonus() * modifierScaling;
         float abilityDamage = value + (scale * level) + bonus;
         IFormattableTextComponent healStr = StringTextComponent.EMPTY.deepCopy();
-        healStr.append(new StringTextComponent(String.format("%.1f", abilityDamage)).mergeStyle(TextFormatting.UNDERLINE));
+        healStr.appendSibling(new StringTextComponent(String.format("%.1f", abilityDamage)).mergeStyle(TextFormatting.UNDERLINE));
         if (bonus != 0) {
-            healStr.append(new StringTextComponent(String.format(" (+%.1f)", bonus)).mergeStyle(TextFormatting.BOLD));
+            healStr.appendSibling(new StringTextComponent(String.format(" (+%.1f)", bonus)).mergeStyle(TextFormatting.BOLD));
         }
         healStr.mergeStyle(TextFormatting.GREEN);
         return healStr;

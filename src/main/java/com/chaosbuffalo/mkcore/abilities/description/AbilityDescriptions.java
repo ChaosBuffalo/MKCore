@@ -32,9 +32,9 @@ public class AbilityDescriptions {
         }
         for (Map.Entry<Attribute, AttributeModifier> entry : effect.getAttributeModifierMap().entrySet()) {
             desc.add(new StringTextComponent("    ")
-                    .append(new TranslationTextComponent(entry.getKey().getAttributeName()))
+                    .appendSibling(new TranslationTextComponent(entry.getKey().getAttributeName()))
                     .appendString(String.format(": %s%.2f ", entry.getValue().getAmount() > 0 ? "+" : "", entry.getValue().getAmount()))
-                    .append(new TranslationTextComponent("mkcore.ability.description.per_level")));
+                    .appendSibling(new TranslationTextComponent("mkcore.ability.description.per_level")));
         }
         return desc;
     }
