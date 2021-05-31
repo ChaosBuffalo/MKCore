@@ -21,6 +21,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
+import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -55,6 +56,7 @@ public class MKCore {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(EventPriority.LOWEST, this::loadComplete);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doClientStuff);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::modifyAttributesEvent);
         // Register the processIMC method for modloading
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::processIMC);
 
@@ -78,19 +80,28 @@ public class MKCore {
         event.enqueueWork(this::registerAttributes);
     }
 
+    public void modifyAttributesEvent(EntityAttributeModificationEvent event){
+        event.getTypes().forEach(entityType -> {
+            if (entityType == EntityType.PLAYER){
+                MKAttributes.iteratePlayerAttributes(attr -> event.add(entityType, attr));
+            }
+            MKAttributes.iterateEntityAttributes((attr) -> event.add(entityType, attr));
+        });
+    }
+
     private void registerAttributes() {
         Attributes.ATTACK_DAMAGE.setShouldWatch(true);
 
-        AttributeFixer.addAttributesToAll(builder ->
-                MKAttributes.iterateEntityAttributes(builder::createMutableAttribute));
-        AttributeFixer.addAttributes(EntityType.PLAYER, builder ->
-                MKAttributes.iteratePlayerAttributes(builder::createMutableAttribute));
-
-        GlobalEntityTypeAttributes.getAttributesForEntity(EntityType.PLAYER).attributeMap.forEach(((attribute, modifiableAttributeInstance) -> {
-            if (!ForgeRegistries.ATTRIBUTES.containsKey(attribute.getRegistryName())) {
-                MKCore.LOGGER.error("ERROR: Player attribute {} was not registered with the registry!", attribute);
-            }
-        }));
+//        AttributeFixer.addAttributesToAll(builder ->
+//                MKAttributes.iterateEntityAttributes(builder::createMutableAttribute));
+//        AttributeFixer.addAttributes(EntityType.PLAYER, builder ->
+//                MKAttributes.iteratePlayerAttributes(builder::createMutableAttribute));
+//
+//        GlobalEntityTypeAttributes.getAttributesForEntity(EntityType.PLAYER).attributeMap.forEach(((attribute, modifiableAttributeInstance) -> {
+//            if (!ForgeRegistries.ATTRIBUTES.containsKey(attribute.getRegistryName())) {
+//                MKCore.LOGGER.error("ERROR: Player attribute {} was not registered with the registry!", attribute);
+//            }
+//        }));
     }
 
     @SubscribeEvent

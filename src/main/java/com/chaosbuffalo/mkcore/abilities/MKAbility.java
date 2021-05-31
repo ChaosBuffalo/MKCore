@@ -117,11 +117,11 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
         float bonus = entityData.getStats().getDamageTypeBonus(damageType) * modifierScaling;
         float abilityDamage = damage + (scale * level) + bonus;
         IFormattableTextComponent damageStr = StringTextComponent.EMPTY.deepCopy();
-        damageStr.append(new StringTextComponent(String.format("%.1f", abilityDamage)).mergeStyle(TextFormatting.BOLD));
+        damageStr.appendSibling(new StringTextComponent(String.format("%.1f", abilityDamage)).mergeStyle(TextFormatting.BOLD));
         if (bonus != 0) {
-            damageStr.append(new StringTextComponent(String.format(" (+%.1f)", bonus)).mergeStyle(TextFormatting.BOLD));
+            damageStr.appendSibling(new StringTextComponent(String.format(" (+%.1f)", bonus)).mergeStyle(TextFormatting.BOLD));
         }
-        damageStr.appendString(" ").append(damageType.getDisplayName().mergeStyle(damageType.getFormatting()));
+        damageStr.appendString(" ").appendSibling(damageType.getDisplayName().mergeStyle(damageType.getFormatting()));
         return damageStr;
     }
 
@@ -130,9 +130,9 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
         float bonus = entityData.getStats().getHealBonus() * modifierScaling;
         float abilityDamage = value + (scale * level) + bonus;
         IFormattableTextComponent healStr = StringTextComponent.EMPTY.deepCopy();
-        healStr.append(new StringTextComponent(String.format("%.1f", abilityDamage)).mergeStyle(TextFormatting.UNDERLINE));
+        healStr.appendSibling(new StringTextComponent(String.format("%.1f", abilityDamage)).mergeStyle(TextFormatting.UNDERLINE));
         if (bonus != 0) {
-            healStr.append(new StringTextComponent(String.format(" (+%.1f)", bonus)).mergeStyle(TextFormatting.BOLD));
+            healStr.appendSibling(new StringTextComponent(String.format(" (+%.1f)", bonus)).mergeStyle(TextFormatting.BOLD));
         }
         healStr.mergeStyle(TextFormatting.GREEN);
         return healStr;
@@ -425,8 +425,8 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
 
     protected void shootProjectile(BaseProjectileEntity projectileEntity, float velocity, float accuracy,
                                    LivingEntity entity, AbilityContext context){
-        Vector3d startPos = entity.getPositionVec().add(new Vector3d(0, entity.getEyeHeight(entity.getPose()), 0));
-        startPos.add(entity.getForward().mul(.5, 0.0, .5));
+        Vector3d startPos = entity.getPositionVec().add(new Vector3d(0, entity.getEyeHeight(), 0));
+        startPos.add(Vector3d.fromPitchYaw(entity.getPitchYaw()).mul(.5, 0.0, .5));
         projectileEntity.setPosition(startPos.x, startPos.y, startPos.z);
         if (entity instanceof PlayerEntity){
             projectileEntity.shoot(entity, entity.rotationPitch, entity.rotationYaw, 0, velocity, accuracy);

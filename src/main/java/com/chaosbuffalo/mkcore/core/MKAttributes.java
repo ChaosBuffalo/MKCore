@@ -7,6 +7,8 @@ import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
 public class MKAttributes {
@@ -145,69 +147,88 @@ public class MKAttributes {
             .setShouldWatch(true);
 
     public static final RangedAttribute ABJURATION = (RangedAttribute) new RangedAttribute(
-            "attribute.name.mk.abjuration", 0, -10, 10)
+            "attribute.name.mk.abjuration", 0, 0, 20)
             .setRegistryName(MKCore.makeRL("abjuration"))
             .setShouldWatch(true);
 
     public static final RangedAttribute ALTERATON = (RangedAttribute) new RangedAttribute(
-            "attribute.name.mk.alteration", 0, -10, 10)
+            "attribute.name.mk.alteration", 0, 0, 20)
             .setRegistryName(MKCore.makeRL("alteration"))
             .setShouldWatch(true);
 
     public static final RangedAttribute CONJURATION = (RangedAttribute) new RangedAttribute(
-            "attribute.name.mk.conjuration", 0, -10, 10)
+            "attribute.name.mk.conjuration", 0, 0, 20)
             .setRegistryName(MKCore.makeRL("conjuration"))
             .setShouldWatch(true);
 
     public static final RangedAttribute DIVINATION = (RangedAttribute) new RangedAttribute(
-            "attribute.name.mk.divination", 0, -10, 10)
+            "attribute.name.mk.divination", 0, 0, 20)
             .setRegistryName(MKCore.makeRL("divination"))
             .setShouldWatch(true);
 
     public static final RangedAttribute ENCHANTMENT = (RangedAttribute) new RangedAttribute(
-            "attribute.name.mk.enchantment", 0, -10, 10)
+            "attribute.name.mk.enchantment", 0, 0, 20)
             .setRegistryName(MKCore.makeRL("enchantment"))
             .setShouldWatch(true);
 
     public static final RangedAttribute PHANTASM = (RangedAttribute) new RangedAttribute(
-            "attribute.name.mk.phantasm", 0, -10, 10)
+            "attribute.name.mk.phantasm", 0, 0, 20)
             .setRegistryName(MKCore.makeRL("phantasm"))
             .setShouldWatch(true);
 
     public static final RangedAttribute NECROMANCY = (RangedAttribute) new RangedAttribute(
-            "attribute.name.mk.necromancy", 0, -10, 10)
+            "attribute.name.mk.necromancy", 0, 0, 20)
             .setRegistryName(MKCore.makeRL("necromancy"))
             .setShouldWatch(true);
 
     public static final RangedAttribute RESTORATION = (RangedAttribute) new RangedAttribute(
-            "attribute.name.mk.restoration", 0, -10, 10)
+            "attribute.name.mk.restoration", 0, 0, 20)
             .setRegistryName(MKCore.makeRL("restoration"))
             .setShouldWatch(true);
 
     public static final RangedAttribute ARETE = (RangedAttribute) new RangedAttribute(
-            "attribute.name.mk.arete", 0, -10, 10)
+            "attribute.name.mk.arete", 0, 0, 20)
             .setRegistryName(MKCore.makeRL("arete"))
             .setShouldWatch(true);
 
     public static final RangedAttribute PNEUMA = (RangedAttribute) new RangedAttribute(
-            "attribute.name.mk.pneuma", 0, -10, 10)
+            "attribute.name.mk.pneuma", 0, 0, 20)
             .setRegistryName(MKCore.makeRL("pneuma"))
             .setShouldWatch(true);
 
     public static final RangedAttribute PANKRATION = (RangedAttribute) new RangedAttribute(
-            "attribute.name.mk.pankration", 0, -10, 10)
+            "attribute.name.mk.pankration", 0, 0, 20)
             .setRegistryName(MKCore.makeRL("pankration"))
             .setShouldWatch(true);
 
     public static final RangedAttribute EVOCATION = (RangedAttribute) new RangedAttribute(
-            "attribute.name.mk.evocation", 0, -10, 10)
+            "attribute.name.mk.evocation", 0, 0, 20)
             .setRegistryName(MKCore.makeRL("evocation"))
             .setShouldWatch(true);
 
     public static final RangedAttribute MARKSMANSHIP = (RangedAttribute) new RangedAttribute(
-            "attribute.name.mk.marksmanship", 0, -10, 10)
+            "attribute.name.mk.marksmanship", 0, 0, 20)
             .setRegistryName(MKCore.makeRL("marksmanship"))
             .setShouldWatch(true);
+
+    public static final List<RangedAttribute> SPELL_SKILLS = new ArrayList<>();
+    public static final List<RangedAttribute> COMBAT_SKILLS = new ArrayList<>();
+
+    static {
+        SPELL_SKILLS.add(EVOCATION);
+        SPELL_SKILLS.add(RESTORATION);
+        SPELL_SKILLS.add(DIVINATION);
+        SPELL_SKILLS.add(ENCHANTMENT);
+        SPELL_SKILLS.add(NECROMANCY);
+        SPELL_SKILLS.add(PHANTASM);
+        SPELL_SKILLS.add(ALTERATON);
+        SPELL_SKILLS.add(CONJURATION);
+        SPELL_SKILLS.add(ABJURATION);
+        COMBAT_SKILLS.add(PNEUMA);
+        COMBAT_SKILLS.add(PANKRATION);
+        COMBAT_SKILLS.add(ARETE);
+        COMBAT_SKILLS.add(MARKSMANSHIP);
+    }
 
 
     public static void iterateEntityAttributes(Consumer<Attribute> consumer) {
