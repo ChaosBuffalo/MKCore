@@ -425,8 +425,8 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
 
     protected void shootProjectile(BaseProjectileEntity projectileEntity, float velocity, float accuracy,
                                    LivingEntity entity, AbilityContext context){
-        Vector3d startPos = entity.getPositionVec().add(new Vector3d(0, entity.getEyeHeight(entity.getPose()), 0));
-        startPos.add(entity.getForward().mul(.5, 0.0, .5));
+        Vector3d startPos = entity.getPositionVec().add(new Vector3d(0, entity.getEyeHeight(), 0));
+        startPos.add(Vector3d.fromPitchYaw(entity.getPitchYaw()).mul(.5, 0.0, .5));
         projectileEntity.setPosition(startPos.x, startPos.y, startPos.z);
         if (entity instanceof PlayerEntity){
             projectileEntity.shoot(entity, entity.rotationPitch, entity.rotationYaw, 0, velocity, accuracy);
