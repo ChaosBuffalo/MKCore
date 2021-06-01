@@ -1,6 +1,9 @@
-package com.chaosbuffalo.mkcore.core.talents;
+package com.chaosbuffalo.mkcore.core.talents.talent_types;
 
 import com.chaosbuffalo.mkcore.abilities.PassiveTalentAbility;
+import com.chaosbuffalo.mkcore.core.talents.IAbilityTalent;
+import com.chaosbuffalo.mkcore.core.talents.MKTalent;
+import com.chaosbuffalo.mkcore.core.talents.TalentType;
 import net.minecraft.util.ResourceLocation;
 
 public class PassiveTalent extends MKTalent implements IAbilityTalent<PassiveTalentAbility> {

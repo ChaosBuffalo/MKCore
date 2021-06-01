@@ -8,6 +8,7 @@ import com.chaosbuffalo.mkcore.command.arguments.TalentLineIdArgument;
 import com.chaosbuffalo.mkcore.command.arguments.TalentTreeIdArgument;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.talents.*;
+import com.chaosbuffalo.mkcore.core.talents.TalentType;
 import com.chaosbuffalo.mkcore.utils.TextUtils;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
