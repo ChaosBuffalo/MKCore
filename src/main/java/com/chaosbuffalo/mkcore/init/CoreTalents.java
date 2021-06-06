@@ -6,7 +6,7 @@ import com.chaosbuffalo.mkcore.core.talents.TalentType;
 import com.chaosbuffalo.mkcore.core.talents.talent_types.AttributeTalent;
 import com.chaosbuffalo.mkcore.core.talents.MKTalent;
 import com.chaosbuffalo.mkcore.core.talents.talent_types.PassiveTalent;
-import com.chaosbuffalo.mkcore.core.talents.talent_types.SlotTalent;
+import com.chaosbuffalo.mkcore.core.talents.talent_types.SlotCountTalent;
 import com.chaosbuffalo.mkcore.core.talents.talent_types.UltimateTalent;
 import com.chaosbuffalo.mkcore.test.abilities.BurningSoul;
 import com.chaosbuffalo.mkcore.test.abilities.HealingRain;
@@ -134,18 +134,18 @@ public class CoreTalents {
     }
 
     private static void registerSlotTalents(RegistryEvent.Register<MKTalent> event){
-        SlotTalent basicSlot = new SlotTalent(
-                MKCore.makeRL("talent.basic_slot"),
+        SlotCountTalent basicSlot = new SlotCountTalent(
+                MKCore.makeRL("talent.ability_slot"),
                 TalentType.BASIC_SLOT
         );
         event.getRegistry().register(basicSlot);
-        SlotTalent passiveSlot = new SlotTalent(
-                MKCore.makeRL("talent.passive_slot"),
+        SlotCountTalent passiveSlot = new SlotCountTalent(
+                MKCore.makeRL("talent.passive_ability_slot"),
                 TalentType.PASSIVE_SLOT
         );
         event.getRegistry().register(passiveSlot);
-        SlotTalent ultimateSlot = new SlotTalent(
-                MKCore.makeRL("talent.ultimate_slot"),
+        SlotCountTalent ultimateSlot = new SlotCountTalent(
+                MKCore.makeRL("talent.ultimate_ability_slot"),
                 TalentType.ULTIMATE_SLOT
         );
         event.getRegistry().register(ultimateSlot);

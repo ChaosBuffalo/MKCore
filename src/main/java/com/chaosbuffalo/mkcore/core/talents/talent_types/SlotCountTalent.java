@@ -4,11 +4,11 @@ import com.chaosbuffalo.mkcore.core.talents.MKTalent;
 import com.chaosbuffalo.mkcore.core.talents.TalentType;
 import net.minecraft.util.ResourceLocation;
 
-public class SlotTalent extends MKTalent {
+public class SlotCountTalent extends MKTalent {
 
     private final TalentType<?> talentType;
 
-    public SlotTalent(ResourceLocation name, TalentType<?> talentType) {
+    public SlotCountTalent(ResourceLocation name, TalentType<?> talentType) {
         super(name);
         this.talentType = talentType;
     }
