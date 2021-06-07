@@ -43,8 +43,8 @@ public class CoreCapabilities {
     }
 
     public static void registerCapabilities() {
-        CapabilityManager.INSTANCE.register(MKPlayerData.class, new MKDataStorage<>(), MKPlayerData::new);
-        CapabilityManager.INSTANCE.register(MKEntityData.class, new MKDataStorage<>(), MKEntityData::new);
+        CapabilityManager.INSTANCE.register(MKPlayerData.class, new MKDataStorage<>(), () -> null);
+        CapabilityManager.INSTANCE.register(MKEntityData.class, new MKDataStorage<>(), () -> null);
         MinecraftForge.EVENT_BUS.register(CoreCapabilities.class);
     }
 
@@ -52,10 +52,13 @@ public class CoreCapabilities {
     @SubscribeEvent
     public static void attachEntityCapability(AttachCapabilitiesEvent<Entity> e) {
         if (e.getObject() instanceof PlayerEntity) {
-            e.addCapability(PLAYER_CAP_ID, new PlayerDataProvider((PlayerEntity) e.getObject()));
-        } else if (e.getObject() instanceof LivingEntity &&
-                entityAdditionPredicates.stream().anyMatch(p -> p.test((LivingEntity) e.getObject()))) {
-            e.addCapability(ENTITY_CAP_ID, new EntityDataProvider((LivingEntity) e.getObject()));
+            PlayerEntity playerEntity = (PlayerEntity) e.getObject();
+            PlayerDataProvider.attach(e, playerEntity);
+        } else if (e.getObject() instanceof LivingEntity) {
+            LivingEntity livingEntity = (LivingEntity) e.getObject();
+            if (entityAdditionPredicates.stream().anyMatch(p -> p.test(livingEntity))) {
+                EntityDataProvider.attach(e, livingEntity);
+            }
         }
     }
 
@@ -85,58 +88,66 @@ public class CoreCapabilities {
 
     public static class EntityDataProvider implements ICapabilitySerializable<CompoundNBT> {
         private final MKEntityData entityHandler;
+        private final LazyOptional<MKEntityData> capOpt;
 
         public EntityDataProvider(LivingEntity entity) {
-            entityHandler = CoreCapabilities.ENTITY_CAPABILITY.getDefaultInstance();
-            if (entityHandler != null) {
-                entityHandler.attach(entity);
-            }
+            entityHandler = new MKEntityData(entity);
+            capOpt = LazyOptional.of(() -> entityHandler);
+        }
+
+        public static void attach(AttachCapabilitiesEvent<Entity> event, LivingEntity playerEntity) {
+            EntityDataProvider provider = new EntityDataProvider(playerEntity);
+            event.addCapability(ENTITY_CAP_ID, provider);
+            event.addListener(provider.capOpt::invalidate);
         }
 
         @Nonnull
         @Override
         public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
-            return CoreCapabilities.ENTITY_CAPABILITY.orEmpty(cap, LazyOptional.of(() -> entityHandler));
+            return CoreCapabilities.ENTITY_CAPABILITY.orEmpty(cap, capOpt);
         }
 
         @Override
         public CompoundNBT serializeNBT() {
-            return (CompoundNBT) CoreCapabilities.ENTITY_CAPABILITY.getStorage().writeNBT(
-                    CoreCapabilities.ENTITY_CAPABILITY, entityHandler, null);
+            return entityHandler.serialize();
         }
 
         @Override
         public void deserializeNBT(CompoundNBT nbt) {
-            CoreCapabilities.ENTITY_CAPABILITY.getStorage().readNBT(
-                    CoreCapabilities.ENTITY_CAPABILITY, entityHandler, null, nbt);
+            entityHandler.deserialize(nbt);
         }
     }
 
 
     public static class PlayerDataProvider implements ICapabilitySerializable<CompoundNBT> {
         private final MKPlayerData playerHandler;
+        private final LazyOptional<MKPlayerData> capOpt;
 
         public PlayerDataProvider(PlayerEntity playerEntity) {
-            playerHandler = CoreCapabilities.PLAYER_CAPABILITY.getDefaultInstance();
-            if (playerHandler != null) {
-                playerHandler.attach(playerEntity);
-            }
+            playerHandler = new MKPlayerData(playerEntity);
+            capOpt = LazyOptional.of(() -> playerHandler);
+        }
+
+        public static void attach(AttachCapabilitiesEvent<Entity> event, PlayerEntity playerEntity) {
+            PlayerDataProvider provider = new PlayerDataProvider(playerEntity);
+            event.addCapability(PLAYER_CAP_ID, provider);
+            event.addListener(provider.capOpt::invalidate);
         }
 
         @Nonnull
         @Override
         public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
-            return CoreCapabilities.PLAYER_CAPABILITY.orEmpty(cap, LazyOptional.of(() -> playerHandler));
+            return CoreCapabilities.PLAYER_CAPABILITY.orEmpty(cap, capOpt);
         }
 
         @Override
         public CompoundNBT serializeNBT() {
-            return (CompoundNBT) CoreCapabilities.PLAYER_CAPABILITY.getStorage().writeNBT(CoreCapabilities.PLAYER_CAPABILITY, playerHandler, null);
+            return playerHandler.serialize();
         }
 
         @Override
         public void deserializeNBT(CompoundNBT nbt) {
-            CoreCapabilities.PLAYER_CAPABILITY.getStorage().readNBT(CoreCapabilities.PLAYER_CAPABILITY, playerHandler, null, nbt);
+            playerHandler.deserialize(nbt);
         }
     }
 }
