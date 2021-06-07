@@ -7,18 +7,14 @@ import net.minecraft.nbt.CompoundNBT;
 
 public class MKEntityData implements IMKEntityData {
 
-    private LivingEntity entity;
-    private AbilityExecutor abilityExecutor;
-    private EntityStatsModule stats;
-    private EntityAbilityKnowledge knowledge;
-    private CombatExtensionModule combatExtensionModule;
+    private final LivingEntity entity;
+    private final AbilityExecutor abilityExecutor;
+    private final EntityStatsModule stats;
+    private final EntityAbilityKnowledge knowledge;
+    private final CombatExtensionModule combatExtensionModule;
 
-    public MKEntityData() {
-
-    }
-
-    public void attach(LivingEntity entity) {
-        this.entity = entity;
+    public MKEntityData(LivingEntity livingEntity) {
+        entity = livingEntity;
         knowledge = new EntityAbilityKnowledge(this);
         abilityExecutor = new AbilityExecutor(this);
         stats = new EntityStatsModule(this);
