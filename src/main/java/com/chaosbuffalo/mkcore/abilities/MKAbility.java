@@ -38,7 +38,6 @@ import net.minecraft.util.text.*;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.ForgeRegistryEntry;
-import org.w3c.dom.Attr;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -113,30 +112,33 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
         return this;
     }
 
-    public ITextComponent getDamageDescription(IMKEntityData entityData, MKDamageType damageType, float damage,
-                                               float scale, int level, float modifierScaling){
-        float bonus = entityData.getStats().getDamageTypeBonus(damageType) * modifierScaling;
-        float abilityDamage = damage + (scale * level) + bonus;
+    protected IFormattableTextComponent formatEffectValue(float damage, float levelScale, int level, float bonus, float scaleMod) {
+        float value = damage + (levelScale * level) + (bonus * scaleMod);
         IFormattableTextComponent damageStr = StringTextComponent.EMPTY.deepCopy();
-        damageStr.appendSibling(new StringTextComponent(String.format("%.1f", abilityDamage)).mergeStyle(TextFormatting.BOLD));
+        damageStr.appendSibling(new StringTextComponent(String.format("%.1f", value)).mergeStyle(TextFormatting.BOLD));
         if (bonus != 0) {
             damageStr.appendSibling(new StringTextComponent(String.format(" (+%.1f)", bonus)).mergeStyle(TextFormatting.BOLD));
         }
+        return damageStr;
+    }
+
+    public ITextComponent getDamageDescription(IMKEntityData entityData, MKDamageType damageType, float damage,
+                                               float scale, int level, float modifierScaling) {
+        float bonus = entityData.getStats().getDamageTypeBonus(damageType);
+        IFormattableTextComponent damageStr = formatEffectValue(damage, scale, level, bonus, modifierScaling);
         damageStr.appendString(" ").appendSibling(damageType.getDisplayName().mergeStyle(damageType.getFormatting()));
         return damageStr;
     }
 
     public ITextComponent getHealDescription(IMKEntityData entityData, float value,
-                                             float scale, int level, float modifierScaling){
-        float bonus = entityData.getStats().getHealBonus() * modifierScaling;
-        float abilityDamage = value + (scale * level) + bonus;
-        IFormattableTextComponent healStr = StringTextComponent.EMPTY.deepCopy();
-        healStr.appendSibling(new StringTextComponent(String.format("%.1f", abilityDamage)).mergeStyle(TextFormatting.BOLD));
-        if (bonus != 0) {
-            healStr.appendSibling(new StringTextComponent(String.format(" (+%.1f)", bonus)).mergeStyle(TextFormatting.BOLD));
-        }
-        healStr.mergeStyle(TextFormatting.GREEN);
-        return healStr;
+                                             float scale, int level, float modifierScaling) {
+        float bonus = entityData.getStats().getHealBonus();
+        return formatEffectValue(value, scale, level, bonus, modifierScaling).mergeStyle(TextFormatting.GREEN);
+    }
+
+    protected ITextComponent formatManaValue(IMKEntityData entityData, float value, float scale, int level,
+                                             float bonus, float modifierScaling) {
+        return formatEffectValue(value, scale, level, bonus, modifierScaling).mergeStyle(TextFormatting.BLUE);
     }
 
     public ITextComponent getSkillDescription(IMKEntityData entityData){
@@ -155,14 +157,14 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
     }
 
     public void buildDescription(IMKEntityData entityData, Consumer<ITextComponent> consumer) {
+        if (!skillAttributes.isEmpty()) {
+            consumer.accept(getSkillDescription(entityData));
+        }
         consumer.accept(getManaCostDescription(entityData));
         consumer.accept(getCooldownDescription(entityData));
         consumer.accept(getCastTimeDescription(entityData));
         getTargetSelector().buildDescription(this, entityData, consumer);
         consumer.accept(getAbilityDescription(entityData));
-        if (!skillAttributes.isEmpty()){
-            consumer.accept(getSkillDescription(entityData));
-        }
     }
 
     protected ITextComponent getCooldownDescription(IMKEntityData entityData) {
