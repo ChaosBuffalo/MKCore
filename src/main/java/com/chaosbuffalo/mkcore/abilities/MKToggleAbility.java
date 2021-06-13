@@ -11,14 +11,13 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.potion.Effect;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.function.Consumer;
 
 public abstract class MKToggleAbility extends MKAbility {
 
     private static final ResourceLocation TOGGLE_EFFECT = MKCore.makeRL("textures/abilities/ability_toggle.png");
+    private final AbilityRenderer renderer = new ToggleRenderer();
 
     public MKToggleAbility(ResourceLocation abilityId) {
         super(abilityId);
@@ -84,13 +83,19 @@ public abstract class MKToggleAbility extends MKAbility {
     }
 
     @Override
-    @OnlyIn(Dist.CLIENT)
-    public void drawAbilityBarEffect(MatrixStack matrixStack, Minecraft mc, int slotX, int slotY) {
-        if (mc.player != null && mc.player.isPotionActive(getToggleEffect())) {
-            int iconSize = MKOverlay.ABILITY_ICON_SIZE + 2;
-            mc.getTextureManager().bindTexture(TOGGLE_EFFECT);
+    public AbilityRenderer getRenderer() {
+        return renderer;
+    }
 
-            AbstractGui.blit(matrixStack, slotX - 1, slotY - 1, 0, 0, iconSize, iconSize, iconSize, iconSize);
+    public class ToggleRenderer extends AbilityRenderer {
+        @Override
+        public void drawAbilityBarEffect(MatrixStack matrixStack, Minecraft mc, int slotX, int slotY) {
+            if (mc.player != null && mc.player.isPotionActive(getToggleEffect())) {
+                int iconSize = MKOverlay.ABILITY_ICON_SIZE + 2;
+                mc.getTextureManager().bindTexture(TOGGLE_EFFECT);
+
+                AbstractGui.blit(matrixStack, slotX - 1, slotY - 1, 0, 0, iconSize, iconSize, iconSize, iconSize);
+            }
         }
     }
 }

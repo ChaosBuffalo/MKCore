@@ -17,11 +17,9 @@ import com.chaosbuffalo.mkcore.utils.RayTraceUtils;
 import com.chaosbuffalo.targeting_api.Targeting;
 import com.chaosbuffalo.targeting_api.TargetingContext;
 import com.google.common.collect.ImmutableMap;
-import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.DynamicOps;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -35,8 +33,6 @@ import net.minecraft.util.math.EntityRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.*;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
 import javax.annotation.Nonnull;
@@ -239,9 +235,8 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
         return new ResourceLocation(abilityId.getNamespace(), String.format("textures/abilities/%s.png", abilityId.getPath().split(Pattern.quote("."))[1]));
     }
 
-    @OnlyIn(Dist.CLIENT)
-    public void drawAbilityBarEffect(MatrixStack matrixStack, Minecraft mc, int slotX, int slotY) {
-
+    public AbilityRenderer getRenderer() {
+        return AbilityRenderer.INSTANCE;
     }
 
     protected int getBaseCastTime() {
