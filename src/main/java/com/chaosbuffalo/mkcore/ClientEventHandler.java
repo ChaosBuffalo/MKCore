@@ -135,12 +135,12 @@ public class ClientEventHandler {
                 return;
 
             MKAbility ability = MKCoreRegistry.getAbility(abilityId);
-            if (ability == null || !ability.meetsRequirements(pData))
-                return;
 
-            MKCore.LOGGER.info("sending execute ability {} {}", type, slot);
-            PacketHandler.sendMessageToServer(new ExecuteActiveAbilityPacket(type, slot));
-            startGlobalCooldown();
+            if (ability != null && pData.getAbilityExecutor().clientSimulateAbility(ability)) {
+                MKCore.LOGGER.info("sending execute ability {} {}", type, slot);
+                PacketHandler.sendMessageToServer(new ExecuteActiveAbilityPacket(type, slot));
+                startGlobalCooldown();
+            }
         });
     }
 
