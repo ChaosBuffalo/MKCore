@@ -2,10 +2,7 @@ package com.chaosbuffalo.mkcore.core.player;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
-import com.chaosbuffalo.mkcore.abilities.AbilityContext;
-import com.chaosbuffalo.mkcore.abilities.MKAbility;
-import com.chaosbuffalo.mkcore.abilities.MKAbilityInfo;
-import com.chaosbuffalo.mkcore.abilities.MKToggleAbility;
+import com.chaosbuffalo.mkcore.abilities.*;
 import com.chaosbuffalo.mkcore.core.AbilityExecutor;
 import com.chaosbuffalo.mkcore.core.AbilitySlot;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
@@ -29,6 +26,23 @@ public class PlayerAbilityExecutor extends AbilityExecutor {
             return;
 
         executeAbility(abilityId);
+    }
+
+    public boolean clientSimulateAbility(MKAbility ability) {
+        MKAbilityInfo info = entityData.getKnowledge().getAbilityKnowledge().getKnownAbility(ability.getAbilityId());
+        if (info == null)
+            return false;
+
+        if (abilityExecutionCheck(ability, info)) {
+            AbilityTargetSelector selector = ability.getTargetSelector();
+            AbilityContext context = selector.createContext(entityData, ability);
+            if (context != null) {
+                return selector.validateContext(entityData, context);
+            } else {
+                MKCore.LOGGER.warn("CLIENT Entity {} tried to execute ability {} with a null context!", entityData.getEntity(), ability.getAbilityId());
+            }
+        }
+        return false;
     }
 
     @Override
