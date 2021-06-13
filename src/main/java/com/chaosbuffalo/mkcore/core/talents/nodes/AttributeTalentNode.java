@@ -1,7 +1,9 @@
-package com.chaosbuffalo.mkcore.core.talents;
+package com.chaosbuffalo.mkcore.core.talents.nodes;
 
 
 import com.chaosbuffalo.mkcore.MKCore;
+import com.chaosbuffalo.mkcore.core.talents.TalentNode;
+import com.chaosbuffalo.mkcore.core.talents.talent_types.AttributeTalent;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.DynamicOps;
 

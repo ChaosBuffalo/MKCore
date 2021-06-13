@@ -1,9 +1,12 @@
-package com.chaosbuffalo.mkcore.core.talents;
+package com.chaosbuffalo.mkcore.core.talents.handlers;
 
 import com.chaosbuffalo.mkcore.abilities.AbilitySource;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.player.PlayerAbilityKnowledge;
+import com.chaosbuffalo.mkcore.core.talents.TalentManager;
+import com.chaosbuffalo.mkcore.core.talents.TalentRecord;
+import com.chaosbuffalo.mkcore.core.talents.TalentTypeHandler;
 import net.minecraft.util.ResourceLocation;
 
 public abstract class AbilityTalentHandler extends TalentTypeHandler {

@@ -1,6 +1,7 @@
 package com.chaosbuffalo.mkcore.core.talents;
 
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
+import com.chaosbuffalo.mkcore.core.talents.TalentRecord;
 
 public abstract class TalentTypeHandler {
     protected final MKPlayerData playerData;

@@ -2,10 +2,12 @@ package com.chaosbuffalo.mkcore.init;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.MKAttributes;
-import com.chaosbuffalo.mkcore.core.talents.AttributeTalent;
+import com.chaosbuffalo.mkcore.core.talents.TalentType;
+import com.chaosbuffalo.mkcore.core.talents.talent_types.AttributeTalent;
 import com.chaosbuffalo.mkcore.core.talents.MKTalent;
-import com.chaosbuffalo.mkcore.core.talents.PassiveTalent;
-import com.chaosbuffalo.mkcore.core.talents.UltimateTalent;
+import com.chaosbuffalo.mkcore.core.talents.talent_types.PassiveTalent;
+import com.chaosbuffalo.mkcore.core.talents.talent_types.SlotCountTalent;
+import com.chaosbuffalo.mkcore.core.talents.talent_types.UltimateTalent;
 import com.chaosbuffalo.mkcore.test.abilities.BurningSoul;
 import com.chaosbuffalo.mkcore.test.abilities.HealingRain;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
@@ -54,6 +56,7 @@ public class CoreTalents {
         registerMKAttributeTalents(event);
         registerPassiveTalents(event);
         registerUltimateTalents(event);
+        registerSlotTalents(event);
     }
 
     private static void registerPassiveTalents(RegistryEvent.Register<MKTalent> event) {
@@ -128,6 +131,24 @@ public class CoreTalents {
                 MKAttributes.HEAL_BONUS,
                 UUID.fromString("711e57c3-cf2a-4fb5-a503-3dff0a1e007d"));
         event.getRegistry().register(healBonus);
+    }
+
+    private static void registerSlotTalents(RegistryEvent.Register<MKTalent> event){
+        SlotCountTalent basicSlot = new SlotCountTalent(
+                MKCore.makeRL("talent.ability_slot"),
+                TalentType.BASIC_SLOT
+        );
+        event.getRegistry().register(basicSlot);
+        SlotCountTalent passiveSlot = new SlotCountTalent(
+                MKCore.makeRL("talent.passive_ability_slot"),
+                TalentType.PASSIVE_SLOT
+        );
+        event.getRegistry().register(passiveSlot);
+        SlotCountTalent ultimateSlot = new SlotCountTalent(
+                MKCore.makeRL("talent.ultimate_ability_slot"),
+                TalentType.ULTIMATE_SLOT
+        );
+        event.getRegistry().register(ultimateSlot);
     }
 
 }

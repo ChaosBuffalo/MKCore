@@ -1,6 +1,8 @@
-package com.chaosbuffalo.mkcore.core.talents;
+package com.chaosbuffalo.mkcore.core.talents.talent_types;
 
 import com.chaosbuffalo.mkcore.MKCore;
+import com.chaosbuffalo.mkcore.core.talents.*;
+import com.chaosbuffalo.mkcore.core.talents.nodes.AttributeTalentNode;
 import com.mojang.serialization.Dynamic;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.RangedAttribute;

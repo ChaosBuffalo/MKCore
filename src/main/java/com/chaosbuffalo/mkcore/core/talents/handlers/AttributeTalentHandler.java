@@ -1,7 +1,11 @@
-package com.chaosbuffalo.mkcore.core.talents;
+package com.chaosbuffalo.mkcore.core.talents.handlers;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
+import com.chaosbuffalo.mkcore.core.talents.TalentTypeHandler;
+import com.chaosbuffalo.mkcore.core.talents.nodes.AttributeTalentNode;
+import com.chaosbuffalo.mkcore.core.talents.TalentRecord;
+import com.chaosbuffalo.mkcore.core.talents.talent_types.AttributeTalent;
 import net.minecraft.entity.ai.attributes.Attribute;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.AttributeModifierManager;
