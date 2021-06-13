@@ -2,6 +2,7 @@ package com.chaosbuffalo.mkcore.abilities;
 
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
+import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 
@@ -47,15 +48,17 @@ public class AbilityTargetSelector {
     }
 
     public void buildDescription(MKAbility ability, IMKEntityData entityData, Consumer<ITextComponent> consumer) {
-        consumer.accept(getDescriptionWithHeading());
-        if (doShowTargetType()) {
-            consumer.accept(ability.getTargetContextLocalization());
-        }
+        consumer.accept(getDescriptionWithHeading(ability));
         additionalDescriptors.forEach(func -> consumer.accept(func.apply(ability, entityData)));
     }
 
-    private ITextComponent getDescriptionWithHeading() {
-        return new TranslationTextComponent("mkcore.ability_description.target", getDescription());
+    private IFormattableTextComponent getDescriptionWithHeading(MKAbility ability) {
+        if (showTargetType) {
+            ITextComponent type = ability.getTargetContext().getLocalizedDescription();
+            return new TranslationTextComponent("mkcore.ability_description.target_with_type", getDescription(), type);
+        } else {
+            return new TranslationTextComponent("mkcore.ability_description.target", getDescription());
+        }
     }
 
     public ITextComponent getDescription() {
