@@ -38,6 +38,7 @@ import net.minecraft.util.text.*;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.ForgeRegistryEntry;
+import org.w3c.dom.Attr;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -130,7 +131,7 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
         float bonus = entityData.getStats().getHealBonus() * modifierScaling;
         float abilityDamage = value + (scale * level) + bonus;
         IFormattableTextComponent healStr = StringTextComponent.EMPTY.deepCopy();
-        healStr.appendSibling(new StringTextComponent(String.format("%.1f", abilityDamage)).mergeStyle(TextFormatting.UNDERLINE));
+        healStr.appendSibling(new StringTextComponent(String.format("%.1f", abilityDamage)).mergeStyle(TextFormatting.BOLD));
         if (bonus != 0) {
             healStr.appendSibling(new StringTextComponent(String.format(" (+%.1f)", bonus)).mergeStyle(TextFormatting.BOLD));
         }
@@ -296,7 +297,18 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
     }
 
     public float getManaCost(IMKEntityData entityData) {
-        return getBaseManaCost();
+        return getBaseManaCost() + getManaCostModifierForSkills(entityData);
+    }
+
+    protected float getManaCostModifierForSkills(IMKEntityData entityData){
+        float total = 0.0f;
+        for (Attribute attribute : getSkillAttributes()){
+            ModifiableAttributeInstance attr = entityData.getEntity().getAttribute(attribute);
+            if (attr != null){
+                total += attr.getValue();
+            }
+        }
+        return total;
     }
 
     protected void setManaCost(float cost) {

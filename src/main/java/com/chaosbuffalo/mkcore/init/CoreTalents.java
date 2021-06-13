@@ -2,6 +2,7 @@ package com.chaosbuffalo.mkcore.init;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.MKAttributes;
+import com.chaosbuffalo.mkcore.core.damage.MKDamageType;
 import com.chaosbuffalo.mkcore.core.talents.TalentType;
 import com.chaosbuffalo.mkcore.core.talents.talent_types.AttributeTalent;
 import com.chaosbuffalo.mkcore.core.talents.MKTalent;
@@ -16,12 +17,63 @@ import net.minecraft.entity.ai.attributes.RangedAttribute;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.registries.ObjectHolder;
+import org.spongepowered.asm.mixin.injection.At;
 
 import java.util.UUID;
 
 @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
-//@ObjectHolder(MKCore.MOD_ID)
+@ObjectHolder(MKCore.MOD_ID)
 public class CoreTalents {
+
+    @ObjectHolder("talent.max_health")
+    public static AttributeTalent MAX_HEALTH_TALENT;
+
+    @ObjectHolder("talent.armor")
+    public static AttributeTalent ARMOR_TALENT;
+
+    @ObjectHolder("talent.movement_speed")
+    public static AttributeTalent MOVEMENT_SPEED_TALENT;
+
+    @ObjectHolder("talent.max_mana")
+    public static AttributeTalent MAX_MANA_TALENT;
+
+    @ObjectHolder("talent.mana_regen")
+    public static AttributeTalent MANA_REGEN_TALENT;
+
+    @ObjectHolder("talent.melee_crit")
+    public static AttributeTalent MELEE_CRIT_TALENT;
+
+    @ObjectHolder("talent.spell_crit")
+    public static AttributeTalent SPELL_CRIT_TALENT;
+
+    @ObjectHolder("talent.melee_crit_multiplier")
+    public static AttributeTalent MELEE_CRIT_MULTIPLIER_TALENT;
+
+    @ObjectHolder("talent.spell_crit_multiplier")
+    public static AttributeTalent SPELL_CRIT_MULTIPLIER_TALENT;
+
+    @ObjectHolder("talent.cooldown_reduction")
+    public static AttributeTalent COOLDOWN_REDUCTION_TALENT;
+
+    @ObjectHolder("talent.heal_bonus")
+    public static AttributeTalent HEAL_BONUS_TALENT;
+
+    @ObjectHolder("talent.attack_damage")
+    public static AttributeTalent ATTACK_DAMAGE_TALENT;
+
+    @ObjectHolder("talent.attack_speed")
+    public static AttributeTalent ATTACK_SPEED_TALENT;
+
+    @ObjectHolder("talent.ability_slot")
+    public static SlotCountTalent ABILITY_SLOT_TALENT;
+
+    @ObjectHolder("talent.passive_ability_slot")
+    public static SlotCountTalent PASSIVE_ABILITY_SLOT_TALENT;
+
+    @ObjectHolder("talent.ultimate_ability_slot")
+    public static SlotCountTalent ULTIMATE_ABILITY_SLOT_TALENT;
+
 
     private static void registerVanillaAttributeTalents(RegistryEvent.Register<MKTalent> event) {
         // Vanilla Attributes
@@ -44,8 +96,26 @@ public class CoreTalents {
                 MKCore.makeRL("talent.movement_speed"),
                 (RangedAttribute) Attributes.MOVEMENT_SPEED,
                 UUID.fromString("95fcf4d0-aaa9-413f-8362-7706e29412f7"))
-                .setDisplayAsPercentage(true);
+                .setDisplayAsPercentage(true)
+                .setDefaultPerRank(0.01);
         event.getRegistry().register(movementSpeed);
+
+        AttributeTalent attackSpeed = new AttributeTalent(
+                MKCore.makeRL("talent.attack_speed"),
+                (RangedAttribute) Attributes.ATTACK_SPEED,
+                UUID.fromString("e8d4945f-7435-4b1b-990d-3f32815687ff"))
+                .setDisplayAsPercentage(true)
+                .setOp(AttributeModifier.Operation.MULTIPLY_TOTAL)
+                .setDefaultPerRank(0.01);
+        event.getRegistry().register(attackSpeed);
+
+        AttributeTalent attackDamage = new AttributeTalent(
+                MKCore.makeRL("talent.attack_damage"),
+                (RangedAttribute) Attributes.ATTACK_DAMAGE,
+                UUID.fromString("752d8f70-a5de-4111-af81-6bd1020b9433"))
+                .setOp(AttributeModifier.Operation.ADDITION)
+                .setDefaultPerRank(1);
+        event.getRegistry().register(attackDamage);
     }
 
     @SubscribeEvent

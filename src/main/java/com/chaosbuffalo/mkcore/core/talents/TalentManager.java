@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class TalentManager extends JsonReloadListener {
 
@@ -35,10 +36,11 @@ public class TalentManager extends JsonReloadListener {
 
     private final Map<ResourceLocation, TalentTreeDefinition> talentTreeMap = new HashMap<>();
     private boolean serverStarted = false;
+    private Collection<TalentTreeDefinition> defaultTrees;
 
     public TalentManager() {
         super(GSON, "player_talents");
-
+        this.defaultTrees = null;
         MinecraftForge.EVENT_BUS.register(this);
     }
 
@@ -69,6 +71,7 @@ public class TalentManager extends JsonReloadListener {
             }
         }
         if (serverStarted && wasChanged) {
+            defaultTrees = null;
             syncToPlayers();
         }
 
@@ -86,6 +89,14 @@ public class TalentManager extends JsonReloadListener {
 
     public TalentTreeDefinition getTalentTree(ResourceLocation treeId) {
         return talentTreeMap.get(treeId);
+    }
+
+    public Collection<TalentTreeDefinition> getDefaultTrees(){
+        if (defaultTrees == null){
+            defaultTrees = talentTreeMap.values().stream().filter(TalentTreeDefinition::isDefault)
+                    .collect(Collectors.toList());
+        }
+        return defaultTrees;
     }
 
     public void registerTalentTree(TalentTreeDefinition tree) {

@@ -115,12 +115,12 @@ public class CombatEventHandler {
     public static void onEntityDeath(LivingDeathEvent event) {
         DamageSource source = event.getSource();
 
-        if (source.getTrueSource() instanceof PlayerEntity) {
-            PlayerEntity player = (PlayerEntity) source.getTrueSource();
-            if (player.world.isRemote) {
+        if (source.getTrueSource() instanceof LivingEntity) {
+            LivingEntity killer = (LivingEntity) source.getTrueSource();
+            if (killer.world.isRemote) {
                 return;
             }
-            SpellTriggers.PLAYER_KILL_ENTITY.onEntityDeath(event, source, player);
+            SpellTriggers.LIVING_KILL_ENTITY.onEntityDeath(event, source, killer);
         }
         if (event.getEntityLiving() instanceof PlayerEntity) {
             PlayerEntity player = (PlayerEntity) event.getEntityLiving();
