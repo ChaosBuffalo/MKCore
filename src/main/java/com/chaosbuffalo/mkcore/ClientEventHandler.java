@@ -196,6 +196,9 @@ public class ClientEventHandler {
 
     @SubscribeEvent
     public static void doArmorClassTooltip(ItemTooltipEvent event) {
+        // Don't do anything during the initial search tree population
+        if (event.getPlayer() == null)
+            return;
         if (!MKConfig.CLIENT.showArmorClassOnTooltip.get())
             return;
 
