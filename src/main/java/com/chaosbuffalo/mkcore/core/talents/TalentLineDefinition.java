@@ -43,7 +43,7 @@ public class TalentLineDefinition {
         return null;
     }
 
-    private void addNode(TalentNode node) {
+    public void addNode(TalentNode node) {
         node.link(this, nodes.size());
         nodes.add(node);
     }

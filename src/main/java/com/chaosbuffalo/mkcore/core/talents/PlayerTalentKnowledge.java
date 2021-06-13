@@ -1,6 +1,7 @@
 package com.chaosbuffalo.mkcore.core.talents;
 
 import com.chaosbuffalo.mkcore.MKCore;
+import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.player.IPlayerSyncComponentProvider;
 import com.chaosbuffalo.mkcore.core.player.PlayerSyncComponent;
@@ -32,6 +33,13 @@ public class PlayerTalentKnowledge implements IPlayerSyncComponentProvider {
         addSyncPrivate(totalTalentPoints);
         if (!playerData.isServerSide()) {
             addSyncPrivate(new ClientTreeSyncGroup());
+        }
+        if (playerData.isServerSide()){
+            for (TalentTreeDefinition def : MKCore.getTalentManager().getDefaultTrees()){
+                if (!unlockTree(def.getTreeId())){
+                    MKCore.LOGGER.error("Failed to unlock default talent tree: {}", def.getTreeId());
+                }
+            }
         }
     }
 

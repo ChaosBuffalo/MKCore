@@ -13,15 +13,29 @@ public class TalentTreeDefinition {
 
     private final Map<String, TalentLineDefinition> talentLines = new HashMap<>();
     private final ResourceLocation treeId;
+    private boolean isDefault;
     private int version;
 
     public TalentTreeDefinition(ResourceLocation name) {
         treeId = name;
         version = -1;
+        isDefault = false;
     }
 
     public ResourceLocation getTreeId() {
         return treeId;
+    }
+
+    public void setDefault(boolean value) {
+        isDefault = value;
+    }
+
+    public boolean isDefault() {
+        return isDefault;
+    }
+
+    public void setVersion(int version) {
+        this.version = version;
     }
 
     public int getVersion() {
@@ -55,7 +69,7 @@ public class TalentTreeDefinition {
         return line.getNode(index);
     }
 
-    private void addLine(TalentLineDefinition line) {
+    public void addLine(TalentLineDefinition line) {
         talentLines.put(line.getName(), line);
     }
 
@@ -71,7 +85,7 @@ public class TalentTreeDefinition {
 
     public <T> void deserialize(Dynamic<T> dynamic) {
         version = dynamic.get("version").asInt(1);
-
+        isDefault = dynamic.get("isDefault").asBoolean(false);
         dynamic.get("lines")
                 .asList(d -> TalentLineDefinition.deserialize(this, d))
                 .stream().filter(Objects::nonNull)
@@ -81,6 +95,7 @@ public class TalentTreeDefinition {
     public <T> T serialize(DynamicOps<T> ops) {
         ImmutableMap.Builder<T, T> builder = ImmutableMap.builder();
         builder.put(ops.createString("version"), ops.createInt(getVersion()));
+        builder.put(ops.createString("isDefault"), ops.createBoolean(isDefault()));
         builder.put(ops.createString("lines"), ops.createList(talentLines.values().stream().map(d -> d.serialize(ops))));
         return ops.createMap(builder.build());
     }

@@ -76,6 +76,7 @@ public class StatCommand {
                 .then(createAttributeStat("pneuma", MKAttributes.PNEUMA))
                 .then(createAttributeStat("pankration", MKAttributes.PANKRATION))
                 .then(createAttributeStat("evocation", MKAttributes.EVOCATION))
+                .then(createAttributeStat("marksmanship", MKAttributes.MARKSMANSHIP))
                 ;
     }
 

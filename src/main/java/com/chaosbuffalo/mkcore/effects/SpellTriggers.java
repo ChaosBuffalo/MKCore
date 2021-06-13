@@ -45,6 +45,15 @@ public class SpellTriggers {
                 (source.getDamageType().equals("player") || source.getDamageType().equals("mob"));
     }
 
+    public static boolean isMeleeDamage(DamageSource source){
+        return isMinecraftPhysicalDamage(source) ||
+                (source instanceof MKDamageSource && ((MKDamageSource) source).isMeleeDamage());
+    }
+
+    public static boolean isSpellDamage(DamageSource source){
+        return source instanceof MKDamageSource && !((MKDamageSource) source).isMeleeDamage();
+    }
+
     public static boolean isProjectileDamage(DamageSource source) {
         return source.isProjectile();
     }
@@ -369,20 +378,20 @@ public class SpellTriggers {
         }
     }
 
-    public static class PLAYER_KILL_ENTITY {
-        private static final String TAG = PLAYER_KILL_ENTITY.class.getName();
-        private static final Map<SpellEffectBase, PlayerKillEntityTrigger> killTriggers = new HashMap<>();
+    public static class LIVING_KILL_ENTITY {
+        private static final String TAG = LIVING_KILL_ENTITY.class.getName();
+        private static final Map<SpellEffectBase, LivingKillEntityTrigger> killTriggers = new HashMap<>();
 
         @FunctionalInterface
-        public interface PlayerKillEntityTrigger {
-            void apply(LivingDeathEvent event, DamageSource source, PlayerEntity player);
+        public interface LivingKillEntityTrigger {
+            void apply(LivingDeathEvent event, DamageSource source, LivingEntity player);
         }
 
-        public static void register(SpellEffectBase potion, PlayerKillEntityTrigger trigger) {
+        public static void register(SpellEffectBase potion, LivingKillEntityTrigger trigger) {
             killTriggers.put(potion, trigger);
         }
 
-        public static void onEntityDeath(LivingDeathEvent event, DamageSource source, PlayerEntity entity) {
+        public static void onEntityDeath(LivingDeathEvent event, DamageSource source, LivingEntity entity) {
             if (!startTrigger(entity, TAG))
                 return;
 

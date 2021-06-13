@@ -18,6 +18,11 @@ public class AttributeTalentNode extends TalentNode {
         this.perRank = dynamic.get("value").asDouble(talent.getDefaultPerRank());
     }
 
+    public AttributeTalentNode(AttributeTalent talent, int maxRanks, double perRank){
+        super(talent, maxRanks);
+        this.perRank = perRank;
+    }
+
     public double getValue(int rank) {
         return perRank * rank;
     }

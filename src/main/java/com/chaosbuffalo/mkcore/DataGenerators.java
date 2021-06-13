@@ -1,6 +1,11 @@
 package com.chaosbuffalo.mkcore;
 
+import com.chaosbuffalo.mkcore.core.talents.TalentLineDefinition;
+import com.chaosbuffalo.mkcore.core.talents.TalentNode;
+import com.chaosbuffalo.mkcore.core.talents.TalentTreeDefinition;
+import com.chaosbuffalo.mkcore.core.talents.nodes.AttributeTalentNode;
 import com.chaosbuffalo.mkcore.init.CoreTags;
+import com.chaosbuffalo.mkcore.init.CoreTalents;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
@@ -32,6 +37,50 @@ public class DataGenerators {
             generator.addProvider(blockTagsProvider);
             generator.addProvider(new AbilityDataGenerator(generator, MKCore.MOD_ID));
             generator.addProvider(new ArmorClassItemTagProvider(generator, blockTagsProvider, event.getExistingFileHelper()));
+            generator.addProvider(new CoreTestTreeGenerator(generator));
+        }
+    }
+
+    public abstract static class TalentTreeDataGenerator implements IDataProvider {
+        private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
+        private final DataGenerator generator;
+
+        public TalentTreeDataGenerator(DataGenerator generator){
+            this.generator = generator;
+        }
+
+        public void writeDefinition(TalentTreeDefinition definition, @Nonnull DirectoryCache cache){
+            Path outputFolder = this.generator.getOutputFolder();
+            ResourceLocation key = definition.getTreeId();
+            Path path = outputFolder.resolve("data/" + key.getNamespace() + "/player_talents/" + key.getPath() + ".json");
+            try {
+                JsonElement element = definition.serialize(JsonOps.INSTANCE);
+                IDataProvider.save(GSON, cache, element, path);
+            } catch (IOException e){
+                MKCore.LOGGER.error("Couldn't write talent tree definition {}", path, e);
+            }
+        }
+    }
+
+    public static class CoreTestTreeGenerator extends TalentTreeDataGenerator {
+
+        public CoreTestTreeGenerator(DataGenerator generator) {
+            super(generator);
+        }
+
+        @Override
+        public void act(@Nonnull DirectoryCache cache) throws IOException {
+            TalentTreeDefinition test = new TalentTreeDefinition(MKCore.makeRL("knight"));
+            TalentLineDefinition line = new TalentLineDefinition(test, "knight_1");
+            line.addNode(new AttributeTalentNode(CoreTalents.MAX_HEALTH_TALENT, 1, 1.0));
+            test.addLine(line);
+            writeDefinition(test, cache);
+
+        }
+
+        @Override
+        public String getName() {
+            return "MKCore Talent Trees";
         }
     }
 
