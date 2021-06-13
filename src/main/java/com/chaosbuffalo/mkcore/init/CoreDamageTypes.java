@@ -42,9 +42,6 @@ public class CoreDamageTypes {
     @ObjectHolder("damage.melee")
     public static MKDamageType MeleeDamage;
 
-    @ObjectHolder("damage.elemental")
-    public static MKDamageType ElementalDamage;
-
     @ObjectHolder("damage.ranged")
     public static RangedDamageType RANGED;
 

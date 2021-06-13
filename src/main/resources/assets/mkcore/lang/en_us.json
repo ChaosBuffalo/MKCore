@@ -92,6 +92,7 @@
   "mkcore.ability_target.self": "Self",
   "mkcore.ability_target.none": "None",
   "mkcore.ability_description.target": "Targeting: %s",
+  "mkcore.ability_description.target_with_type": "Targeting: %s (%s)",
   "mkcore.ability_description.target_type": "Target Type: %s",
   "mkcore.ability_target.pbaoe": "PBAoE",
   "mkcore.ability.description.effect_with_name": "%s Modifiers:",
