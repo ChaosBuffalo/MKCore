@@ -280,10 +280,12 @@ public class ClientEventHandler {
                     EntityRayTraceResult traceResult = (EntityRayTraceResult) lookingAt;
                     Entity entityHit = traceResult.getEntity();
                     if (!Targeting.isValidFriendly(player, entityHit)) {
-                        doPlayerAttack(player, entityHit, Minecraft.getInstance());
+                        if (player.ticksSinceLastSwing > player.getCooldownPeriod()){
+                            doPlayerAttack(player, entityHit, Minecraft.getInstance());
+                            event.setSwingHand(true);
+                        }
                     }
                     event.setCanceled(true);
-                    event.setSwingHand(true);
                 }
             }
         }

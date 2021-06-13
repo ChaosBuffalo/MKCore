@@ -7,6 +7,7 @@ import com.chaosbuffalo.mkcore.abilities.ai.conditions.HealCondition;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.effects.SpellCast;
 import com.chaosbuffalo.mkcore.fx.ParticleEffects;
+import com.chaosbuffalo.mkcore.init.CoreParticles;
 import com.chaosbuffalo.mkcore.test.effects.ClericHealEffect;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.ParticleEffectSpawnPacket;
@@ -68,10 +69,10 @@ public class ClericHeal extends MKAbility {
             target.addPotionEffect(heal.toPotionEffect(level));
 //            SoundUtils.playSoundAtEntity(target, CoreSounds.spell_heal_3);
             PacketHandler.sendToTrackingAndSelf(new ParticleEffectSpawnPacket(
-                                ParticleTypes.HAPPY_VILLAGER,
+                                CoreParticles.BLUE_MAGIC_CROSS,
                                 ParticleEffects.SPHERE_MOTION, 50, 10,
                                 target.getPosX(), target.getPosY() + 1.0f,
-                                target.getPosZ(), 1.0, 1.0, 1.0, 1.5,
+                                target.getPosZ(), 1.0, 1.0, 1.0, 0.0,
                                 entity.getLookVec()), target);
         });
     }
