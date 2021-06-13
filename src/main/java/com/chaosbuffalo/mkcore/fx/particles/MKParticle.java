@@ -43,13 +43,14 @@ public class MKParticle extends SpriteTexturedParticle {
         this.currentFrame = new ParticleKeyFrame();
         this.particleAnimation = animation;
         this.varianceMap = new HashMap<>();
-        animation.tickAnimation(this);
+        animation.tickAnimation(this, 0.0f);
     }
 
 
 
     @Override
     public void renderParticle(IVertexBuilder buffer, ActiveRenderInfo renderInfo, float partialTicks) {
+        particleAnimation.tickAnimation(this, partialTicks);
         Vector3d particlePos = new Vector3d(posX, posY, posZ);
         if (renderInfo.pos.squareDistanceTo(particlePos) < 1.0){
             return;
@@ -126,7 +127,6 @@ public class MKParticle extends SpriteTexturedParticle {
 
 
     public void tick() {
-        particleAnimation.tickAnimation(this);
         this.prevPosX = this.posX;
         this.prevPosY = this.posY;
         this.prevPosZ = this.posZ;

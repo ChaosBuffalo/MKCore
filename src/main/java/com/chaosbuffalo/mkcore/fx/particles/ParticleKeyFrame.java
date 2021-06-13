@@ -103,8 +103,8 @@ public class ParticleKeyFrame {
         }
     }
 
-    public void animate(MKParticle particle, int currentTick){
-        float t = getInterpolationTime(currentTick);
+    public void animate(MKParticle particle, int currentTick, float partialTicks){
+        float t = getInterpolationTime(currentTick) + partialTicks / getDuration();
         if (hasColorAttribute()){
             getColor().animate(particle, t);
         }

@@ -20,13 +20,13 @@ public class ParticleAnimation {
         return this;
     }
 
-    public void tickAnimation(MKParticle particle){
+    public void tickAnimation(MKParticle particle, float partialTicks){
         for (ParticleKeyFrame frame : keyFrames){
             if (frame.getTickStart() == particle.getAge()){
                 frame.begin(particle);
             }
             if (frame.getDuration() > 0 && particle.getAge() >= frame.getTickStart() && particle.getAge() < frame.getTickEnd()){
-                frame.animate(particle, particle.getAge());
+                frame.animate(particle, particle.getAge(), partialTicks);
             }
             if (particle.getAge() == frame.getTickEnd() - 1){
                 frame.end(particle);
