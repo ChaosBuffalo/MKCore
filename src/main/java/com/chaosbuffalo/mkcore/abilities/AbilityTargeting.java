@@ -11,6 +11,13 @@ public class AbilityTargeting {
     public static AbilityTargetSelector NONE = new AbilityTargetSelector((entityData, ability) -> AbilityContext.EMPTY)
             .setDescriptionKey("mkcore.ability_target.none");
 
+    public static AbilityTargetSelector PROJECTILE = new AbilityTargetSelector((entityData, ability) -> AbilityContext.EMPTY)
+            .setDescriptionKey("mkcore.ability_target.projectile");
+
+    public static AbilityTargetSelector LINE = new AbilityTargetSelector((entityData, ability) -> AbilityContext.EMPTY)
+            .addDynamicDescription(AbilityDescriptions::getRangeDescription)
+            .setDescriptionKey("mkcore.ability_target.line");
+
     public static AbilityTargetSelector SELF = new AbilityTargetSelector(AbilityTargeting::selectSelf)
             .setRequiredMemories(ImmutableSet.of(MKAbilityMemories.ABILITY_TARGET))
             .setShowTargetType(false)

@@ -95,6 +95,8 @@
   "mkcore.ability_description.target_with_type": "Targeting: %s (%s)",
   "mkcore.ability_description.target_type": "Target Type: %s",
   "mkcore.ability_target.pbaoe": "PBAoE",
+  "mkcore.ability_target.projectile": "Projectile",
+  "mkcore.ability_target.line": "Line",
   "mkcore.ability.description.effect_with_name": "%s Modifiers:",
   "mkcore.ability.description.effect": "Modifiers:",
   "mkcore.ability.description.skill": "Skill: %s",
