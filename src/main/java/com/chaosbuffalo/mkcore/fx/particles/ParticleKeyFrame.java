@@ -1,18 +1,24 @@
 package com.chaosbuffalo.mkcore.fx.particles;
 
-import com.chaosbuffalo.mkcore.fx.particles.visual_attributes.ParticleColorAttribute;
-import com.chaosbuffalo.mkcore.fx.particles.visual_attributes.ParticleRenderScaleAttribute;
+import com.chaosbuffalo.mkcore.fx.particles.animation_tracks.*;
+import com.chaosbuffalo.mkcore.fx.particles.animation_tracks.motions.InheritMotionTrack;
 import com.chaosbuffalo.mkcore.utils.MathUtils;
+import com.google.common.collect.ImmutableMap;
+import com.mojang.serialization.Dynamic;
+import com.mojang.serialization.DynamicOps;
+import net.minecraft.util.ResourceLocation;
 
 
 public class ParticleKeyFrame {
-    protected final ParticleColorAttribute EMPTY_COLOR = new ParticleColorAttribute();
-    protected final ParticleRenderScaleAttribute EMPTY_SCALE = new ParticleRenderScaleAttribute();
-    protected ParticleColorAttribute color;
-    protected ParticleRenderScaleAttribute scale;
-    protected final int tickStart;
-    protected final int tickEnd;
-    protected final int duration;
+    protected final ParticleColorAnimationTrack EMPTY_COLOR = new ParticleColorAnimationTrack();
+    protected final ParticleRenderScaleAnimationTrack EMPTY_SCALE = new ParticleRenderScaleAnimationTrack();
+    protected final InheritMotionTrack EMPTY_MOTION = new InheritMotionTrack();
+    protected ParticleColorAnimationTrack colorTrack;
+    protected ParticleRenderScaleAnimationTrack scaleTrack;
+    protected ParticleMotionAnimationTrack motionTrack;
+    protected int tickStart;
+    protected int tickEnd;
+    protected int duration;
 
     public ParticleKeyFrame(int tickStart, int duration){
         this.tickStart = tickStart;
@@ -25,21 +31,86 @@ public class ParticleKeyFrame {
     }
 
     public ParticleKeyFrame withColor(float red, float green, float blue){
-        setColorAttribute(new ParticleColorAttribute(red, green, blue));
+        setColorTrack(new ParticleColorAnimationTrack(red, green, blue));
+        return this;
+    }
+
+    public ParticleKeyFrame withMotion(ParticleMotionAnimationTrack motion){
+        setMotionTrack(motion);
         return this;
     }
 
     public ParticleKeyFrame withScale(float scale, float variance){
-        setScaleAttribute(new ParticleRenderScaleAttribute(scale, variance));
+        setScaleTrack(new ParticleRenderScaleAnimationTrack(scale, variance));
         return this;
+    }
+
+    public <D> D serialize(DynamicOps<D> ops){
+        ImmutableMap.Builder<D, D> builder = ImmutableMap.builder();
+        builder.put(ops.createString("tickStart"), ops.createInt(tickStart));
+        builder.put(ops.createString("duration"), ops.createInt(duration));
+        if (hasMotionTrack()){
+            builder.put(ops.createString("motionTrack"), motionTrack.serialize(ops));
+        }
+        if (hasScaleTrack()){
+            builder.put(ops.createString("scaleTrack"), scaleTrack.serialize(ops));
+        }
+        if (hasColorTrack()){
+            builder.put(ops.createString("colorTrack"), colorTrack.serialize(ops));
+        }
+        return ops.createMap(builder.build());
+    }
+
+    public <D> void deserialize(Dynamic<D> dynamic){
+        tickStart = dynamic.get("tickStart").asInt(0);
+        duration = dynamic.get("duration").asInt(0);
+        tickEnd = tickStart + duration;
+        motionTrack = (ParticleMotionAnimationTrack) dynamic.get("motionTrack").map(d -> {
+            ResourceLocation type = ParticleAnimationTrack.getType(d);
+            ParticleAnimationTrack track = ParticleAnimationManager.getAnimationTrack(type);
+            if (track instanceof ParticleMotionAnimationTrack){
+                track.deserialize(d);
+                return track;
+            } else {
+                return null;
+            }
+        }).result().orElse(null);
+        colorTrack = (ParticleColorAnimationTrack) dynamic.get("colorTrack").map(d -> {
+            ResourceLocation type = ParticleAnimationTrack.getType(d);
+            ParticleAnimationTrack track = ParticleAnimationManager.getAnimationTrack(type);
+            if (track instanceof ParticleColorAnimationTrack){
+                track.deserialize(d);
+                return track;
+            } else {
+                return null;
+            }
+        }).result().orElse(null);
+        scaleTrack = (ParticleRenderScaleAnimationTrack) dynamic.get("scaleTrack").map(d -> {
+            ResourceLocation type = ParticleAnimationTrack.getType(d);
+            ParticleAnimationTrack track = ParticleAnimationManager.getAnimationTrack(type);
+            if (track instanceof ParticleRenderScaleAnimationTrack){
+                track.deserialize(d);
+                return track;
+            } else {
+                return null;
+            }
+        }).result().orElse(null);
+    }
+
+    public boolean hasMotionTrack(){
+        return this.motionTrack != null;
+    }
+
+    public void setMotionTrack(ParticleMotionAnimationTrack motionAttribute) {
+        this.motionTrack = motionAttribute;
     }
 
     public int getTickStart() {
         return tickStart;
     }
 
-    public ParticleRenderScaleAttribute getScale() {
-        return hasScaleAttribute() ? scale : EMPTY_SCALE;
+    public ParticleRenderScaleAnimationTrack getScaleTrack() {
+        return hasScaleTrack() ? scaleTrack : EMPTY_SCALE;
     }
 
     public int getTickEnd() {
@@ -54,62 +125,93 @@ public class ParticleKeyFrame {
         return MathUtils.clamp((float) (currentTick - tickStart) / getDuration(), 0.0f, 1.0f);
     }
 
-    public void setColorAttribute(ParticleColorAttribute color){
-        this.color = color;
+    public void setColorTrack(ParticleColorAnimationTrack color){
+        this.colorTrack = color;
     }
 
-    public boolean hasColorAttribute(){
-        return this.color != null;
+    public boolean hasColorTrack(){
+        return this.colorTrack != null;
     }
 
-    public boolean hasScaleAttribute(){
-        return this.scale != null;
+    public boolean hasScaleTrack(){
+        return this.scaleTrack != null;
     }
 
-    public void setScaleAttribute(ParticleRenderScaleAttribute scale){
-        this.scale = scale;
+    public void setScaleTrack(ParticleRenderScaleAnimationTrack scale){
+        this.scaleTrack = scale;
+    }
+
+    public ParticleMotionAnimationTrack getMotionTrack() {
+        return hasMotionTrack() ? motionTrack : EMPTY_MOTION;
     }
 
     public void apply(MKParticle particle){
-        if (hasColorAttribute()){
-            color.apply(particle);
+        if (hasColorTrack()){
+            colorTrack.apply(particle);
         }
-        if (hasScaleAttribute()){
-            scale.apply(particle);
+        if (hasScaleTrack()){
+            scaleTrack.apply(particle);
+        }
+        if (hasMotionTrack()){
+            motionTrack.apply(particle);
         }
     }
 
     public void begin(MKParticle particle){
-        if (hasScaleAttribute()){
-            particle.pushVariance(scale);
+        if (hasScaleTrack()){
+            getScaleTrack().begin(particle);
         }
-        if (duration == 0){
+        if (hasMotionTrack()){
+            getMotionTrack().begin(particle);
+        }
+        if (hasColorTrack()){
+            getColorTrack().begin(particle);
+        }
+        if (getDuration() == 0){
             apply(particle);
             end(particle);
         }
     }
 
 
-    public ParticleColorAttribute getColor(){
-        return hasColorAttribute() ? color : EMPTY_COLOR;
+    public ParticleColorAnimationTrack getColorTrack(){
+        return hasColorTrack() ? colorTrack : EMPTY_COLOR;
     }
 
     public void end(MKParticle particle){
-        if (hasColorAttribute()){
-            particle.getCurrentFrame().setColorAttribute(getColor());
+        if (hasColorTrack()){
+            getColorTrack().end(particle);
         }
-        if (hasScaleAttribute()){
-            particle.getCurrentFrame().setScaleAttribute(getScale());
+        if (hasScaleTrack()){
+            getScaleTrack().end(particle);
+        }
+        if (hasMotionTrack()){
+            getMotionTrack().end(particle);
         }
     }
 
     public void animate(MKParticle particle, int currentTick, float partialTicks){
         float t = getInterpolationTime(currentTick) + partialTicks / getDuration();
-        if (hasColorAttribute()){
-            getColor().animate(particle, t);
+        if (hasColorTrack()){
+            getColorTrack().animate(particle, t, currentTick - tickStart);
         }
-        if (hasScaleAttribute()){
-            getScale().animate(particle ,t);
+        if (hasScaleTrack()){
+            getScaleTrack().animate(particle, t, currentTick - tickStart);
+        }
+        if (hasMotionTrack()){
+            getMotionTrack().animate(particle, t, currentTick - tickStart);
+        }
+    }
+
+    public void update(MKParticle particle, int currentTick){
+        if (hasMotionTrack()){
+            getMotionTrack().update(particle, currentTick - tickStart, getInterpolationTime(currentTick));
+        }
+        if (hasColorTrack()){
+            getColorTrack().update(particle, currentTick - tickStart, getInterpolationTime(currentTick));
+        }
+        if (hasScaleTrack()){
+            getScaleTrack().update(particle, currentTick - tickStart, getInterpolationTime(currentTick));
         }
     }
 

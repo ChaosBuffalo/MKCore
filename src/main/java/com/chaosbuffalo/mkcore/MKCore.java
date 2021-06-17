@@ -10,6 +10,7 @@ import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.persona.IPersonaExtensionProvider;
 import com.chaosbuffalo.mkcore.core.persona.PersonaManager;
 import com.chaosbuffalo.mkcore.core.talents.TalentManager;
+import com.chaosbuffalo.mkcore.fx.particles.ParticleAnimationManager;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -48,6 +49,7 @@ public class MKCore {
     public static final Logger LOGGER = LogManager.getLogger();
     private final AbilityManager abilityManager;
     private final TalentManager talentManager;
+    private final ParticleAnimationManager particleAnimationManager;
 
     public static MKCore INSTANCE;
 
@@ -64,6 +66,7 @@ public class MKCore {
         MinecraftForge.EVENT_BUS.register(this);
         talentManager = new TalentManager();
         abilityManager = new AbilityManager();
+        particleAnimationManager = new ParticleAnimationManager();
 
         MKConfig.init();
     }
@@ -73,6 +76,7 @@ public class MKCore {
         PacketHandler.setupHandler();
         CoreCapabilities.registerCapabilities();
         MKCommand.registerArguments();
+        ParticleAnimationManager.setupDeserializers();
     }
 
     private void loadComplete(final FMLLoadCompleteEvent event) {

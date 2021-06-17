@@ -1,52 +1,82 @@
 package com.chaosbuffalo.mkcore.fx.particles;
 
-import com.chaosbuffalo.mkcore.fx.particles.visual_attributes.IParticleAttribute;
+import com.chaosbuffalo.mkcore.fx.particles.animation_tracks.ParticleAnimationTrack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.particle.*;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.particles.BasicParticleType;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3f;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Random;
 import java.util.function.Consumer;
 
 public class MKParticle extends SpriteTexturedParticle {
-    private final boolean hasFriction;
     private final boolean expireOnGround;
+    private final Vector3d origin;
     protected ParticleKeyFrame currentFrame;
     private Consumer<MKParticle> onExpire;
     private final ParticleAnimation particleAnimation;
-    private final Map<IParticleAttribute, Float> varianceMap;
+    private final Map<ParticleDataKey, Float> floatData;
+    private final Map<ParticleDataKey, Vector3d> vector3dData;
+    private final Map<ParticleDataKey, Vector3f> vector3fData;
+    private static final Vector3d EMPTY_VECTOR_3D = new Vector3d(0.0, 0.0, 0.0);
+    private static final Vector3f EMPTY_VECTOR_3F = new Vector3f(0.0f, 0.0f, 0.0f);
+
+    public static class ParticleDataKey {
+        private final ParticleAnimationTrack animation;
+        private final int index;
+
+        public ParticleDataKey(ParticleAnimationTrack animation, int i){
+            this.animation = animation;
+            this.index = i;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            ParticleDataKey that = (ParticleDataKey) o;
+            return index == that.index && animation.equals(that.animation);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(animation, index);
+        }
+    }
 
 
     private MKParticle(ClientWorld world, double posX, double posY, double posZ,
-                       boolean hasFriction, float gravity,
+                       float gravity,
                        float particleWidth, float particleHeight,
-                       int maxAge, boolean expireOnGround, ParticleAnimation animation) {
+                       int maxAge, boolean expireOnGround, ParticleAnimation animation,
+                       Vector3d origin) {
         super(world, posX, posY, posZ);
+        this.origin = origin;
         this.setSize(particleWidth, particleHeight);
         this.particleGravity = gravity;
-        this.hasFriction = hasFriction;
         this.maxAge = maxAge;
         this.expireOnGround = expireOnGround;
         this.onExpire = null;
         this.age = 0;
+        this.canCollide = false;
         this.currentFrame = new ParticleKeyFrame();
         this.particleAnimation = animation;
-        this.varianceMap = new HashMap<>();
+        this.floatData = new HashMap<>();
+        this.vector3dData = new HashMap<>();
+        this.vector3fData = new HashMap<>();
         animation.tickAnimation(this, 0.0f);
     }
 
-
+    public Random getRand(){
+        return rand;
+    }
 
     @Override
     public void renderParticle(IVertexBuilder buffer, ActiveRenderInfo renderInfo, float partialTicks) {
@@ -58,12 +88,40 @@ public class MKParticle extends SpriteTexturedParticle {
         super.renderParticle(buffer, renderInfo, partialTicks);
     }
 
-    public float getVarianceForAttribute(IParticleAttribute attribute){
-        return varianceMap.getOrDefault(attribute, 0.0f);
+    public Vector3d getOrigin() {
+        return origin;
     }
 
-    public void pushVariance(IParticleAttribute attribute){
-        varianceMap.put(attribute, attribute.generateVariance(this, rand));
+    public Vector3d getMotion(){
+        return new Vector3d(motionX, motionY, motionZ);
+    }
+
+    public Vector3d getPosition(){
+        return new Vector3d(posX, posY, posZ);
+    }
+
+    public void setTrackFloatData(ParticleDataKey key, float value){
+        floatData.put(key, value);
+    }
+
+    public float getTrackFloatData(ParticleDataKey key){
+        return floatData.getOrDefault(key, 0.0f);
+    }
+
+    public void setTrackVector3dData(ParticleDataKey key, Vector3d vec){
+        vector3dData.put(key, vec);
+    }
+
+    public Vector3d getTrackVector3dData(ParticleDataKey key){
+        return vector3dData.getOrDefault(key, EMPTY_VECTOR_3D);
+    }
+
+    public void setTrackVector3fData(ParticleDataKey key, Vector3f vec){
+        vector3fData.put(key, vec);
+    }
+
+    public Vector3f getTrackVector3fData(ParticleDataKey key){
+        return vector3fData.getOrDefault(key, EMPTY_VECTOR_3F);
     }
 
     public ParticleKeyFrame getCurrentFrame() {
@@ -125,61 +183,55 @@ public class MKParticle extends SpriteTexturedParticle {
         return motionZ;
     }
 
+    public float getParticleGravity(){
+        return this.particleGravity;
+    }
+
 
     public void tick() {
+        particleAnimation.tick(this);
         this.prevPosX = this.posX;
         this.prevPosY = this.posY;
         this.prevPosZ = this.posZ;
         this.expire();
         if (!this.isExpired) {
-            this.motionY -= this.particleGravity;
+//            this.motionY -= this.particleGravity;
             this.move(this.motionX, this.motionY, this.motionZ);
             this.onUpdate();
-            if (!this.isExpired && hasFriction) {
-                this.motionX *= 0.98F;
-                this.motionY *= 0.98F;
-                this.motionZ *= 0.98F;
-            }
         }
     }
 
-    public static class MKParticleFactory implements IParticleFactory<BasicParticleType> {
+    public static class MKParticleFactory implements IParticleFactory<MKParticleData> {
         protected final IAnimatedSprite spriteSet;
-        private final boolean hasFriction;
         private final float gravity;
         private final float particleWidth;
         private final float particleHeight;
         private final int maxAge;
         private final boolean expireOnGround;
-        private final ParticleAnimation animation;
         private Consumer<MKParticle> onExpire;
 
-        public MKParticleFactory(IAnimatedSprite spriteSet, boolean hasFriction,
+        public MKParticleFactory(IAnimatedSprite spriteSet,
                                  float gravity, float particleWidth, float particleHeight, int maxAge,
-                                 boolean expireOnGround, Consumer<MKParticle> onExpire, ParticleAnimation animation) {
+                                 boolean expireOnGround, Consumer<MKParticle> onExpire) {
             this.spriteSet = spriteSet;
-            this.hasFriction = hasFriction;
             this.maxAge = maxAge;
             this.gravity = gravity;
             this.particleHeight = particleHeight;
             this.particleWidth = particleWidth;
             this.expireOnGround = expireOnGround;
             this.onExpire = onExpire;
-            this.animation = animation;
         }
+
 
         @Nullable
         @Override
-        public Particle makeParticle(BasicParticleType typeIn, ClientWorld worldIn, double x, double y, double z,
-                                     double xSpeed, double ySpeed, double zSpeed) {
-            MKParticle particle = new MKParticle(worldIn, x, y, z, hasFriction,
-                    gravity, particleWidth, particleHeight, maxAge, expireOnGround, animation);
+        public Particle makeParticle(MKParticleData typeIn, ClientWorld worldIn, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
+            MKParticle particle = new MKParticle(worldIn, x, y, z,
+                    gravity, particleWidth, particleHeight, maxAge, expireOnGround, typeIn.animation, typeIn.origin);
             particle.setMotion(xSpeed, ySpeed, zSpeed);
             particle.selectSpriteRandomly(this.spriteSet);
             particle.setOnExpire(onExpire);
             return particle;
         }
-
-
     }
 }

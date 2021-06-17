@@ -7,7 +7,9 @@ import com.chaosbuffalo.mkcore.abilities.ai.conditions.HealCondition;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.effects.SpellCast;
 import com.chaosbuffalo.mkcore.fx.ParticleEffects;
+import com.chaosbuffalo.mkcore.fx.particles.CoreParticleAnimations;
 import com.chaosbuffalo.mkcore.init.CoreParticles;
+import com.chaosbuffalo.mkcore.network.MKParticleEffectSpawnPacket;
 import com.chaosbuffalo.mkcore.test.effects.ClericHealEffect;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.ParticleEffectSpawnPacket;
@@ -20,6 +22,7 @@ import net.minecraft.particles.ParticleTypes;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import org.apache.logging.log4j.core.Core;
 
 import java.util.Set;
 
@@ -68,12 +71,12 @@ public class ClericHeal extends MKAbility {
             SpellCast heal = ClericHealEffect.Create(entity, BASE_VALUE, VALUE_SCALE).setTarget(target);
             target.addPotionEffect(heal.toPotionEffect(level));
 //            SoundUtils.playSoundAtEntity(target, CoreSounds.spell_heal_3);
-            PacketHandler.sendToTrackingAndSelf(new ParticleEffectSpawnPacket(
+            PacketHandler.sendToTrackingAndSelf(new MKParticleEffectSpawnPacket(
                                 CoreParticles.BLUE_MAGIC_CROSS,
                                 ParticleEffects.SPHERE_MOTION, 50, 10,
                                 target.getPosX(), target.getPosY() + 1.0f,
                                 target.getPosZ(), 1.0, 1.0, 1.0, 0.0,
-                                entity.getLookVec()), target);
+                                entity.getLookVec(), CoreParticleAnimations.BlueMagicAnimation), target);
         });
     }
 

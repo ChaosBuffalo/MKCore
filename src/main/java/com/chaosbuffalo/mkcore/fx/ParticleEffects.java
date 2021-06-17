@@ -1,7 +1,10 @@
 package com.chaosbuffalo.mkcore.fx;
 
 import com.chaosbuffalo.mkcore.MKCore;
+import com.chaosbuffalo.mkcore.fx.particles.MKParticleData;
+import com.chaosbuffalo.mkcore.fx.particles.ParticleAnimation;
 import net.minecraft.particles.IParticleData;
+import net.minecraft.particles.ParticleType;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 
@@ -30,6 +33,22 @@ public class ParticleEffects {
                     posAndMotion[0], posAndMotion[1], posAndMotion[2],
                     posAndMotion[3], posAndMotion[4], posAndMotion[5]);
 
+        }
+    }
+
+    public static void spawnMKParticleEffect(ParticleType<MKParticleData> particleID,
+                                             int motionType, int data,
+                                             double speed, int count,
+                                             Vector3d position, Vector3d radii,
+                                             Vector3d heading, World theWorld, ParticleAnimation anim) {
+        double[] posAndMotion;
+        MKCore.LOGGER.debug("Spawning {} MK particles", count);
+        for (int i = 0; i < count; i++) {
+            posAndMotion = getPositionAndMotion(motionType, data, position,
+                    speed, i, count, radii, heading);
+            theWorld.addOptionalParticle(new MKParticleData(particleID, position, anim),
+                    posAndMotion[0], posAndMotion[1], posAndMotion[2],
+                    posAndMotion[3], posAndMotion[4], posAndMotion[5]);
         }
     }
 

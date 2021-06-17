@@ -57,6 +57,8 @@ public class PacketHandler {
                 MKItemAttackPacket::new, MKItemAttackPacket::handle);
         networkChannel.registerMessage(id++, ResetAttackSwingPacket.class, ResetAttackSwingPacket::toBytes,
                 ResetAttackSwingPacket::new, ResetAttackSwingPacket::handle);
+        networkChannel.registerMessage(id++, MKParticleEffectSpawnPacket.class, MKParticleEffectSpawnPacket::toBytes,
+                MKParticleEffectSpawnPacket::new, MKParticleEffectSpawnPacket::handle);
     }
 
     public static <T> void sendMessageToServer(T msg) {

@@ -17,9 +17,10 @@ public class ParticleRenderTypes {
         @Override
         public void beginRender(BufferBuilder bufferBuilder, TextureManager textureManager) {
             RenderSystem.depthMask(false);
+            RenderSystem.enableDepthTest();
             RenderSystem.enableBlend();
             RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
-            RenderSystem.alphaFunc(GL11.GL_GREATER, 0.01F);
+            RenderSystem.alphaFunc(GL11.GL_GREATER, 0.001F);
             RenderSystem.disableLighting();
             textureManager.bindTexture(AtlasTexture.LOCATION_PARTICLES_TEXTURE);
             textureManager.getTexture(AtlasTexture.LOCATION_PARTICLES_TEXTURE).setBlurMipmap(true, false);
@@ -29,10 +30,11 @@ public class ParticleRenderTypes {
         @Override
         public void finishRender(Tessellator tesselator) {
             tesselator.draw();
-            RenderSystem.enableDepthTest();
+
             Minecraft.getInstance().textureManager.getTexture(AtlasTexture.LOCATION_PARTICLES_TEXTURE).restoreLastBlurMipmap();
             RenderSystem.alphaFunc(GL11.GL_GREATER, 0.1F);
             RenderSystem.disableBlend();
+//            RenderSystem.enableDepthTest();
             RenderSystem.depthMask(true);
         }
 
