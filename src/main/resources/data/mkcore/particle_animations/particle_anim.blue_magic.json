@@ -1,0 +1,87 @@
+{
+  "frames": [
+    {
+      "tickStart": 0,
+      "duration": 0,
+      "scaleTrack": {
+        "trackType": "mkcore:particle_anim.render_scale",
+        "renderScale": 0.5,
+        "maxVariance": 0.25
+      },
+      "colorTrack": {
+        "trackType": "mkcore:particle_anim.color",
+        "red": 0.0,
+        "redVariance": 0.0,
+        "green": 1.0,
+        "greenVariance": 0.0,
+        "blue": 0.9490196,
+        "blueVariance": 0.0
+      }
+    },
+    {
+      "tickStart": 0,
+      "duration": 20,
+      "motionTrack": {
+        "trackType": "mkcore:particle_anim.orbit_in_plane",
+        "rpm": 10.0,
+        "rpmVariance": 0.0,
+        "centralGravity": 0.019999999552965164
+      }
+    },
+    {
+      "tickStart": 20,
+      "duration": 20,
+      "motionTrack": {
+        "trackType": "mkcore:particle_anim.orbit_in_plane",
+        "rpm": 15.0,
+        "rpmVariance": 0.0,
+        "centralGravity": 0.0
+      }
+    },
+    {
+      "tickStart": 0,
+      "duration": 40,
+      "scaleTrack": {
+        "trackType": "mkcore:particle_anim.render_scale",
+        "renderScale": 0.15,
+        "maxVariance": 0.05
+      },
+      "colorTrack": {
+        "trackType": "mkcore:particle_anim.color",
+        "red": 0.0,
+        "redVariance": 0.0,
+        "green": 0.5,
+        "greenVariance": 0.0,
+        "blue": 0.5,
+        "blueVariance": 0.0
+      }
+    },
+    {
+      "tickStart": 40,
+      "duration": 40,
+      "motionTrack": {
+        "trackType": "mkcore:particle_anim.brownian_motion",
+        "tickInterval": 5,
+        "magnitude": 0.025,
+        "doX": true,
+        "doY": true,
+        "doZ": true,
+        "doGravity": true
+      },
+      "scaleTrack": {
+        "trackType": "mkcore:particle_anim.render_scale",
+        "renderScale": 0.01,
+        "maxVariance": 0.0
+      },
+      "colorTrack": {
+        "trackType": "mkcore:particle_anim.color",
+        "red": 1.0,
+        "redVariance": 0.0,
+        "green": 0.0,
+        "greenVariance": 0.0,
+        "blue": 1.0,
+        "blueVariance": 0.0
+      }
+    }
+  ]
+}

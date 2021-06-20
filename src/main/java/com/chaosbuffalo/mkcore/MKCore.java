@@ -136,6 +136,7 @@ public class MKCore {
     public void addReloadListeners(AddReloadListenerEvent event) {
         event.addListener(abilityManager);
         event.addListener(talentManager);
+        event.addListener(particleAnimationManager);
     }
 
     private void processIMC(final InterModProcessEvent event) {

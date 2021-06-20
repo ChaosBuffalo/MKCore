@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableSet;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
 import net.minecraft.particles.ParticleTypes;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -29,6 +30,8 @@ import java.util.Set;
 @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ClericHeal extends MKAbility {
     public static final ClericHeal INSTANCE = new ClericHeal();
+
+    public static final ResourceLocation PARTICLES = MKCore.makeRL("particle_anim.blue_magic");
 
     @SubscribeEvent
     public static void register(RegistryEvent.Register<MKAbility> event) {
@@ -76,7 +79,7 @@ public class ClericHeal extends MKAbility {
                                 ParticleEffects.SPHERE_MOTION, 50, 10,
                                 target.getPosX(), target.getPosY() + 1.0f,
                                 target.getPosZ(), 1.0, 1.0, 1.0, 0.0,
-                                entity.getLookVec(), CoreParticleAnimations.BlueMagicAnimation), target);
+                                entity.getLookVec(), PARTICLES), target);
         });
     }
 

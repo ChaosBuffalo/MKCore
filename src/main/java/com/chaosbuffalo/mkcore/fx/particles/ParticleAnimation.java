@@ -3,6 +3,7 @@ package com.chaosbuffalo.mkcore.fx.particles;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.DynamicOps;
+import net.minecraft.util.ResourceLocation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,6 +62,12 @@ public class ParticleAnimation {
                 frame.animate(particle, particle.getAge(), partialTicks);
             }
         }
+    }
+
+    public static <D> ParticleAnimation deserializeFromDynamic(ResourceLocation name, Dynamic<D> dynamic){
+        ParticleAnimation anim = new ParticleAnimation();
+        anim.deserialize(dynamic);
+        return anim;
     }
 
 

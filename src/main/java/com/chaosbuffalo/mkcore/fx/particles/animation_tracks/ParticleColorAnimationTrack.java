@@ -43,9 +43,14 @@ public class ParticleColorAnimationTrack extends ParticleAnimationTrack {
 
     @Override
     public void begin(MKParticle particle) {
-        particle.setTrackVector3fData(COLOR, new Vector3f(red + redVariance * generateVariance(particle),
-                green + greenVariance * generateVariance(particle),
-                blue + blueVariance * generateVariance(particle)));
+        particle.setTrackVector3fData(COLOR, new Vector3f(
+                getColorWithVariance(red, redVariance, generateVariance(particle)),
+                getColorWithVariance(green, greenVariance, generateVariance(particle)),
+                getColorWithVariance(blue, blueVariance, generateVariance(particle))));
+    }
+
+    protected float getColorWithVariance(float color, float varianceMagnitude, float variance){
+        return Math.max(0.0f, Math.min(1.0f, color + varianceMagnitude * variance));
     }
 
     @Override
