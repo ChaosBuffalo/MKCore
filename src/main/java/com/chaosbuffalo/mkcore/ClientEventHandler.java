@@ -3,6 +3,7 @@ package com.chaosbuffalo.mkcore;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.client.gui.CharacterScreen;
 import com.chaosbuffalo.mkcore.client.gui.IPlayerDataAwareScreen;
+import com.chaosbuffalo.mkcore.client.gui.ParticleEditorScreen;
 import com.chaosbuffalo.mkcore.core.AbilitySlot;
 import com.chaosbuffalo.mkcore.core.MKAttributes;
 import com.chaosbuffalo.mkcore.core.MKRangedAttribute;
@@ -50,6 +51,7 @@ import java.util.List;
 public class ClientEventHandler {
 
     private static KeyBinding playerMenuBind;
+    private static KeyBinding particleEditorBind;
     private static KeyBinding[] activeAbilityBinds;
     private static KeyBinding[] ultimateAbilityBinds;
     private static KeyBinding itemAbilityBind;
@@ -59,6 +61,9 @@ public class ClientEventHandler {
     public static void initKeybindings() {
         playerMenuBind = new KeyBinding("key.hud.playermenu", GLFW.GLFW_KEY_J, "key.mkcore.category");
         ClientRegistry.registerKeyBinding(playerMenuBind);
+
+        particleEditorBind = new KeyBinding("key.hud.particle_editor", GLFW.GLFW_KEY_KP_ADD, "key.mkcore.category");
+        ClientRegistry.registerKeyBinding(particleEditorBind);
 
         activeAbilityBinds = new KeyBinding[GameConstants.MAX_ACTIVES];
         for (int i = 0; i < GameConstants.MAX_ACTIVES; i++) {
@@ -151,6 +156,10 @@ public class ClientEventHandler {
 
         while (playerMenuBind.isPressed()) {
             Minecraft.getInstance().displayGuiScreen(new CharacterScreen());
+        }
+
+        while (particleEditorBind.isPressed()){
+            Minecraft.getInstance().displayGuiScreen(new ParticleEditorScreen());
         }
 
         for (int i = 0; i < activeAbilityBinds.length; i++) {

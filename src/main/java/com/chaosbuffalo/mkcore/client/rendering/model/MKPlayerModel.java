@@ -5,6 +5,8 @@ import com.chaosbuffalo.mkcore.client.rendering.animations.AdditionalBipedAnimat
 import com.chaosbuffalo.mkcore.client.rendering.animations.BipedCastAnimation;
 import com.chaosbuffalo.mkcore.client.rendering.animations.PlayerCompleteCastAnimation;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
+import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.client.renderer.entity.model.PlayerModel;
 import net.minecraft.entity.player.PlayerEntity;
@@ -26,6 +28,14 @@ public class MKPlayerModel extends PlayerModel<AbstractClientPlayerEntity> {
                 animation.apply(entityIn);
             }
         });
+    }
+
+
+
+    @Override
+    public void render(MatrixStack matrixStackIn, IVertexBuilder bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
+        super.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
+
     }
 
     public AdditionalBipedAnimation<PlayerEntity> getAdditionalAnimation(MKPlayerData playerData) {

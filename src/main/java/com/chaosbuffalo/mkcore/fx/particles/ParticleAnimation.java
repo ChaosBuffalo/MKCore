@@ -1,19 +1,55 @@
 package com.chaosbuffalo.mkcore.fx.particles;
 
+import com.chaosbuffalo.mkcore.fx.particles.spawn_patterns.ParticleSpawnPattern;
+import com.chaosbuffalo.mkcore.init.CoreParticles;
+import com.chaosbuffalo.mkcore.init.CoreRegistryNames;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.DynamicOps;
+import net.minecraft.entity.Entity;
+import net.minecraft.particles.ParticleType;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.World;
+import net.minecraftforge.registries.ForgeRegistries;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ParticleAnimation {
 
-    public List<ParticleKeyFrame> keyFrames;
+    protected List<ParticleKeyFrame> keyFrames;
+    protected ParticleSpawnPattern spawnPattern;
+    protected ParticleType<MKParticleData> particleType;
 
     public ParticleAnimation(){
         this.keyFrames = new ArrayList<>();
+        this.particleType = CoreParticles.MAGIC_CROSS;
+    }
+
+    public void setSpawnPattern(ParticleSpawnPattern spawnPattern) {
+        this.spawnPattern = spawnPattern;
+    }
+
+    public void setParticleType(ParticleType<MKParticleData> particleType) {
+        this.particleType = particleType;
+    }
+
+    public ParticleType<MKParticleData> getParticleType() {
+        return particleType;
+    }
+
+    public boolean hasParticleType(){
+        return particleType != null;
+    }
+
+    public boolean hasSpawnPattern(){
+        return spawnPattern != null;
+    }
+
+    public ParticleSpawnPattern getSpawnPattern() {
+        return spawnPattern;
     }
 
     public void addKeyFrame(ParticleKeyFrame frame){
@@ -25,10 +61,37 @@ public class ParticleAnimation {
         return this;
     }
 
+    public List<ParticleKeyFrame> getKeyFrames() {
+        return keyFrames;
+    }
+
+    public void deleteKeyFrame(ParticleKeyFrame frame){
+        this.keyFrames.remove(frame);
+    }
+
+    public ParticleAnimation copy(){
+        ParticleAnimation copy = new ParticleAnimation();
+        for (ParticleKeyFrame frame : getKeyFrames()){
+            copy.addKeyFrame(frame.copy());
+        }
+        if (hasSpawnPattern()){
+            copy.setSpawnPattern(getSpawnPattern().copy());
+        }
+        copy.setParticleType(particleType);
+        return copy;
+    }
+
     public <D> D serialize(DynamicOps<D> ops){
         ImmutableMap.Builder<D, D> builder = ImmutableMap.builder();
         builder.put(ops.createString("frames"),
                 ops.createList(keyFrames.stream().map(frame -> frame.serialize(ops))));
+        if (hasSpawnPattern()){
+            builder.put(ops.createString("spawnPattern"), spawnPattern.serialize(ops));
+        }
+        if (hasParticleType()){
+            builder.put(ops.createString("particleType"),
+                    ops.createString(particleType.getRegistryName().toString()));
+        }
         return ops.createMap(builder.build());
     }
 
@@ -40,6 +103,17 @@ public class ParticleAnimation {
         });
         keyFrames.clear();
         keyFrames.addAll(newFrames);
+        spawnPattern = dynamic.get("spawnPattern").map(d -> {
+            ResourceLocation spawnPatternType = ParticleSpawnPattern.getType(d);
+            ParticleSpawnPattern spawnPattern = ParticleAnimationManager.getSpawnPattern(spawnPatternType);
+            if (spawnPattern != null){
+                spawnPattern.deserialize(d);
+            }
+            return spawnPattern;
+        }).result().orElse(null);
+        ResourceLocation loc = new ResourceLocation(dynamic.get("particleType").asString().result()
+                .orElse(CoreRegistryNames.MAGIC_CROSS_NAME.toString()));
+        particleType = (ParticleType<MKParticleData>) ForgeRegistries.PARTICLE_TYPES.getValue(loc);
     }
 
     public void tick(MKParticle particle){
@@ -56,9 +130,19 @@ public class ParticleAnimation {
         }
     }
 
+    public int getTickLength(){
+        int totalTicks = 0;
+        for (ParticleKeyFrame frame : keyFrames){
+            if (frame.getTickEnd() > totalTicks){
+                totalTicks = frame.getTickEnd();
+            }
+        }
+        return totalTicks;
+    }
+
     public void tickAnimation(MKParticle particle, float partialTicks){
         for (ParticleKeyFrame frame : keyFrames){
-            if (frame.getDuration() > 0 && particle.getAge() >= frame.getTickStart() && particle.getAge() < frame.getTickEnd()){
+            if (frame.getDuration() > 0 && particle.getAge() > frame.getTickStart() && particle.getAge() < frame.getTickEnd()){
                 frame.animate(particle, particle.getAge(), partialTicks);
             }
         }
@@ -68,6 +152,18 @@ public class ParticleAnimation {
         ParticleAnimation anim = new ParticleAnimation();
         anim.deserialize(dynamic);
         return anim;
+    }
+
+    public void spawn(World world, Vector3d location, @Nullable List<Vector3d> additionalLocs){
+        if (hasSpawnPattern() && hasParticleType()){
+            spawnPattern.spawn(getParticleType(), location, world, this, additionalLocs);
+        }
+    }
+
+    public void spawnOffsetFromEntity(World world, Vector3d offset, Entity entity, @Nullable List<Vector3d> additionalLocs){
+        if (hasSpawnPattern() && hasParticleType()){
+            spawnPattern.spawnOffsetFromEntity(getParticleType(), offset, world, this, entity, additionalLocs);
+        }
     }
 
 

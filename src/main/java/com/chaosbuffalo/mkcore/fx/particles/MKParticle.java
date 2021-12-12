@@ -1,19 +1,18 @@
 package com.chaosbuffalo.mkcore.fx.particles;
 
 import com.chaosbuffalo.mkcore.fx.particles.animation_tracks.ParticleAnimationTrack;
+import com.chaosbuffalo.mkcore.utils.MathUtils;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.particle.*;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.entity.Entity;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3f;
 
 import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Random;
+import java.util.*;
 import java.util.function.Consumer;
 
 public class MKParticle extends SpriteTexturedParticle {
@@ -25,6 +24,12 @@ public class MKParticle extends SpriteTexturedParticle {
     private final Map<ParticleDataKey, Float> floatData;
     private final Map<ParticleDataKey, Vector3d> vector3dData;
     private final Map<ParticleDataKey, Vector3f> vector3fData;
+    private float mkMinU;
+    private float mkMinV;
+    private float mkMaxU;
+    private float mkMaxV;
+    @Nullable
+    private final Entity source;
     private static final Vector3d EMPTY_VECTOR_3D = new Vector3d(0.0, 0.0, 0.0);
     private static final Vector3f EMPTY_VECTOR_3F = new Vector3f(0.0f, 0.0f, 0.0f);
 
@@ -56,7 +61,7 @@ public class MKParticle extends SpriteTexturedParticle {
                        float gravity,
                        float particleWidth, float particleHeight,
                        int maxAge, boolean expireOnGround, ParticleAnimation animation,
-                       Vector3d origin) {
+                       Vector3d origin, Entity source) {
         super(world, posX, posY, posZ);
         this.origin = origin;
         this.setSize(particleWidth, particleHeight);
@@ -65,13 +70,61 @@ public class MKParticle extends SpriteTexturedParticle {
         this.expireOnGround = expireOnGround;
         this.onExpire = null;
         this.age = 0;
+        this.source = source;
         this.canCollide = false;
         this.currentFrame = new ParticleKeyFrame();
         this.particleAnimation = animation;
         this.floatData = new HashMap<>();
         this.vector3dData = new HashMap<>();
         this.vector3fData = new HashMap<>();
+        this.maxAge = animation.getTickLength();
+        animation.tick(this);
         animation.tickAnimation(this, 0.0f);
+    }
+
+    public void fixUV(){
+        // there is not enough padding in between particles in the particle texture atlas, if we blur them
+        // sometimes you'll get pixels from an adjacent particle, lets reduce our uvs by 10% to avoid this
+        float minU = sprite.getMinU();
+        float maxU = sprite.getMaxU();
+        float minV = sprite.getMinV();
+        float maxV = sprite.getMaxV();
+        float diffU = (maxU - minU) * .1f;
+        float diffV = (maxV - minV) * .1f;
+        mkMinU = minU + diffU;
+        mkMaxU = maxU - diffU;
+        mkMinV = minV + diffV;
+        mkMaxV = maxV - diffV;
+
+    }
+
+    public boolean hasSource(){
+        return source != null;
+    }
+
+
+    public Optional<Entity> getSource() {
+        return source != null ? Optional.of(source) : Optional.empty();
+    }
+
+    @Override
+    protected float getMaxU() {
+        return mkMaxU;
+    }
+
+    @Override
+    protected float getMaxV() {
+        return mkMaxV;
+    }
+
+    @Override
+    protected float getMinU() {
+        return mkMinU;
+    }
+
+    @Override
+    protected float getMinV() {
+        return mkMinV;
     }
 
     public Random getRand(){
@@ -81,15 +134,15 @@ public class MKParticle extends SpriteTexturedParticle {
     @Override
     public void renderParticle(IVertexBuilder buffer, ActiveRenderInfo renderInfo, float partialTicks) {
         particleAnimation.tickAnimation(this, partialTicks);
-        Vector3d particlePos = new Vector3d(posX, posY, posZ);
-        if (renderInfo.pos.squareDistanceTo(particlePos) < 1.0){
-            return;
-        }
+//        Vector3d particlePos = new Vector3d(posX, posY, posZ);
+//        if (renderInfo.pos.squareDistanceTo(particlePos) < 1.0){
+//            return;
+//        }
         super.renderParticle(buffer, renderInfo, partialTicks);
     }
 
     public Vector3d getOrigin() {
-        return origin;
+        return getSource().map(ent -> origin.add(ent.getPositionVec())).orElse(origin);
     }
 
     public Vector3d getMotion(){
@@ -98,6 +151,12 @@ public class MKParticle extends SpriteTexturedParticle {
 
     public Vector3d getPosition(){
         return new Vector3d(posX, posY, posZ);
+    }
+
+    public Vector3d getInterpolatedPosition(float partialTicks){
+        return new Vector3d(MathUtils.lerpDouble(prevPosX, posX, partialTicks),
+                MathUtils.lerpDouble(prevPosY, posY, partialTicks),
+                MathUtils.lerpDouble(prevPosZ, posZ, partialTicks));
     }
 
     public void setTrackFloatData(ParticleDataKey key, float value){
@@ -227,9 +286,11 @@ public class MKParticle extends SpriteTexturedParticle {
         @Override
         public Particle makeParticle(MKParticleData typeIn, ClientWorld worldIn, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
             MKParticle particle = new MKParticle(worldIn, x, y, z,
-                    gravity, particleWidth, particleHeight, maxAge, expireOnGround, typeIn.animation, typeIn.origin);
+                    gravity, particleWidth, particleHeight, maxAge, expireOnGround, typeIn.animation, typeIn.origin,
+                    typeIn.hasSource() ? worldIn.getEntityByID(typeIn.getEntityId()) : null);
             particle.setMotion(xSpeed, ySpeed, zSpeed);
             particle.selectSpriteRandomly(this.spriteSet);
+            particle.fixUV();
             particle.setOnExpire(onExpire);
             return particle;
         }

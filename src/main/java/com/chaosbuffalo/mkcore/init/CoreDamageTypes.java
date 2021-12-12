@@ -46,7 +46,7 @@ public class CoreDamageTypes {
     public static MKDamageType ElementalDamage;
 
     @ObjectHolder("damage.ranged")
-    public static RangedDamageType RANGED;
+    public static RangedDamageType RangedDamage;
 
 
     @SubscribeEvent

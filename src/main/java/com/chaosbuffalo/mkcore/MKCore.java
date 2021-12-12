@@ -4,6 +4,7 @@ import com.chaosbuffalo.mkcore.abilities.AbilityManager;
 import com.chaosbuffalo.mkcore.client.gui.MKOverlay;
 import com.chaosbuffalo.mkcore.client.rendering.MKRenderers;
 import com.chaosbuffalo.mkcore.command.MKCommand;
+import com.chaosbuffalo.mkcore.core.ICoreExtension;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.core.MKAttributes;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
@@ -11,6 +12,7 @@ import com.chaosbuffalo.mkcore.core.persona.IPersonaExtensionProvider;
 import com.chaosbuffalo.mkcore.core.persona.PersonaManager;
 import com.chaosbuffalo.mkcore.core.talents.TalentManager;
 import com.chaosbuffalo.mkcore.fx.particles.ParticleAnimationManager;
+import com.chaosbuffalo.mkcore.init.CoreParticles;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -50,6 +52,8 @@ public class MKCore {
     private final AbilityManager abilityManager;
     private final TalentManager talentManager;
     private final ParticleAnimationManager particleAnimationManager;
+    public static final String CORE_EXTENSION = "mk_core_extension";
+    public static final String PERSONA_EXTENSION = "register_persona_extension";
 
     public static MKCore INSTANCE;
 
@@ -141,13 +145,22 @@ public class MKCore {
 
     private void processIMC(final InterModProcessEvent event) {
         MKCore.LOGGER.debug("MKCore.processIMC");
+        internalIMCStageSetup();
         event.getIMCStream().forEach(m -> {
-            if (m.getMethod().equals("register_persona_extension")) {
+            if (m.getMethod().equals(PERSONA_EXTENSION)) {
                 MKCore.LOGGER.debug("IMC register persona extension from mod {} {}", m.getSenderModId(), m.getMethod());
                 IPersonaExtensionProvider factory = (IPersonaExtensionProvider) m.getMessageSupplier().get();
                 PersonaManager.registerExtension(factory);
+            } else if (m.getMethod().equals(CORE_EXTENSION)){
+                MKCore.LOGGER.debug("IMC core extension from mod {} {}", m.getSenderModId(), m.getMethod());
+                ICoreExtension extension = (ICoreExtension) m.getMessageSupplier().get();
+                extension.register();
             }
         });
+    }
+
+    private void internalIMCStageSetup(){
+        CoreParticles.HandleEditorParticleRegistration();
     }
 
     public static ResourceLocation makeRL(String path) {
@@ -173,6 +186,8 @@ public class MKCore {
     public static AbilityManager getAbilityManager() {
         return INSTANCE.abilityManager;
     }
+
+    public static ParticleAnimationManager getAnimationManager() { return INSTANCE.particleAnimationManager; }
 
     static class AttributeFixer {
         public static void addAttributes(EntityType<? extends LivingEntity> type, Consumer<AttributeModifierMap.MutableAttribute> builder) {

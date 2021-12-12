@@ -4,10 +4,6 @@ import com.chaosbuffalo.mkcore.MKConfig;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.entities.MKAreaEffectEntity;
 import com.chaosbuffalo.mkcore.fx.particles.MKParticle;
-import com.chaosbuffalo.mkcore.fx.particles.ParticleAnimation;
-import com.chaosbuffalo.mkcore.fx.particles.ParticleKeyFrame;
-import com.chaosbuffalo.mkcore.fx.particles.animation_tracks.motions.BrownianMotionTrack;
-import com.chaosbuffalo.mkcore.fx.particles.animation_tracks.motions.OrbitingInPlaneMotionTrack;
 import com.chaosbuffalo.mkcore.init.CoreParticles;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
@@ -37,7 +33,27 @@ public class MKRenderers {
 
     @SubscribeEvent
     public static void registerParticleFactory(ParticleFactoryRegisterEvent evt){
-        Minecraft.getInstance().particles.registerFactory(CoreParticles.BLUE_MAGIC_CROSS,
+        Minecraft.getInstance().particles.registerFactory(CoreParticles.MAGIC_CROSS,
+                (spriteSet) -> new MKParticle.MKParticleFactory(
+                        spriteSet, -0.0001f, 0.05f,
+                        0.05f, 80, true,
+                        null));
+        Minecraft.getInstance().particles.registerFactory(CoreParticles.MAGIC_CLOVER,
+                (spriteSet) -> new MKParticle.MKParticleFactory(
+                        spriteSet, -0.0001f, 0.05f,
+                        0.05f, 80, true,
+                        null));
+        Minecraft.getInstance().particles.registerFactory(CoreParticles.MAGIC_LINE,
+                (spriteSet) -> new MKParticle.MKParticleFactory(
+                        spriteSet, -0.0001f, 0.05f,
+                        0.05f, 80, true,
+                        null));
+        Minecraft.getInstance().particles.registerFactory(CoreParticles.MAGIC_CIRCLE,
+                (spriteSet) -> new MKParticle.MKParticleFactory(
+                        spriteSet, -0.0001f, 0.05f,
+                        0.05f, 80, true,
+                        null));
+        Minecraft.getInstance().particles.registerFactory(CoreParticles.MAGIC_GRADIENT_SQUARE,
                 (spriteSet) -> new MKParticle.MKParticleFactory(
                         spriteSet, -0.0001f, 0.05f,
                         0.05f, 80, true,

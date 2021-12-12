@@ -3,9 +3,12 @@ package com.chaosbuffalo.mkcore.core.player;
 import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.core.AbilitySlot;
+import com.chaosbuffalo.mkcore.core.IMKEntityEntitlements;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
+import com.chaosbuffalo.mkcore.core.entitlements.MKEntitlement;
 import com.chaosbuffalo.mkcore.core.talents.ActiveTalentAbilityGroup;
 import com.chaosbuffalo.mkcore.core.talents.TalentType;
+import com.chaosbuffalo.mkcore.init.CoreEntitlements;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 
@@ -34,6 +37,22 @@ public class PlayerAbilityLoadout implements IPlayerSyncComponentProvider {
         registerAbilityContainer(AbilitySlot.Item, itemAbilityContainer);
         registerAbilityContainer(AbilitySlot.Passive, passiveContainer);
         registerAbilityContainer(AbilitySlot.Ultimate, ultimateContainer);
+    }
+
+    public void entitlementsLoadedCallback(IMKEntityEntitlements entitlements){
+        getAbilityGroup(AbilitySlot.Basic).setSlots(entitlements.getEntitlementLevel(CoreEntitlements.BasicAbilitySlotCount));
+        getAbilityGroup(AbilitySlot.Passive).setSlots(entitlements.getEntitlementLevel(CoreEntitlements.PassiveAbilitySlotCount));
+        getAbilityGroup(AbilitySlot.Ultimate).setSlots(entitlements.getEntitlementLevel(CoreEntitlements.UltimateAbilitySlotCount));
+    }
+
+    public void entitlementsChangedCallback(MKEntitlement entitlement, IMKEntityEntitlements entitlements){
+        if (entitlement.equals(CoreEntitlements.BasicAbilitySlotCount)){
+            getAbilityGroup(AbilitySlot.Basic).setSlots(entitlements.getEntitlementLevel(CoreEntitlements.BasicAbilitySlotCount));
+        } else if (entitlement.equals(CoreEntitlements.PassiveAbilitySlotCount)){
+            getAbilityGroup(AbilitySlot.Passive).setSlots(entitlements.getEntitlementLevel(CoreEntitlements.PassiveAbilitySlotCount));
+        } else if (entitlement.equals(CoreEntitlements.UltimateAbilitySlotCount)){
+            getAbilityGroup(AbilitySlot.Ultimate).setSlots(entitlements.getEntitlementLevel(CoreEntitlements.UltimateAbilitySlotCount));
+        }
     }
 
     @Override

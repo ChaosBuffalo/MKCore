@@ -210,8 +210,8 @@ public class SpellTriggers {
                                              ServerPlayerEntity playerSource, IMKEntityData sourceData) {
 
             Entity projectile = source.getImmediateSource();
-            if (projectile != null && CoreDamageTypes.RANGED.rollCrit(playerSource, livingTarget, projectile)) {
-                float newDamage = CoreDamageTypes.RANGED.applyCritDamage(playerSource, livingTarget, projectile, event.getAmount());
+            if (projectile != null && CoreDamageTypes.RangedDamage.rollCrit(playerSource, livingTarget, projectile)) {
+                float newDamage = CoreDamageTypes.RangedDamage.applyCritDamage(playerSource, livingTarget, projectile, event.getAmount());
                 event.setAmount(newDamage);
                 sendCritPacket(livingTarget, playerSource,
                         new CritMessagePacket(livingTarget.getEntityId(), playerSource.getUniqueID(), newDamage,

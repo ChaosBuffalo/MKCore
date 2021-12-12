@@ -7,13 +7,16 @@ import com.chaosbuffalo.mkcore.effects.SpellManager;
 import com.chaosbuffalo.targeting_api.Targeting;
 import com.chaosbuffalo.targeting_api.TargetingContext;
 import net.minecraft.entity.*;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.IPacket;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.particles.IParticleData;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.util.EntityPredicates;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.network.NetworkHooks;
 import net.minecraftforge.registries.ObjectHolder;
 
@@ -21,9 +24,20 @@ import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MKAreaEffectEntity extends AreaEffectCloudEntity {
+public class MKAreaEffectEntity extends AreaEffectCloudEntity implements IEntityAdditionalSpawnData {
     @ObjectHolder(MKCore.MOD_ID + ":mk_area_effect")
     public static EntityType<MKAreaEffectEntity> TYPE;
+    public boolean particlesDisabled;
+
+    @Override
+    public void writeSpawnData(PacketBuffer buffer) {
+        buffer.writeBoolean(particlesDisabled);
+    }
+
+    @Override
+    public void readSpawnData(PacketBuffer additionalData) {
+        particlesDisabled = additionalData.readBoolean();
+    }
 
     private static class EffectEntry {
         final EffectInstance effect;
@@ -49,6 +63,7 @@ public class MKAreaEffectEntity extends AreaEffectCloudEntity {
 
     public MKAreaEffectEntity(EntityType<? extends AreaEffectCloudEntity> entityType, World world) {
         super(entityType, world);
+        this.particlesDisabled = false;
         effects = new ArrayList<>();
         setRadius(DEFAULT_RADIUS);
     }
@@ -73,6 +88,7 @@ public class MKAreaEffectEntity extends AreaEffectCloudEntity {
 
     public void disableParticle() {
         // TODO
+        particlesDisabled = true;
     }
 
     private boolean isInWaitPhase() {
@@ -97,13 +113,25 @@ public class MKAreaEffectEntity extends AreaEffectCloudEntity {
     public void tick() {
         entityTick();
 
-        if (this.world.isRemote) {
+        if (this.world.isRemote && !particlesDisabled) {
             clientUpdate();
         } else {
             if (serverUpdate()) {
                 remove();
             }
         }
+    }
+
+    @Override
+    protected void writeAdditional(CompoundNBT compound) {
+        super.writeAdditional(compound);
+        compound.putBoolean("ParticlesDisabled", particlesDisabled);
+    }
+
+    @Override
+    protected void readAdditional(CompoundNBT compound) {
+        super.readAdditional(compound);
+        particlesDisabled = compound.getBoolean("ParticlesDisabled");
     }
 
     public void addSpellCast(SpellCast cast, EffectInstance effect, TargetingContext targetContext) {

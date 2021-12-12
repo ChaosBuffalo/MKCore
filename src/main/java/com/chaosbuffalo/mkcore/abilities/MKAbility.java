@@ -4,7 +4,7 @@ import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.abilities.ai.conditions.AbilityUseCondition;
 import com.chaosbuffalo.mkcore.abilities.ai.conditions.StandardUseCondition;
-import com.chaosbuffalo.mkcore.abilities.attributes.IAbilityAttribute;
+import com.chaosbuffalo.mkcore.serialization.attributes.ISerializableAttribute;
 import com.chaosbuffalo.mkcore.core.AbilitySlot;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.core.MKAttributes;
@@ -12,6 +12,7 @@ import com.chaosbuffalo.mkcore.core.MKCombatFormulas;
 import com.chaosbuffalo.mkcore.core.damage.MKDamageType;
 import com.chaosbuffalo.mkcore.entities.BaseProjectileEntity;
 import com.chaosbuffalo.mkcore.init.CoreSounds;
+import com.chaosbuffalo.mkcore.serialization.attributes.ResourceLocationAttribute;
 import com.chaosbuffalo.mkcore.utils.EntityUtils;
 import com.chaosbuffalo.mkcore.utils.RayTraceUtils;
 import com.chaosbuffalo.targeting_api.Targeting;
@@ -38,7 +39,6 @@ import net.minecraft.util.text.*;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.ForgeRegistryEntry;
-import org.w3c.dom.Attr;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -89,9 +89,11 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
     private int castTime;
     private int cooldown;
     private float manaCost;
-    private final List<IAbilityAttribute<?>> attributes;
+    private final List<ISerializableAttribute<?>> attributes;
     private AbilityUseCondition useCondition;
     private final Set<Attribute> skillAttributes;
+    private static final ResourceLocation EMPTY_PARTICLES = new ResourceLocation(MKCore.MOD_ID, "fx.casting.empty");
+    protected final ResourceLocationAttribute casting_particles = new ResourceLocationAttribute("casting_particles", EMPTY_PARTICLES);
 
 
     public MKAbility(String domain, String id) {
@@ -106,11 +108,20 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
         this.attributes = new ArrayList<>();
         this.skillAttributes = new HashSet<>();
         setUseCondition(new StandardUseCondition(this));
+        addAttribute(casting_particles);
     }
 
     protected MKAbility addSkillAttribute(Attribute attribute){
         this.skillAttributes.add(attribute);
         return this;
+    }
+
+    public boolean hasCastingParticles(){
+        return casting_particles.getValue().compareTo(EMPTY_PARTICLES) != 0;
+    }
+
+    public ResourceLocation getCastingParticles(){
+        return casting_particles.getValue();
     }
 
     public ITextComponent getDamageDescription(IMKEntityData entityData, MKDamageType damageType, float damage,
@@ -191,7 +202,7 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
         this.useCondition = useCondition;
     }
 
-    public List<IAbilityAttribute<?>> getAttributes() {
+    public List<ISerializableAttribute<?>> getAttributes() {
         return attributes;
     }
 
@@ -199,12 +210,12 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
         return useCondition;
     }
 
-    public MKAbility addAttribute(IAbilityAttribute<?> attr) {
+    public MKAbility addAttribute(ISerializableAttribute<?> attr) {
         attributes.add(attr);
         return this;
     }
 
-    public MKAbility addAttributes(IAbilityAttribute<?>... attrs) {
+    public MKAbility addAttributes(ISerializableAttribute<?>... attrs) {
         attributes.addAll(Arrays.asList(attrs));
         return this;
     }

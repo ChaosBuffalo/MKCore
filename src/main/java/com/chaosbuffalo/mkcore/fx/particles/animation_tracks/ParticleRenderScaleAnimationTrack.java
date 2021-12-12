@@ -2,28 +2,26 @@ package com.chaosbuffalo.mkcore.fx.particles.animation_tracks;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.fx.particles.MKParticle;
+import com.chaosbuffalo.mkcore.serialization.attributes.FloatAttribute;
 import com.chaosbuffalo.mkcore.utils.MathUtils;
-import com.google.common.collect.ImmutableMap;
-import com.mojang.serialization.Dynamic;
-import com.mojang.serialization.DynamicOps;
 import net.minecraft.util.ResourceLocation;
 
 public class ParticleRenderScaleAnimationTrack extends ParticleAnimationTrack {
-    private float renderScale;
-    private float maxVariance;
-    private int keyCount = 0;
+    protected final FloatAttribute renderScale = new FloatAttribute("renderScale", 1.0f);
+    protected final FloatAttribute maxVariance = new FloatAttribute("maxVariance", 0.0f);
     public final static ResourceLocation TYPE_NAME = new ResourceLocation(MKCore.MOD_ID, "particle_anim.render_scale");
     private final MKParticle.ParticleDataKey VARIANCE_KEY = new MKParticle.ParticleDataKey(this, keyCount++);
 
 
     public ParticleRenderScaleAnimationTrack(float scale, float maxVariance){
-        super(TYPE_NAME);
-        this.renderScale = scale;
-        this.maxVariance = maxVariance;
+        this();
+        this.renderScale.setValue(scale);
+        this.maxVariance.setValue(maxVariance);
     }
 
     public ParticleRenderScaleAnimationTrack(){
-        this(1.0f, 0.0f);
+        super(TYPE_NAME, AnimationTrackType.SCALE);
+        addAttributes(renderScale, maxVariance);
     }
 
     @Override
@@ -31,8 +29,13 @@ public class ParticleRenderScaleAnimationTrack extends ParticleAnimationTrack {
         particle.setScale(getScaleWithVariance(particle));
     }
 
+    @Override
+    public ParticleRenderScaleAnimationTrack copy() {
+        return new ParticleRenderScaleAnimationTrack(renderScale.getValue(), maxVariance.getValue());
+    }
+
     protected float getScaleWithVariance(MKParticle particle){
-        return renderScale + (particle.getTrackFloatData(VARIANCE_KEY) * maxVariance);
+        return renderScale.getValue() + (particle.getTrackFloatData(VARIANCE_KEY) * maxVariance.getValue());
     }
 
     @Override
@@ -41,27 +44,12 @@ public class ParticleRenderScaleAnimationTrack extends ParticleAnimationTrack {
     }
 
     @Override
-    public void begin(MKParticle particle) {
+    public void begin(MKParticle particle, int duration) {
         particle.setTrackFloatData(VARIANCE_KEY, generateVariance(particle));
     }
 
     @Override
-    public <D> void deserialize(Dynamic<D> dynamic) {
-        renderScale = dynamic.get("renderScale").asFloat(1.0f);
-        maxVariance = dynamic.get("maxVariance").asFloat(0.0f);
-    }
-
-    @Override
-    public <D> D serialize(DynamicOps<D> ops) {
-        ImmutableMap.Builder<D, D> builder = ImmutableMap.builder();
-        D sup = super.serialize(ops);
-        builder.put(ops.createString("renderScale"), ops.createFloat(renderScale));
-        builder.put(ops.createString("maxVariance"), ops.createFloat(maxVariance));
-        return ops.mergeToMap(sup, builder.build()).result().orElse(sup);
-    }
-
-    @Override
-    public void animate(MKParticle particle, float time, int trackTick) {
+    public void animate(MKParticle particle, float time, int trackTick, int duration, float partialTicks) {
         particle.setScale(MathUtils.lerp(particle.getCurrentFrame().getScaleTrack().getScaleWithVariance(particle),
                 getScaleWithVariance(particle), time));
     }

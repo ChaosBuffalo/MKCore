@@ -61,6 +61,12 @@ public class PacketHandler {
                 MKParticleEffectSpawnPacket::new, MKParticleEffectSpawnPacket::handle);
         networkChannel.registerMessage(id++, ParticleAnimationsSyncPacket.class, ParticleAnimationsSyncPacket::toBytes,
                 ParticleAnimationsSyncPacket::new, ParticleAnimationsSyncPacket::handle);
+        networkChannel.registerMessage(id++, MKParticleEffectEditorSpawnPacket.class, MKParticleEffectSpawnPacket::toBytes,
+                MKParticleEffectEditorSpawnPacket::new, MKParticleEffectEditorSpawnPacket::handle);
+        networkChannel.registerMessage(id++, ParticleAnimationEditorSyncPacket.class, ParticleAnimationEditorSyncPacket::toBytes,
+                ParticleAnimationEditorSyncPacket::new, ParticleAnimationEditorSyncPacket::handle);
+        networkChannel.registerMessage(id++, WriteAnimationPacket.class, WriteAnimationPacket::toBytes,
+                WriteAnimationPacket::new, WriteAnimationPacket::handle);
     }
 
     public static <T> void sendMessageToServer(T msg) {

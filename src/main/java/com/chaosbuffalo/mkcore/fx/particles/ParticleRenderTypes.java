@@ -19,6 +19,7 @@ public class ParticleRenderTypes {
             RenderSystem.depthMask(false);
             RenderSystem.enableDepthTest();
             RenderSystem.enableBlend();
+//            RenderSystem.depthFunc(GL11.GL_LEQUAL);
             RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
             RenderSystem.alphaFunc(GL11.GL_GREATER, 0.001F);
             RenderSystem.disableLighting();
@@ -35,6 +36,7 @@ public class ParticleRenderTypes {
             RenderSystem.alphaFunc(GL11.GL_GREATER, 0.1F);
             RenderSystem.disableBlend();
 //            RenderSystem.enableDepthTest();
+//            RenderSystem.depthFunc(GL11.GL_LEQUAL);
             RenderSystem.depthMask(true);
         }
 

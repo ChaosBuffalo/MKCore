@@ -8,6 +8,7 @@ import com.chaosbuffalo.mkcore.abilities.MKAbilityInfo;
 import com.chaosbuffalo.mkcore.abilities.MKToggleAbility;
 import com.chaosbuffalo.mkcore.core.AbilityExecutor;
 import com.chaosbuffalo.mkcore.core.AbilitySlot;
+import com.chaosbuffalo.mkcore.core.IMKEntityEntitlements;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.events.PlayerAbilityEvent;
 import net.minecraft.util.ResourceLocation;
@@ -30,6 +31,8 @@ public class PlayerAbilityExecutor extends AbilityExecutor {
 
         executeAbility(abilityId);
     }
+
+
 
     @Override
     protected void consumeResource(MKAbility ability) {

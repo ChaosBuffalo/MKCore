@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public abstract class BaseProjectileEntity extends ProjectileEntity {
+public abstract class BaseProjectileEntity extends ProjectileEntity implements IClientUpdatable {
 
     @Nullable
     private BlockState inBlockState;
@@ -35,7 +35,6 @@ public abstract class BaseProjectileEntity extends ProjectileEntity {
     public static final double MAX_INACCURACY = 0.0075;
 
     private int amplifier;
-    private int graphicalEffectTickInterval;
     private int ticksInGround;
     private int ticksInAir;
     private int deathTime;
@@ -54,7 +53,6 @@ public abstract class BaseProjectileEntity extends ProjectileEntity {
         this.setAirProcTime(20);
         this.setDoAirProc(false);
         this.setAmplifier(0);
-        graphicalEffectTickInterval = 5;
         setup();
     }
 
@@ -73,13 +71,6 @@ public abstract class BaseProjectileEntity extends ProjectileEntity {
         return this.amplifier;
     }
 
-    public int getGraphicalEffectTickInterval() {
-        return this.graphicalEffectTickInterval;
-    }
-
-    public void setGraphicalEffectTickInterval(int value) {
-        graphicalEffectTickInterval = value;
-    }
 
     public void setAmplifier(int newVal) {
         this.amplifier = newVal;
@@ -187,10 +178,6 @@ public abstract class BaseProjectileEntity extends ProjectileEntity {
 
     public boolean isInGround() {
         return inGround;
-    }
-
-    public void clientGraphicalUpdate() {
-
     }
 
     protected boolean checkIfInGround(BlockPos blockpos, BlockState blockstate) {
@@ -375,9 +362,9 @@ public abstract class BaseProjectileEntity extends ProjectileEntity {
         BlockState blockstate = this.world.getBlockState(blockpos);
         this.inGround = checkIfInGround(blockpos, blockstate);
 
-        if (world.isRemote && ticksExisted % graphicalEffectTickInterval == 0) {
-            clientGraphicalUpdate();
-        }
+//        if (world.isRemote && ticksExisted % graphicalEffectTickInterval == 0) {
+//            clientGraphicalUpdate();
+//        }
 
         if (this.inGround) {
             if (this.inBlockState != blockstate && this.world.hasNoCollisions(this.getBoundingBox().grow(0.06D))) {

@@ -63,7 +63,7 @@ public class LearnAbilityTray extends MKStackLayoutVertical {
         MKImage background = GuiTextures.CORE_TEXTURES.getImageForRegion(
                 GuiTextures.BACKGROUND_180_200, xPos, yPos, POPUP_WIDTH, POPUP_HEIGHT);
         popup.addWidget(background);
-        String promptText = I18n.format("mkcore.gui.character.forget_ability", getAbility().getAbilityName());
+        String promptText = I18n.format("mkcore.gui.character.forget_ability", getAbility().getAbilityName().getString());
         MKText prompt = new MKText(font, promptText, xPos + 6, yPos + 6);
         prompt.setWidth(POPUP_WIDTH - 10);
         prompt.setMultiline(true);

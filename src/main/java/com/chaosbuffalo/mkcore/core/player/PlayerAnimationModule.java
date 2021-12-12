@@ -2,12 +2,22 @@ package com.chaosbuffalo.mkcore.core.player;
 
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
+import com.chaosbuffalo.mkcore.fx.particles.effect_instances.ParticleEffectInstance;
 
-public class PlayerAnimationModule {
+import java.util.List;
+
+public class PlayerAnimationModule implements IPlayerSyncComponentProvider {
+    private final PlayerSyncComponent sync = new PlayerSyncComponent("anim");
     private final MKPlayerData playerData;
     private int castAnimTimer;
     private PlayerVisualCastState playerVisualCastState;
     private MKAbility castingAbility;
+    private ParticleEffectInstanceTracker effectInstanceTracker;
+
+    @Override
+    public PlayerSyncComponent getSyncComponent() {
+        return sync;
+    }
 
     public enum PlayerVisualCastState {
         NONE,
@@ -20,6 +30,16 @@ public class PlayerAnimationModule {
         playerVisualCastState = PlayerVisualCastState.NONE;
         castAnimTimer = 0;
         castingAbility = null;
+        effectInstanceTracker = ParticleEffectInstanceTracker.getTracker(playerData);
+        addSyncPublic(effectInstanceTracker);
+    }
+
+    public ParticleEffectInstanceTracker getEffectInstanceTracker() {
+        return effectInstanceTracker;
+    }
+
+    public List<ParticleEffectInstance> getParticleInstances() {
+        return effectInstanceTracker.getParticleInstances();
     }
 
     protected MKPlayerData getPlayerData() {

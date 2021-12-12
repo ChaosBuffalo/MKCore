@@ -3,93 +3,110 @@ package com.chaosbuffalo.mkcore.fx.particles.animation_tracks.motions;
 import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.fx.particles.MKParticle;
+import com.chaosbuffalo.mkcore.serialization.attributes.DoubleAttribute;
+import com.chaosbuffalo.mkcore.serialization.attributes.FloatAttribute;
 import com.chaosbuffalo.mkcore.utils.MathUtils;
-import com.google.common.collect.ImmutableMap;
-import com.mojang.serialization.Dynamic;
-import com.mojang.serialization.DynamicOps;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.vector.Vector3d;
 
 public class OrbitingInPlaneMotionTrack extends BaseMotionTrack {
-
-    private double rpm;
-    private double rpmVarianceMagnitude;
-    private double centralGravity;
+    protected final DoubleAttribute rpm = new DoubleAttribute("rpm", 1.0f);
+    protected final DoubleAttribute rpmVarianceMagnitude = new DoubleAttribute("rpmVariance", 0.0f);
+    protected final FloatAttribute rampTime = new FloatAttribute("ramp", -1.0f);
     public final static ResourceLocation TYPE_NAME = new ResourceLocation(MKCore.MOD_ID, "particle_anim.orbit_in_plane");
-    private int keyCount = 0;
     private final MKParticle.ParticleDataKey MOTION_VECTOR = new MKParticle.ParticleDataKey(this,
             keyCount++);
     private final MKParticle.ParticleDataKey VARIANCE_SCALAR = new MKParticle.ParticleDataKey(this, keyCount++);
 
 
-    public OrbitingInPlaneMotionTrack(double rpm, double rpmVarianceMagnitude, double centralGravity){
-        super(TYPE_NAME);
-        this.rpm = rpm;
-        this.rpmVarianceMagnitude = rpmVarianceMagnitude;
-        this.centralGravity = centralGravity;
+    public OrbitingInPlaneMotionTrack(double rpm, double rpmVarianceMagnitude, float rampTime){
+        this();
+        this.rpm.setValue(rpm);
+        this.rpmVarianceMagnitude.setValue(rpmVarianceMagnitude);
+        this.rampTime.setValue(rampTime);
     }
 
     public OrbitingInPlaneMotionTrack(){
-        this(1.0, 0.0, 0.0);
+        super(TYPE_NAME);
+        addAttributes(rpm, rpmVarianceMagnitude, rampTime);
     }
 
 
     @Override
-    public void begin(MKParticle particle) {
-        Vector3d pos = particle.getOrigin().subtract(particle.getPosition());
+    public OrbitingInPlaneMotionTrack copy() {
+        return new OrbitingInPlaneMotionTrack(rpm.getValue(), rpmVarianceMagnitude.getValue(), rampTime.getValue());
+    }
+
+    @Override
+    public void begin(MKParticle particle, int duration) {
+        Vector3d pos = particle.getPosition();
         particle.setTrackFloatData(VARIANCE_SCALAR, generateVariance(particle));
-        Vector3d originVertical = new Vector3d(particle.getOrigin().getX(), particle.getPosition().getY(),
+        Vector3d originVertical = new Vector3d(particle.getOrigin().getX(), pos.getY(),
                 particle.getOrigin().getZ());
-        double realRadius = particle.getPosition().distanceTo(originVertical);
-        double startAngleX = Math.acos(pos.getX() / realRadius);
-        if (particle.getRand().nextBoolean()){
-            startAngleX -= Math.PI;
+        Vector3d diff = pos.subtract(originVertical);
+        double realRadius = pos.distanceTo(originVertical);
+        double angle = MathUtils.getAngleAroundYAxis(diff.getZ(), diff.getX());
+        double w = (Math.PI * 2) / GameConstants.TICKS_PER_SECOND * ((rpm.getValue() + particle.getTrackFloatData(VARIANCE_SCALAR) * rpmVarianceMagnitude.getValue()) / 60);
+        particle.setTrackVector3dData(MOTION_VECTOR, new Vector3d(angle, w, realRadius));
+        particle.setMotion(0, 0, 0);
+        updateParticle(particle, 0, duration, 0);
+    }
+
+    private void updateParticle(MKParticle particle, float time, int duration, float partialTicks){
+        Vector3d motionData = particle.getTrackVector3dData(MOTION_VECTOR);
+
+        float rT = rampTime.getValue();
+        float realTime;
+        boolean usingRamp = false;
+        if (rT <= 0){
+            realTime = time;
+        } else {
+            usingRamp = true;
+            realTime = time < rT ? 0.0f : MathUtils.lerp(0.0f, 1.0f, (time - rT) / (1.0f - rT) );
         }
-//        double startAngleZ = Math.asin(pos.getZ() / realRadius);
-//        if (particle.getRand().nextBoolean()){
-//            startAngleZ -= Math.PI;
-//        }
-        double w = (Math.PI * 2) / GameConstants.TICKS_PER_SECOND * ((rpm + particle.getTrackFloatData(VARIANCE_SCALAR) * rpmVarianceMagnitude) / 60);
-        particle.setTrackVector3dData(MOTION_VECTOR, new Vector3d(startAngleX, w, realRadius));
+        float elapsed = realTime * duration;
+        double vx = -motionData.z * Math.sin(motionData.x + elapsed * motionData.y);
+        double vz = -motionData.z * Math.cos(motionData.x + elapsed * motionData.y);
+        Vector3d desiredPosition = new Vector3d(particle.getOrigin().getX() + vx,
+                particle.getPosition().getY(), particle.getOrigin().getZ() + vz);
+        if (usingRamp){
+            Vector3d pos = particle.getPosition();
+            particle.setPosition(
+                    MathUtils.lerpDouble(pos.getX(), desiredPosition.getX(), time / rT),
+                    MathUtils.lerpDouble(pos.getY(), desiredPosition.getY(), time / rT),
+                    MathUtils.lerpDouble(pos.getZ(), desiredPosition.getZ(), time / rT)
+            );
+        } else {
+            particle.setPosition(desiredPosition.getX(), desiredPosition.getY(), desiredPosition.getZ());
+        }
     }
 
     @Override
-    public <D> void deserialize(Dynamic<D> dynamic) {
-        rpm = dynamic.get("rpm").asDouble(1.0);
-        rpmVarianceMagnitude = dynamic.get("rpmVariance").asDouble(0.0);
-        centralGravity = dynamic.get("centralGravity").asDouble(0.0);
-    }
-
-    @Override
-    public <D> D serialize(DynamicOps<D> ops) {
-        ImmutableMap.Builder<D, D> builder = ImmutableMap.builder();
-        D sup = super.serialize(ops);
-        builder.put(ops.createString("rpm"), ops.createDouble(rpm));
-        builder.put(ops.createString("rpmVariance"), ops.createDouble(rpmVarianceMagnitude));
-        builder.put(ops.createString("centralGravity"), ops.createDouble(centralGravity));
-        return ops.mergeToMap(sup, builder.build()).result().orElse(sup);
+    public void animate(MKParticle particle, float time, int trackTick, int duration, float partialTicks) {
+        updateParticle(particle, time, duration, partialTicks);
     }
 
     @Override
     public void update(MKParticle particle, int tick, float time) {
-        Vector3d variance = particle.getTrackVector3dData(MOTION_VECTOR);
-        double vx = -variance.z * Math.sin(variance.x + tick * variance.y);
-        double vz = -variance.z * Math.cos(variance.x + tick * variance.y);
-        Vector3d desiredPosition = new Vector3d(particle.getOrigin().getX() + vx,
-                particle.getPosition().getY(), particle.getOrigin().getZ() + vz);
-        Vector3d finalMotion = desiredPosition.subtract(particle.getPosition()).scale(1.0 / GameConstants.TICKS_PER_SECOND);
-        if (centralGravity != 0.0f){
-            Vector3d toOrigin = particle.getOrigin().subtract(particle.getPosition());
-            Vector3d norm = toOrigin.normalize().scale(centralGravity);
-            finalMotion = finalMotion.add(norm);
-        }
-        particle.setMotion(
-                MathUtils.lerpDouble(particle.getMotionX(), finalMotion.x, 0.9),
-                MathUtils.lerpDouble(particle.getMotionY(), finalMotion.y, 0.9),
-                MathUtils.lerpDouble(particle.getMotionZ(), finalMotion.z, 0.9)
-        );
+//        Vector3d variance = particle.getTrackVector3dData(MOTION_VECTOR);
+//        double vx = -variance.z * Math.sin(variance.x + tick * variance.y);
+//        double vz = -variance.z * Math.cos(variance.x + tick * variance.y);
+//        Vector3d desiredPosition = new Vector3d(particle.getOrigin().getX() + vx,
+//                particle.getPosition().getY(), particle.getOrigin().getZ() + vz);
+//        Vector3d finalMotion = particle.getPosition().subtract(desiredPosition).scale(1.0 / GameConstants.TICKS_PER_SECOND);
+//        if (centralGravity.getValue() != 0.0f){
+//            Vector3d toOrigin = particle.getOrigin().subtract(particle.getPosition());
+//            Vector3d norm = toOrigin.normalize().scale(centralGravity.getValue());
+//            finalMotion = finalMotion.add(norm);
+//        }
+//        particle.setMotion(
+//                MathUtils.lerpDouble(particle.getMotionX(), finalMotion.x, 0.9),
+//                MathUtils.lerpDouble(particle.getMotionY(), finalMotion.y, 0.9),
+//                MathUtils.lerpDouble(particle.getMotionZ(), finalMotion.z, 0.9)
+//        );
 //        particle.setMotion(0, 0, 0);
-//        particle.setMotion(finalMotion.x, finalMotion.y, finalMotion.z);
+//        particle.setPosition(desiredPosition.getX(), desiredPosition.getY(), desiredPosition.getZ());
+
 
     }
 }
