@@ -140,12 +140,12 @@ public class ClientEventHandler {
                 return;
 
             MKAbility ability = MKCoreRegistry.getAbility(abilityId);
-            if (ability == null || !ability.meetsRequirements(pData))
-                return;
 
-            MKCore.LOGGER.info("sending execute ability {} {}", type, slot);
-            PacketHandler.sendMessageToServer(new ExecuteActiveAbilityPacket(type, slot));
-            startGlobalCooldown();
+            if (ability != null && pData.getAbilityExecutor().clientSimulateAbility(ability)) {
+                MKCore.LOGGER.info("sending execute ability {} {}", type, slot);
+                PacketHandler.sendMessageToServer(new ExecuteActiveAbilityPacket(type, slot));
+                startGlobalCooldown();
+            }
         });
     }
 
@@ -205,6 +205,9 @@ public class ClientEventHandler {
 
     @SubscribeEvent
     public static void doArmorClassTooltip(ItemTooltipEvent event) {
+        // Don't do anything during the initial search tree population
+        if (event.getPlayer() == null)
+            return;
         if (!MKConfig.CLIENT.showArmorClassOnTooltip.get())
             return;
 

@@ -14,24 +14,19 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraftforge.fml.LogicalSide;
 
 public class MKPlayerData implements IMKEntityData {
+    private final PlayerEntity player;
+    private final PlayerAbilityExecutor abilityExecutor;
+    private final PlayerStatsModule stats;
+    private final PersonaManager personaManager;
+    private final UpdateEngine updateEngine;
+    private final PlayerAnimationModule animationModule;
+    private final PlayerTalentModule talentModule;
+    private final PlayerEquipmentModule equipmentModule;
+    private final PlayerCombatExtensionModule combatExtensionModule;
+    private final PlayerEditorModule editorModule;
 
-    private PlayerEntity player;
-    private PlayerAbilityExecutor abilityExecutor;
-    private PlayerStatsModule stats;
-    private PersonaManager personaManager;
-    private UpdateEngine updateEngine;
-    private PlayerAnimationModule animationModule;
-    private PlayerTalentModule talentModule;
-    private PlayerEquipmentModule equipmentModule;
-    private PlayerEditorModule editorModule;
-    private PlayerCombatExtensionModule combatExtensionModule;
-
-    public MKPlayerData() {
-
-    }
-
-    public void attach(PlayerEntity newPlayer) {
-        player = newPlayer;
+    public MKPlayerData(PlayerEntity playerEntity) {
+        player = playerEntity;
         updateEngine = new UpdateEngine(this);
         personaManager = PersonaManager.getPersonaManager(this);
         abilityExecutor = new PlayerAbilityExecutor(this);

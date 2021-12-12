@@ -172,7 +172,7 @@ public class MKOverlay {
                 AbstractGui.blit(matrixStack, slotX, slotY, 0, 0, ABILITY_ICON_SIZE, coolDownHeight, ABILITY_ICON_SIZE, coolDownHeight);
             }
 
-            ability.drawAbilityBarEffect(matrixStack, mc, slotX, slotY);
+            ability.getRenderer().drawAbilityBarEffect(matrixStack, mc, slotX, slotY);
         }
         RenderSystem.disableBlend();
         return startingSlot + slotCount;
@@ -180,12 +180,12 @@ public class MKOverlay {
 
     @SuppressWarnings("unused")
     @SubscribeEvent
-    public void onRender(RenderGameOverlayEvent.Post event) {
+    public void onRender(RenderGameOverlayEvent.Pre event) {
         if (event.getType() != RenderGameOverlayEvent.ElementType.ALL) {
             return;
         }
 
-        if (mc == null || mc.player == null)
+        if (mc == null || mc.player == null || mc.gameSettings.hideGUI)
             return;
 
         mc.player.getCapability(CoreCapabilities.PLAYER_CAPABILITY).ifPresent(cap -> {

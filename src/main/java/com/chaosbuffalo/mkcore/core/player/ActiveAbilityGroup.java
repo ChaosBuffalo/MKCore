@@ -142,7 +142,8 @@ public class ActiveAbilityGroup implements IActiveAbilityGroup, IPlayerSyncCompo
         if (index < activeAbilities.size()) {
             for (int i = 0; i < activeAbilities.size(); i++) {
                 if (i != index && abilityId.equals(activeAbilities.get(i))) {
-                    setSlotInternal(i, activeAbilities.get(index));
+                    // Ability is currently at i, but is moving to index
+                    internalSwapSlots(i, index);
                 }
             }
             setSlotInternal(index, abilityId);
@@ -169,6 +170,15 @@ public class ActiveAbilityGroup implements IActiveAbilityGroup, IPlayerSyncCompo
         if (playerData.getEntity().isAddedToWorld()) {
             onSlotChanged(index, previous, abilityId);
         }
+    }
+
+    protected void internalSwapSlots(int oldSlot, int newSlot) {
+        ResourceLocation original = activeAbilities.get(oldSlot);
+        ResourceLocation previous = activeAbilities.get(newSlot);
+        activeAbilities.set(oldSlot, previous);
+        activeAbilities.set(newSlot, original);
+        activeUpdater.setDirty(oldSlot);
+        activeUpdater.setDirty(newSlot);
     }
 
     protected void onSlotChanged(int index, ResourceLocation previous, ResourceLocation newAbility) {

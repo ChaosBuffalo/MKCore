@@ -16,8 +16,7 @@ import com.chaosbuffalo.mkcore.init.CoreParticles;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.*;
+import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
@@ -35,13 +34,9 @@ import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
 import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Consumer;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(MKCore.MOD_ID)
@@ -88,9 +83,9 @@ public class MKCore {
         event.enqueueWork(this::registerAttributes);
     }
 
-    public void modifyAttributesEvent(EntityAttributeModificationEvent event){
+    public void modifyAttributesEvent(EntityAttributeModificationEvent event) {
         event.getTypes().forEach(entityType -> {
-            if (entityType == EntityType.PLAYER){
+            if (entityType == EntityType.PLAYER) {
                 MKAttributes.iteratePlayerAttributes(attr -> event.add(entityType, attr));
             }
             MKAttributes.iterateEntityAttributes((attr) -> event.add(entityType, attr));
@@ -99,17 +94,6 @@ public class MKCore {
 
     private void registerAttributes() {
         Attributes.ATTACK_DAMAGE.setShouldWatch(true);
-
-//        AttributeFixer.addAttributesToAll(builder ->
-//                MKAttributes.iterateEntityAttributes(builder::createMutableAttribute));
-//        AttributeFixer.addAttributes(EntityType.PLAYER, builder ->
-//                MKAttributes.iteratePlayerAttributes(builder::createMutableAttribute));
-//
-//        GlobalEntityTypeAttributes.getAttributesForEntity(EntityType.PLAYER).attributeMap.forEach(((attribute, modifiableAttributeInstance) -> {
-//            if (!ForgeRegistries.ATTRIBUTES.containsKey(attribute.getRegistryName())) {
-//                MKCore.LOGGER.error("ERROR: Player attribute {} was not registered with the registry!", attribute);
-//            }
-//        }));
     }
 
     @SubscribeEvent
@@ -188,30 +172,4 @@ public class MKCore {
     }
 
     public static ParticleAnimationManager getAnimationManager() { return INSTANCE.particleAnimationManager; }
-
-    static class AttributeFixer {
-        public static void addAttributes(EntityType<? extends LivingEntity> type, Consumer<AttributeModifierMap.MutableAttribute> builder) {
-            Map<Attribute, ModifiableAttributeInstance> finalMap;
-            if (GlobalEntityTypeAttributes.doesEntityHaveAttributes(type)) {
-                finalMap = new HashMap<>(GlobalEntityTypeAttributes.getAttributesForEntity(type).attributeMap);
-            } else {
-                finalMap = new HashMap<>();
-            }
-
-            AttributeModifierMap.MutableAttribute newAttrs = AttributeModifierMap.createMutableAttribute();
-            builder.accept(newAttrs);
-
-            finalMap.putAll(newAttrs.create().attributeMap);
-            GlobalEntityTypeAttributes.put(type, new AttributeModifierMap(finalMap));
-        }
-
-        public static void addAttributesToAll(Consumer<AttributeModifierMap.MutableAttribute> builder) {
-            ForgeRegistries.ENTITIES.forEach(entityType -> {
-                if (GlobalEntityTypeAttributes.doesEntityHaveAttributes(entityType)) {
-                    LOGGER.debug("Adding attributes to {}", entityType);
-                    addAttributes((EntityType<? extends LivingEntity>) entityType, builder);
-                }
-            });
-        }
-    }
 }
