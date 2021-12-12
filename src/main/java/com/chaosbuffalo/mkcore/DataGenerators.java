@@ -4,6 +4,10 @@ import com.chaosbuffalo.mkcore.core.talents.TalentLineDefinition;
 import com.chaosbuffalo.mkcore.core.talents.TalentNode;
 import com.chaosbuffalo.mkcore.core.talents.TalentTreeDefinition;
 import com.chaosbuffalo.mkcore.core.talents.nodes.AttributeTalentNode;
+import com.chaosbuffalo.mkcore.fx.particles.ParticleAnimation;
+import com.chaosbuffalo.mkcore.fx.particles.ParticleKeyFrame;
+import com.chaosbuffalo.mkcore.fx.particles.animation_tracks.motions.BrownianMotionTrack;
+import com.chaosbuffalo.mkcore.fx.particles.animation_tracks.motions.OrbitingInPlaneMotionTrack;
 import com.chaosbuffalo.mkcore.init.CoreTags;
 import com.chaosbuffalo.mkcore.init.CoreTalents;
 import com.google.gson.Gson;
@@ -38,6 +42,27 @@ public class DataGenerators {
             generator.addProvider(new AbilityDataGenerator(generator, MKCore.MOD_ID));
             generator.addProvider(new ArmorClassItemTagProvider(generator, blockTagsProvider, event.getExistingFileHelper()));
             generator.addProvider(new CoreTestTreeGenerator(generator));
+            generator.addProvider(new CoreParticleAnimGenerator(generator));
+        }
+    }
+
+    public abstract static class ParticleAnimationDataGenerator implements IDataProvider {
+        private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
+        private final DataGenerator generator;
+
+        public ParticleAnimationDataGenerator(DataGenerator generator){
+            this.generator = generator;
+        }
+
+        public void writeDefinition(ResourceLocation name, ParticleAnimation animation, @Nonnull DirectoryCache cache){
+            Path outputFolder = this.generator.getOutputFolder();
+            Path path = outputFolder.resolve("data/" + name.getNamespace() + "/particle_animations/" + name.getPath() + ".json");
+            try {
+                JsonElement element = animation.serialize(JsonOps.INSTANCE);
+                IDataProvider.save(GSON, cache, element, path);
+            } catch (IOException e){
+                MKCore.LOGGER.error("Couldn't write particle animation {}", path, e);
+            }
         }
     }
 
@@ -59,6 +84,47 @@ public class DataGenerators {
             } catch (IOException e){
                 MKCore.LOGGER.error("Couldn't write talent tree definition {}", path, e);
             }
+        }
+    }
+
+    public static class CoreParticleAnimGenerator extends ParticleAnimationDataGenerator {
+
+        public CoreParticleAnimGenerator(DataGenerator generator){
+            super(generator);
+        }
+
+        @Override
+        public void act(DirectoryCache cache) throws IOException {
+            writeBlueMagicTest(cache);
+        }
+
+        @Override
+        public String getName() {
+            return "MKCore Particle Animations";
+        }
+
+        public void writeBlueMagicTest(@Nonnull DirectoryCache cache) {
+            ParticleAnimation anim = new ParticleAnimation()
+                    .withKeyFrame(new ParticleKeyFrame()
+                            .withColor(0.0f, 1.0f, 242.0f / 255.0f)
+                            .withScale(0.5f, 0.25f)
+                    )
+                    .withKeyFrame(new ParticleKeyFrame(0, 20)
+                            .withMotion(new OrbitingInPlaneMotionTrack(10.0, 0.0, .25f))
+                    )
+                    .withKeyFrame(new ParticleKeyFrame(20, 20)
+                            .withMotion(new OrbitingInPlaneMotionTrack(15.0, 0.0, .25f))
+                    )
+                    .withKeyFrame(new ParticleKeyFrame(0, 40)
+                            .withColor(0.0f, 0.5f, 0.5f)
+                            .withScale(0.15f, .05f)
+                    )
+                    .withKeyFrame(new ParticleKeyFrame(40, 40)
+                            .withColor(1.0f, 0.0f, 1.0f)
+                            .withScale(.01f, 0.0f)
+                            .withMotion(new BrownianMotionTrack(5, 0.025f))
+                    );
+            writeDefinition(MKCore.makeRL("particle_anim.blue_magic"), anim, cache);
         }
     }
 

@@ -64,8 +64,8 @@ public class SoundEffect extends SpellEffectBase {
     @Override
     public void doEffect(Entity applier, Entity caster, LivingEntity target, int amplifier, SpellCast cast) {
         SoundEvent event = ForgeRegistries.SOUND_EVENTS.getValue(cast.getResourceLocation("soundEvent"));
-        if (event != null){
-            SoundUtils.playSoundAtEntity(target, event, SoundCategory.values()[cast.getInt("category")],
+        if (event != null && target.isServerWorld()){
+            SoundUtils.serverPlaySoundAtEntity(target, event, SoundCategory.values()[cast.getInt("category")],
                     cast.getFloat("volume"), cast.getFloat("pitch"));
         }
     }

@@ -245,6 +245,8 @@ public abstract class AbilityPanelScreen extends MKScreen implements IPlayerData
 
     public void setAbility(MKAbility ability) {
         this.ability = ability;
+        currentScrollingPanel.getContentScrollView().setToTop();
+        currentScrollingPanel.getContentScrollView().setToRight();
     }
 
     public MKAbility getAbility() {

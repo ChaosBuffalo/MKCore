@@ -1,0 +1,10 @@
+{
+  "required": true,
+  "package": "com.chaosbuffalo.mkcore.mixins",
+  "compatibilityLevel": "JAVA_8",
+  "refmap": "mkcore.refmap.json",
+  "mixins": [
+    "WorldRendererMixins"
+  ],
+  "minVersion": "0.8"
+}

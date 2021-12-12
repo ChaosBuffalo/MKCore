@@ -138,6 +138,9 @@ public class AbilityExecutor {
             if (startCastCallback != null) {
                 startCastCallback.accept(ability);
             }
+            if (castTicks <= 0){
+                currentCast.finish();
+            }
         } else {
             clearCastingAbility();
         }
@@ -204,7 +207,7 @@ public class AbilityExecutor {
         setCooldown(ability.getAbilityId(), cooldown);
         SoundEvent sound = ability.getSpellCompleteSoundEvent();
         if (sound != null) {
-            SoundUtils.playSoundAtEntity(entityData.getEntity(), sound);
+            SoundUtils.serverPlaySoundAtEntity(entityData.getEntity(), sound, entityData.getEntity().getSoundCategory());
         }
         clearCastingAbility();
     }
@@ -273,7 +276,7 @@ public class AbilityExecutor {
 
         abstract void activeTick();
 
-        abstract void finish();
+        public abstract void finish();
 
         void interrupt() {
             executor.onAbilityInterrupted(ability, castTicks);
@@ -300,7 +303,7 @@ public class AbilityExecutor {
         }
 
         @Override
-        void finish() {
+        public void finish() {
             executor.completeAbility(ability, info, abilityContext);
         }
 
@@ -343,7 +346,7 @@ public class AbilityExecutor {
         }
 
         @Override
-        void finish() {
+        public void finish() {
             stopSound();
             if (executor.completeAbilityCallback != null) {
                 executor.completeAbilityCallback.accept(ability);

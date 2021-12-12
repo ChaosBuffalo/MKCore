@@ -22,7 +22,8 @@ public class MKCommand {
                 .then(EffectCommand.register())
                 .then(PersonaCommand.register())
                 .then(TalentCommand.register())
-                .then(HotBarCommand.register());
+                .then(HotBarCommand.register())
+                .then(ParticleEffectsCommand.register());
         dispatcher.register(builder);
     }
 

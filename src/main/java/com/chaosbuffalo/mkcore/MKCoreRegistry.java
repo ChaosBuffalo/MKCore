@@ -2,6 +2,7 @@ package com.chaosbuffalo.mkcore;
 
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.core.damage.MKDamageType;
+import com.chaosbuffalo.mkcore.core.entitlements.MKEntitlement;
 import com.chaosbuffalo.mkcore.core.talents.MKTalent;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.RegistryEvent;
@@ -16,9 +17,11 @@ import javax.annotation.Nullable;
 public class MKCoreRegistry {
     public static ResourceLocation INVALID_ABILITY = new ResourceLocation(MKCore.MOD_ID, "ability.invalid");
     public static ResourceLocation INVALID_TALENT = new ResourceLocation(MKCore.MOD_ID, "talent.invalid");
+    public static ResourceLocation INVALID_ENTITLEMENT = new ResourceLocation(MKCore.MOD_ID, "entitlement.invalid");
     public static IForgeRegistry<MKAbility> ABILITIES = null;
     public static IForgeRegistry<MKDamageType> DAMAGE_TYPES = null;
     public static IForgeRegistry<MKTalent> TALENTS = null;
+    public static IForgeRegistry<MKEntitlement> ENTITLEMENTS = null;
 
     @Nullable
     public static MKAbility getAbility(ResourceLocation abilityId) {
@@ -28,6 +31,11 @@ public class MKCoreRegistry {
     @Nullable
     public static MKDamageType getDamageType(ResourceLocation damageTypeId) {
         return DAMAGE_TYPES.getValue(damageTypeId);
+    }
+
+    @Nullable
+    public static MKEntitlement getEntitlement(ResourceLocation entitlementId){
+        return ENTITLEMENTS.getValue(entitlementId);
     }
 
     @SubscribeEvent
@@ -45,6 +53,10 @@ public class MKCoreRegistry {
         TALENTS = new RegistryBuilder<MKTalent>()
                 .setName(MKCore.makeRL("talents"))
                 .setType(MKTalent.class)
+                .create();
+        ENTITLEMENTS = new RegistryBuilder<MKEntitlement>()
+                .setName(MKCore.makeRL("entitlements"))
+                .setType(MKEntitlement.class)
                 .create();
     }
 }

@@ -5,6 +5,7 @@ import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.abilities.*;
 import com.chaosbuffalo.mkcore.core.AbilityExecutor;
 import com.chaosbuffalo.mkcore.core.AbilitySlot;
+import com.chaosbuffalo.mkcore.core.IMKEntityEntitlements;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.events.PlayerAbilityEvent;
 import net.minecraft.util.ResourceLocation;

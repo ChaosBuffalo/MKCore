@@ -57,6 +57,16 @@ public class PacketHandler {
                 MKItemAttackPacket::new, MKItemAttackPacket::handle);
         networkChannel.registerMessage(id++, ResetAttackSwingPacket.class, ResetAttackSwingPacket::toBytes,
                 ResetAttackSwingPacket::new, ResetAttackSwingPacket::handle);
+        networkChannel.registerMessage(id++, MKParticleEffectSpawnPacket.class, MKParticleEffectSpawnPacket::toBytes,
+                MKParticleEffectSpawnPacket::new, MKParticleEffectSpawnPacket::handle);
+        networkChannel.registerMessage(id++, ParticleAnimationsSyncPacket.class, ParticleAnimationsSyncPacket::toBytes,
+                ParticleAnimationsSyncPacket::new, ParticleAnimationsSyncPacket::handle);
+        networkChannel.registerMessage(id++, MKParticleEffectEditorSpawnPacket.class, MKParticleEffectSpawnPacket::toBytes,
+                MKParticleEffectEditorSpawnPacket::new, MKParticleEffectEditorSpawnPacket::handle);
+        networkChannel.registerMessage(id++, ParticleAnimationEditorSyncPacket.class, ParticleAnimationEditorSyncPacket::toBytes,
+                ParticleAnimationEditorSyncPacket::new, ParticleAnimationEditorSyncPacket::handle);
+        networkChannel.registerMessage(id++, WriteAnimationPacket.class, WriteAnimationPacket::toBytes,
+                WriteAnimationPacket::new, WriteAnimationPacket::handle);
     }
 
     public static <T> void sendMessageToServer(T msg) {

@@ -85,11 +85,15 @@ public class EntityUtils {
     }
 
     public static void safeTeleportEntity(LivingEntity targetEntity, Vector3d teleLoc) {
-        RayTraceResult colTrace = RayTraceUtils.rayTraceBlocks(targetEntity, targetEntity.getPositionVec(),
+        Entity finalTarget = targetEntity;
+        if (targetEntity.isPassenger()){
+            finalTarget = targetEntity.getLowestRidingEntity();
+        }
+        RayTraceResult colTrace = RayTraceUtils.rayTraceBlocks(finalTarget, finalTarget.getPositionVec(),
                 teleLoc, false);
         if (colTrace.getType() == RayTraceResult.Type.BLOCK) {
             teleLoc = colTrace.getHitVec();
         }
-        targetEntity.setPositionAndUpdate(teleLoc.x, teleLoc.y, teleLoc.z);
+        finalTarget.setPositionAndUpdate(teleLoc.x, teleLoc.y, teleLoc.z);
     }
 }

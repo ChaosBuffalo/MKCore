@@ -1,5 +1,6 @@
 package com.chaosbuffalo.mkcore.core;
 
+import com.chaosbuffalo.mkcore.core.entity.EntityEntitlementsKnowledge;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.nbt.CompoundNBT;
 

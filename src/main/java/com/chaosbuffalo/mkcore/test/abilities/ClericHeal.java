@@ -6,16 +6,18 @@ import com.chaosbuffalo.mkcore.abilities.*;
 import com.chaosbuffalo.mkcore.abilities.ai.conditions.HealCondition;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.effects.SpellCast;
-import com.chaosbuffalo.mkcore.fx.ParticleEffects;
+import com.chaosbuffalo.mkcore.fx.particles.spawn_patterns.SphereSpawnPattern;
+import com.chaosbuffalo.mkcore.init.CoreParticles;
+import com.chaosbuffalo.mkcore.network.MKParticleEffectSpawnPacket;
 import com.chaosbuffalo.mkcore.test.effects.ClericHealEffect;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
-import com.chaosbuffalo.mkcore.network.ParticleEffectSpawnPacket;
 import com.chaosbuffalo.targeting_api.TargetingContext;
 import com.chaosbuffalo.targeting_api.TargetingContexts;
 import com.google.common.collect.ImmutableSet;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
-import net.minecraft.particles.ParticleTypes;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -25,6 +27,9 @@ import java.util.Set;
 @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ClericHeal extends MKAbility {
     public static final ClericHeal INSTANCE = new ClericHeal();
+
+    public static final ResourceLocation PARTICLES = MKCore.makeRL("particle_anim.blue_magic");
+
 
     @SubscribeEvent
     public static void register(RegistryEvent.Register<MKAbility> event) {
@@ -38,6 +43,7 @@ public class ClericHeal extends MKAbility {
         super(MKCore.makeRL("ability.test_heal"));
         setCastTime(GameConstants.TICKS_PER_SECOND / 4);
         setCooldownSeconds(5);
+        casting_particles.setDefaultValue(new ResourceLocation("mkcore", "fx.casting.test"));
         setManaCost(4);
         setUseCondition(new HealCondition(this, .75f));
     }
@@ -67,12 +73,10 @@ public class ClericHeal extends MKAbility {
             SpellCast heal = ClericHealEffect.Create(entity, BASE_VALUE, VALUE_SCALE).setTarget(target);
             target.addPotionEffect(heal.toPotionEffect(level));
 //            SoundUtils.playSoundAtEntity(target, CoreSounds.spell_heal_3);
-            PacketHandler.sendToTrackingAndSelf(new ParticleEffectSpawnPacket(
-                                ParticleTypes.HAPPY_VILLAGER,
-                                ParticleEffects.SPHERE_MOTION, 50, 10,
+            PacketHandler.sendToTrackingAndSelf(new MKParticleEffectSpawnPacket(
                                 target.getPosX(), target.getPosY() + 1.0f,
-                                target.getPosZ(), 1.0, 1.0, 1.0, 1.5,
-                                entity.getLookVec()), target);
+                                target.getPosZ(), PARTICLES),
+                    target);
         });
     }
 

@@ -84,8 +84,8 @@ public class PlayerAbilityKnowledge implements IMKAbilityKnowledge, IPlayerSyncC
         return abilityInfoMap.values().stream().filter(MKAbilityInfo::isCurrentlyKnown);
     }
 
-    private boolean isBlockedFromLearning(MKAbility ability) {
-        return ability.getType().isPoolAbility() && isAbilityPoolFull();
+    private boolean isBlockedFromLearning(MKAbility ability, ResourceLocation replacing) {
+        return ability.getType().isPoolAbility() && isAbilityPoolFull() && replacing.equals(MKCoreRegistry.INVALID_ABILITY);
     }
 
     private IActiveAbilityGroup getAbilityGroup(MKAbility ability) {
@@ -94,7 +94,7 @@ public class PlayerAbilityKnowledge implements IMKAbilityKnowledge, IPlayerSyncC
 
     @Override
     public boolean learnAbility(MKAbility ability, AbilitySource source) {
-        if (isBlockedFromLearning(ability)) {
+        if (isBlockedFromLearning(ability, MKCoreRegistry.INVALID_ABILITY)) {
             MKCore.LOGGER.warn("Player {} tried to learn pool ability {} with a full pool ({}/{})",
                     playerData.getEntity(), ability.getAbilityId(), getCurrentPoolCount(), getAbilityPoolSize());
             return false;
@@ -114,7 +114,7 @@ public class PlayerAbilityKnowledge implements IMKAbilityKnowledge, IPlayerSyncC
     }
 
     public boolean learnAbility(MKAbility ability, AbilitySource source, ResourceLocation replacingAbilityId) {
-        if (isBlockedFromLearning(ability)) {
+        if (isBlockedFromLearning(ability, replacingAbilityId)) {
             return false;
         }
 

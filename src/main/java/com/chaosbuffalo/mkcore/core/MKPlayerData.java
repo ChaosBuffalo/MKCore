@@ -1,6 +1,8 @@
 package com.chaosbuffalo.mkcore.core;
 
 import com.chaosbuffalo.mkcore.MKCore;
+import com.chaosbuffalo.mkcore.core.editor.PlayerEditorModule;
+import com.chaosbuffalo.mkcore.core.entity.EntityEntitlementsKnowledge;
 import com.chaosbuffalo.mkcore.core.persona.IPersonaExtension;
 import com.chaosbuffalo.mkcore.core.persona.PersonaManager;
 import com.chaosbuffalo.mkcore.core.player.*;
@@ -12,7 +14,6 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraftforge.fml.LogicalSide;
 
 public class MKPlayerData implements IMKEntityData {
-
     private final PlayerEntity player;
     private final PlayerAbilityExecutor abilityExecutor;
     private final PlayerStatsModule stats;
@@ -22,6 +23,7 @@ public class MKPlayerData implements IMKEntityData {
     private final PlayerTalentModule talentModule;
     private final PlayerEquipmentModule equipmentModule;
     private final PlayerCombatExtensionModule combatExtensionModule;
+    private final PlayerEditorModule editorModule;
 
     public MKPlayerData(PlayerEntity playerEntity) {
         player = playerEntity;
@@ -36,9 +38,12 @@ public class MKPlayerData implements IMKEntityData {
         animationModule = new PlayerAnimationModule(this);
         abilityExecutor.setStartCastCallback(animationModule::startCast);
         abilityExecutor.setCompleteAbilityCallback(animationModule::endCast);
+        animationModule.getSyncComponent().attach(updateEngine);
 
         talentModule = new PlayerTalentModule(this);
         equipmentModule = new PlayerEquipmentModule(this);
+        editorModule = new PlayerEditorModule(this);
+        editorModule.getSyncComponent().attach(updateEngine);
     }
 
     public void onJoinWorld() {
@@ -181,12 +186,19 @@ public class MKPlayerData implements IMKEntityData {
         CompoundNBT tag = new CompoundNBT();
         tag.put("persona", personaManager.serialize());
         tag.put("stats", getStats().serialize());
+        tag.put("editor", getEditor().serialize());
         return tag;
     }
+
+    public PlayerEditorModule getEditor() {
+        return editorModule;
+    }
+
 
     @Override
     public void deserialize(CompoundNBT tag) {
         personaManager.deserialize(tag.getCompound("persona"));
         getStats().deserialize(tag.getCompound("stats"));
+        getEditor().deserialize(tag.getCompound("editor"));
     }
 }

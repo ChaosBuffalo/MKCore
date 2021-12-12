@@ -43,7 +43,7 @@ public class CoreDamageTypes {
     public static MKDamageType MeleeDamage;
 
     @ObjectHolder("damage.ranged")
-    public static RangedDamageType RANGED;
+    public static RangedDamageType RangedDamage;
 
 
     @SubscribeEvent
