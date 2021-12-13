@@ -158,7 +158,7 @@ public class HotBarCommand {
                         .map(playerData -> playerData.getKnowledge()
                                 .getAbilityKnowledge()
                                 .getKnownStream()
-                                .filter(info -> info.getAbility().getType().fitsSlot(type))
+                                .filter(info -> info.getAbility().getType() == type)
                                 .map(MKAbilityInfo::getId)
                                 .map(ResourceLocation::toString))
                         .orElse(Stream.empty()),

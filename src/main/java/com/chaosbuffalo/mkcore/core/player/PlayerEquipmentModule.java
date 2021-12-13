@@ -64,7 +64,7 @@ public class PlayerEquipmentModule {
         if (to.getItem() instanceof IMKAbilityProvider) {
             currentMainAbility = ((IMKAbilityProvider) to.getItem()).getAbility(to);
             if (currentMainAbility != null) {
-                if (currentMainAbility.getType().fitsSlot(AbilitySlot.Item)) {
+                if (currentMainAbility.getType() == AbilitySlot.Item) {
                     if (!playerData.getAbilities().knowsAbility(currentMainAbility.getAbilityId())) {
                         playerData.getAbilities().learnAbility(currentMainAbility, AbilitySource.ITEM);
                     }

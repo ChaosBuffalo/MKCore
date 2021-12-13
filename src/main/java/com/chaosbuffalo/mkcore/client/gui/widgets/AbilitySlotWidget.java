@@ -154,7 +154,7 @@ public class AbilitySlotWidget extends MKLayout {
     @Override
     public boolean onMouseRelease(double mouseX, double mouseY, int mouseButton) {
         if (screen.isDraggingAbility()) {
-            if (unlocked && screen.getDragging().getType().fitsSlot(slotType)) {
+            if (unlocked && screen.getDragging().getType() == slotType) {
                 ResourceLocation ability = screen.getDragging().getAbilityId();
                 setSlotToAbility(ability);
             }

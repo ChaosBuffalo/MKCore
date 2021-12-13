@@ -59,7 +59,7 @@ public class AbilityCommand {
                         .map(playerData -> playerData.getKnowledge()
                                 .getAbilityKnowledge()
                                 .getKnownStream()
-                                .filter(info -> info.getAbility().getType().fitsSlot(AbilitySlot.Basic))
+                                .filter(info -> info.getAbility().getType() == AbilitySlot.Basic)
                                 .map(MKAbilityInfo::getId)
                                 .map(ResourceLocation::toString))
                         .orElse(Stream.empty()),
@@ -73,7 +73,7 @@ public class AbilityCommand {
                         .map(playerData -> {
                             Set<MKAbility> allAbilities = new HashSet<>(MKCoreRegistry.ABILITIES.getValues());
                             allAbilities.removeIf(ability -> playerData.getAbilities().knowsAbility(ability.getAbilityId()));
-                            allAbilities.removeIf(ability -> ability.getType().getSlotType() != AbilitySlot.Basic);
+                            allAbilities.removeIf(ability -> ability.getType() != AbilitySlot.Basic);
                             return allAbilities.stream().map(MKAbility::getAbilityId).map(ResourceLocation::toString);
                         })
                         .orElse(Stream.empty()),

@@ -6,6 +6,7 @@ import com.chaosbuffalo.mkcore.abilities.AbilityContext;
 import com.chaosbuffalo.mkcore.abilities.AbilityTargetSelector;
 import com.chaosbuffalo.mkcore.abilities.AbilityTargeting;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
+import com.chaosbuffalo.mkcore.core.AbilitySlot;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.effects.AreaEffectBuilder;
 import com.chaosbuffalo.mkcore.effects.ParticleEffect;
@@ -49,8 +50,8 @@ public class HealingRain extends MKAbility {
     }
 
     @Override
-    public AbilityType getType() {
-        return AbilityType.Ultimate;
+    public AbilitySlot getType() {
+        return AbilitySlot.Ultimate;
     }
 
     @Override

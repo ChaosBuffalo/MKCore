@@ -457,7 +457,7 @@ public class CharacterScreen extends AbilityPanelScreen {
     public void setDragging(MKAbility dragging) {
         super.setDragging(dragging);
         Arrays.stream(AbilitySlot.values())
-                .filter(type -> type != dragging.getType().getSlotType())
+                .filter(type -> type != dragging.getType())
                 .forEach(type -> {
                     for (AbilitySlotWidget widget : getSlotsForType(type)) {
                         widget.setBackgroundColor(0xff555555);

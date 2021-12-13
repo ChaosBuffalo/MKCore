@@ -99,7 +99,7 @@ public class ActiveAbilityGroup implements IActiveAbilityGroup, IPlayerSyncCompo
         if (ability == null)
             return false;
 
-        return ability.getType().fitsSlot(this.slot);
+        return ability.getType() == this.slot;
     }
 
     protected int getFirstFreeAbilitySlot() {

@@ -45,36 +45,6 @@ import java.util.stream.Collectors;
 
 public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
 
-    public enum AbilityType {
-        PooledActive(AbilitySlot.Basic, true),
-        PooledPassive(AbilitySlot.Passive, false),
-        PooledUltimate(AbilitySlot.Ultimate, true),
-        Active(AbilitySlot.Basic, true),
-        Ultimate(AbilitySlot.Ultimate, true),
-        Passive(AbilitySlot.Passive, false),
-        Item(AbilitySlot.Item, true);
-
-        final AbilitySlot slotType;
-        final boolean canSlot;
-
-        AbilityType(AbilitySlot slotType, boolean canSlot) {
-            this.slotType = slotType;
-            this.canSlot = canSlot;
-        }
-
-        public AbilitySlot getSlotType() {
-            return slotType;
-        }
-
-        public boolean canPlaceOnActionBar() {
-            return canSlot;
-        }
-
-        public boolean fitsSlot(AbilitySlot slotType) {
-            return slotType == getSlotType();
-        }
-    }
-
     private int castTime;
     private int cooldown;
     private float manaCost;
@@ -276,8 +246,8 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
         return getBaseCooldown();
     }
 
-    public AbilityType getType() {
-        return AbilityType.PooledActive;
+    public AbilitySlot getType() {
+        return AbilitySlot.Basic;
     }
 
     public abstract TargetingContext getTargetContext();
