@@ -160,7 +160,7 @@ public class MKPlayerRenderer extends PlayerRenderer {
 
     private Optional<Vector3d> getHandPosition(float partialTicks, AbstractClientPlayerEntity entityIn, HandSide handSide){
         return MCBone.getPositionOfBoneInWorld(entityIn, skeleton, partialTicks,
-                getRenderOffset(entityIn, 0.0f), handSide == HandSide.LEFT ?
+                getRenderOffset(entityIn, partialTicks), handSide == HandSide.LEFT ?
                         BipedSkeleton.LEFT_HAND_BONE_NAME : BipedSkeleton.RIGHT_HAND_BONE_NAME);
     }
 }

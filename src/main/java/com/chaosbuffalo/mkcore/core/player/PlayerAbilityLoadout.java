@@ -19,7 +19,7 @@ import java.util.Map;
 public class PlayerAbilityLoadout implements IPlayerSyncComponentProvider {
 
     private final MKPlayerData playerData;
-    private final PlayerSyncComponent sync = new PlayerSyncComponent("loadout");
+    private final SyncComponent sync = new SyncComponent("loadout");
 
     private final Map<AbilitySlot, IActiveAbilityGroup> abilityGroups = new HashMap<>();
     private final ActiveTalentAbilityGroup passiveContainer;
@@ -56,7 +56,7 @@ public class PlayerAbilityLoadout implements IPlayerSyncComponentProvider {
     }
 
     @Override
-    public PlayerSyncComponent getSyncComponent() {
+    public SyncComponent getSyncComponent() {
         return sync;
     }
 

@@ -25,7 +25,7 @@ import java.util.function.BiConsumer;
 
 public class ActiveAbilityGroup implements IActiveAbilityGroup, IPlayerSyncComponentProvider {
     protected final MKPlayerData playerData;
-    protected final PlayerSyncComponent sync;
+    protected final SyncComponent sync;
     protected final String name;
     private final List<ResourceLocation> activeAbilities;
     private final SyncListUpdater<ResourceLocation> activeUpdater;
@@ -33,7 +33,7 @@ public class ActiveAbilityGroup implements IActiveAbilityGroup, IPlayerSyncCompo
     protected final AbilitySlot slot;
 
     public ActiveAbilityGroup(MKPlayerData playerData, String name, AbilitySlot slot, int defaultSize, int max) {
-        sync = new PlayerSyncComponent(name);
+        sync = new SyncComponent(name);
         this.playerData = playerData;
         this.name = name;
         this.slot = slot;
@@ -45,7 +45,7 @@ public class ActiveAbilityGroup implements IActiveAbilityGroup, IPlayerSyncCompo
     }
 
     @Override
-    public PlayerSyncComponent getSyncComponent() {
+    public SyncComponent getSyncComponent() {
         return sync;
     }
 

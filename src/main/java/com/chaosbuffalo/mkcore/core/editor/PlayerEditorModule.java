@@ -2,11 +2,11 @@ package com.chaosbuffalo.mkcore.core.editor;
 
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.player.IPlayerSyncComponentProvider;
-import com.chaosbuffalo.mkcore.core.player.PlayerSyncComponent;
+import com.chaosbuffalo.mkcore.core.player.SyncComponent;
 import net.minecraft.nbt.CompoundNBT;
 
 public class PlayerEditorModule implements IPlayerSyncComponentProvider {
-    private final PlayerSyncComponent sync = new PlayerSyncComponent("editor");
+    private final SyncComponent sync = new SyncComponent("editor");
     private final ParticleEditorSyncComponent particleEditorData = new ParticleEditorSyncComponent("particle_editor");
     protected final MKPlayerData playerData;
 
@@ -16,7 +16,7 @@ public class PlayerEditorModule implements IPlayerSyncComponentProvider {
     }
 
     @Override
-    public PlayerSyncComponent getSyncComponent() {
+    public SyncComponent getSyncComponent() {
         return sync;
     }
 

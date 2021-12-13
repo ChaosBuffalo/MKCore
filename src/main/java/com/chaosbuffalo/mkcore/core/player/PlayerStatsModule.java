@@ -19,7 +19,7 @@ import net.minecraft.util.text.StringTextComponent;
 
 
 public class PlayerStatsModule extends EntityStatsModule implements IPlayerSyncComponentProvider {
-    private final PlayerSyncComponent sync = new PlayerSyncComponent("stats");
+    private final SyncComponent sync = new SyncComponent("stats");
     private float manaRegenTimer;
     private final SyncFloat mana = new SyncFloat("mana", 0f);
 
@@ -31,7 +31,7 @@ public class PlayerStatsModule extends EntityStatsModule implements IPlayerSyncC
     }
 
     @Override
-    public PlayerSyncComponent getSyncComponent() {
+    public SyncComponent getSyncComponent() {
         return sync;
     }
 

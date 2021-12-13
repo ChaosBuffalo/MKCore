@@ -7,6 +7,7 @@ import com.chaosbuffalo.mkcore.fx.particles.effect_instances.ParticleEffectInsta
 import com.chaosbuffalo.mkcore.sync.ISyncNotifier;
 import com.chaosbuffalo.mkcore.sync.ISyncObject;
 import com.mojang.serialization.Dynamic;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.*;
 import net.minecraft.util.ResourceLocation;
@@ -21,16 +22,16 @@ import java.util.stream.Collectors;
 public class ParticleEffectInstanceTracker implements ISyncObject {
 
     protected List<ParticleEffectInstance> particleInstances;
-    protected final MKPlayerData playerData;
+    protected final Entity entity;
 
 
-    public ParticleEffectInstanceTracker(MKPlayerData playerData){
+    public ParticleEffectInstanceTracker(Entity entity){
         particleInstances = new ArrayList<>();
-        this.playerData = playerData;
+        this.entity = entity;
     }
 
-    public MKPlayerData getPlayerData() {
-        return playerData;
+    public Entity getEntity() {
+        return entity;
     }
 
     public List<ParticleEffectInstance> getParticleInstances() {
@@ -41,7 +42,7 @@ public class ParticleEffectInstanceTracker implements ISyncObject {
         Optional<ParticleEffectInstance> alreadyExists = particleInstances.stream().filter(
                 x -> x.getInstanceUUID().equals(instance.getInstanceUUID())).findAny();
         if (alreadyExists.isPresent()){
-            MKCore.LOGGER.error("Tried to add same particle instance twice {} to player {}", instance, playerData.getEntity());
+            MKCore.LOGGER.error("Tried to add same particle instance twice {} to player {}", instance, entity);
             return false;
         } else {
             particleInstances.add(instance);
@@ -125,8 +126,8 @@ public class ParticleEffectInstanceTracker implements ISyncObject {
         private final List<ParticleEffectInstance> toAddDirty;
         private ISyncNotifier parentNotifier = ISyncNotifier.NONE;
 
-        public ParticleEffectInstanceTrackerServer(MKPlayerData playerData) {
-            super(playerData);
+        public ParticleEffectInstanceTrackerServer(Entity entity) {
+            super(entity);
             toRemoveDirty = new ArrayList<>();
             toAddDirty = new ArrayList<>();
         }
@@ -186,11 +187,11 @@ public class ParticleEffectInstanceTracker implements ISyncObject {
         }
     }
 
-    public static ParticleEffectInstanceTracker getTracker(MKPlayerData playerData) {
-        if (playerData.getEntity() instanceof ServerPlayerEntity) {
-            return new ParticleEffectInstanceTrackerServer(playerData);
+    public static ParticleEffectInstanceTracker getTracker(Entity entity) {
+        if (!entity.getEntityWorld().isRemote()) {
+            return new ParticleEffectInstanceTrackerServer(entity);
         } else {
-            return new ParticleEffectInstanceTracker(playerData);
+            return new ParticleEffectInstanceTracker(entity);
         }
     }
 }

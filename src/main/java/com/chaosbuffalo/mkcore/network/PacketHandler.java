@@ -67,6 +67,8 @@ public class PacketHandler {
                 ParticleAnimationEditorSyncPacket::new, ParticleAnimationEditorSyncPacket::handle);
         networkChannel.registerMessage(id++, WriteAnimationPacket.class, WriteAnimationPacket::toBytes,
                 WriteAnimationPacket::new, WriteAnimationPacket::handle);
+        networkChannel.registerMessage(id++, EntityDataSyncPacket.class, EntityDataSyncPacket::toBytes,
+                EntityDataSyncPacket::new, EntityDataSyncPacket::handle);
     }
 
     public static <T> void sendMessageToServer(T msg) {
