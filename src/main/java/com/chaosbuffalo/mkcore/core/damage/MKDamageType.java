@@ -2,7 +2,6 @@ package com.chaosbuffalo.mkcore.core.damage;
 
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.core.MKCombatFormulas;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.Attribute;
@@ -95,13 +94,13 @@ public class MKDamageType extends ForgeRegistryEntry<MKDamageType> {
         TranslationTextComponent msg;
         if (isSelf) {
             msg = new TranslationTextComponent("mkcore.crit.effect.self",
-                    I18n.format(damageType),
+                    new TranslationTextComponent(damageType),
                     target.getDisplayName(),
                     Math.round(damage));
         } else {
             msg = new TranslationTextComponent("mkcore.crit.effect.other",
                     source.getDisplayName(),
-                    I18n.format(damageType),
+                    new TranslationTextComponent(damageType),
                     target.getDisplayName(),
                     Math.round(damage));
         }

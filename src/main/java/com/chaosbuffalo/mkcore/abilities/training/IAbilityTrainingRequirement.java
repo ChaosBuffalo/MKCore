@@ -4,7 +4,7 @@ import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import net.minecraft.util.text.ITextComponent;
 
-public interface IAbilityLearnRequirement {
+public interface IAbilityTrainingRequirement {
 
     boolean check(IMKEntityData entityData, MKAbility ability);
 
@@ -13,7 +13,7 @@ public interface IAbilityLearnRequirement {
     ITextComponent describe();
 
 
-    IAbilityLearnRequirement NONE = new IAbilityLearnRequirement() {
+    IAbilityTrainingRequirement NONE = new IAbilityTrainingRequirement() {
         @Override
         public boolean check(IMKEntityData entityData, MKAbility ability) {
             return false;

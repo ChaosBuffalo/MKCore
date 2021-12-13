@@ -2,7 +2,7 @@ package com.chaosbuffalo.mkcore.client.gui;
 
 import com.chaosbuffalo.mkcore.CoreCapabilities;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
-import com.chaosbuffalo.mkcore.abilities.training.AbilityRequirementEvaluation;
+import com.chaosbuffalo.mkcore.abilities.training.AbilityTrainingEvaluation;
 import com.chaosbuffalo.mkcore.client.gui.widgets.LearnAbilityTray;
 import com.chaosbuffalo.mkcore.client.gui.widgets.ScrollingListPanelLayout;
 import com.chaosbuffalo.mkwidgets.client.gui.layouts.MKLayout;
@@ -11,16 +11,14 @@ import com.chaosbuffalo.mkwidgets.utils.TextureRegion;
 import net.minecraft.util.text.ITextComponent;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 public class LearnAbilitiesScreen extends AbilityPanelScreen {
-    private final Map<MKAbility, List<AbilityRequirementEvaluation>> abilities;
+    private final Map<MKAbility, AbilityTrainingEvaluation> abilities;
     private final int entityId;
     private LearnAbilityTray abilityTray;
 
-    public LearnAbilitiesScreen(ITextComponent title, Map<MKAbility, List<AbilityRequirementEvaluation>> abilities, int entityId) {
+    public LearnAbilitiesScreen(ITextComponent title, Map<MKAbility, AbilityTrainingEvaluation> abilities, int entityId) {
         super(title);
         this.abilities = abilities;
         this.entityId = entityId;
@@ -30,8 +28,8 @@ public class LearnAbilitiesScreen extends AbilityPanelScreen {
     @Override
     public void setAbility(MKAbility ability) {
         super.setAbility(ability);
-        if (abilityTray != null) {
-            abilityTray.setAbility(ability, abilities.getOrDefault(ability, Collections.emptyList()));
+        if (abilityTray != null && abilities.containsKey(ability)) {
+            abilityTray.setAbility(ability, abilities.get(ability));
         }
     }
 
@@ -79,9 +77,9 @@ public class LearnAbilitiesScreen extends AbilityPanelScreen {
         if (state.equals("choose_ability")) {
             final MKAbility abilityInf = getAbility();
             addPostSetupCallback(() -> {
-                if (infoWidget != null) {
+                if (infoWidget != null && abilities.containsKey(abilityInf)) {
                     infoWidget.setAbility(abilityInf);
-                    abilityTray.setAbility(abilityInf, abilities.getOrDefault(abilityInf, Collections.emptyList()));
+                    abilityTray.setAbility(abilityInf, abilities.get(abilityInf));
                 }
             });
         }

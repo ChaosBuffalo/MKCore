@@ -10,7 +10,7 @@ import javax.annotation.Nonnull;
 public class MKAbilityInfo implements IMKSerializable<CompoundNBT> {
     private final MKAbility ability;
     private boolean known;
-    private AbilitySource source = AbilitySource.TRAINED;
+    private AbilitySource source;
 
     public MKAbilityInfo(MKAbility ability, AbilitySource source) {
         this.ability = ability;
