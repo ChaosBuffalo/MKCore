@@ -4,8 +4,7 @@ import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.abilities.*;
 import com.chaosbuffalo.mkcore.core.AbilityExecutor;
-import com.chaosbuffalo.mkcore.core.AbilitySlot;
-import com.chaosbuffalo.mkcore.core.IMKEntityEntitlements;
+import com.chaosbuffalo.mkcore.core.AbilityType;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.events.PlayerAbilityEvent;
 import net.minecraft.util.ResourceLocation;
@@ -21,7 +20,7 @@ public class PlayerAbilityExecutor extends AbilityExecutor {
         return (MKPlayerData) entityData;
     }
 
-    public void executeHotBarAbility(AbilitySlot type, int slot) {
+    public void executeHotBarAbility(AbilityType type, int slot) {
         ResourceLocation abilityId = getPlayerData().getAbilityLoadout().getAbilityInSlot(type, slot);
         if (abilityId.equals(MKCoreRegistry.INVALID_ABILITY))
             return;
@@ -78,9 +77,9 @@ public class PlayerAbilityExecutor extends AbilityExecutor {
 
     private void deactivateCurrentToggleAbilities() {
         PlayerAbilityLoadout abilityLoadout = getPlayerData().getAbilityLoadout();
-        deactivateCurrentToggleAbilities(abilityLoadout.getAbilityGroup(AbilitySlot.Basic));
-        deactivateCurrentToggleAbilities(abilityLoadout.getAbilityGroup(AbilitySlot.Ultimate));
-        deactivateCurrentToggleAbilities(abilityLoadout.getAbilityGroup(AbilitySlot.Item));
+        deactivateCurrentToggleAbilities(abilityLoadout.getAbilityGroup(AbilityType.Basic));
+        deactivateCurrentToggleAbilities(abilityLoadout.getAbilityGroup(AbilityType.Ultimate));
+        deactivateCurrentToggleAbilities(abilityLoadout.getAbilityGroup(AbilityType.Item));
     }
 
     private void deactivateCurrentToggleAbilities(IActiveAbilityGroup group) {
@@ -96,9 +95,9 @@ public class PlayerAbilityExecutor extends AbilityExecutor {
 
     private void rebuildActiveToggleMap() {
         PlayerAbilityLoadout abilityLoadout = getPlayerData().getAbilityLoadout();
-        rebuildActiveToggleMap(abilityLoadout.getAbilityGroup(AbilitySlot.Basic));
-        rebuildActiveToggleMap(abilityLoadout.getAbilityGroup(AbilitySlot.Ultimate));
-        rebuildActiveToggleMap(abilityLoadout.getAbilityGroup(AbilitySlot.Item));
+        rebuildActiveToggleMap(abilityLoadout.getAbilityGroup(AbilityType.Basic));
+        rebuildActiveToggleMap(abilityLoadout.getAbilityGroup(AbilityType.Ultimate));
+        rebuildActiveToggleMap(abilityLoadout.getAbilityGroup(AbilityType.Item));
     }
 
     private void rebuildActiveToggleMap(IActiveAbilityGroup group) {
@@ -115,7 +114,7 @@ public class PlayerAbilityExecutor extends AbilityExecutor {
         }
     }
 
-    public void onSlotChanged(AbilitySlot type, int index, ResourceLocation previous, ResourceLocation newAbility) {
+    public void onSlotChanged(AbilityType type, int index, ResourceLocation previous, ResourceLocation newAbility) {
         MKCore.LOGGER.debug("PlayerAbilityExecutor.onSlotChanged({}, {}, {}, {})", type, index, previous, newAbility);
 
         if (previous.equals(MKCoreRegistry.INVALID_ABILITY))

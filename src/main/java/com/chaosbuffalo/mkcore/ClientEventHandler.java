@@ -4,7 +4,7 @@ import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.client.gui.CharacterScreen;
 import com.chaosbuffalo.mkcore.client.gui.IPlayerDataAwareScreen;
 import com.chaosbuffalo.mkcore.client.gui.ParticleEditorScreen;
-import com.chaosbuffalo.mkcore.core.AbilitySlot;
+import com.chaosbuffalo.mkcore.core.AbilityType;
 import com.chaosbuffalo.mkcore.core.MKAttributes;
 import com.chaosbuffalo.mkcore.core.MKRangedAttribute;
 import com.chaosbuffalo.mkcore.effects.status.StunEffect;
@@ -130,7 +130,7 @@ public class ClientEventHandler {
         }
     }
 
-    static void handleAbilityBarPressed(PlayerEntity player, AbilitySlot type, int slot) {
+    static void handleAbilityBarPressed(PlayerEntity player, AbilityType type, int slot) {
         if (isOnGlobalCooldown() || player.isPotionActive(StunEffect.INSTANCE))
             return;
 
@@ -165,19 +165,19 @@ public class ClientEventHandler {
         for (int i = 0; i < activeAbilityBinds.length; i++) {
             KeyBinding bind = activeAbilityBinds[i];
             while (bind.isPressed()) {
-                handleAbilityBarPressed(player, AbilitySlot.Basic, i);
+                handleAbilityBarPressed(player, AbilityType.Basic, i);
             }
         }
 
         for (int i = 0; i < ultimateAbilityBinds.length; i++) {
             KeyBinding bind = ultimateAbilityBinds[i];
             while (bind.isPressed()) {
-                handleAbilityBarPressed(player, AbilitySlot.Ultimate, i);
+                handleAbilityBarPressed(player, AbilityType.Ultimate, i);
             }
         }
 
         while (itemAbilityBind.isPressed()) {
-            handleAbilityBarPressed(player, AbilitySlot.Item, 0);
+            handleAbilityBarPressed(player, AbilityType.Item, 0);
         }
     }
 

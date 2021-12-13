@@ -4,7 +4,7 @@ import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.abilities.ai.conditions.AbilityUseCondition;
 import com.chaosbuffalo.mkcore.abilities.ai.conditions.StandardUseCondition;
-import com.chaosbuffalo.mkcore.core.AbilitySlot;
+import com.chaosbuffalo.mkcore.core.AbilityType;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.core.MKAttributes;
 import com.chaosbuffalo.mkcore.core.MKCombatFormulas;
@@ -246,8 +246,8 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
         return getBaseCooldown();
     }
 
-    public AbilitySlot getType() {
-        return AbilitySlot.Basic;
+    public AbilityType getType() {
+        return AbilityType.Basic;
     }
 
     public abstract TargetingContext getTargetContext();

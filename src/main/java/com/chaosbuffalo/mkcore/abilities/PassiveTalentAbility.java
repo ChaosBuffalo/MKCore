@@ -1,7 +1,7 @@
 package com.chaosbuffalo.mkcore.abilities;
 
 import com.chaosbuffalo.mkcore.abilities.description.AbilityDescriptions;
-import com.chaosbuffalo.mkcore.core.AbilitySlot;
+import com.chaosbuffalo.mkcore.core.AbilityType;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.effects.PassiveTalentEffect;
 import com.chaosbuffalo.targeting_api.TargetingContext;
@@ -20,8 +20,8 @@ public abstract class PassiveTalentAbility extends MKAbility {
     }
 
     @Override
-    public AbilitySlot getType() {
-        return AbilitySlot.Passive;
+    public AbilityType getType() {
+        return AbilityType.Passive;
     }
 
     @Override

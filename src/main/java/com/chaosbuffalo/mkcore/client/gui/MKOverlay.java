@@ -7,7 +7,7 @@ import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.abilities.MKAbilityInfo;
-import com.chaosbuffalo.mkcore.core.AbilitySlot;
+import com.chaosbuffalo.mkcore.core.AbilityType;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.player.IActiveAbilityGroup;
 import com.chaosbuffalo.mkcore.core.player.PlayerAbilityExecutor;
@@ -88,19 +88,19 @@ public class MKOverlay {
         return Math.max(barStart, MIN_BAR_START_Y);
     }
 
-    private String getTextureForType(AbilitySlot type) {
-        if (type == AbilitySlot.Basic) {
+    private String getTextureForType(AbilityType type) {
+        if (type == AbilityType.Basic) {
             return GuiTextures.ABILITY_BAR_REG;
-        } else if (type == AbilitySlot.Ultimate) {
+        } else if (type == AbilityType.Ultimate) {
             return GuiTextures.ABILITY_BAR_ULT;
-        } else if (type == AbilitySlot.Item) {
+        } else if (type == AbilityType.Item) {
             // TODO: item slot texture?
             return GuiTextures.ABILITY_BAR_REG;
         }
         return null;
     }
 
-    private void drawBarSlots(MatrixStack matrixStack, AbilitySlot type, int startSlot, int slotCount, int totalSlots) {
+    private void drawBarSlots(MatrixStack matrixStack, AbilityType type, int startSlot, int slotCount, int totalSlots) {
         GuiTextures.CORE_TEXTURES.bind(mc);
         RenderSystem.disableLighting();
         int xOffset = 0;
@@ -114,7 +114,7 @@ public class MKOverlay {
         }
     }
 
-    private int drawAbilities(MatrixStack matrixStack, MKPlayerData data, AbilitySlot type, int startingSlot, int totalSlots, float partialTicks) {
+    private int drawAbilities(MatrixStack matrixStack, MKPlayerData data, AbilityType type, int startingSlot, int totalSlots, float partialTicks) {
         RenderSystem.disableLighting();
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
@@ -194,14 +194,14 @@ public class MKOverlay {
             drawMana(event.getMatrixStack(), cap);
             drawCastBar(event.getMatrixStack(), cap);
 
-            int totalSlots = Arrays.stream(AbilitySlot.values())
-                    .filter(AbilitySlot::isExecutable)
+            int totalSlots = Arrays.stream(AbilityType.values())
+                    .filter(AbilityType::isExecutable)
                     .mapToInt(type -> cap.getAbilityLoadout().getAbilityGroup(type).getCurrentSlotCount())
                     .sum();
 
-            int slot = drawAbilities(event.getMatrixStack(), cap, AbilitySlot.Basic, 0, totalSlots, event.getPartialTicks());
-            slot = drawAbilities(event.getMatrixStack(), cap, AbilitySlot.Ultimate, slot, totalSlots, event.getPartialTicks());
-            slot = drawAbilities(event.getMatrixStack(), cap, AbilitySlot.Item, slot, totalSlots, event.getPartialTicks());
+            int slot = drawAbilities(event.getMatrixStack(), cap, AbilityType.Basic, 0, totalSlots, event.getPartialTicks());
+            slot = drawAbilities(event.getMatrixStack(), cap, AbilityType.Ultimate, slot, totalSlots, event.getPartialTicks());
+            slot = drawAbilities(event.getMatrixStack(), cap, AbilityType.Item, slot, totalSlots, event.getPartialTicks());
         });
     }
 }

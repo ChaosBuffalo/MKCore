@@ -4,7 +4,7 @@ import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.abilities.MKAbilityInfo;
 import com.chaosbuffalo.mkcore.command.arguments.AbilityIdArgument;
-import com.chaosbuffalo.mkcore.core.AbilitySlot;
+import com.chaosbuffalo.mkcore.core.AbilityType;
 import com.chaosbuffalo.mkcore.core.player.IActiveAbilityGroup;
 import com.chaosbuffalo.mkcore.core.player.PlayerAbilityKnowledge;
 import com.chaosbuffalo.mkcore.utils.TextUtils;
@@ -62,7 +62,7 @@ public class HotBarCommand {
     static int setSlots(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().asPlayer();
 
-        AbilitySlot type = ctx.getArgument("type", AbilitySlot.class);
+        AbilityType type = ctx.getArgument("type", AbilityType.class);
         int count = IntegerArgumentType.getInteger(ctx, "count");
 
         MKCore.getPlayer(player).ifPresent(playerData -> {
@@ -80,7 +80,7 @@ public class HotBarCommand {
     static int setActionBar(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().asPlayer();
 
-        AbilitySlot type = ctx.getArgument("type", AbilitySlot.class);
+        AbilityType type = ctx.getArgument("type", AbilityType.class);
         int slot = IntegerArgumentType.getInteger(ctx, "slot");
         ResourceLocation abilityId = ctx.getArgument("abilityId", ResourceLocation.class);
 
@@ -97,7 +97,7 @@ public class HotBarCommand {
     static int addActionBar(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().asPlayer();
 
-        AbilitySlot type = ctx.getArgument("type", AbilitySlot.class);
+        AbilityType type = ctx.getArgument("type", AbilityType.class);
         ResourceLocation abilityId = ctx.getArgument("abilityId", ResourceLocation.class);
 
         MKCore.getPlayer(player).ifPresent(playerData -> {
@@ -116,7 +116,7 @@ public class HotBarCommand {
     static int clearActionBar(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().asPlayer();
 
-        AbilitySlot type = ctx.getArgument("type", AbilitySlot.class);
+        AbilityType type = ctx.getArgument("type", AbilityType.class);
         int slot = IntegerArgumentType.getInteger(ctx, "slot");
 
         MKCore.getPlayer(player).ifPresent(playerData ->
@@ -128,7 +128,7 @@ public class HotBarCommand {
     static int resetActionBar(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().asPlayer();
 
-        AbilitySlot type = ctx.getArgument("type", AbilitySlot.class);
+        AbilityType type = ctx.getArgument("type", AbilityType.class);
         MKCore.getPlayer(player).ifPresent(playerData ->
                 playerData.getAbilityLoadout().getAbilityGroup(type).resetSlots());
 
@@ -136,7 +136,7 @@ public class HotBarCommand {
     }
 
     static int showActionBar(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
-        AbilitySlot type = ctx.getArgument("type", AbilitySlot.class);
+        AbilityType type = ctx.getArgument("type", AbilityType.class);
         ServerPlayerEntity player = ctx.getSource().asPlayer();
         MKCore.getPlayer(player).ifPresent(playerData -> {
             IActiveAbilityGroup container = playerData.getAbilityLoadout().getAbilityGroup(type);
@@ -152,7 +152,7 @@ public class HotBarCommand {
     }
 
     public static CompletableFuture<Suggestions> suggestKnownAbilities(final CommandContext<CommandSource> context, final SuggestionsBuilder builder) throws CommandSyntaxException {
-        AbilitySlot type = context.getArgument("type", AbilitySlot.class);
+        AbilityType type = context.getArgument("type", AbilityType.class);
         ServerPlayerEntity player = context.getSource().asPlayer();
         return ISuggestionProvider.suggest(MKCore.getPlayer(player)
                         .map(playerData -> playerData.getKnowledge()
@@ -165,20 +165,20 @@ public class HotBarCommand {
                 builder);
     }
 
-    public static class AbilityTypeArgument implements ArgumentType<AbilitySlot> {
+    public static class AbilityTypeArgument implements ArgumentType<AbilityType> {
 
         public static AbilityTypeArgument abilityType() {
             return new AbilityTypeArgument();
         }
 
         @Override
-        public AbilitySlot parse(final StringReader reader) throws CommandSyntaxException {
-            return AbilitySlot.valueOf(reader.readString());
+        public AbilityType parse(final StringReader reader) throws CommandSyntaxException {
+            return AbilityType.valueOf(reader.readString());
         }
 
         @Override
         public <S> CompletableFuture<Suggestions> listSuggestions(final CommandContext<S> context, final SuggestionsBuilder builder) {
-            return ISuggestionProvider.suggest(Arrays.stream(AbilitySlot.values()).map(Enum::toString), builder);
+            return ISuggestionProvider.suggest(Arrays.stream(AbilityType.values()).map(Enum::toString), builder);
         }
     }
 }
