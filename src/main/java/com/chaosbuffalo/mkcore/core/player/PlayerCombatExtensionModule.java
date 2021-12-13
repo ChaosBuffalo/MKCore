@@ -8,7 +8,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class PlayerCombatExtensionModule extends CombatExtensionModule implements IPlayerSyncComponentProvider {
-    private final PlayerSyncComponent sync = new PlayerSyncComponent("combatExtension");
+    private final SyncComponent sync = new SyncComponent("combatExtension");
     private final SyncInt currentProjectileHitCount = new SyncInt("projectileHits", 0);
     private final Set<String> spellTag = new HashSet<>();
 
@@ -18,7 +18,7 @@ public class PlayerCombatExtensionModule extends CombatExtensionModule implement
     }
 
     @Override
-    public PlayerSyncComponent getSyncComponent() {
+    public SyncComponent getSyncComponent() {
         return sync;
     }
 

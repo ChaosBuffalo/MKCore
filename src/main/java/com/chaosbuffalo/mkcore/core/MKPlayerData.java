@@ -2,12 +2,11 @@ package com.chaosbuffalo.mkcore.core;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.editor.PlayerEditorModule;
-import com.chaosbuffalo.mkcore.core.entity.EntityEntitlementsKnowledge;
 import com.chaosbuffalo.mkcore.core.persona.IPersonaExtension;
 import com.chaosbuffalo.mkcore.core.persona.PersonaManager;
 import com.chaosbuffalo.mkcore.core.player.*;
 import com.chaosbuffalo.mkcore.core.talents.PlayerTalentModule;
-import com.chaosbuffalo.mkcore.sync.UpdateEngine;
+import com.chaosbuffalo.mkcore.sync.PlayerUpdateEngine;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
@@ -18,7 +17,7 @@ public class MKPlayerData implements IMKEntityData {
     private final PlayerAbilityExecutor abilityExecutor;
     private final PlayerStatsModule stats;
     private final PersonaManager personaManager;
-    private final UpdateEngine updateEngine;
+    private final PlayerUpdateEngine updateEngine;
     private final PlayerAnimationModule animationModule;
     private final PlayerTalentModule talentModule;
     private final PlayerEquipmentModule equipmentModule;
@@ -27,7 +26,7 @@ public class MKPlayerData implements IMKEntityData {
 
     public MKPlayerData(PlayerEntity playerEntity) {
         player = playerEntity;
-        updateEngine = new UpdateEngine(this);
+        updateEngine = new PlayerUpdateEngine(this);
         personaManager = PersonaManager.getPersonaManager(this);
         abilityExecutor = new PlayerAbilityExecutor(this);
         combatExtensionModule = new PlayerCombatExtensionModule(this);
@@ -87,7 +86,7 @@ public class MKPlayerData implements IMKEntityData {
         return getKnowledge().getAbilityKnowledge();
     }
 
-    public UpdateEngine getUpdateEngine() {
+    public PlayerUpdateEngine getUpdateEngine() {
         return updateEngine;
     }
 

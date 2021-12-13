@@ -4,15 +4,15 @@ import com.chaosbuffalo.mkcore.sync.ISyncObject;
 import com.chaosbuffalo.mkcore.sync.SyncGroup;
 import com.chaosbuffalo.mkcore.sync.UpdateEngine;
 
-public class PlayerSyncComponent {
+public class SyncComponent {
 
     private final SyncGroup publicUpdater = new SyncGroup();
     private final SyncGroup privateUpdater = new SyncGroup();
 
-    public PlayerSyncComponent() {
+    public SyncComponent() {
     }
 
-    public PlayerSyncComponent(String name) {
+    public SyncComponent(String name) {
         publicUpdater.setNestingName(name);
         privateUpdater.setNestingName(name);
     }
@@ -27,7 +27,7 @@ public class PlayerSyncComponent {
         engine.removePrivate(privateUpdater);
     }
 
-    public void addChild(PlayerSyncComponent component) {
+    public void addChild(SyncComponent component) {
         addPublic(component.publicUpdater);
         addPrivate(component.privateUpdater);
     }

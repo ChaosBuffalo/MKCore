@@ -5,6 +5,7 @@ import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.talents.TalentType;
 import com.chaosbuffalo.mkcore.effects.PassiveTalentEffect;
 import com.chaosbuffalo.mkcore.effects.status.StunEffect;
+import com.chaosbuffalo.mkcore.entities.IUpdateEngineProvider;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -72,6 +73,8 @@ public class EventHandler {
             ServerPlayerEntity target = (ServerPlayerEntity) event.getTarget();
 
             player.getCapability(CoreCapabilities.PLAYER_CAPABILITY).ifPresent(cap -> cap.fullSyncTo(target));
+        } else if (event.getTarget() instanceof IUpdateEngineProvider && event.getPlayer() instanceof ServerPlayerEntity){
+            ((IUpdateEngineProvider) event.getTarget()).getUpdateEngine().sendAll((ServerPlayerEntity) event.getPlayer());
         }
     }
 

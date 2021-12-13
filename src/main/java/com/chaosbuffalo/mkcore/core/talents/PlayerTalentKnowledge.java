@@ -1,10 +1,9 @@
 package com.chaosbuffalo.mkcore.core.talents;
 
 import com.chaosbuffalo.mkcore.MKCore;
-import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.player.IPlayerSyncComponentProvider;
-import com.chaosbuffalo.mkcore.core.player.PlayerSyncComponent;
+import com.chaosbuffalo.mkcore.core.player.SyncComponent;
 import com.chaosbuffalo.mkcore.sync.DynamicSyncGroup;
 import com.chaosbuffalo.mkcore.sync.SyncInt;
 import com.google.common.collect.ImmutableMap;
@@ -22,7 +21,7 @@ import java.util.stream.Stream;
 
 public class PlayerTalentKnowledge implements IPlayerSyncComponentProvider {
     private final MKPlayerData playerData;
-    private final PlayerSyncComponent sync = new PlayerSyncComponent("talents");
+    private final SyncComponent sync = new SyncComponent("talents");
     private final SyncInt talentPoints = new SyncInt("points", 0);
     private final SyncInt totalTalentPoints = new SyncInt("totalPoints", 0);
     private final Map<ResourceLocation, TalentTreeRecord> talentTreeRecordMap = new HashMap<>();
@@ -44,7 +43,7 @@ public class PlayerTalentKnowledge implements IPlayerSyncComponentProvider {
     }
 
     @Override
-    public PlayerSyncComponent getSyncComponent() {
+    public SyncComponent getSyncComponent() {
         return sync;
     }
 
