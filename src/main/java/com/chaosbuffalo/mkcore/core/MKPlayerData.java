@@ -37,6 +37,7 @@ public class MKPlayerData implements IMKEntityData {
         animationModule = new PlayerAnimationModule(this);
         abilityExecutor.setStartCastCallback(animationModule::startCast);
         abilityExecutor.setCompleteAbilityCallback(animationModule::endCast);
+        abilityExecutor.setInterruptCastCallback(animationModule::interruptCast);
         animationModule.getSyncComponent().attach(updateEngine);
 
         talentModule = new PlayerTalentModule(this);

@@ -82,4 +82,10 @@ public class PlayerAnimationModule implements IPlayerSyncComponentProvider {
         playerVisualCastState = PlayerVisualCastState.RELEASE;
         castAnimTimer = 15;
     }
+
+    public void interruptCast(MKAbility ability){
+        castingAbility = null;
+        castAnimTimer = 0;
+        playerVisualCastState = PlayerVisualCastState.NONE;
+    }
 }
