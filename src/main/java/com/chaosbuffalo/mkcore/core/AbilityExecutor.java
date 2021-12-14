@@ -27,15 +27,21 @@ public class AbilityExecutor {
     private final Map<ResourceLocation, MKToggleAbility> activeToggleMap = new HashMap<>();
     private Consumer<MKAbility> startCastCallback;
     private Consumer<MKAbility> completeAbilityCallback;
+    private Consumer<MKAbility> interruptCastCallback;
 
     public AbilityExecutor(IMKEntityData entityData) {
         this.entityData = entityData;
         startCastCallback = null;
         completeAbilityCallback = null;
+        interruptCastCallback = null;
     }
 
     public void setCompleteAbilityCallback(Consumer<MKAbility> completeAbilityCallback) {
         this.completeAbilityCallback = completeAbilityCallback;
+    }
+
+    public void setInterruptCastCallback(Consumer<MKAbility> interruptCastCallback) {
+        this.interruptCastCallback = interruptCastCallback;
     }
 
     public void setStartCastCallback(Consumer<MKAbility> startCastCallback) {
@@ -158,6 +164,9 @@ public class AbilityExecutor {
 
     protected void onAbilityInterrupted(MKAbility ability, int ticks) {
 //        MKCore.LOGGER.info("onAbilityInterrupted {} {}", ability, ticks);
+        if (interruptCastCallback != null){
+            interruptCastCallback.accept(ability);
+        }
     }
 
     private void updateCurrentCast() {
