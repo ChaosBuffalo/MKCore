@@ -1,28 +1,44 @@
 package com.chaosbuffalo.mkcore.core.entitlements;
 
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
+import com.chaosbuffalo.mkcore.core.records.IRecordInstance;
+import com.chaosbuffalo.mkcore.core.records.IRecordType;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.DynamicOps;
 import net.minecraft.util.ResourceLocation;
 
-import javax.annotation.Nullable;
 import java.util.UUID;
 
-public class EntitlementInstance {
+public class EntitlementInstance implements IRecordInstance {
 
-    @Nullable
     protected MKEntitlement entitlement;
-    @Nullable
     protected UUID uuid;
 
-    public EntitlementInstance(){
-        this(null, null);
+    public EntitlementInstance(Dynamic<?> dynamic) {
+        deserializeDynamic(dynamic);
     }
 
-    public EntitlementInstance(MKEntitlement entitlement, UUID uuid){
+    public EntitlementInstance(MKEntitlement entitlement, UUID uuid) {
         this.entitlement = entitlement;
         this.uuid = uuid;
+    }
+
+    public UUID getUUID() {
+        return uuid;
+    }
+
+    public MKEntitlement getEntitlement() {
+        return entitlement;
+    }
+
+    public boolean isValid() {
+        return uuid != null && entitlement != null;
+    }
+
+    @Override
+    public IRecordType<?> getRecordType() {
+        return entitlement.getRecordType();
     }
 
     public <T> T serializeDynamic(DynamicOps<T> ops) {
@@ -31,7 +47,7 @@ public class EntitlementInstance {
                 entitlement != null && entitlement.getRegistryName() != null ?
                         ops.createString(entitlement.getRegistryName().toString())
                         : ops.createString(MKCoreRegistry.INVALID_ENTITLEMENT.toString()));
-        if (uuid != null){
+        if (uuid != null) {
             builder.put(ops.createString("entitlementId"), ops.createString(uuid.toString()));
         }
         return ops.createMap(builder.build());
@@ -44,17 +60,11 @@ public class EntitlementInstance {
         this.uuid = dynamic.get("entitlementId").asString().map(UUID::fromString).result().orElse(null);
     }
 
-    @Nullable
-    public UUID getUUID() {
-        return uuid;
-    }
-
-    @Nullable
-    public MKEntitlement getEntitlement() {
-        return entitlement;
-    }
-
-    public boolean isValid(){
-        return uuid != null && entitlement != null;
+    @Override
+    public String toString() {
+        return "EntitlementInstance{" +
+                "entitlement=" + entitlement +
+                ", uuid=" + uuid +
+                '}';
     }
 }

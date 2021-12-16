@@ -5,7 +5,7 @@ public class GameConstants {
     public static final int MAX_PASSIVES = 3;
     public static final int DEFAULT_ULTIMATES = 0;
     public static final int MAX_ULTIMATES = 2;
-    public static final int DEFAULT_ACTIVES = 2;
+    public static final int DEFAULT_ACTIVES = 0;
     public static final int MAX_ACTIVES = 5;
     public static final int MAX_ITEM_ABILITIES = 1;
 

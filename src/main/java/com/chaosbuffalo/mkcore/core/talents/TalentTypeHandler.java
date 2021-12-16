@@ -1,32 +1,14 @@
 package com.chaosbuffalo.mkcore.core.talents;
 
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
-import com.chaosbuffalo.mkcore.core.talents.TalentRecord;
+import com.chaosbuffalo.mkcore.core.records.IRecordTypeHandler;
 
-public abstract class TalentTypeHandler {
+public abstract class TalentTypeHandler implements IRecordTypeHandler<TalentRecord> {
+
     protected final MKPlayerData playerData;
 
     public TalentTypeHandler(MKPlayerData playerData) {
         this.playerData = playerData;
     }
 
-    public void onJoinWorld() {
-
-    }
-
-    public void onPersonaActivated() {
-
-    }
-
-    public void onPersonaDeactivated() {
-
-    }
-
-    public void onRecordUpdated(TalentRecord record) {
-
-    }
-
-    public void onRecordLoaded(TalentRecord record) {
-
-    }
 }

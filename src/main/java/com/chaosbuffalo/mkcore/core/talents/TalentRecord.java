@@ -1,10 +1,12 @@
 package com.chaosbuffalo.mkcore.core.talents;
 
+import com.chaosbuffalo.mkcore.core.records.IRecordInstance;
+import com.chaosbuffalo.mkcore.core.records.IRecordType;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.DynamicOps;
 
-public class TalentRecord {
+public class TalentRecord implements IRecordInstance {
 
     private int currentRank;
     private final TalentNode node;
@@ -56,5 +58,10 @@ public class TalentRecord {
 
     public String toString() {
         return String.format("TalentRecord{node=%s, rank=%d}", node, currentRank);
+    }
+
+    @Override
+    public IRecordType<?> getRecordType() {
+        return node.getTalentType();
     }
 }

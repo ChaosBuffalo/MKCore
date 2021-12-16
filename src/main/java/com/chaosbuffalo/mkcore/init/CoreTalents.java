@@ -6,7 +6,7 @@ import com.chaosbuffalo.mkcore.core.talents.TalentType;
 import com.chaosbuffalo.mkcore.core.talents.talent_types.AttributeTalent;
 import com.chaosbuffalo.mkcore.core.talents.MKTalent;
 import com.chaosbuffalo.mkcore.core.talents.talent_types.PassiveTalent;
-import com.chaosbuffalo.mkcore.core.talents.talent_types.UUIDTalent;
+import com.chaosbuffalo.mkcore.core.talents.talent_types.EntitlementGrantTalent;
 import com.chaosbuffalo.mkcore.core.talents.talent_types.UltimateTalent;
 import com.chaosbuffalo.mkcore.test.abilities.BurningSoul;
 import com.chaosbuffalo.mkcore.test.abilities.HealingRain;
@@ -64,16 +64,16 @@ public class CoreTalents {
     public static AttributeTalent ATTACK_SPEED_TALENT;
 
     @ObjectHolder("talent.ability_slot")
-    public static UUIDTalent ABILITY_SLOT_TALENT;
+    public static EntitlementGrantTalent ABILITY_SLOT_TALENT;
 
     @ObjectHolder("talent.passive_ability_slot")
-    public static UUIDTalent PASSIVE_ABILITY_SLOT_TALENT;
+    public static EntitlementGrantTalent PASSIVE_ABILITY_SLOT_TALENT;
 
     @ObjectHolder("talent.ultimate_ability_slot")
-    public static UUIDTalent ULTIMATE_ABILITY_SLOT_TALENT;
+    public static EntitlementGrantTalent ULTIMATE_ABILITY_SLOT_TALENT;
 
     @ObjectHolder("talent.pool_count")
-    public static UUIDTalent POOL_COUNT_TALENT;
+    public static EntitlementGrantTalent POOL_COUNT_TALENT;
 
 
     private static void registerVanillaAttributeTalents(RegistryEvent.Register<MKTalent> event) {
@@ -204,27 +204,26 @@ public class CoreTalents {
         event.getRegistry().register(healBonus);
     }
 
-    private static void registerSlotTalents(RegistryEvent.Register<MKTalent> event){
-        UUIDTalent basicSlot = new UUIDTalent(
+    private static void registerSlotTalents(RegistryEvent.Register<MKTalent> event) {
+        EntitlementGrantTalent basicSlot = new EntitlementGrantTalent(
                 MKCore.makeRL("talent.ability_slot"),
                 TalentType.BASIC_SLOT
         );
         event.getRegistry().register(basicSlot);
-        UUIDTalent passiveSlot = new UUIDTalent(
+        EntitlementGrantTalent passiveSlot = new EntitlementGrantTalent(
                 MKCore.makeRL("talent.passive_ability_slot"),
                 TalentType.PASSIVE_SLOT
         );
         event.getRegistry().register(passiveSlot);
-        UUIDTalent ultimateSlot = new UUIDTalent(
+        EntitlementGrantTalent ultimateSlot = new EntitlementGrantTalent(
                 MKCore.makeRL("talent.ultimate_ability_slot"),
                 TalentType.ULTIMATE_SLOT
         );
         event.getRegistry().register(ultimateSlot);
-        UUIDTalent poolCount = new UUIDTalent(
+        EntitlementGrantTalent poolCount = new EntitlementGrantTalent(
                 MKCore.makeRL("talent.pool_count"),
                 TalentType.POOL_COUNT
         );
         event.getRegistry().register(poolCount);
     }
-
 }
