@@ -7,7 +7,7 @@ import com.chaosbuffalo.mkcore.abilities.AbilitySource;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.abilities.MKAbilityInfo;
 import com.chaosbuffalo.mkcore.command.arguments.AbilityIdArgument;
-import com.chaosbuffalo.mkcore.core.AbilitySlot;
+import com.chaosbuffalo.mkcore.core.AbilityType;
 import com.chaosbuffalo.mkcore.core.player.PlayerAbilityKnowledge;
 import com.chaosbuffalo.mkcore.utils.TextUtils;
 import com.mojang.brigadier.Command;
@@ -47,6 +47,8 @@ public class AbilityCommand {
                         .then(Commands.argument("size", IntegerArgumentType.integer(GameConstants.DEFAULT_ABILITY_POOL_SIZE, GameConstants.MAX_ABILITY_POOL_SIZE))
                                 .executes(AbilityCommand::setSlotCount))
                         .executes(AbilityCommand::showSlotCount))
+                .then(Commands.literal("pool")
+                        .executes(AbilityCommand::showPool))
                 ;
     }
 
@@ -57,7 +59,7 @@ public class AbilityCommand {
                         .map(playerData -> playerData.getKnowledge()
                                 .getAbilityKnowledge()
                                 .getKnownStream()
-                                .filter(info -> info.getAbility().getType().fitsSlot(AbilitySlot.Basic))
+                                .filter(info -> info.getAbility().getType() == AbilityType.Basic)
                                 .map(MKAbilityInfo::getId)
                                 .map(ResourceLocation::toString))
                         .orElse(Stream.empty()),
@@ -71,7 +73,7 @@ public class AbilityCommand {
                         .map(playerData -> {
                             Set<MKAbility> allAbilities = new HashSet<>(MKCoreRegistry.ABILITIES.getValues());
                             allAbilities.removeIf(ability -> playerData.getAbilities().knowsAbility(ability.getAbilityId()));
-                            allAbilities.removeIf(ability -> ability.getType().getSlotType() != AbilitySlot.Basic);
+                            allAbilities.removeIf(ability -> ability.getType() != AbilityType.Basic);
                             return allAbilities.stream().map(MKAbility::getAbilityId).map(ResourceLocation::toString);
                         })
                         .orElse(Stream.empty()),
@@ -104,6 +106,20 @@ public class AbilityCommand {
             int currentSize = abilityKnowledge.getCurrentPoolCount();
             int maxSize = abilityKnowledge.getAbilityPoolSize();
             TextUtils.sendPlayerChatMessage(player, String.format("Ability Pool: %d/%d", currentSize, maxSize));
+        });
+        return Command.SINGLE_SUCCESS;
+    }
+
+    static int showPool(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
+        ServerPlayerEntity player = ctx.getSource().asPlayer();
+        MKCore.getPlayer(player).ifPresent(cap -> {
+            PlayerAbilityKnowledge abilityKnowledge = cap.getAbilities();
+            int currentSize = abilityKnowledge.getCurrentPoolCount();
+            int maxSize = abilityKnowledge.getAbilityPoolSize();
+            TextUtils.sendPlayerChatMessage(player, String.format("Ability Pool: %d/%d", currentSize, maxSize));
+            abilityKnowledge.getPoolAbilities().forEach(abilityId -> {
+                TextUtils.sendPlayerChatMessage(player, String.format("Pool Ability: %s", abilityId));
+            });
         });
         return Command.SINGLE_SUCCESS;
     }

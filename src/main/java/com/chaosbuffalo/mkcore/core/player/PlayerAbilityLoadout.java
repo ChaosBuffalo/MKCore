@@ -2,7 +2,7 @@ package com.chaosbuffalo.mkcore.core.player;
 
 import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
-import com.chaosbuffalo.mkcore.core.AbilitySlot;
+import com.chaosbuffalo.mkcore.core.AbilityType;
 import com.chaosbuffalo.mkcore.core.IMKEntityEntitlements;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.entitlements.MKEntitlement;
@@ -21,7 +21,7 @@ public class PlayerAbilityLoadout implements IPlayerSyncComponentProvider {
     private final MKPlayerData playerData;
     private final SyncComponent sync = new SyncComponent("loadout");
 
-    private final Map<AbilitySlot, IActiveAbilityGroup> abilityGroups = new HashMap<>();
+    private final Map<AbilityType, IActiveAbilityGroup> abilityGroups = new HashMap<>();
     private final ActiveTalentAbilityGroup passiveContainer;
     private final ActiveTalentAbilityGroup ultimateContainer;
     private final BasicAbilityGroup basicAbilityContainer;
@@ -33,25 +33,25 @@ public class PlayerAbilityLoadout implements IPlayerSyncComponentProvider {
         passiveContainer = new PassiveTalentGroup(playerData);
         ultimateContainer = new UltimateTalentGroup(playerData);
         itemAbilityContainer = new ItemAbilityGroup(playerData);
-        registerAbilityContainer(AbilitySlot.Basic, basicAbilityContainer);
-        registerAbilityContainer(AbilitySlot.Item, itemAbilityContainer);
-        registerAbilityContainer(AbilitySlot.Passive, passiveContainer);
-        registerAbilityContainer(AbilitySlot.Ultimate, ultimateContainer);
+        registerAbilityContainer(AbilityType.Basic, basicAbilityContainer);
+        registerAbilityContainer(AbilityType.Item, itemAbilityContainer);
+        registerAbilityContainer(AbilityType.Passive, passiveContainer);
+        registerAbilityContainer(AbilityType.Ultimate, ultimateContainer);
     }
 
     public void entitlementsLoadedCallback(IMKEntityEntitlements entitlements){
-        getAbilityGroup(AbilitySlot.Basic).setSlots(entitlements.getEntitlementLevel(CoreEntitlements.BasicAbilitySlotCount));
-        getAbilityGroup(AbilitySlot.Passive).setSlots(entitlements.getEntitlementLevel(CoreEntitlements.PassiveAbilitySlotCount));
-        getAbilityGroup(AbilitySlot.Ultimate).setSlots(entitlements.getEntitlementLevel(CoreEntitlements.UltimateAbilitySlotCount));
+        getAbilityGroup(AbilityType.Basic).setSlots(entitlements.getEntitlementLevel(CoreEntitlements.BasicAbilitySlotCount));
+        getAbilityGroup(AbilityType.Passive).setSlots(entitlements.getEntitlementLevel(CoreEntitlements.PassiveAbilitySlotCount));
+        getAbilityGroup(AbilityType.Ultimate).setSlots(entitlements.getEntitlementLevel(CoreEntitlements.UltimateAbilitySlotCount));
     }
 
     public void entitlementsChangedCallback(MKEntitlement entitlement, IMKEntityEntitlements entitlements){
         if (entitlement.equals(CoreEntitlements.BasicAbilitySlotCount)){
-            getAbilityGroup(AbilitySlot.Basic).setSlots(entitlements.getEntitlementLevel(CoreEntitlements.BasicAbilitySlotCount));
+            getAbilityGroup(AbilityType.Basic).setSlots(entitlements.getEntitlementLevel(CoreEntitlements.BasicAbilitySlotCount));
         } else if (entitlement.equals(CoreEntitlements.PassiveAbilitySlotCount)){
-            getAbilityGroup(AbilitySlot.Passive).setSlots(entitlements.getEntitlementLevel(CoreEntitlements.PassiveAbilitySlotCount));
+            getAbilityGroup(AbilityType.Passive).setSlots(entitlements.getEntitlementLevel(CoreEntitlements.PassiveAbilitySlotCount));
         } else if (entitlement.equals(CoreEntitlements.UltimateAbilitySlotCount)){
-            getAbilityGroup(AbilitySlot.Ultimate).setSlots(entitlements.getEntitlementLevel(CoreEntitlements.UltimateAbilitySlotCount));
+            getAbilityGroup(AbilityType.Ultimate).setSlots(entitlements.getEntitlementLevel(CoreEntitlements.UltimateAbilitySlotCount));
         }
     }
 
@@ -61,16 +61,16 @@ public class PlayerAbilityLoadout implements IPlayerSyncComponentProvider {
     }
 
     @Nonnull
-    public IActiveAbilityGroup getAbilityGroup(AbilitySlot type) {
+    public IActiveAbilityGroup getAbilityGroup(AbilityType type) {
         return abilityGroups.getOrDefault(type, IActiveAbilityGroup.EMPTY);
     }
 
-    private void registerAbilityContainer(AbilitySlot type, ActiveAbilityGroup container) {
+    private void registerAbilityContainer(AbilityType type, ActiveAbilityGroup container) {
         abilityGroups.put(type, container);
         addSyncChild(container);
     }
 
-    public ResourceLocation getAbilityInSlot(AbilitySlot type, int slot) {
+    public ResourceLocation getAbilityInSlot(AbilityType type, int slot) {
         return getAbilityGroup(type).getSlot(slot);
     }
 
@@ -106,14 +106,14 @@ public class PlayerAbilityLoadout implements IPlayerSyncComponentProvider {
     public static class BasicAbilityGroup extends ActiveAbilityGroup {
 
         public BasicAbilityGroup(MKPlayerData playerData) {
-            super(playerData, "basic", AbilitySlot.Basic, GameConstants.DEFAULT_ACTIVES, GameConstants.MAX_ACTIVES);
+            super(playerData, "basic", AbilityType.Basic, GameConstants.DEFAULT_ACTIVES, GameConstants.MAX_ACTIVES);
         }
     }
 
     public static class ItemAbilityGroup extends ActiveAbilityGroup {
 
         public ItemAbilityGroup(MKPlayerData playerData) {
-            super(playerData, "item", AbilitySlot.Item, 1, 1);
+            super(playerData, "item", AbilityType.Item, 1, 1);
         }
 
         @Override
@@ -126,7 +126,7 @@ public class PlayerAbilityLoadout implements IPlayerSyncComponentProvider {
     static class PassiveTalentGroup extends ActiveTalentAbilityGroup {
 
         public PassiveTalentGroup(MKPlayerData playerData) {
-            super(playerData, "passive", AbilitySlot.Passive, GameConstants.DEFAULT_PASSIVES, GameConstants.MAX_PASSIVES, TalentType.PASSIVE);
+            super(playerData, "passive", AbilityType.Passive, GameConstants.DEFAULT_PASSIVES, GameConstants.MAX_PASSIVES, TalentType.PASSIVE);
         }
 
         @Override
@@ -139,7 +139,7 @@ public class PlayerAbilityLoadout implements IPlayerSyncComponentProvider {
     static class UltimateTalentGroup extends ActiveTalentAbilityGroup {
 
         public UltimateTalentGroup(MKPlayerData playerData) {
-            super(playerData, "ultimate", AbilitySlot.Ultimate, GameConstants.DEFAULT_ULTIMATES, GameConstants.MAX_ULTIMATES, TalentType.ULTIMATE);
+            super(playerData, "ultimate", AbilityType.Ultimate, GameConstants.DEFAULT_ULTIMATES, GameConstants.MAX_ULTIMATES, TalentType.ULTIMATE);
         }
 
         @Override

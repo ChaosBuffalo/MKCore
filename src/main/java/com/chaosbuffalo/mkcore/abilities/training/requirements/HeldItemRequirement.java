@@ -1,6 +1,7 @@
-package com.chaosbuffalo.mkcore.abilities.training;
+package com.chaosbuffalo.mkcore.abilities.training.requirements;
 
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
+import com.chaosbuffalo.mkcore.abilities.training.IAbilityTrainingRequirement;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -9,7 +10,7 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 
-public class HeldItemRequirement implements IAbilityLearnRequirement {
+public class HeldItemRequirement implements IAbilityTrainingRequirement {
     private final Item item;
     private final Hand hand;
 

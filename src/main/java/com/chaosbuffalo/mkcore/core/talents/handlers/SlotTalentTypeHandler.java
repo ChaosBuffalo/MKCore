@@ -1,11 +1,10 @@
 package com.chaosbuffalo.mkcore.core.talents.handlers;
 
 import com.chaosbuffalo.mkcore.MKCore;
-import com.chaosbuffalo.mkcore.core.AbilitySlot;
+import com.chaosbuffalo.mkcore.core.AbilityType;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.entitlements.EntitlementInstance;
 import com.chaosbuffalo.mkcore.core.entitlements.MKEntitlement;
-import com.chaosbuffalo.mkcore.core.player.IActiveAbilityGroup;
 import com.chaosbuffalo.mkcore.core.talents.TalentRecord;
 import com.chaosbuffalo.mkcore.core.talents.TalentTypeHandler;
 import com.chaosbuffalo.mkcore.core.talents.nodes.SlotCountTalentNode;
@@ -14,9 +13,9 @@ import com.chaosbuffalo.mkcore.init.CoreEntitlements;
 import javax.annotation.Nullable;
 
 public class SlotTalentTypeHandler extends TalentTypeHandler {
-    private final AbilitySlot slotType;
+    private final AbilityType slotType;
 
-    public SlotTalentTypeHandler(MKPlayerData playerData, AbilitySlot slotType) {
+    public SlotTalentTypeHandler(MKPlayerData playerData, AbilityType slotType) {
         super(playerData);
         this.slotType = slotType;
     }
@@ -39,7 +38,7 @@ public class SlotTalentTypeHandler extends TalentTypeHandler {
     }
 
     @Nullable
-    private MKEntitlement getEntitlementForSlotType(AbilitySlot slotType){
+    private MKEntitlement getEntitlementForSlotType(AbilityType slotType){
         switch (slotType){
             case Basic:
                 return CoreEntitlements.BasicAbilitySlotCount;
@@ -52,7 +51,7 @@ public class SlotTalentTypeHandler extends TalentTypeHandler {
         }
     }
 
-    protected AbilitySlot getSlotType() {
+    protected AbilityType getSlotType() {
         return slotType;
     };
 }

@@ -5,7 +5,7 @@ import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.abilities.MKAbilityInfo;
-import com.chaosbuffalo.mkcore.core.AbilitySlot;
+import com.chaosbuffalo.mkcore.core.AbilityType;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.sync.ResourceListUpdater;
 import com.chaosbuffalo.mkcore.sync.SyncInt;
@@ -30,13 +30,14 @@ public class ActiveAbilityGroup implements IActiveAbilityGroup, IPlayerSyncCompo
     private final List<ResourceLocation> activeAbilities;
     private final SyncListUpdater<ResourceLocation> activeUpdater;
     private final SyncInt slots;
-    protected final AbilitySlot slot;
+    protected final AbilityType abilityType;
 
-    public ActiveAbilityGroup(MKPlayerData playerData, String name, AbilitySlot slot, int defaultSize, int max) {
+
+    public ActiveAbilityGroup(MKPlayerData playerData, String name, AbilityType abilityType, int defaultSize, int max) {
         sync = new SyncComponent(name);
         this.playerData = playerData;
         this.name = name;
-        this.slot = slot;
+        this.abilityType = abilityType;
         activeAbilities = NonNullList.withSize(max, MKCoreRegistry.INVALID_ABILITY);
         activeUpdater = new ResourceListUpdater("active", () -> activeAbilities);
         slots = new SyncInt("slots", defaultSize);
@@ -99,7 +100,7 @@ public class ActiveAbilityGroup implements IActiveAbilityGroup, IPlayerSyncCompo
         if (ability == null)
             return false;
 
-        return ability.getType().fitsSlot(this.slot);
+        return ability.getType() == this.abilityType;
     }
 
     protected int getFirstFreeAbilitySlot() {
@@ -122,7 +123,7 @@ public class ActiveAbilityGroup implements IActiveAbilityGroup, IPlayerSyncCompo
 
     @Override
     public void setSlot(int index, ResourceLocation abilityId) {
-        MKCore.LOGGER.debug("ActiveAbilityContainer.setAbilityInSlot({}, {}, {})", slot, index, abilityId);
+        MKCore.LOGGER.debug("ActiveAbilityContainer.setAbilityInSlot({}, {}, {})", abilityType, index, abilityId);
 
         if (abilityId.equals(MKCoreRegistry.INVALID_ABILITY)) {
             setSlotInternal(index, MKCoreRegistry.INVALID_ABILITY);
@@ -130,12 +131,12 @@ public class ActiveAbilityGroup implements IActiveAbilityGroup, IPlayerSyncCompo
         }
 
         if (!playerData.getAbilities().knowsAbility(abilityId)) {
-            MKCore.LOGGER.error("setAbilityInSlot({}, {}, {}) - player does not know ability!", slot, index, abilityId);
+            MKCore.LOGGER.error("setAbilityInSlot({}, {}, {}) - player does not know ability!", abilityType, index, abilityId);
             return;
         }
 
         if (!canSlotAbility(index, abilityId)) {
-            MKCore.LOGGER.error("setAbilityInSlot({}, {}, {}) - blocked by ability container", slot, index, abilityId);
+            MKCore.LOGGER.error("setAbilityInSlot({}, {}, {}) - blocked by ability container", abilityType, index, abilityId);
             return;
         }
 
@@ -164,7 +165,7 @@ public class ActiveAbilityGroup implements IActiveAbilityGroup, IPlayerSyncCompo
     }
 
     protected void setSlotInternal(int index, ResourceLocation abilityId) {
-        MKCore.LOGGER.debug("ActiveAbilityContainer.setSlotInternal({}, {}, {})", slot, index, abilityId);
+        MKCore.LOGGER.debug("ActiveAbilityContainer.setSlotInternal({}, {}, {})", abilityType, index, abilityId);
         ResourceLocation previous = activeAbilities.set(index, abilityId);
         activeUpdater.setDirty(index);
         if (playerData.getEntity().isAddedToWorld()) {
@@ -182,7 +183,7 @@ public class ActiveAbilityGroup implements IActiveAbilityGroup, IPlayerSyncCompo
     }
 
     protected void onSlotChanged(int index, ResourceLocation previous, ResourceLocation newAbility) {
-        playerData.getAbilityExecutor().onSlotChanged(slot, index, previous, newAbility);
+        playerData.getAbilityExecutor().onSlotChanged(abilityType, index, previous, newAbility);
     }
 
     private void ensureValidAbility(ResourceLocation abilityId) {
@@ -193,7 +194,7 @@ public class ActiveAbilityGroup implements IActiveAbilityGroup, IPlayerSyncCompo
         if (info != null)
             return;
 
-        MKCore.LOGGER.debug("ensureValidAbility({}, {}) - bad", slot, abilityId);
+        MKCore.LOGGER.debug("ensureValidAbility({}, {}) - bad", abilityType, abilityId);
         clearAbility(abilityId);
     }
 

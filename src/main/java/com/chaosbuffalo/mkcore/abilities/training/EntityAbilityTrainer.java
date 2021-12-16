@@ -34,7 +34,7 @@ public class EntityAbilityTrainer implements IAbilityTrainer {
 
     @Override
     public AbilityTrainingEntry addTrainedAbility(MKAbility ability) {
-        AbilityTrainingEntry entry = new AbilityTrainingEntry(ability);
+        AbilityTrainingEntry entry = new AbilityTrainingEntry(ability, true);
         entries.add(entry);
         return entry;
     }

@@ -4,14 +4,14 @@ import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.abilities.ai.conditions.AbilityUseCondition;
 import com.chaosbuffalo.mkcore.abilities.ai.conditions.StandardUseCondition;
-import com.chaosbuffalo.mkcore.serialization.attributes.ISerializableAttribute;
-import com.chaosbuffalo.mkcore.core.AbilitySlot;
+import com.chaosbuffalo.mkcore.core.AbilityType;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.core.MKAttributes;
 import com.chaosbuffalo.mkcore.core.MKCombatFormulas;
 import com.chaosbuffalo.mkcore.core.damage.MKDamageType;
 import com.chaosbuffalo.mkcore.entities.BaseProjectileEntity;
 import com.chaosbuffalo.mkcore.init.CoreSounds;
+import com.chaosbuffalo.mkcore.serialization.attributes.ISerializableAttribute;
 import com.chaosbuffalo.mkcore.serialization.attributes.ResourceLocationAttribute;
 import com.chaosbuffalo.mkcore.utils.EntityUtils;
 import com.chaosbuffalo.mkcore.utils.RayTraceUtils;
@@ -21,7 +21,6 @@ import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.DynamicOps;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.Attribute;
@@ -45,42 +44,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
-
-    public enum AbilityType {
-        PooledActive(AbilitySlot.Basic, true, true),
-        PooledPassive(AbilitySlot.Passive, false, true),
-        PooledUltimate(AbilitySlot.Ultimate, true, true),
-        Active(AbilitySlot.Basic, true, false),
-        Ultimate(AbilitySlot.Ultimate, true, false),
-        Passive(AbilitySlot.Passive, false, false),
-        Item(AbilitySlot.Item, true, false);
-
-        final AbilitySlot slotType;
-        final boolean canSlot;
-        final boolean usesPool;
-
-        AbilityType(AbilitySlot slotType, boolean canSlot, boolean usesPool) {
-            this.slotType = slotType;
-            this.canSlot = canSlot;
-            this.usesPool = usesPool;
-        }
-
-        public AbilitySlot getSlotType() {
-            return slotType;
-        }
-
-        public boolean canPlaceOnActionBar() {
-            return canSlot;
-        }
-
-        public boolean isPoolAbility() {
-            return usesPool;
-        }
-
-        public boolean fitsSlot(AbilitySlot slotType) {
-            return slotType == getSlotType();
-        }
-    }
 
     private int castTime;
     private int cooldown;
@@ -107,11 +70,11 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
         addAttribute(casting_particles);
     }
 
-    public boolean hasCastingParticles(){
+    public boolean hasCastingParticles() {
         return casting_particles.getValue().compareTo(EMPTY_PARTICLES) != 0;
     }
 
-    public ResourceLocation getCastingParticles(){
+    public ResourceLocation getCastingParticles() {
         return casting_particles.getValue();
     }
 
@@ -127,7 +90,6 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
         damageStr.appendString(" ").appendSibling(damageType.getDisplayName().mergeStyle(damageType.getFormatting()));
         return damageStr;
     }
-
 
 
     protected IFormattableTextComponent formatEffectValue(float damage, float levelScale, int level, float bonus, float scaleMod) {
@@ -285,7 +247,7 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
     }
 
     public AbilityType getType() {
-        return AbilityType.PooledActive;
+        return AbilityType.Basic;
     }
 
     public abstract TargetingContext getTargetContext();

@@ -3,6 +3,7 @@ package com.chaosbuffalo.mkcore.abilities;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.abilities.description.AbilityDescriptions;
 import com.chaosbuffalo.mkcore.client.gui.MKOverlay;
+import com.chaosbuffalo.mkcore.core.AbilityType;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.Minecraft;
@@ -54,7 +55,7 @@ public abstract class MKToggleAbility extends MKAbility {
 
     @Override
     public AbilityType getType() {
-        return AbilityType.PooledActive;
+        return AbilityType.Basic;
     }
 
     public void applyEffect(LivingEntity entity, IMKEntityData entityData) {

@@ -1,6 +1,6 @@
 package com.chaosbuffalo.mkcore.core.talents;
 
-import com.chaosbuffalo.mkcore.core.AbilitySlot;
+import com.chaosbuffalo.mkcore.core.AbilityType;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.talents.handlers.SlotTalentTypeHandler;
 import com.chaosbuffalo.mkcore.core.talents.handlers.UltimateTalentHandler;
@@ -22,15 +22,15 @@ public class TalentType<T extends TalentTypeHandler> {
                     .setDisplayName("mkcore.talent_type.tooltip_name_with_ability");
     public static TalentType<SlotTalentTypeHandler> BASIC_SLOT =
             new TalentType<>("mkcore.talent_type.basic_slot.name",
-                    (mkPlayerData) -> new SlotTalentTypeHandler(mkPlayerData, AbilitySlot.Basic))
+                    (mkPlayerData) -> new SlotTalentTypeHandler(mkPlayerData, AbilityType.Basic))
                     .setDisplayName("mkcore.talent_type.tooltip_name");
     public static TalentType<SlotTalentTypeHandler> PASSIVE_SLOT =
             new TalentType<>("mkcore.talent_type.passive_slot.name",
-                    (mkPlayerData) -> new SlotTalentTypeHandler(mkPlayerData, AbilitySlot.Passive))
+                    (mkPlayerData) -> new SlotTalentTypeHandler(mkPlayerData, AbilityType.Passive))
                     .setDisplayName("mkcore.talent_type.tooltip_name");
     public static TalentType<SlotTalentTypeHandler> ULTIMATE_SLOT =
             new TalentType<>("mkcore.talent_type.ultimate_slot.name",
-                    (mkPlayerData) -> new SlotTalentTypeHandler(mkPlayerData, AbilitySlot.Ultimate))
+                    (mkPlayerData) -> new SlotTalentTypeHandler(mkPlayerData, AbilityType.Ultimate))
                     .setDisplayName("mkcore.talent_type.tooltip_name");
 
     private final String name;

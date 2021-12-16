@@ -1,12 +1,13 @@
-package com.chaosbuffalo.mkcore.abilities.training;
+package com.chaosbuffalo.mkcore.abilities.training.requirements;
 
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
+import com.chaosbuffalo.mkcore.abilities.training.IAbilityTrainingRequirement;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 
-public class ExperienceLevelRequirement implements IAbilityLearnRequirement {
+public class ExperienceLevelRequirement implements IAbilityTrainingRequirement {
     private final int requiredLevel;
 
     public ExperienceLevelRequirement(int reqLevel) {

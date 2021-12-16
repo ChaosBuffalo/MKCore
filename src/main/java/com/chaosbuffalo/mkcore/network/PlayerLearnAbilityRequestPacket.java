@@ -1,6 +1,5 @@
 package com.chaosbuffalo.mkcore.network;
 
-import com.chaosbuffalo.mkcore.CoreCapabilities;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.abilities.AbilitySource;
@@ -31,7 +30,6 @@ public class PlayerLearnAbilityRequestPacket {
         this(abilityId, MKCoreRegistry.INVALID_ABILITY, entityId);
     }
 
-
     public PlayerLearnAbilityRequestPacket(PacketBuffer buffer) {
         entityId = buffer.readInt();
         abilityId = buffer.readResourceLocation();
@@ -52,27 +50,33 @@ public class PlayerLearnAbilityRequestPacket {
     public void handle(Supplier<NetworkEvent.Context> supplier) {
         NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
-            ServerPlayerEntity entity = ctx.getSender();
-            if (entity == null)
+            ServerPlayerEntity player = ctx.getSender();
+            if (player == null)
                 return;
+
             MKAbility ability = MKCoreRegistry.getAbility(abilityId);
             if (ability == null) {
                 return;
             }
 
-            Entity teacher = entity.getServerWorld().getEntityByID(entityId);
+            Entity teacher = player.getServerWorld().getEntityByID(entityId);
             if (teacher instanceof IAbilityTrainingEntity) {
                 IAbilityTrainer abilityTrainer = ((IAbilityTrainingEntity) teacher).getAbilityTrainer();
 
-                entity.getCapability(CoreCapabilities.PLAYER_CAPABILITY).ifPresent(playerData -> {
+                MKCore.getPlayer(player).ifPresent(playerData -> {
                     AbilityTrainingEntry entry = abilityTrainer.getTrainingEntry(ability);
-                    if (!entry.getRequirements().stream().allMatch(req -> req.check(playerData, ability))) {
+                    if (entry == null) {
+                        MKCore.LOGGER.error("Trainer {} does not have requested ability {}. Requested by {}", teacher, abilityId, player);
+                        return;
+                    }
+                    if (!entry.checkRequirements(playerData)) {
                         MKCore.LOGGER.debug("Failed to learn ability {} from {} - unmet requirements", abilityId, teacher);
                         return;
                     }
 
-                    entry.getRequirements().forEach(req -> req.onLearned(playerData, ability));
-                    playerData.getAbilities().learnAbility(ability, AbilitySource.TRAINED, replacingId);
+                    if (playerData.getAbilities().learnAbility(ability, AbilitySource.TRAINED, replacingId)) {
+                        entry.onAbilityLearned(playerData);
+                    }
                 });
             }
         });

@@ -170,6 +170,10 @@ processResources {
     configure { finalizedBy(replaceResources) }
 }
 
+classes.configure {
+    dependsOn(replaceResources)
+}
+
 // Example for how to get properties into the manifest for reading by the runtime..
 jar {
     manifest {

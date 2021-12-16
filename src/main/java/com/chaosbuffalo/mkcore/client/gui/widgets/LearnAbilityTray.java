@@ -1,9 +1,8 @@
 package com.chaosbuffalo.mkcore.client.gui.widgets;
 
-import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
-import com.chaosbuffalo.mkcore.abilities.training.AbilityRequirementEvaluation;
+import com.chaosbuffalo.mkcore.abilities.training.AbilityTrainingEvaluation;
 import com.chaosbuffalo.mkcore.client.gui.GuiTextures;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
@@ -21,14 +20,14 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.TranslationTextComponent;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class LearnAbilityTray extends MKStackLayoutVertical {
     private MKAbility ability;
-    private List<AbilityRequirementEvaluation> unmetRequirements;
+    private AbilityTrainingEvaluation evaluation;
     private final MKPlayerData playerData;
     private final FontRenderer font;
     protected final int POPUP_WIDTH = 180;
@@ -40,7 +39,6 @@ public class LearnAbilityTray extends MKStackLayoutVertical {
         super(x, y, width);
         this.playerData = playerData;
         this.trainerEntityId = trainerEntityId;
-        unmetRequirements = new ArrayList<>();
         this.font = font;
         this.ability = null;
         setMarginTop(2);
@@ -63,7 +61,7 @@ public class LearnAbilityTray extends MKStackLayoutVertical {
         MKImage background = GuiTextures.CORE_TEXTURES.getImageForRegion(
                 GuiTextures.BACKGROUND_180_200, xPos, yPos, POPUP_WIDTH, POPUP_HEIGHT);
         popup.addWidget(background);
-        String promptText = I18n.format("mkcore.gui.character.forget_ability", getAbility().getAbilityName().getString());
+        ITextComponent promptText = new TranslationTextComponent("mkcore.gui.character.forget_ability", getAbility().getAbilityName());
         MKText prompt = new MKText(font, promptText, xPos + 6, yPos + 6);
         prompt.setWidth(POPUP_WIDTH - 10);
         prompt.setMultiline(true);
@@ -76,11 +74,11 @@ public class LearnAbilityTray extends MKStackLayoutVertical {
         abilities.setPaddingTop(2);
         abilities.setMargins(2, 2, 2, 2);
         abilities.doSetChildWidth(true);
-        playerData.getAbilities().getPoolAbilities().forEach(loc -> {
-            if (loc.equals(MKCoreRegistry.INVALID_ABILITY)) {
+        playerData.getAbilities().getPoolAbilities().forEach(abilityId -> {
+            if (abilityId.equals(MKCoreRegistry.INVALID_ABILITY)) {
                 return;
             }
-            MKAbility ability = MKCoreRegistry.getAbility(loc);
+            MKAbility ability = MKCoreRegistry.getAbility(abilityId);
             if (ability != null) {
                 AbilityForgetOption abilityIcon = new AbilityForgetOption(ability, getAbility().getAbilityId(), popup, font, trainerEntityId);
                 abilities.addWidget(abilityIcon);
@@ -107,7 +105,7 @@ public class LearnAbilityTray extends MKStackLayoutVertical {
             nameTray.addWidget(abilityName);
             addWidget(nameTray);
             boolean isKnown = playerData.getAbilities().knowsAbility(getAbility().getAbilityId());
-            boolean canLearn = unmetRequirements.stream().allMatch(x -> x.isMet);
+            boolean canLearn = evaluation.canLearn();
             String knowText;
             if (isKnown) {
                 knowText = I18n.format("mkcore.gui.character.already_known");
@@ -125,11 +123,11 @@ public class LearnAbilityTray extends MKStackLayoutVertical {
             reqlayout.setPaddingBot(1);
             reqlayout.setPaddingTop(1);
             reqScrollView.addWidget(reqlayout);
-            List<ITextComponent> texts = unmetRequirements.stream()
+            List<ITextComponent> texts = evaluation.getRequirements().stream()
                     .map((x) -> new StringTextComponent("  - ")
-                            .appendSibling(x.requirementDescription)
-                            .mergeStyle(x.isMet ? TextFormatting.DARK_GREEN : TextFormatting.BLACK))
-                    .collect(Collectors.toCollection(ArrayList::new));
+                            .appendSibling(x.description())
+                            .mergeStyle(x.isMet() ? TextFormatting.DARK_GREEN : TextFormatting.BLACK))
+                    .collect(Collectors.toList());
             for (ITextComponent text : texts) {
                 MKText reqText = new MKText(font, text);
                 reqText.setMultiline(true);
@@ -153,7 +151,7 @@ public class LearnAbilityTray extends MKStackLayoutVertical {
                     @Override
                     public void onMouseHover(Minecraft mc, int mouseX, int mouseY, float partialTicks) {
                         super.onMouseHover(mc, mouseX, mouseY, partialTicks);
-                        if (unmetRequirements.size() > 0) {
+                        if (evaluation.getRequirements().size() > 0) {
                             if (getScreen() != null) {
                                 getScreen().addPostRenderInstruction(new HoveringTextInstruction(
                                         I18n.format("mkcore.gui.character.unmet_req_tooltip"),
@@ -165,10 +163,7 @@ public class LearnAbilityTray extends MKStackLayoutVertical {
                 learnButton.setWidth(font.getStringWidth(learnButtonText) + 10);
                 learnButton.setEnabled(canLearn);
                 learnButton.setPressedCallback((button, buttonType) -> {
-                    if (getAbility().getType().isPoolAbility() &&
-                            playerData.getAbilities().isAbilityPoolFull()) {
-                        MKCore.LOGGER.info("Ability pool full {} ",
-                                playerData.getAbilities().getCurrentPoolCount());
+                    if (evaluation.usesAbilityPool() && playerData.getAbilities().isAbilityPoolFull()) {
                         if (getScreen() != null && choosePoolSlotWidget != null) {
                             getScreen().addModal(choosePoolSlotWidget);
                         }
@@ -186,9 +181,9 @@ public class LearnAbilityTray extends MKStackLayoutVertical {
         }
     }
 
-    public void setAbility(MKAbility ability, List<AbilityRequirementEvaluation> requirements) {
+    public void setAbility(MKAbility ability, AbilityTrainingEvaluation requirements) {
         this.ability = ability;
-        this.unmetRequirements = requirements;
+        this.evaluation = requirements;
         setup();
     }
 

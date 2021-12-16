@@ -5,7 +5,7 @@ import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.client.gui.CharacterScreen;
 import com.chaosbuffalo.mkcore.client.gui.GuiTextures;
-import com.chaosbuffalo.mkcore.core.AbilitySlot;
+import com.chaosbuffalo.mkcore.core.AbilityType;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.player.IActiveAbilityGroup;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
@@ -26,7 +26,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ResourceLocation;
 
 public class AbilitySlotWidget extends MKLayout {
-    private AbilitySlot slotType;
+    private AbilityType slotType;
     private boolean unlocked;
     private final int slotIndex;
     private CharacterScreen screen;
@@ -34,7 +34,7 @@ public class AbilitySlotWidget extends MKLayout {
     private MKImage background;
     private MKImage icon;
 
-    public AbilitySlotWidget(int x, int y, AbilitySlot slotType, int slotIndex, CharacterScreen screen) {
+    public AbilitySlotWidget(int x, int y, AbilityType slotType, int slotIndex, CharacterScreen screen) {
         super(x, y, 20, 20);
         this.slotType = slotType;
         this.screen = screen;
@@ -59,7 +59,7 @@ public class AbilitySlotWidget extends MKLayout {
         return slotIndex;
     }
 
-    public AbilitySlot getSlotType() {
+    public AbilityType getSlotType() {
         return slotType;
     }
 
@@ -100,7 +100,7 @@ public class AbilitySlotWidget extends MKLayout {
         }
     }
 
-    private MKImage getImageForSlotType(AbilitySlot slotType, boolean unlocked) {
+    private MKImage getImageForSlotType(AbilityType slotType, boolean unlocked) {
         switch (slotType) {
             case Ultimate:
                 return GuiTextures.CORE_TEXTURES.getImageForRegion(unlocked ?
@@ -154,7 +154,7 @@ public class AbilitySlotWidget extends MKLayout {
     @Override
     public boolean onMouseRelease(double mouseX, double mouseY, int mouseButton) {
         if (screen.isDraggingAbility()) {
-            if (unlocked && screen.getDragging().getType().fitsSlot(slotType)) {
+            if (unlocked && screen.getDragging().getType() == slotType) {
                 ResourceLocation ability = screen.getDragging().getAbilityId();
                 setSlotToAbility(ability);
             }

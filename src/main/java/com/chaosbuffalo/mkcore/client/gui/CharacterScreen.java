@@ -6,7 +6,7 @@ import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.abilities.MKAbilityInfo;
 import com.chaosbuffalo.mkcore.client.gui.widgets.*;
-import com.chaosbuffalo.mkcore.core.AbilitySlot;
+import com.chaosbuffalo.mkcore.core.AbilityType;
 import com.chaosbuffalo.mkcore.core.MKAttributes;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.damage.MKDamageType;
@@ -45,10 +45,10 @@ public class CharacterScreen extends AbilityPanelScreen {
     private static final ArrayList<Attribute> STAT_PANEL_ATTRIBUTES = new ArrayList<>();
 
     public static class AbilitySlotKey {
-        public AbilitySlot type;
+        public AbilityType type;
         public int slot;
 
-        public AbilitySlotKey(AbilitySlot type, int index) {
+        public AbilitySlotKey(AbilityType type, int index) {
             this.type = type;
             this.slot = index;
         }
@@ -70,7 +70,7 @@ public class CharacterScreen extends AbilityPanelScreen {
 
     private final Map<AbilitySlotKey, AbilitySlotWidget> abilitySlots;
 
-    public List<AbilitySlotWidget> getSlotsForType(AbilitySlot slotType) {
+    public List<AbilitySlotWidget> getSlotsForType(AbilityType slotType) {
         List<AbilitySlotWidget> widgets = new ArrayList<>();
         for (AbilitySlotWidget slot : abilitySlots.values()) {
             if (slot.getSlotType().equals(slotType)) {
@@ -214,12 +214,12 @@ public class CharacterScreen extends AbilityPanelScreen {
             activesLabel.setX(slotsX);
             activesLabel.setY(slotsY - 12);
             root.addWidget(activesLabel);
-            MKLayout regularSlots = getLayoutOfAbilitySlots(slotsX, slotsY, AbilitySlot.Basic
+            MKLayout regularSlots = getLayoutOfAbilitySlots(slotsX, slotsY, AbilityType.Basic
                     , GameConstants.MAX_ACTIVES);
             root.addWidget(regularSlots);
             regularSlots.manualRecompute();
             int ultSlotsX = regularSlots.getX() + regularSlots.getWidth() + 30;
-            MKLayout ultSlots = getLayoutOfAbilitySlots(ultSlotsX, slotsY, AbilitySlot.Ultimate,
+            MKLayout ultSlots = getLayoutOfAbilitySlots(ultSlotsX, slotsY, AbilityType.Ultimate,
                     GameConstants.MAX_ULTIMATES);
             root.addWidget(ultSlots);
             ultSlots.manualRecompute();
@@ -228,7 +228,7 @@ public class CharacterScreen extends AbilityPanelScreen {
             ultLabel.setY(slotsY - 12);
             root.addWidget(ultLabel);
             int passiveSlotX = ultSlots.getX() + ultSlots.getWidth() + 30;
-            MKLayout passiveSlots = getLayoutOfAbilitySlots(passiveSlotX, slotsY, AbilitySlot.Passive,
+            MKLayout passiveSlots = getLayoutOfAbilitySlots(passiveSlotX, slotsY, AbilityType.Passive,
                     GameConstants.MAX_PASSIVES);
             MKText passivesLabel = new MKText(font, new TranslationTextComponent("mkcore.gui.passives"));
             passivesLabel.setX(passiveSlotX);
@@ -319,7 +319,7 @@ public class CharacterScreen extends AbilityPanelScreen {
         return textWidget;
     }
 
-    private MKLayout getLayoutOfAbilitySlots(int x, int y, AbilitySlot slotType, int count) {
+    private MKLayout getLayoutOfAbilitySlots(int x, int y, AbilityType slotType, int count) {
         MKStackLayoutHorizontal layout = new MKStackLayoutHorizontal(x, y, 24);
         layout.setPaddings(2, 2, 0, 0);
         layout.setMargins(2, 2, 2, 2);
@@ -456,8 +456,8 @@ public class CharacterScreen extends AbilityPanelScreen {
     @Override
     public void setDragging(MKAbility dragging) {
         super.setDragging(dragging);
-        Arrays.stream(AbilitySlot.values())
-                .filter(type -> type != dragging.getType().getSlotType())
+        Arrays.stream(AbilityType.values())
+                .filter(type -> type != dragging.getType())
                 .forEach(type -> {
                     for (AbilitySlotWidget widget : getSlotsForType(type)) {
                         widget.setBackgroundColor(0xff555555);
