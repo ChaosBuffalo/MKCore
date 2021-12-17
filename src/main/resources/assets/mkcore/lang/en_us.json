@@ -183,5 +183,7 @@
   "mkcore.talent.ultimate_ability_slot.description": "Adds an ultimate ability slot to your hotbar",
   "mkcore.talent_type.ultimate_slot.name": "Ultimate Slot",
   "mkcore.talent_type.passive_slot.name": "Passive Slot",
-  "mkcore.talent_type.basic_slot.name": "Basic Slot"
+  "mkcore.talent_type.basic_slot.name": "Basic Slot",
+  "mkcore.gui.xp_bar.name": "Next Talent:",
+  "mkcore.subtitle.level_up": "An aetherial ding echoes in the area"
 }

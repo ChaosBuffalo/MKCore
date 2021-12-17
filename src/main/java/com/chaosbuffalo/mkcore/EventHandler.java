@@ -11,8 +11,10 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
+import net.minecraftforge.event.entity.living.LivingExperienceDropEvent;
 import net.minecraftforge.event.entity.living.PotionEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.entity.player.PlayerXpEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -39,6 +41,13 @@ public class EventHandler {
         if (event.getEntity() instanceof PlayerEntity) {
             MKCore.getPlayer(event.getEntity()).ifPresent(MKPlayerData::onJoinWorld);
         }
+    }
+
+    @SubscribeEvent
+    public static void onPlayerGainXP(PlayerXpEvent.XpChange event){
+        MKCore.getPlayer(event.getPlayer()).ifPresent(data -> {
+            data.getKnowledge().getTalentKnowledge().addTalentXp(event.getAmount());
+        });
     }
 
     @SubscribeEvent

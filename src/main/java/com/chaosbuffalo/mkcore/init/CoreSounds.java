@@ -16,6 +16,8 @@ public class CoreSounds {
     public static SoundEvent casting_default;
     @ObjectHolder("spell_cast_default")
     public static SoundEvent spell_cast_default;
+    @ObjectHolder("level_up")
+    public static SoundEvent level_up;
 
     public static void registerSound(RegistryEvent.Register<SoundEvent> evt, SoundEvent event) {
         evt.getRegistry().register(event);
@@ -32,5 +34,6 @@ public class CoreSounds {
     public static void registerSounds(RegistryEvent.Register<SoundEvent> evt) {
         registerSound(evt, createSound("casting_default"));
         registerSound(evt, createSound("spell_cast_default"));
+        registerSound(evt, createSound("level_up"));
     }
 }

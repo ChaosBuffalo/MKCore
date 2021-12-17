@@ -20,6 +20,9 @@ public class GuiTextures {
     public static final String BACKGROUND_320_240 = "background_320_240";
     public static final String DATA_BOX = "data_box";
     public static final String BACKGROUND_180_200 = "background_180_200";
+    public static final String XP_BAR_BACKGROUND = "xp_background";
+    public static final String XP_BAR_BLUE = "xp_bar_blue";
+    public static final String XP_BAR_YELLOW = "xp_bar_yellow";
 
     static {
         CORE_TEXTURES.addTextureRegion(MANA_REGION, 326, 51, 3, 8);
@@ -35,6 +38,10 @@ public class GuiTextures {
         CORE_TEXTURES.addTextureRegion(BACKGROUND_320_240, 0, 0, 320, 240);
         CORE_TEXTURES.addTextureRegion(DATA_BOX, 0, 245, 308, 155);
         CORE_TEXTURES.addTextureRegion(BACKGROUND_180_200, 310, 245, 180, 200);
+        CORE_TEXTURES.addTextureRegion(XP_BAR_BACKGROUND, 326, 74, 67, 11);
+        CORE_TEXTURES.addTextureRegion(XP_BAR_BLUE, 330, 89, 59, 11);
+        CORE_TEXTURES.addTextureRegion(XP_BAR_YELLOW, 330, 105, 59, 11);
+
 
     }
 
