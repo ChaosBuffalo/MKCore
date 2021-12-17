@@ -52,7 +52,7 @@ public class PlayerTalentKnowledge implements IPlayerSyncComponentProvider {
     }
 
     public int getXpToNextLevel(){
-        return 1000;
+        return 100 + Math.round((getTotalTalentPoints() / 2.0f) * 100);
     }
 
     public boolean shouldLevel(){
