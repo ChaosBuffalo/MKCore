@@ -11,6 +11,7 @@ import com.chaosbuffalo.mkcore.utils.SoundUtils;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.DynamicOps;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.NBTDynamicOps;
@@ -67,10 +68,17 @@ public class PlayerTalentKnowledge implements IPlayerSyncComponentProvider {
     }
 
     public void performLevel(){
-        talentXp.add(-getXpToNextLevel());
-        grantTalentPoints(1);
         if (playerData.isServerSide()){
+            talentXp.add(-getXpToNextLevel());
+            grantTalentPoints(1);
             SoundUtils.serverPlaySoundAtEntity(playerData.getEntity(), CoreSounds.level_up, SoundCategory.PLAYERS);
+            PlayerEntity player = playerData.getEntity();
+            if (player.getHealth() < player.getMaxHealth()){
+                player.setHealth(player.getMaxHealth());
+            }
+            if (playerData.getStats().getMana() < playerData.getStats().getMaxMana()){
+                playerData.getStats().setMana(playerData.getStats().getMaxMana());
+            }
         }
     }
 
