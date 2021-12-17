@@ -4,8 +4,10 @@ import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.player.IPlayerSyncComponentProvider;
 import com.chaosbuffalo.mkcore.core.player.SyncComponent;
+import com.chaosbuffalo.mkcore.init.CoreSounds;
 import com.chaosbuffalo.mkcore.sync.DynamicSyncGroup;
 import com.chaosbuffalo.mkcore.sync.SyncInt;
+import com.chaosbuffalo.mkcore.utils.SoundUtils;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.DynamicOps;
@@ -13,6 +15,7 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.NBTDynamicOps;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundCategory;
 
 import java.util.*;
 import java.util.function.Function;
@@ -25,11 +28,13 @@ public class PlayerTalentKnowledge implements IPlayerSyncComponentProvider {
     private final SyncInt talentPoints = new SyncInt("points", 0);
     private final SyncInt totalTalentPoints = new SyncInt("totalPoints", 0);
     private final Map<ResourceLocation, TalentTreeRecord> talentTreeRecordMap = new HashMap<>();
+    private final SyncInt talentXp = new SyncInt("xp", 0);
 
     public PlayerTalentKnowledge(MKPlayerData playerData) {
         this.playerData = playerData;
         addSyncPrivate(talentPoints);
         addSyncPrivate(totalTalentPoints);
+        addSyncPrivate(talentXp);
         if (!playerData.isServerSide()) {
             addSyncPrivate(new ClientTreeSyncGroup());
         }
@@ -39,6 +44,33 @@ public class PlayerTalentKnowledge implements IPlayerSyncComponentProvider {
                     MKCore.LOGGER.error("Failed to unlock default talent tree: {}", def.getTreeId());
                 }
             }
+        }
+    }
+
+    public int getTalentXp(){
+        return talentXp.get();
+    }
+
+    public int getXpToNextLevel(){
+        return 1000;
+    }
+
+    public boolean shouldLevel(){
+        return getTalentXp() >= getXpToNextLevel();
+    }
+
+    public void addTalentXp(int value){
+        talentXp.add(value);
+        if (shouldLevel()){
+            performLevel();
+        }
+    }
+
+    public void performLevel(){
+        talentXp.add(-getXpToNextLevel());
+        grantTalentPoints(1);
+        if (playerData.isServerSide()){
+            SoundUtils.serverPlaySoundAtEntity(playerData.getEntity(), CoreSounds.level_up, SoundCategory.PLAYERS);
         }
     }
 

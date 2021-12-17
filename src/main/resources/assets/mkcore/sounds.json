@@ -17,5 +17,14 @@
         "name": "mkcore:spells/default_cast"
       }
     ]
+  },
+  "level_up": {
+    "subtitle": "mkcore.subtitle.level_up",
+    "sounds": [
+      {
+        "name": "mkcore:other/level_up",
+        "attenuation_distance": 32
+      }
+    ]
   }
 }
