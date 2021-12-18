@@ -13,7 +13,7 @@ public interface IMKEntityEntitlements extends IMKSerializable<CompoundNBT> {
 
     boolean hasEntitlement(MKEntitlement entitlement);
 
-    void addEntitlement(EntitlementInstance instance, boolean doBroadcast);
+    void addEntitlement(EntitlementInstance instance);
 
     void removeEntitlement(EntitlementInstance instance);
 
@@ -21,7 +21,7 @@ public interface IMKEntityEntitlements extends IMKSerializable<CompoundNBT> {
 
     int getEntitlementLevel(MKEntitlement entitlement);
 
-    void addEntitlementSubscriber(BiConsumer<MKEntitlement, IMKEntityEntitlements> entitlementConsumer);
+    void addUpdatedCallback(BiConsumer<EntitlementInstance, IMKEntityEntitlements> entitlementConsumer);
 
     void addLoadedCallback(Consumer<IMKEntityEntitlements> loadedConsumer);
 }

@@ -3,7 +3,10 @@ package com.chaosbuffalo.mkcore.init;
 
 import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.MKCore;
+import com.chaosbuffalo.mkcore.core.AbilityType;
 import com.chaosbuffalo.mkcore.core.entitlements.MKEntitlement;
+import com.chaosbuffalo.mkcore.core.player.AbilityPoolEntitlement;
+import com.chaosbuffalo.mkcore.core.player.AbilitySlotEntitlement;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -27,9 +30,9 @@ public class CoreEntitlements {
 
     @SubscribeEvent
     public static void registerEntitlements(RegistryEvent.Register<MKEntitlement> evt) {
-        evt.getRegistry().register(new MKEntitlement(MKCore.makeRL("ability_slot.basic"), GameConstants.MAX_ACTIVES));
-        evt.getRegistry().register(new MKEntitlement(MKCore.makeRL("ability_slot.passive"), GameConstants.MAX_PASSIVES));
-        evt.getRegistry().register(new MKEntitlement(MKCore.makeRL("ability_slot.ultimate"), GameConstants.MAX_ULTIMATES));
-        evt.getRegistry().register(new MKEntitlement(MKCore.makeRL("ability_pool.count"), GameConstants.MAX_ABILITY_POOL_SIZE - GameConstants.DEFAULT_ABILITY_POOL_SIZE));
+        evt.getRegistry().register(new AbilitySlotEntitlement(MKCore.makeRL("ability_slot.basic"), AbilityType.Basic, GameConstants.MAX_ACTIVES));
+        evt.getRegistry().register(new AbilitySlotEntitlement(MKCore.makeRL("ability_slot.passive"), AbilityType.Passive, GameConstants.MAX_PASSIVES));
+        evt.getRegistry().register(new AbilitySlotEntitlement(MKCore.makeRL("ability_slot.ultimate"), AbilityType.Ultimate, GameConstants.MAX_ULTIMATES));
+        evt.getRegistry().register(new AbilityPoolEntitlement(MKCore.makeRL("ability_pool.count"), GameConstants.MAX_ABILITY_POOL_SIZE - GameConstants.DEFAULT_ABILITY_POOL_SIZE));
     }
 }

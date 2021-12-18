@@ -2,10 +2,11 @@ package com.chaosbuffalo.mkcore.core;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.editor.PlayerEditorModule;
+import com.chaosbuffalo.mkcore.core.player.PlayerEntitlementDispatcher;
 import com.chaosbuffalo.mkcore.core.persona.IPersonaExtension;
 import com.chaosbuffalo.mkcore.core.persona.PersonaManager;
 import com.chaosbuffalo.mkcore.core.player.*;
-import com.chaosbuffalo.mkcore.core.talents.PlayerTalentModule;
+import com.chaosbuffalo.mkcore.core.talents.PlayerTalentDispatcher;
 import com.chaosbuffalo.mkcore.sync.PlayerUpdateEngine;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -19,7 +20,8 @@ public class MKPlayerData implements IMKEntityData {
     private final PersonaManager personaManager;
     private final PlayerUpdateEngine updateEngine;
     private final PlayerAnimationModule animationModule;
-    private final PlayerTalentModule talentModule;
+    private final PlayerTalentDispatcher talentDispatcher;
+    private final PlayerEntitlementDispatcher entitlementDispatcher;
     private final PlayerEquipmentModule equipmentModule;
     private final PlayerCombatExtensionModule combatExtensionModule;
     private final PlayerEditorModule editorModule;
@@ -40,7 +42,8 @@ public class MKPlayerData implements IMKEntityData {
         abilityExecutor.setInterruptCastCallback(animationModule::interruptCast);
         animationModule.getSyncComponent().attach(updateEngine);
 
-        talentModule = new PlayerTalentModule(this);
+        talentDispatcher = new PlayerTalentDispatcher(this);
+        entitlementDispatcher = new PlayerEntitlementDispatcher(this);
         equipmentModule = new PlayerEquipmentModule(this);
         editorModule = new PlayerEditorModule(this);
         editorModule.getSyncComponent().attach(updateEngine);
@@ -51,6 +54,7 @@ public class MKPlayerData implements IMKEntityData {
         getStats().onJoinWorld();
         getAbilityExecutor().onJoinWorld();
         getTalentHandler().onJoinWorld();
+        getEntitlementDispatcher().onJoinWorld();
         if (isServerSide()) {
             MKCore.LOGGER.info("server player joined world!");
             initialSync();
@@ -95,8 +99,12 @@ public class MKPlayerData implements IMKEntityData {
         return personaManager;
     }
 
-    public PlayerTalentModule getTalentHandler() {
-        return talentModule;
+    public PlayerTalentDispatcher getTalentHandler() {
+        return talentDispatcher;
+    }
+
+    public PlayerEntitlementDispatcher getEntitlementDispatcher() {
+        return entitlementDispatcher;
     }
 
     public PlayerEquipmentModule getEquipment() {
@@ -165,6 +173,7 @@ public class MKPlayerData implements IMKEntityData {
     public void onPersonaActivated() {
         getEquipment().onPersonaActivated();
         getTalentHandler().onPersonaActivated();
+        getEntitlementDispatcher().onPersonaActivated();
         getAbilityExecutor().onPersonaActivated();
         getStats().onPersonaActivated();
         getAbilityLoadout().onPersonaSwitch();
@@ -173,6 +182,7 @@ public class MKPlayerData implements IMKEntityData {
     public void onPersonaDeactivated() {
         getEquipment().onPersonaDeactivated();
         getTalentHandler().onPersonaDeactivated();
+        getEntitlementDispatcher().onPersonaDeactivated();
         getAbilityExecutor().onPersonaDeactivated();
         getStats().onPersonaDeactivated();
     }

@@ -198,7 +198,7 @@ public class PlayerTalentKnowledge implements IPlayerSyncComponentProvider {
 
         TalentRecord record = treeRecord.getNodeRecord(line, index);
         if (record != null) {
-            playerData.getTalentHandler().onTalentRecordUpdated(record);
+            playerData.getTalentHandler().onRecordUpdated(record);
         }
         return true;
     }
@@ -219,7 +219,7 @@ public class PlayerTalentKnowledge implements IPlayerSyncComponentProvider {
 
         TalentRecord record = treeRecord.getNodeRecord(line, index);
         if (record != null) {
-            playerData.getTalentHandler().onTalentRecordUpdated(record);
+            playerData.getTalentHandler().onRecordUpdated(record);
         }
         return true;
     }

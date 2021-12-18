@@ -32,6 +32,9 @@ public class ActiveAbilityGroup implements IActiveAbilityGroup, IPlayerSyncCompo
     private final SyncInt slots;
     protected final AbilityType abilityType;
 
+    public ActiveAbilityGroup(MKPlayerData playerData, String name, AbilityType abilityType) {
+        this(playerData, name, abilityType, abilityType.getDefaultSlots(), abilityType.getMaxSlots());
+    }
 
     public ActiveAbilityGroup(MKPlayerData playerData, String name, AbilityType abilityType, int defaultSize, int max) {
         sync = new SyncComponent(name);
