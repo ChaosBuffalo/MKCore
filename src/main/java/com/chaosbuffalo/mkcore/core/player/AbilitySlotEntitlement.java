@@ -34,7 +34,9 @@ public class AbilitySlotEntitlement extends MKEntitlement {
 
         private void recalculateSlots() {
             int count = playerData.getKnowledge().getEntitlementsKnowledge().getEntitlementLevel(entitlement);
-            playerData.getAbilityLoadout().getAbilityGroup(entitlement.abilityType).setSlots(count);
+            playerData.getAbilityLoadout()
+                    .getAbilityGroup(entitlement.abilityType)
+                    .setSlots(entitlement.abilityType.getDefaultSlots() + count);
         }
 
         @Override

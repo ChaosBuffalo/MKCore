@@ -11,8 +11,8 @@ import net.minecraft.util.ResourceLocation;
 public class ActiveTalentAbilityGroup extends ActiveAbilityGroup {
     protected TalentType<?> talentType;
 
-    public ActiveTalentAbilityGroup(MKPlayerData playerData, String name, AbilityType type, int defaultSize, int max, TalentType<?> talentType) {
-        super(playerData, name, type, defaultSize, max);
+    public ActiveTalentAbilityGroup(MKPlayerData playerData, String name, AbilityType type, TalentType<?> talentType) {
+        super(playerData, name, type);
         this.talentType = talentType;
     }
 

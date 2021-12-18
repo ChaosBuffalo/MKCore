@@ -195,7 +195,7 @@ public class MKOverlay {
             drawCastBar(event.getMatrixStack(), cap);
 
             int totalSlots = Arrays.stream(AbilityType.values())
-                    .filter(AbilityType::isExecutable)
+                    .filter(AbilityType::isActive)
                     .mapToInt(type -> cap.getAbilityLoadout().getAbilityGroup(type).getCurrentSlotCount())
                     .sum();
 

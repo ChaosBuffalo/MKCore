@@ -1,6 +1,5 @@
 package com.chaosbuffalo.mkcore.core.player;
 
-import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.core.AbilityType;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
@@ -87,14 +86,14 @@ public class PlayerAbilityLoadout implements IPlayerSyncComponentProvider {
     public static class BasicAbilityGroup extends ActiveAbilityGroup {
 
         public BasicAbilityGroup(MKPlayerData playerData) {
-            super(playerData, "basic", AbilityType.Basic, GameConstants.DEFAULT_ACTIVES, GameConstants.MAX_ACTIVES);
+            super(playerData, "basic", AbilityType.Basic);
         }
     }
 
     public static class ItemAbilityGroup extends ActiveAbilityGroup {
 
         public ItemAbilityGroup(MKPlayerData playerData) {
-            super(playerData, "item", AbilityType.Item, 1, 1);
+            super(playerData, "item", AbilityType.Item);
         }
 
         @Override
@@ -107,7 +106,7 @@ public class PlayerAbilityLoadout implements IPlayerSyncComponentProvider {
     static class PassiveTalentGroup extends ActiveTalentAbilityGroup {
 
         public PassiveTalentGroup(MKPlayerData playerData) {
-            super(playerData, "passive", AbilityType.Passive, GameConstants.DEFAULT_PASSIVES, GameConstants.MAX_PASSIVES, TalentType.PASSIVE);
+            super(playerData, "passive", AbilityType.Passive, TalentType.PASSIVE);
         }
 
         @Override
@@ -120,7 +119,7 @@ public class PlayerAbilityLoadout implements IPlayerSyncComponentProvider {
     static class UltimateTalentGroup extends ActiveTalentAbilityGroup {
 
         public UltimateTalentGroup(MKPlayerData playerData) {
-            super(playerData, "ultimate", AbilityType.Ultimate, GameConstants.DEFAULT_ULTIMATES, GameConstants.MAX_ULTIMATES, TalentType.ULTIMATE);
+            super(playerData, "ultimate", AbilityType.Ultimate, TalentType.ULTIMATE);
         }
 
         @Override
