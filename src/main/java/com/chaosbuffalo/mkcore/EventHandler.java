@@ -45,7 +45,7 @@ public class EventHandler {
     @SubscribeEvent
     public static void onPlayerGainXP(PlayerXpEvent.XpChange event) {
         MKCore.getPlayer(event.getPlayer()).ifPresent(data -> {
-            data.getKnowledge().getTalentKnowledge().addTalentXp(event.getAmount());
+            data.getTalents().addTalentXp(event.getAmount());
         });
     }
 

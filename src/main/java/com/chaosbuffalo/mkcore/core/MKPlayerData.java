@@ -77,7 +77,7 @@ public class MKPlayerData implements IMKEntityData {
         return getPersonaManager().getActivePersona().getKnowledge();
     }
 
-    public PlayerAbilityLoadout getAbilityLoadout() {
+    public PlayerAbilityLoadout getLoadout() {
         return getKnowledge().getAbilityLoadout();
     }
 
@@ -168,7 +168,7 @@ public class MKPlayerData implements IMKEntityData {
         getEquipment().onPersonaActivated();
         getAbilityExecutor().onPersonaActivated();
         getStats().onPersonaActivated();
-        getAbilityLoadout().onPersonaSwitch();
+        getLoadout().onPersonaSwitch();
     }
 
     public void onPersonaDeactivated() {

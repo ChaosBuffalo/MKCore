@@ -42,8 +42,7 @@ public class PlayerSlotAbilityPacket {
                 return;
             }
             entity.getCapability(CoreCapabilities.PLAYER_CAPABILITY).ifPresent(playerData ->
-                    playerData.getKnowledge()
-                            .getAbilityLoadout()
+                    playerData.getLoadout()
                             .getAbilityGroup(type)
                             .setSlot(slotIndex, ability));
         });

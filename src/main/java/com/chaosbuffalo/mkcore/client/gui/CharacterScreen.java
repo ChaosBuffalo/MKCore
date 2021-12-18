@@ -1,7 +1,6 @@
 package com.chaosbuffalo.mkcore.client.gui;
 
 import com.chaosbuffalo.mkcore.CoreCapabilities;
-import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.abilities.MKAbilityInfo;
@@ -170,10 +169,10 @@ public class CharacterScreen extends AbilityPanelScreen {
             root.addWidget(fieldTray);
             NamedField totalTalents = new NamedField(0, 0, "Total Talents:",
                     0xff000000,
-                    Integer.toString(pData.getKnowledge().getTalentKnowledge().getTotalTalentPoints()),
+                    Integer.toString(pData.getTalents().getTotalTalentPoints()),
                     0xff000000, font);
             NamedField unspentTalents = new NamedField(0, 0, "Unspent Talents:", 0xff000000,
-                    Integer.toString(pData.getKnowledge().getTalentKnowledge().getUnspentTalentPoints()),
+                    Integer.toString(pData.getTalents().getUnspentTalentPoints()),
                     0xff000000, font);
             fieldTray.addWidget(unspentTalents);
             fieldTray.addWidget(totalTalents);
@@ -191,8 +190,8 @@ public class CharacterScreen extends AbilityPanelScreen {
             stackLayout.setMarginTop(4).setMarginBot(4).setPaddingTop(2).setMarginLeft(4)
                     .setMarginRight(4).setPaddingBot(2).setPaddingRight(2);
             stackLayout.doSetChildWidth(true);
-            pData.getKnowledge().getTalentKnowledge().getKnownTrees().stream()
-                    .map((loc) -> pData.getKnowledge().getTalentKnowledge().getTree(loc))
+            pData.getTalents().getKnownTrees().stream()
+                    .map((loc) -> pData.getTalents().getTree(loc))
                     .sorted(Comparator.comparing((info) -> info.getTreeDefinition().getName().getString()))
                     .forEach(record -> {
                         MKLayout talentEntry = new TalentListEntry(0, 0, 16, record, treeWidget, font, this);
@@ -226,13 +225,11 @@ public class CharacterScreen extends AbilityPanelScreen {
             activesLabel.setX(slotsX);
             activesLabel.setY(slotsY - 12);
             root.addWidget(activesLabel);
-            MKLayout regularSlots = getLayoutOfAbilitySlots(slotsX, slotsY, AbilityType.Basic
-                    , GameConstants.MAX_ACTIVES);
+            MKLayout regularSlots = getLayoutOfAbilitySlots(slotsX, slotsY, AbilityType.Basic);
             root.addWidget(regularSlots);
             regularSlots.manualRecompute();
             int ultSlotsX = regularSlots.getX() + regularSlots.getWidth() + 30;
-            MKLayout ultSlots = getLayoutOfAbilitySlots(ultSlotsX, slotsY, AbilityType.Ultimate,
-                    GameConstants.MAX_ULTIMATES);
+            MKLayout ultSlots = getLayoutOfAbilitySlots(ultSlotsX, slotsY, AbilityType.Ultimate);
             root.addWidget(ultSlots);
             ultSlots.manualRecompute();
             MKText ultLabel = new MKText(font, new TranslationTextComponent("mkcore.gui.ultimates"));
@@ -240,8 +237,7 @@ public class CharacterScreen extends AbilityPanelScreen {
             ultLabel.setY(slotsY - 12);
             root.addWidget(ultLabel);
             int passiveSlotX = ultSlots.getX() + ultSlots.getWidth() + 30;
-            MKLayout passiveSlots = getLayoutOfAbilitySlots(passiveSlotX, slotsY, AbilityType.Passive,
-                    GameConstants.MAX_PASSIVES);
+            MKLayout passiveSlots = getLayoutOfAbilitySlots(passiveSlotX, slotsY, AbilityType.Passive);
             MKText passivesLabel = new MKText(font, new TranslationTextComponent("mkcore.gui.passives"));
             passivesLabel.setX(passiveSlotX);
             passivesLabel.setY(slotsY - 12);
@@ -251,8 +247,7 @@ public class CharacterScreen extends AbilityPanelScreen {
             int contentY = yPos + DATA_BOX_OFFSET;
             int contentWidth = dataBoxRegion.width;
             int contentHeight = dataBoxRegion.height;
-            List<MKAbility> abilities = pData.getKnowledge()
-                    .getAbilityKnowledge()
+            List<MKAbility> abilities = pData.getAbilities()
                     .getKnownStream()
                     .map(MKAbilityInfo::getAbility)
                     .collect(Collectors.toList());
@@ -331,11 +326,11 @@ public class CharacterScreen extends AbilityPanelScreen {
         return textWidget;
     }
 
-    private MKLayout getLayoutOfAbilitySlots(int x, int y, AbilityType slotType, int count) {
+    private MKLayout getLayoutOfAbilitySlots(int x, int y, AbilityType slotType) {
         MKStackLayoutHorizontal layout = new MKStackLayoutHorizontal(x, y, 24);
         layout.setPaddings(2, 2, 0, 0);
         layout.setMargins(2, 2, 2, 2);
-        for (int i = 0; i < count; i++) {
+        for (int i = 0; i < slotType.getMaxSlots(); i++) {
             AbilitySlotWidget slot = new AbilitySlotWidget(0, 0, slotType, i, this);
             abilitySlots.put(new AbilitySlotKey(slot.getSlotType(), slot.getSlotIndex()), slot);
             layout.addWidget(slot);

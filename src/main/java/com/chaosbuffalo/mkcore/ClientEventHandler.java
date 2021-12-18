@@ -65,8 +65,8 @@ public class ClientEventHandler {
         particleEditorBind = new KeyBinding("key.hud.particle_editor", GLFW.GLFW_KEY_KP_ADD, "key.mkcore.category");
         ClientRegistry.registerKeyBinding(particleEditorBind);
 
-        activeAbilityBinds = new KeyBinding[GameConstants.MAX_ACTIVES];
-        for (int i = 0; i < GameConstants.MAX_ACTIVES; i++) {
+        activeAbilityBinds = new KeyBinding[GameConstants.MAX_BASIC_ABILITIES];
+        for (int i = 0; i < GameConstants.MAX_BASIC_ABILITIES; i++) {
             String bindName = String.format("key.hud.active_ability%d", i + 1);
             int key = GLFW.GLFW_KEY_1 + i;
             KeyBinding bind = new KeyBinding(bindName, KeyConflictContext.IN_GAME, KeyModifier.ALT,
@@ -76,8 +76,8 @@ public class ClientEventHandler {
             activeAbilityBinds[i] = bind;
         }
 
-        ultimateAbilityBinds = new KeyBinding[GameConstants.MAX_ULTIMATES];
-        for (int i = 0; i < GameConstants.MAX_ULTIMATES; i++) {
+        ultimateAbilityBinds = new KeyBinding[GameConstants.MAX_ULTIMATE_ABILITIES];
+        for (int i = 0; i < GameConstants.MAX_ULTIMATE_ABILITIES; i++) {
             String bindName = String.format("key.hud.ultimate_ability%d", i + 1);
             int key = GLFW.GLFW_KEY_6 + i;
             KeyBinding bind = new KeyBinding(bindName, KeyConflictContext.IN_GAME, KeyModifier.ALT,
@@ -135,7 +135,7 @@ public class ClientEventHandler {
             return;
 
         MKCore.getPlayer(player).ifPresent(pData -> {
-            ResourceLocation abilityId = pData.getAbilityLoadout().getAbilityInSlot(type, slot);
+            ResourceLocation abilityId = pData.getLoadout().getAbilityInSlot(type, slot);
             if (abilityId.equals(MKCoreRegistry.INVALID_ABILITY))
                 return;
 
@@ -158,7 +158,7 @@ public class ClientEventHandler {
             Minecraft.getInstance().displayGuiScreen(new CharacterScreen());
         }
 
-        while (particleEditorBind.isPressed()){
+        while (particleEditorBind.isPressed()) {
             Minecraft.getInstance().displayGuiScreen(new ParticleEditorScreen());
         }
 
@@ -292,7 +292,7 @@ public class ClientEventHandler {
                     EntityRayTraceResult traceResult = (EntityRayTraceResult) lookingAt;
                     Entity entityHit = traceResult.getEntity();
                     if (!Targeting.isValidFriendly(player, entityHit)) {
-                        if (player.ticksSinceLastSwing > player.getCooldownPeriod()){
+                        if (player.ticksSinceLastSwing > player.getCooldownPeriod()) {
                             doPlayerAttack(player, entityHit, Minecraft.getInstance());
                             event.setSwingHand(true);
                         }

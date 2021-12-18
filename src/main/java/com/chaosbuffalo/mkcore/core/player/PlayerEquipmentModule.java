@@ -57,7 +57,7 @@ public class PlayerEquipmentModule {
     private void handleMainHandChange(ItemStack to) {
         // Clear the current ability if present
         if (currentMainAbility != null) {
-            playerData.getAbilityLoadout().getAbilityGroup(AbilityType.Item).clearSlot(0);
+            playerData.getLoadout().getAbilityGroup(AbilityType.Item).clearSlot(0);
             currentMainAbility = null;
         }
 
@@ -68,7 +68,7 @@ public class PlayerEquipmentModule {
                     if (!playerData.getAbilities().knowsAbility(currentMainAbility.getAbilityId())) {
                         playerData.getAbilities().learnAbility(currentMainAbility, AbilitySource.ITEM);
                     }
-                    playerData.getAbilityLoadout().getAbilityGroup(AbilityType.Item).setSlot(0, currentMainAbility.getAbilityId());
+                    playerData.getLoadout().getAbilityGroup(AbilityType.Item).setSlot(0, currentMainAbility.getAbilityId());
                 } else {
                     MKCore.LOGGER.error("Cannot use ability {} provided by Item {} because it uses the wrong AbilitySlot", currentMainAbility, to);
                 }

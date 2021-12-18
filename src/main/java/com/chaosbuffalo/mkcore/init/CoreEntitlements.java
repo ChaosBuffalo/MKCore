@@ -30,9 +30,9 @@ public class CoreEntitlements {
 
     @SubscribeEvent
     public static void registerEntitlements(RegistryEvent.Register<MKEntitlement> evt) {
-        evt.getRegistry().register(new AbilitySlotEntitlement(MKCore.makeRL("ability_slot.basic"), AbilityType.Basic, GameConstants.MAX_ACTIVES));
-        evt.getRegistry().register(new AbilitySlotEntitlement(MKCore.makeRL("ability_slot.passive"), AbilityType.Passive, GameConstants.MAX_PASSIVES));
-        evt.getRegistry().register(new AbilitySlotEntitlement(MKCore.makeRL("ability_slot.ultimate"), AbilityType.Ultimate, GameConstants.MAX_ULTIMATES));
+        evt.getRegistry().register(new AbilitySlotEntitlement(MKCore.makeRL("ability_slot.basic"), AbilityType.Basic));
+        evt.getRegistry().register(new AbilitySlotEntitlement(MKCore.makeRL("ability_slot.passive"), AbilityType.Passive));
+        evt.getRegistry().register(new AbilitySlotEntitlement(MKCore.makeRL("ability_slot.ultimate"), AbilityType.Ultimate));
         evt.getRegistry().register(new AbilityPoolEntitlement(MKCore.makeRL("ability_pool.count"), GameConstants.MAX_ABILITY_POOL_SIZE - GameConstants.DEFAULT_ABILITY_POOL_SIZE));
     }
 }

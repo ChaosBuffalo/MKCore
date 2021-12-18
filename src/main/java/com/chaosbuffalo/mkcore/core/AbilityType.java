@@ -3,9 +3,9 @@ package com.chaosbuffalo.mkcore.core;
 import com.chaosbuffalo.mkcore.GameConstants;
 
 public enum AbilityType {
-    Basic(true, GameConstants.DEFAULT_ACTIVES, GameConstants.MAX_ACTIVES),
-    Passive(false, GameConstants.DEFAULT_PASSIVES, GameConstants.MAX_PASSIVES),
-    Ultimate(true, GameConstants.DEFAULT_ULTIMATES, GameConstants.MAX_ULTIMATES),
+    Basic(true, GameConstants.DEFAULT_BASIC_ABILITIES, GameConstants.MAX_BASIC_ABILITIES),
+    Passive(false, GameConstants.DEFAULT_PASSIVE_ABILITIES, GameConstants.MAX_PASSIVE_ABILITIES),
+    Ultimate(true, GameConstants.DEFAULT_ULTIMATE_ABILITIES, GameConstants.MAX_ULTIMATE_ABILITIES),
     Item(true, GameConstants.DEFAULT_ITEM_ABILITIES, GameConstants.MAX_ITEM_ABILITIES);
 
     private final boolean isActive;

@@ -94,7 +94,7 @@ public class PlayerAbilityKnowledge implements IMKAbilityKnowledge, IPlayerSyncC
     }
 
     private IActiveAbilityGroup getAbilityGroup(MKAbility ability) {
-        return playerData.getAbilityLoadout().getAbilityGroup(ability.getType());
+        return playerData.getLoadout().getAbilityGroup(ability.getType());
     }
 
     @Override

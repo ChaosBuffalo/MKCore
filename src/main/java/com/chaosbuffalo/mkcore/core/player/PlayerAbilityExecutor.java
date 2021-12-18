@@ -21,7 +21,7 @@ public class PlayerAbilityExecutor extends AbilityExecutor {
     }
 
     public void executeHotBarAbility(AbilityType type, int slot) {
-        ResourceLocation abilityId = getPlayerData().getAbilityLoadout().getAbilityInSlot(type, slot);
+        ResourceLocation abilityId = getPlayerData().getLoadout().getAbilityInSlot(type, slot);
         if (abilityId.equals(MKCoreRegistry.INVALID_ABILITY))
             return;
 
@@ -76,7 +76,7 @@ public class PlayerAbilityExecutor extends AbilityExecutor {
     }
 
     private void deactivateCurrentToggleAbilities() {
-        PlayerAbilityLoadout abilityLoadout = getPlayerData().getAbilityLoadout();
+        PlayerAbilityLoadout abilityLoadout = getPlayerData().getLoadout();
         deactivateCurrentToggleAbilities(abilityLoadout.getAbilityGroup(AbilityType.Basic));
         deactivateCurrentToggleAbilities(abilityLoadout.getAbilityGroup(AbilityType.Ultimate));
         deactivateCurrentToggleAbilities(abilityLoadout.getAbilityGroup(AbilityType.Item));
@@ -94,7 +94,7 @@ public class PlayerAbilityExecutor extends AbilityExecutor {
     }
 
     private void rebuildActiveToggleMap() {
-        PlayerAbilityLoadout abilityLoadout = getPlayerData().getAbilityLoadout();
+        PlayerAbilityLoadout abilityLoadout = getPlayerData().getLoadout();
         rebuildActiveToggleMap(abilityLoadout.getAbilityGroup(AbilityType.Basic));
         rebuildActiveToggleMap(abilityLoadout.getAbilityGroup(AbilityType.Ultimate));
         rebuildActiveToggleMap(abilityLoadout.getAbilityGroup(AbilityType.Item));
@@ -120,7 +120,7 @@ public class PlayerAbilityExecutor extends AbilityExecutor {
         if (previous.equals(MKCoreRegistry.INVALID_ABILITY))
             return;
 
-        IActiveAbilityGroup container = getPlayerData().getAbilityLoadout().getAbilityGroup(type);
+        IActiveAbilityGroup container = getPlayerData().getLoadout().getAbilityGroup(type);
         if (!container.isAbilitySlotted(previous)) {
             MKAbility ability = MKCoreRegistry.getAbility(previous);
             if (ability instanceof MKToggleAbility) {

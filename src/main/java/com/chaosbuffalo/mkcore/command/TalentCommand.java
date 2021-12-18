@@ -73,13 +73,13 @@ public class TalentCommand {
                                         .executes(TalentCommand::listKnownPassives))
                         )
                         .then(Commands.literal("set")
-                                .then(Commands.argument("slot", IntegerArgumentType.integer(0, GameConstants.MAX_PASSIVES))
+                                .then(Commands.argument("slot", IntegerArgumentType.integer(0, GameConstants.MAX_PASSIVE_ABILITIES))
                                         .then(Commands.argument("talentId", makePassiveTalentId())
                                                 .suggests(TalentCommand::suggestKnownPassives)
                                                 .executes(TalentCommand::setPassive)))
                         )
                         .then(Commands.literal("clear")
-                                .then(Commands.argument("slot", IntegerArgumentType.integer(0, GameConstants.MAX_PASSIVES))
+                                .then(Commands.argument("slot", IntegerArgumentType.integer(0, GameConstants.MAX_PASSIVE_ABILITIES))
                                         .executes(TalentCommand::clearPassive)))
                 )
                 .then(Commands.literal("ultimate")
@@ -89,17 +89,17 @@ public class TalentCommand {
                                 .then(Commands.literal("known")
                                         .executes(TalentCommand::listKnownUltimates)))
                         .then(Commands.literal("set")
-                                .then(Commands.argument("slot", IntegerArgumentType.integer(0, GameConstants.MAX_ULTIMATES))
+                                .then(Commands.argument("slot", IntegerArgumentType.integer(0, GameConstants.MAX_ULTIMATE_ABILITIES))
                                         .then(Commands.argument("talentId", makeUltimateTalentId())
                                                 .suggests(TalentCommand::suggestKnownUltimates)
                                                 .executes(TalentCommand::setUltimate))))
                         .then(Commands.literal("clear")
-                                .then(Commands.argument("slot", IntegerArgumentType.integer(0, GameConstants.MAX_ULTIMATES))
+                                .then(Commands.argument("slot", IntegerArgumentType.integer(0, GameConstants.MAX_ULTIMATE_ABILITIES))
                                         .executes(TalentCommand::clearUltimate)))
                         .then(Commands.literal("info")
                                 .executes(TalentCommand::ultimateInfo))
                         .then(Commands.literal("execute")
-                                .then(Commands.argument("slot", IntegerArgumentType.integer(0, GameConstants.MAX_ULTIMATES))
+                                .then(Commands.argument("slot", IntegerArgumentType.integer(0, GameConstants.MAX_ULTIMATE_ABILITIES))
                                         .executes(TalentCommand::executeUltimate)))
                 )
                 .then(Commands.literal("list")
@@ -111,7 +111,7 @@ public class TalentCommand {
         ServerPlayerEntity player = ctx.getSource().asPlayer();
 
         MKCore.getPlayer(player).ifPresent(cap -> {
-            Set<ResourceLocation> knownTalents = cap.getKnowledge().getTalentKnowledge().getKnownTalentIds(type);
+            Set<ResourceLocation> knownTalents = cap.getTalents().getKnownTalentIds(type);
             if (knownTalents.size() > 0) {
                 TextUtils.sendPlayerChatMessage(player, String.format("Known %s Talents", type.getName()));
                 knownTalents.forEach(abilityId -> TextUtils.sendChatMessage(player, String.format("%s", abilityId)));
@@ -175,11 +175,11 @@ public class TalentCommand {
     }
 
     private static ActiveTalentAbilityGroup getUltimates(MKPlayerData playerData) {
-        return playerData.getAbilityLoadout().getUltimateGroup();
+        return playerData.getLoadout().getUltimateGroup();
     }
 
     private static ActiveTalentAbilityGroup getPassives(MKPlayerData playerData) {
-        return playerData.getAbilityLoadout().getPassiveContainer();
+        return playerData.getLoadout().getPassiveContainer();
     }
 
     static int clearTalent(CommandContext<CommandSource> ctx, Function<MKPlayerData, ActiveTalentAbilityGroup> containerSupplier) throws CommandSyntaxException {
@@ -222,7 +222,7 @@ public class TalentCommand {
         ServerPlayerEntity player = ctx.getSource().asPlayer();
 
         MKCore.getPlayer(player).ifPresent(cap -> {
-            ActiveTalentAbilityGroup container = cap.getAbilityLoadout().getUltimateGroup();
+            ActiveTalentAbilityGroup container = cap.getLoadout().getUltimateGroup();
             TextUtils.sendPlayerChatMessage(player, "Ultimate Talent Info");
 
             TextUtils.sendChatMessage(player, String.format("Limit: %d", container.getCurrentSlotCount()));
@@ -236,7 +236,7 @@ public class TalentCommand {
         int slot = IntegerArgumentType.getInteger(ctx, "slot");
 
         MKCore.getPlayer(player).ifPresent(cap -> {
-            ActiveTalentAbilityGroup container = cap.getAbilityLoadout().getUltimateGroup();
+            ActiveTalentAbilityGroup container = cap.getLoadout().getUltimateGroup();
 
             if (slot >= container.getCurrentSlotCount()) {
                 TextUtils.sendChatMessage(player, "Invalid slot");
@@ -255,7 +255,7 @@ public class TalentCommand {
         int amount = IntegerArgumentType.getInteger(ctx, "amount");
 
         MKCore.getPlayer(player).ifPresent(cap -> {
-            PlayerTalentKnowledge talentKnowledge = cap.getKnowledge().getTalentKnowledge();
+            PlayerTalentKnowledge talentKnowledge = cap.getTalents();
             if (talentKnowledge.removeTalentPoints(amount)) {
                 TextUtils.sendChatMessage(player, String.format("Removed %d points", amount));
             } else {
@@ -271,7 +271,7 @@ public class TalentCommand {
         int amount = IntegerArgumentType.getInteger(ctx, "amount");
 
         MKCore.getPlayer(player).ifPresent(cap -> {
-            PlayerTalentKnowledge talentKnowledge = cap.getKnowledge().getTalentKnowledge();
+            PlayerTalentKnowledge talentKnowledge = cap.getTalents();
             if (talentKnowledge.grantTalentPoints(amount)) {
                 TextUtils.sendChatMessage(player, String.format("Granted %d points", amount));
             } else {
@@ -286,7 +286,7 @@ public class TalentCommand {
         ServerPlayerEntity player = ctx.getSource().asPlayer();
 
         MKCore.getPlayer(player).ifPresent(cap -> {
-            PlayerTalentKnowledge talentKnowledge = cap.getKnowledge().getTalentKnowledge();
+            PlayerTalentKnowledge talentKnowledge = cap.getTalents();
             int unspent = talentKnowledge.getUnspentTalentPoints();
             int total = talentKnowledge.getTotalTalentPoints();
             String msg = String.format("Talent Points: %d (%d unspent)", total, unspent);
@@ -303,7 +303,7 @@ public class TalentCommand {
         int index = IntegerArgumentType.getInteger(ctx, "index");
 
         MKCore.getPlayer(player).ifPresent(cap -> {
-            PlayerTalentKnowledge talentKnowledge = cap.getKnowledge().getTalentKnowledge();
+            PlayerTalentKnowledge talentKnowledge = cap.getTalents();
             if (talentKnowledge.spendTalentPoint(talentId, line, index)) {
                 TextUtils.sendChatMessage(player, String.format("Spent point in (%s, %s, %d)", talentId, line, index));
             } else {
@@ -321,7 +321,7 @@ public class TalentCommand {
         int index = IntegerArgumentType.getInteger(ctx, "index");
 
         MKCore.getPlayer(player).ifPresent(cap -> {
-            PlayerTalentKnowledge talentKnowledge = cap.getKnowledge().getTalentKnowledge();
+            PlayerTalentKnowledge talentKnowledge = cap.getTalents();
             if (talentKnowledge.refundTalentPoint(talentId, line, index)) {
                 TextUtils.sendChatMessage(player, String.format("Refund point in (%s, %s, %d)", talentId, line, index));
             } else {
@@ -338,7 +338,7 @@ public class TalentCommand {
         ResourceLocation talentId = ctx.getArgument("tree", ResourceLocation.class);
 
         MKCore.getPlayer(player).ifPresent(cap -> {
-            PlayerTalentKnowledge talentKnowledge = cap.getKnowledge().getTalentKnowledge();
+            PlayerTalentKnowledge talentKnowledge = cap.getTalents();
             if (talentKnowledge.knowsTree(talentId)) {
                 TextUtils.sendChatMessage(player, String.format("Tree %s already known", talentId));
                 return;
@@ -358,7 +358,7 @@ public class TalentCommand {
         ServerPlayerEntity player = ctx.getSource().asPlayer();
 
         MKCore.getPlayer(player).ifPresent(cap -> {
-            PlayerTalentKnowledge talents = cap.getKnowledge().getTalentKnowledge();
+            PlayerTalentKnowledge talents = cap.getTalents();
             Collection<ResourceLocation> knownTalents = talents.getKnownTrees();
             if (knownTalents.size() > 0) {
                 TextUtils.sendPlayerChatMessage(player, "Known Talent Trees");
@@ -378,7 +378,7 @@ public class TalentCommand {
         String line = StringArgumentType.getString(ctx, "line");
 
         MKCore.getPlayer(player).ifPresent(cap -> {
-            PlayerTalentKnowledge talentKnowledge = cap.getKnowledge().getTalentKnowledge();
+            PlayerTalentKnowledge talentKnowledge = cap.getTalents();
 
             TalentTreeDefinition treeDefinition = MKCore.getTalentManager().getTalentTree(treeId);
             if (treeDefinition == null) {
@@ -413,7 +413,7 @@ public class TalentCommand {
         ServerPlayerEntity player = ctx.getSource().asPlayer();
 
         MKCore.getPlayer(player).ifPresent(cap -> {
-            PlayerTalentKnowledge talents = cap.getKnowledge().getTalentKnowledge();
+            PlayerTalentKnowledge talents = cap.getTalents();
             Collection<TalentRecord> knownTalents = talents.getKnownTalentsStream()
                     .sorted(Comparator.comparing(r -> r.getNode().getPositionString()))
                     .collect(Collectors.toList());
@@ -454,8 +454,7 @@ public class TalentCommand {
                                                               final SuggestionsBuilder builder, TalentType<?> type) throws CommandSyntaxException {
         ServerPlayerEntity player = context.getSource().asPlayer();
         return ISuggestionProvider.suggest(MKCore.getPlayer(player)
-                        .map(playerData -> playerData.getKnowledge()
-                                .getTalentKnowledge()
+                        .map(playerData -> playerData.getTalents()
                                 .getKnownTalentIds(type)
                                 .stream()
                                 .map(ResourceLocation::toString))

@@ -56,8 +56,7 @@ public class AbilityCommand {
                                                                             final SuggestionsBuilder builder) throws CommandSyntaxException {
         ServerPlayerEntity player = context.getSource().asPlayer();
         return ISuggestionProvider.suggest(MKCore.getPlayer(player)
-                        .map(playerData -> playerData.getKnowledge()
-                                .getAbilityKnowledge()
+                        .map(playerData -> playerData.getAbilities()
                                 .getKnownStream()
                                 .filter(info -> info.getAbility().getType() == AbilityType.Basic)
                                 .map(MKAbilityInfo::getId)

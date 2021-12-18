@@ -49,9 +49,9 @@ public class TalentPointActionPacket {
 
             entity.getCapability(CoreCapabilities.PLAYER_CAPABILITY).ifPresent(cap -> {
                 if (action == Action.SPEND) {
-                    cap.getKnowledge().getTalentKnowledge().spendTalentPoint(talentTree, line, index);
+                    cap.getTalents().spendTalentPoint(talentTree, line, index);
                 } else if (action == Action.REFUND) {
-                    cap.getKnowledge().getTalentKnowledge().refundTalentPoint(talentTree, line, index);
+                    cap.getTalents().refundTalentPoint(talentTree, line, index);
                 }
             });
         });
