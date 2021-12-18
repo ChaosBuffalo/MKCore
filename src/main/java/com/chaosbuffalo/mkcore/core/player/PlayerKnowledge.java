@@ -23,6 +23,8 @@ public class PlayerKnowledge implements IMKEntityKnowledge, IPlayerSyncComponent
         entitlementsKnowledge = new EntityEntitlementsKnowledge(playerData);
         entitlementsKnowledge.addLoadedCallback(loadout::entitlementsLoadedCallback);
         entitlementsKnowledge.addEntitlementSubscriber(loadout::entitlementsChangedCallback);
+        entitlementsKnowledge.addLoadedCallback(abilityKnowledge::entitlementsLoadedCallback);
+        entitlementsKnowledge.addEntitlementSubscriber(abilityKnowledge::entitlementsChangedCallback);
         addSyncChild(abilityKnowledge);
         addSyncChild(talentKnowledge);
         addSyncChild(loadout);
