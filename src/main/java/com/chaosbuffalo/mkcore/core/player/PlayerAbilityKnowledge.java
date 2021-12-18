@@ -6,8 +6,12 @@ import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.abilities.AbilitySource;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.abilities.MKAbilityInfo;
+import com.chaosbuffalo.mkcore.core.AbilityType;
 import com.chaosbuffalo.mkcore.core.IMKAbilityKnowledge;
+import com.chaosbuffalo.mkcore.core.IMKEntityEntitlements;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
+import com.chaosbuffalo.mkcore.core.entitlements.MKEntitlement;
+import com.chaosbuffalo.mkcore.init.CoreEntitlements;
 import com.chaosbuffalo.mkcore.sync.SyncInt;
 import com.chaosbuffalo.mkcore.sync.SyncMapUpdater;
 import net.minecraft.nbt.CompoundNBT;
@@ -38,6 +42,17 @@ public class PlayerAbilityKnowledge implements IMKAbilityKnowledge, IPlayerSyncC
         addSyncPrivate(knownAbilityUpdater);
         addSyncPrivate(poolSize);
     }
+
+    public void entitlementsLoadedCallback(IMKEntityEntitlements entitlements){
+        setAbilityPoolSize(entitlements.getEntitlementLevel(CoreEntitlements.AbilityPoolCount) + GameConstants.DEFAULT_ABILITY_POOL_SIZE);
+    }
+
+    public void entitlementsChangedCallback(MKEntitlement entitlement, IMKEntityEntitlements entitlements){
+        if (entitlement.equals(CoreEntitlements.AbilityPoolCount)){
+            setAbilityPoolSize(entitlements.getEntitlementLevel(CoreEntitlements.AbilityPoolCount) + GameConstants.DEFAULT_ABILITY_POOL_SIZE);
+        }
+    }
+
 
     public int getAbilityPoolSize() {
         return poolSize.get();

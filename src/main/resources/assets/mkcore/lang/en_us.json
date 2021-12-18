@@ -185,5 +185,8 @@
   "mkcore.talent_type.passive_slot.name": "Passive Slot",
   "mkcore.talent_type.basic_slot.name": "Basic Slot",
   "mkcore.gui.xp_bar.name": "Next Talent:",
-  "mkcore.subtitle.level_up": "An aetherial ding echoes in the area"
+  "mkcore.subtitle.level_up": "An aetherial ding echoes in the area",
+  "mkcore.talent.pool_count.name": "Ability Memory Slot",
+  "mkcore.talent.pool_count.description": "Increases your ability memory pool by 1",
+  "mkcore.talent_type.pool_slot.name": "Memory Pool"
 }

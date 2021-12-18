@@ -2,12 +2,11 @@ package com.chaosbuffalo.mkcore.init;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.MKAttributes;
-import com.chaosbuffalo.mkcore.core.damage.MKDamageType;
 import com.chaosbuffalo.mkcore.core.talents.TalentType;
 import com.chaosbuffalo.mkcore.core.talents.talent_types.AttributeTalent;
 import com.chaosbuffalo.mkcore.core.talents.MKTalent;
 import com.chaosbuffalo.mkcore.core.talents.talent_types.PassiveTalent;
-import com.chaosbuffalo.mkcore.core.talents.talent_types.SlotCountTalent;
+import com.chaosbuffalo.mkcore.core.talents.talent_types.UUIDTalent;
 import com.chaosbuffalo.mkcore.core.talents.talent_types.UltimateTalent;
 import com.chaosbuffalo.mkcore.test.abilities.BurningSoul;
 import com.chaosbuffalo.mkcore.test.abilities.HealingRain;
@@ -18,7 +17,6 @@ import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ObjectHolder;
-import org.spongepowered.asm.mixin.injection.At;
 
 import java.util.UUID;
 
@@ -66,13 +64,16 @@ public class CoreTalents {
     public static AttributeTalent ATTACK_SPEED_TALENT;
 
     @ObjectHolder("talent.ability_slot")
-    public static SlotCountTalent ABILITY_SLOT_TALENT;
+    public static UUIDTalent ABILITY_SLOT_TALENT;
 
     @ObjectHolder("talent.passive_ability_slot")
-    public static SlotCountTalent PASSIVE_ABILITY_SLOT_TALENT;
+    public static UUIDTalent PASSIVE_ABILITY_SLOT_TALENT;
 
     @ObjectHolder("talent.ultimate_ability_slot")
-    public static SlotCountTalent ULTIMATE_ABILITY_SLOT_TALENT;
+    public static UUIDTalent ULTIMATE_ABILITY_SLOT_TALENT;
+
+    @ObjectHolder("talent.pool_count")
+    public static UUIDTalent POOL_COUNT_TALENT;
 
 
     private static void registerVanillaAttributeTalents(RegistryEvent.Register<MKTalent> event) {
@@ -204,21 +205,26 @@ public class CoreTalents {
     }
 
     private static void registerSlotTalents(RegistryEvent.Register<MKTalent> event){
-        SlotCountTalent basicSlot = new SlotCountTalent(
+        UUIDTalent basicSlot = new UUIDTalent(
                 MKCore.makeRL("talent.ability_slot"),
                 TalentType.BASIC_SLOT
         );
         event.getRegistry().register(basicSlot);
-        SlotCountTalent passiveSlot = new SlotCountTalent(
+        UUIDTalent passiveSlot = new UUIDTalent(
                 MKCore.makeRL("talent.passive_ability_slot"),
                 TalentType.PASSIVE_SLOT
         );
         event.getRegistry().register(passiveSlot);
-        SlotCountTalent ultimateSlot = new SlotCountTalent(
+        UUIDTalent ultimateSlot = new UUIDTalent(
                 MKCore.makeRL("talent.ultimate_ability_slot"),
                 TalentType.ULTIMATE_SLOT
         );
         event.getRegistry().register(ultimateSlot);
+        UUIDTalent poolCount = new UUIDTalent(
+                MKCore.makeRL("talent.pool_count"),
+                TalentType.POOL_COUNT
+        );
+        event.getRegistry().register(poolCount);
     }
 
 }

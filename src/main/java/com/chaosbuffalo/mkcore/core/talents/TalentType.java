@@ -2,10 +2,12 @@ package com.chaosbuffalo.mkcore.core.talents;
 
 import com.chaosbuffalo.mkcore.core.AbilityType;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
-import com.chaosbuffalo.mkcore.core.talents.handlers.SlotTalentTypeHandler;
+import com.chaosbuffalo.mkcore.core.entitlements.MKEntitlement;
+import com.chaosbuffalo.mkcore.core.talents.handlers.EntitlementTalentTypeHandler;
 import com.chaosbuffalo.mkcore.core.talents.handlers.UltimateTalentHandler;
 import com.chaosbuffalo.mkcore.core.talents.handlers.AttributeTalentHandler;
 import com.chaosbuffalo.mkcore.core.talents.handlers.PassiveTalentHandler;
+import com.chaosbuffalo.mkcore.init.CoreEntitlements;
 import net.minecraft.util.text.TranslationTextComponent;
 
 import java.util.function.Function;
@@ -20,17 +22,21 @@ public class TalentType<T extends TalentTypeHandler> {
     public static TalentType<UltimateTalentHandler> ULTIMATE =
             new TalentType<>("mkcore.talent_type.ultimate.name", UltimateTalentHandler::new)
                     .setDisplayName("mkcore.talent_type.tooltip_name_with_ability");
-    public static TalentType<SlotTalentTypeHandler> BASIC_SLOT =
+    public static TalentType<EntitlementTalentTypeHandler> BASIC_SLOT =
             new TalentType<>("mkcore.talent_type.basic_slot.name",
-                    (mkPlayerData) -> new SlotTalentTypeHandler(mkPlayerData, AbilityType.Basic))
+                    (mkPlayerData) -> new EntitlementTalentTypeHandler(mkPlayerData, CoreEntitlements.BasicAbilitySlotCount))
                     .setDisplayName("mkcore.talent_type.tooltip_name");
-    public static TalentType<SlotTalentTypeHandler> PASSIVE_SLOT =
+    public static TalentType<EntitlementTalentTypeHandler> PASSIVE_SLOT =
             new TalentType<>("mkcore.talent_type.passive_slot.name",
-                    (mkPlayerData) -> new SlotTalentTypeHandler(mkPlayerData, AbilityType.Passive))
+                    (mkPlayerData) -> new EntitlementTalentTypeHandler(mkPlayerData, CoreEntitlements.PassiveAbilitySlotCount))
                     .setDisplayName("mkcore.talent_type.tooltip_name");
-    public static TalentType<SlotTalentTypeHandler> ULTIMATE_SLOT =
+    public static TalentType<EntitlementTalentTypeHandler> ULTIMATE_SLOT =
             new TalentType<>("mkcore.talent_type.ultimate_slot.name",
-                    (mkPlayerData) -> new SlotTalentTypeHandler(mkPlayerData, AbilityType.Ultimate))
+                    (mkPlayerData) -> new EntitlementTalentTypeHandler(mkPlayerData, CoreEntitlements.UltimateAbilitySlotCount))
+                    .setDisplayName("mkcore.talent_type.tooltip_name");
+    public static TalentType<EntitlementTalentTypeHandler> POOL_COUNT =
+            new TalentType<>("mkcore.talent_type.pool_slot.name",
+                    (mkPlayerData) -> new EntitlementTalentTypeHandler(mkPlayerData, CoreEntitlements.AbilityPoolCount))
                     .setDisplayName("mkcore.talent_type.tooltip_name");
 
     private final String name;

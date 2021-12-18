@@ -22,10 +22,14 @@ public class CoreEntitlements {
     @ObjectHolder("ability_slot.ultimate")
     public static MKEntitlement UltimateAbilitySlotCount;
 
+    @ObjectHolder("ability_pool.count")
+    public static MKEntitlement AbilityPoolCount;
+
     @SubscribeEvent
     public static void registerEntitlements(RegistryEvent.Register<MKEntitlement> evt) {
         evt.getRegistry().register(new MKEntitlement(MKCore.makeRL("ability_slot.basic"), GameConstants.MAX_ACTIVES));
         evt.getRegistry().register(new MKEntitlement(MKCore.makeRL("ability_slot.passive"), GameConstants.MAX_PASSIVES));
         evt.getRegistry().register(new MKEntitlement(MKCore.makeRL("ability_slot.ultimate"), GameConstants.MAX_ULTIMATES));
+        evt.getRegistry().register(new MKEntitlement(MKCore.makeRL("ability_pool.count"), GameConstants.MAX_ABILITY_POOL_SIZE - GameConstants.DEFAULT_ABILITY_POOL_SIZE));
     }
 }
