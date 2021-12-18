@@ -111,7 +111,7 @@ public class PlayerAbilityLoadout implements IPlayerSyncComponentProvider {
 
         @Override
         protected void onSlotChanged(int index, ResourceLocation previous, ResourceLocation newAbility) {
-            playerData.getTalentHandler().getTypeHandler(TalentType.PASSIVE).onSlotChanged(index, previous, newAbility);
+            playerData.getTalents().getTypeHandler(TalentType.PASSIVE).onSlotChanged(index, previous, newAbility);
             super.onSlotChanged(index, previous, newAbility);
         }
     }
@@ -124,7 +124,7 @@ public class PlayerAbilityLoadout implements IPlayerSyncComponentProvider {
 
         @Override
         protected void onSlotChanged(int index, ResourceLocation previous, ResourceLocation newAbility) {
-            playerData.getTalentHandler().getTypeHandler(TalentType.ULTIMATE).onSlotChanged(index, previous, newAbility);
+            playerData.getTalents().getTypeHandler(TalentType.ULTIMATE).onSlotChanged(index, previous, newAbility);
             super.onSlotChanged(index, previous, newAbility);
         }
     }

@@ -11,7 +11,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
-import net.minecraftforge.event.entity.living.LivingExperienceDropEvent;
 import net.minecraftforge.event.entity.living.PotionEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerXpEvent;
@@ -44,7 +43,7 @@ public class EventHandler {
     }
 
     @SubscribeEvent
-    public static void onPlayerGainXP(PlayerXpEvent.XpChange event){
+    public static void onPlayerGainXP(PlayerXpEvent.XpChange event) {
         MKCore.getPlayer(event.getPlayer()).ifPresent(data -> {
             data.getKnowledge().getTalentKnowledge().addTalentXp(event.getAmount());
         });
@@ -82,7 +81,7 @@ public class EventHandler {
             ServerPlayerEntity target = (ServerPlayerEntity) event.getTarget();
 
             player.getCapability(CoreCapabilities.PLAYER_CAPABILITY).ifPresent(cap -> cap.fullSyncTo(target));
-        } else if (event.getTarget() instanceof IUpdateEngineProvider && event.getPlayer() instanceof ServerPlayerEntity){
+        } else if (event.getTarget() instanceof IUpdateEngineProvider && event.getPlayer() instanceof ServerPlayerEntity) {
             ((IUpdateEngineProvider) event.getTarget()).getUpdateEngine().sendAll((ServerPlayerEntity) event.getPlayer());
         }
     }
@@ -93,7 +92,7 @@ public class EventHandler {
 
         if (event.getEntityLiving() instanceof ServerPlayerEntity && event.getPotion() instanceof PassiveTalentEffect) {
             MKCore.getPlayer(event.getEntityLiving()).ifPresent(playerData -> {
-                if (!playerData.getTalentHandler().getTypeHandler(TalentType.PASSIVE).getPassiveTalentsUnlocked()) {
+                if (!playerData.getTalents().getTypeHandler(TalentType.PASSIVE).getPassiveTalentsUnlocked()) {
                     MKCore.LOGGER.info("Effect {} is a passive and passives are not unlocked", event.getPotion());
                     event.setCanceled(true);
                 }
