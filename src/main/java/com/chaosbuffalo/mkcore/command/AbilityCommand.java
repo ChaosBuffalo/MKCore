@@ -35,11 +35,11 @@ public class AbilityCommand {
         return Commands.literal("ability")
                 .then(Commands.literal("learn")
                         .then(Commands.argument("ability", AbilityIdArgument.ability())
-                                .suggests(AbilityCommand::suggestUnknownBasicAbilities)
+                                .suggests(AbilityCommand::suggestUnknownAbilities)
                                 .executes(AbilityCommand::learnAbility)))
                 .then(Commands.literal("unlearn")
                         .then(Commands.argument("ability", AbilityIdArgument.ability())
-                                .suggests(AbilityCommand::suggestKnownBasicAbilities)
+                                .suggests(AbilityCommand::suggestForgettableAbilities)
                                 .executes(AbilityCommand::unlearnAbility)))
                 .then(Commands.literal("list")
                         .executes(AbilityCommand::listAbilities))
@@ -52,27 +52,27 @@ public class AbilityCommand {
                 ;
     }
 
-    public static CompletableFuture<Suggestions> suggestKnownBasicAbilities(final CommandContext<CommandSource> context,
-                                                                            final SuggestionsBuilder builder) throws CommandSyntaxException {
+    public static CompletableFuture<Suggestions> suggestForgettableAbilities(final CommandContext<CommandSource> context,
+                                                                             final SuggestionsBuilder builder) throws CommandSyntaxException {
         ServerPlayerEntity player = context.getSource().asPlayer();
         return ISuggestionProvider.suggest(MKCore.getPlayer(player)
                         .map(playerData -> playerData.getAbilities()
                                 .getKnownStream()
-                                .filter(info -> info.getAbility().getType() == AbilityType.Basic)
+                                .filter(info -> info.getSource().canUnlearn())
                                 .map(MKAbilityInfo::getId)
                                 .map(ResourceLocation::toString))
                         .orElse(Stream.empty()),
                 builder);
     }
 
-    static CompletableFuture<Suggestions> suggestUnknownBasicAbilities(final CommandContext<CommandSource> context,
-                                                                       final SuggestionsBuilder builder) throws CommandSyntaxException {
+    static CompletableFuture<Suggestions> suggestUnknownAbilities(final CommandContext<CommandSource> context,
+                                                                  final SuggestionsBuilder builder) throws CommandSyntaxException {
         ServerPlayerEntity player = context.getSource().asPlayer();
         return ISuggestionProvider.suggest(MKCore.getPlayer(player)
                         .map(playerData -> {
                             Set<MKAbility> allAbilities = new HashSet<>(MKCoreRegistry.ABILITIES.getValues());
                             allAbilities.removeIf(ability -> playerData.getAbilities().knowsAbility(ability.getAbilityId()));
-                            allAbilities.removeIf(ability -> ability.getType() != AbilityType.Basic);
+                            allAbilities.removeIf(ability -> ability.getType() == AbilityType.Item); // TODO: remove with item ability rework
                             return allAbilities.stream().map(MKAbility::getAbilityId).map(ResourceLocation::toString);
                         })
                         .orElse(Stream.empty()),
