@@ -37,9 +37,9 @@ public class ForgetAbilityModal extends MKModal {
         prompt.setWidth(width - 10);
         prompt.setMultiline(true);
         addWidget(prompt);
-        addWidget(new MKRectangle(xPos + 10, yPos + 27, width - 20, height - 60, 0x44000000));
-        MKScrollView scrollview = new MKScrollView(xPos + 15, yPos + 32, width - 30,
-                height - 70, true);
+        addWidget(new MKRectangle(xPos + 10, yPos + 34, width - 20, height - 65, 0x44000000));
+        MKScrollView scrollview = new MKScrollView(xPos + 15, yPos + 39, width - 30,
+                height - 75, true);
 
         addWidget(scrollview);
         TranslationTextComponent text = new TranslationTextComponent("mkcore.gui.character.forget_confirm");
