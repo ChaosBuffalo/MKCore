@@ -46,6 +46,8 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class ParticleAnimationManager extends JsonReloadListener {
+    public static String DEFINITION_FOLDER = "particle_animations";
+
     public static final ResourceLocation RAW_EFFECT = new ResourceLocation(MKCore.MOD_ID, "particle_anim.raw_effect");
     private MinecraftServer server;
     private boolean serverStarted = false;
@@ -78,7 +80,7 @@ public class ParticleAnimationManager extends JsonReloadListener {
     public static final Map<ResourceLocation, Supplier<ParticleEffectInstance>> EFFECT_INSTANCE_DESERIALIZERS = new HashMap<>();
 
     public ParticleAnimationManager() {
-        super(GSON, "particle_animations");
+        super(GSON, DEFINITION_FOLDER);
         MinecraftForge.EVENT_BUS.register(this);
     }
 

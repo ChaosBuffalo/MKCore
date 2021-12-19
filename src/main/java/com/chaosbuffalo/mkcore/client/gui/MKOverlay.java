@@ -125,7 +125,7 @@ public class MKOverlay {
         int barStartY = getBarStartY(totalSlots);
 
         PlayerAbilityKnowledge abilityKnowledge = data.getAbilities();
-        IActiveAbilityGroup container = data.getAbilityLoadout().getAbilityGroup(type);
+        IActiveAbilityGroup container = data.getLoadout().getAbilityGroup(type);
         int slotCount = container.getCurrentSlotCount();
         drawBarSlots(matrixStack, type, startingSlot, slotCount, totalSlots);
 
@@ -196,7 +196,7 @@ public class MKOverlay {
 
             int totalSlots = Arrays.stream(AbilityType.values())
                     .filter(AbilityType::isActive)
-                    .mapToInt(type -> cap.getAbilityLoadout().getAbilityGroup(type).getCurrentSlotCount())
+                    .mapToInt(type -> cap.getLoadout().getAbilityGroup(type).getCurrentSlotCount())
                     .sum();
 
             int slot = drawAbilities(event.getMatrixStack(), cap, AbilityType.Basic, 0, totalSlots, event.getPartialTicks());

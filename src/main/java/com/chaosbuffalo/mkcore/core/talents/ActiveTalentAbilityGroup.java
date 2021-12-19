@@ -21,7 +21,7 @@ public class ActiveTalentAbilityGroup extends ActiveAbilityGroup {
     }
 
     private boolean knowsTalent(ResourceLocation talentId) {
-        return playerData.getKnowledge().getTalentKnowledge().getKnownTalentIds(talentType).contains(talentId);
+        return playerData.getTalents().getKnownTalentIds(talentType).contains(talentId);
     }
 
     public void setActiveTalent(int index, ResourceLocation talentId) {

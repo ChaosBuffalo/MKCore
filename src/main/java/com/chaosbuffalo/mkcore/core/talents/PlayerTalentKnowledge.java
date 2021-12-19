@@ -4,6 +4,9 @@ import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.player.IPlayerSyncComponentProvider;
 import com.chaosbuffalo.mkcore.core.player.SyncComponent;
+import com.chaosbuffalo.mkcore.core.records.IRecordType;
+import com.chaosbuffalo.mkcore.core.records.IRecordTypeHandler;
+import com.chaosbuffalo.mkcore.core.records.PlayerRecordDispatcher;
 import com.chaosbuffalo.mkcore.init.CoreSounds;
 import com.chaosbuffalo.mkcore.sync.DynamicSyncGroup;
 import com.chaosbuffalo.mkcore.sync.SyncInt;
@@ -11,7 +14,6 @@ import com.chaosbuffalo.mkcore.utils.SoundUtils;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.DynamicOps;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.NBTDynamicOps;
@@ -30,55 +32,52 @@ public class PlayerTalentKnowledge implements IPlayerSyncComponentProvider {
     private final SyncInt totalTalentPoints = new SyncInt("totalPoints", 0);
     private final Map<ResourceLocation, TalentTreeRecord> talentTreeRecordMap = new HashMap<>();
     private final SyncInt talentXp = new SyncInt("xp", 0);
+    private final PlayerRecordDispatcher dispatcher;
 
     public PlayerTalentKnowledge(MKPlayerData playerData) {
         this.playerData = playerData;
+        dispatcher = new PlayerRecordDispatcher(playerData, this::getKnownTalentsStream);
         addSyncPrivate(talentPoints);
         addSyncPrivate(totalTalentPoints);
         addSyncPrivate(talentXp);
         if (!playerData.isServerSide()) {
             addSyncPrivate(new ClientTreeSyncGroup());
         }
-        if (playerData.isServerSide()){
-            for (TalentTreeDefinition def : MKCore.getTalentManager().getDefaultTrees()){
-                if (!unlockTree(def.getTreeId())){
+        if (playerData.isServerSide()) {
+            for (TalentTreeDefinition def : MKCore.getTalentManager().getDefaultTrees()) {
+                if (!unlockTree(def.getTreeId())) {
                     MKCore.LOGGER.error("Failed to unlock default talent tree: {}", def.getTreeId());
                 }
             }
         }
     }
 
-    public int getTalentXp(){
+    public int getTalentXp() {
         return talentXp.get();
     }
 
-    public int getXpToNextLevel(){
+    public int getXpToNextLevel() {
         return 100 + Math.round((getTotalTalentPoints() / 2.0f) * 100);
     }
 
-    public boolean shouldLevel(){
+    public boolean shouldLevel() {
         return getTalentXp() >= getXpToNextLevel();
     }
 
-    public void addTalentXp(int value){
+    public void addTalentXp(int value) {
         talentXp.add(value);
-        if (shouldLevel()){
+        if (shouldLevel()) {
             performLevel();
         }
     }
 
-    public void performLevel(){
-        if (playerData.isServerSide()){
+    public void performLevel() {
+        if (playerData.isServerSide()) {
             talentXp.add(-getXpToNextLevel());
             grantTalentPoints(1);
             SoundUtils.serverPlaySoundAtEntity(playerData.getEntity(), CoreSounds.level_up, SoundCategory.PLAYERS);
-            PlayerEntity player = playerData.getEntity();
-            if (player.getHealth() < player.getMaxHealth()){
-                player.setHealth(player.getMaxHealth());
-            }
-            if (playerData.getStats().getMana() < playerData.getStats().getMaxMana()){
-                playerData.getStats().setMana(playerData.getStats().getMaxMana());
-            }
+            playerData.getStats().setHealth(playerData.getStats().getMaxHealth());
+            playerData.getStats().setMana(playerData.getStats().getMaxMana());
         }
     }
 
@@ -198,7 +197,7 @@ public class PlayerTalentKnowledge implements IPlayerSyncComponentProvider {
 
         TalentRecord record = treeRecord.getNodeRecord(line, index);
         if (record != null) {
-            playerData.getTalentHandler().onRecordUpdated(record);
+            dispatcher.onRecordUpdated(record);
         }
         return true;
     }
@@ -219,13 +218,14 @@ public class PlayerTalentKnowledge implements IPlayerSyncComponentProvider {
 
         TalentRecord record = treeRecord.getNodeRecord(line, index);
         if (record != null) {
-            playerData.getTalentHandler().onRecordUpdated(record);
+            dispatcher.onRecordUpdated(record);
         }
         return true;
     }
 
     public <T> T serialize(DynamicOps<T> ops) {
         ImmutableMap.Builder<T, T> builder = ImmutableMap.builder();
+        builder.put(ops.createString("talentXp"), ops.createInt(talentXp.get()));
         builder.put(ops.createString("totalPoints"), ops.createInt(totalTalentPoints.get()));
         builder.put(ops.createString("trees"), ops.createMap(talentTreeRecordMap.entrySet().stream()
                 .collect(
@@ -239,6 +239,7 @@ public class PlayerTalentKnowledge implements IPlayerSyncComponentProvider {
     }
 
     public <T> void deserialize(Dynamic<T> dynamic) {
+        talentXp.set(dynamic.get("talentXp").asInt(0));
         totalTalentPoints.set(dynamic.get("totalPoints").asInt(0));
         talentPoints.set(totalTalentPoints.get());
 
@@ -299,5 +300,24 @@ public class PlayerTalentKnowledge implements IPlayerSyncComponentProvider {
         public void serializeFull(CompoundNBT tag) {
             throw new IllegalStateException("ClientTreeSyncGroup should never call serializeFull!");
         }
+    }
+
+    public <T extends IRecordTypeHandler<?>> T getTypeHandler(IRecordType<T> type) {
+        return dispatcher.getTypeHandler(type);
+    }
+
+    public void onPersonaActivated() {
+        MKCore.LOGGER.debug("PlayerTalentKnowledge.onPersonaActivated");
+        dispatcher.onPersonaActivated();
+    }
+
+    public void onPersonaDeactivated() {
+        MKCore.LOGGER.debug("PlayerTalentKnowledge.onPersonaDeactivated");
+        dispatcher.onPersonaDeactivated();
+    }
+
+    public void onJoinWorld() {
+        MKCore.LOGGER.debug("PlayerTalentKnowledge.onJoinWorld");
+        dispatcher.onJoinWorld();
     }
 }

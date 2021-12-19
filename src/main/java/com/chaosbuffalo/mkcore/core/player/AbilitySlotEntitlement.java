@@ -12,6 +12,10 @@ public class AbilitySlotEntitlement extends MKEntitlement {
     private final AbilityType abilityType;
     private final IRecordType<AbilitySlotEntitlementHandler> recordType;
 
+    public AbilitySlotEntitlement(ResourceLocation name, AbilityType abilityType) {
+        this(name, abilityType, abilityType.getMaxSlots());
+    }
+
     public AbilitySlotEntitlement(ResourceLocation name, AbilityType abilityType, int maxEntitlements) {
         super(name, maxEntitlements);
         this.abilityType = abilityType;
@@ -33,8 +37,8 @@ public class AbilitySlotEntitlement extends MKEntitlement {
         }
 
         private void recalculateSlots() {
-            int count = playerData.getKnowledge().getEntitlementsKnowledge().getEntitlementLevel(entitlement);
-            playerData.getAbilityLoadout()
+            int count = playerData.getEntitlements().getEntitlementLevel(entitlement);
+            playerData.getLoadout()
                     .getAbilityGroup(entitlement.abilityType)
                     .setSlots(entitlement.abilityType.getDefaultSlots() + count);
         }

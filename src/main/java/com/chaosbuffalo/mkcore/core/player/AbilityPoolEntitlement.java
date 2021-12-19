@@ -32,7 +32,7 @@ public class AbilityPoolEntitlement extends MKEntitlement {
 
         @Override
         public void onRecordUpdated(EntitlementInstance record) {
-            int count = playerData.getKnowledge().getEntitlementsKnowledge().getEntitlementLevel(entitlement);
+            int count = playerData.getEntitlements().getEntitlementLevel(entitlement);
             playerData.getAbilities().setAbilityPoolSize(count + GameConstants.DEFAULT_ABILITY_POOL_SIZE);
         }
 

@@ -5,7 +5,6 @@ import com.chaosbuffalo.mkcore.abilities.AbilityContext;
 import com.chaosbuffalo.mkcore.abilities.PassiveTalentAbility;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.talents.TalentManager;
-import com.chaosbuffalo.mkcore.core.talents.handlers.AbilityTalentHandler;
 import com.chaosbuffalo.mkcore.effects.PassiveEffect;
 import com.chaosbuffalo.mkcore.effects.PassiveTalentEffect;
 import net.minecraft.entity.player.PlayerEntity;
@@ -65,7 +64,7 @@ public class PassiveTalentHandler extends AbilityTalentHandler {
     }
 
     private Stream<PassiveTalentAbility> getPassiveAbilitiesStream() {
-        return playerData.getAbilityLoadout()
+        return playerData.getLoadout()
                 .getPassiveContainer()
                 .getAbilities()
                 .stream()

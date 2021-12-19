@@ -42,8 +42,8 @@ public class XpBarWidget extends MKWidget {
     }
 
     public void syncPlayerXp(MKPlayerData playerData){
-        int currentXp = playerData.getKnowledge().getTalentKnowledge().getTalentXp();
-        int nextLevel = playerData.getKnowledge().getTalentKnowledge().getXpToNextLevel();
+        int currentXp = playerData.getTalents().getTalentXp();
+        int nextLevel = playerData.getTalents().getXpToNextLevel();
         float ratio = (float) currentXp / (float) nextLevel;
         float fifths = ratio;
         while (fifths > 0.2f){

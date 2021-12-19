@@ -1,5 +1,6 @@
 package com.chaosbuffalo.mkcore.core.player;
 
+import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.IMKEntityKnowledge;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.talents.PlayerTalentKnowledge;
@@ -64,10 +65,20 @@ public class PlayerKnowledge implements IMKEntityKnowledge, IPlayerSyncComponent
     }
 
     public void onPersonaActivated() {
-
+        MKCore.LOGGER.debug("PlayerKnowledge.onPersonaActivated");
+        entitlementsKnowledge.onPersonaActivated();
+        talentKnowledge.onPersonaActivated();
     }
 
     public void onPersonaDeactivated() {
+        MKCore.LOGGER.debug("PlayerKnowledge.onPersonaDeactivated");
+        entitlementsKnowledge.onPersonaDeactivated();
+        talentKnowledge.onPersonaDeactivated();
+    }
 
+    public void onJoinWorld() {
+        MKCore.LOGGER.debug("PlayerKnowledge.onJoinWorld");
+        entitlementsKnowledge.onJoinWorld();
+        talentKnowledge.onJoinWorld();
     }
 }

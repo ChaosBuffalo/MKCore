@@ -68,7 +68,7 @@ public class AbilitySlotWidget extends MKLayout {
         if (playerEntity == null)
             return;
         MKCore.getPlayer(playerEntity).ifPresent((playerData -> {
-            abilityId = playerData.getAbilityLoadout().getAbilityInSlot(slotType, slotIndex);
+            abilityId = playerData.getLoadout().getAbilityInSlot(slotType, slotIndex);
             setupBackground(playerData);
             setupIcon(abilityId);
         }));
@@ -78,7 +78,7 @@ public class AbilitySlotWidget extends MKLayout {
         if (background != null) {
             removeWidget(background);
         }
-        IActiveAbilityGroup container = playerData.getAbilityLoadout().getAbilityGroup(slotType);
+        IActiveAbilityGroup container = playerData.getLoadout().getAbilityGroup(slotType);
         unlocked = container.isSlotUnlocked(slotIndex);
         background = getImageForSlotType(slotType, unlocked);
         addWidget(background);

@@ -20,12 +20,4 @@ public interface IRecordTypeHandler<T extends IRecordInstance> {
     default void onRecordLoaded(T record) {
 
     }
-
-    default void onRecordAdded(T record) {
-        onRecordUpdated(record);
-    }
-
-    default void onRecordRemoved(T record) {
-        onRecordUpdated(record);
-    }
 }

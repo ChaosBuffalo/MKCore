@@ -66,7 +66,7 @@ public class HotBarCommand {
         int count = IntegerArgumentType.getInteger(ctx, "count");
 
         MKCore.getPlayer(player).ifPresent(playerData -> {
-            IActiveAbilityGroup container = playerData.getAbilityLoadout().getAbilityGroup(type);
+            IActiveAbilityGroup container = playerData.getLoadout().getAbilityGroup(type);
             if (container.setSlots(count)) {
                 MKCore.LOGGER.info("Updated slot count for {}", type);
             } else {
@@ -87,7 +87,7 @@ public class HotBarCommand {
         MKCore.getPlayer(player).ifPresent(playerData -> {
             PlayerAbilityKnowledge abilityKnowledge = playerData.getAbilities();
             if (abilityKnowledge.knowsAbility(abilityId)) {
-                playerData.getAbilityLoadout().getAbilityGroup(type).setSlot(slot, abilityId);
+                playerData.getLoadout().getAbilityGroup(type).setSlot(slot, abilityId);
             }
         });
 
@@ -103,7 +103,7 @@ public class HotBarCommand {
         MKCore.getPlayer(player).ifPresent(playerData -> {
             PlayerAbilityKnowledge abilityKnowledge = playerData.getAbilities();
             if (abilityKnowledge.knowsAbility(abilityId)) {
-                int slot = playerData.getAbilityLoadout().getAbilityGroup(type).tryEquip(abilityId);
+                int slot = playerData.getLoadout().getAbilityGroup(type).tryEquip(abilityId);
                 if (slot == GameConstants.ACTION_BAR_INVALID_SLOT) {
                     TextUtils.sendChatMessage(player, "No room for ability");
                 }
@@ -120,7 +120,7 @@ public class HotBarCommand {
         int slot = IntegerArgumentType.getInteger(ctx, "slot");
 
         MKCore.getPlayer(player).ifPresent(playerData ->
-                playerData.getAbilityLoadout().getAbilityGroup(type).clearSlot(slot));
+                playerData.getLoadout().getAbilityGroup(type).clearSlot(slot));
 
         return Command.SINGLE_SUCCESS;
     }
@@ -130,7 +130,7 @@ public class HotBarCommand {
 
         AbilityType type = ctx.getArgument("type", AbilityType.class);
         MKCore.getPlayer(player).ifPresent(playerData ->
-                playerData.getAbilityLoadout().getAbilityGroup(type).resetSlots());
+                playerData.getLoadout().getAbilityGroup(type).resetSlots());
 
         return Command.SINGLE_SUCCESS;
     }
@@ -139,7 +139,7 @@ public class HotBarCommand {
         AbilityType type = ctx.getArgument("type", AbilityType.class);
         ServerPlayerEntity player = ctx.getSource().asPlayer();
         MKCore.getPlayer(player).ifPresent(playerData -> {
-            IActiveAbilityGroup container = playerData.getAbilityLoadout().getAbilityGroup(type);
+            IActiveAbilityGroup container = playerData.getLoadout().getAbilityGroup(type);
             int current = container.getCurrentSlotCount();
             int max = container.getMaximumSlotCount();
             TextUtils.sendPlayerChatMessage(player, String.format("%s Action Bar (%d/%d slots)", type, current, max));
@@ -155,8 +155,7 @@ public class HotBarCommand {
         AbilityType type = context.getArgument("type", AbilityType.class);
         ServerPlayerEntity player = context.getSource().asPlayer();
         return ISuggestionProvider.suggest(MKCore.getPlayer(player)
-                        .map(playerData -> playerData.getKnowledge()
-                                .getAbilityKnowledge()
+                        .map(playerData -> playerData.getAbilities()
                                 .getKnownStream()
                                 .filter(info -> info.getAbility().getType() == type)
                                 .map(MKAbilityInfo::getId)
