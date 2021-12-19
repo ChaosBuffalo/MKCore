@@ -13,38 +13,48 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.network.NetworkEvent;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Supplier;
 
 public class PlayerLearnAbilityRequestPacket {
     private final int entityId;
-    private final ResourceLocation abilityId;
-    private final ResourceLocation replacingId;
+    private final List<ResourceLocation> forgetting;
+    private final ResourceLocation learning;
 
-    public PlayerLearnAbilityRequestPacket(ResourceLocation abilityId, ResourceLocation replacingId, int entityId) {
+    public PlayerLearnAbilityRequestPacket(List<ResourceLocation> forgetting, ResourceLocation learning, int entityId) {
         this.entityId = entityId;
-        this.abilityId = abilityId;
-        this.replacingId = replacingId;
+        this.forgetting = forgetting;
+        this.learning = learning;
     }
 
-    public PlayerLearnAbilityRequestPacket(ResourceLocation abilityId, int entityId) {
-        this(abilityId, MKCoreRegistry.INVALID_ABILITY, entityId);
+    public PlayerLearnAbilityRequestPacket(ResourceLocation learning, int entityId) {
+        this(new ArrayList<>(), learning, entityId);
     }
 
     public PlayerLearnAbilityRequestPacket(PacketBuffer buffer) {
         entityId = buffer.readInt();
-        abilityId = buffer.readResourceLocation();
-        replacingId = buffer.readBoolean() ? buffer.readResourceLocation() : MKCoreRegistry.INVALID_ABILITY;
+        learning = buffer.readResourceLocation();
+        int count = buffer.readInt();
+        forgetting = new ArrayList<>();
+        for (int i = 0; i < count; i++){
+            forgetting.add(buffer.readResourceLocation());
+        }
     }
 
     public void toBytes(PacketBuffer buffer) {
         buffer.writeInt(entityId);
-        buffer.writeResourceLocation(abilityId);
-        if (!replacingId.equals(MKCoreRegistry.INVALID_ABILITY)) {
-            buffer.writeBoolean(true);
-            buffer.writeResourceLocation(replacingId);
-        } else {
-            buffer.writeBoolean(false);
+        buffer.writeResourceLocation(learning);
+        buffer.writeInt(forgetting.size());
+        for (ResourceLocation loc : forgetting){
+            buffer.writeResourceLocation(loc);
         }
+//        if (!replacingId.equals(MKCoreRegistry.INVALID_ABILITY)) {
+//            buffer.writeBoolean(true);
+//            buffer.writeResourceLocation(replacingId);
+//        } else {
+//            buffer.writeBoolean(false);
+//        }
     }
 
     public void handle(Supplier<NetworkEvent.Context> supplier) {
@@ -54,27 +64,49 @@ public class PlayerLearnAbilityRequestPacket {
             if (player == null)
                 return;
 
-            MKAbility ability = MKCoreRegistry.getAbility(abilityId);
-            if (ability == null) {
-                return;
+
+            for (ResourceLocation loc : forgetting){
+                MKAbility ability = MKCoreRegistry.getAbility(loc);
+                if (ability == null) {
+                    MKCore.LOGGER.error("Forget ability failed because ability with id {} is null for player: {}.", loc.toString(), player);
+                    return;
+                }
             }
+            MKAbility toLearn = MKCoreRegistry.getAbility(learning);
+            if (toLearn == null){
+                MKCore.LOGGER.error("Learn ability failed because ability with id {} is null for player: {}.", learning.toString(), player);
+            }
+
 
             Entity teacher = player.getServerWorld().getEntityByID(entityId);
             if (teacher instanceof IAbilityTrainingEntity) {
                 IAbilityTrainer abilityTrainer = ((IAbilityTrainingEntity) teacher).getAbilityTrainer();
 
                 MKCore.getPlayer(player).ifPresent(playerData -> {
-                    AbilityTrainingEntry entry = abilityTrainer.getTrainingEntry(ability);
+                    AbilityTrainingEntry entry = abilityTrainer.getTrainingEntry(toLearn);
                     if (entry == null) {
-                        MKCore.LOGGER.error("Trainer {} does not have requested ability {}. Requested by {}", teacher, abilityId, player);
+                        MKCore.LOGGER.error("Trainer {} does not have requested ability {}. Requested by {}", teacher, learning, player);
                         return;
                     }
                     if (!entry.checkRequirements(playerData)) {
-                        MKCore.LOGGER.debug("Failed to learn ability {} from {} - unmet requirements", abilityId, teacher);
+                        MKCore.LOGGER.debug("Failed to learn ability {} from {} - unmet requirements", learning, teacher);
                         return;
                     }
 
-                    if (playerData.getAbilities().learnAbility(ability, AbilitySource.TRAINED, replacingId)) {
+                    int count = playerData.getAbilities().getCurrentPoolCount() + 1 - playerData.getAbilities().getAbilityPoolSize();
+                    if (count != forgetting.size()){
+                        MKCore.LOGGER.debug("Failed to learn ability {} from {} - a", learning, teacher);
+                        return;
+                    }
+                    for (ResourceLocation toForget : forgetting){
+                        if (!playerData.getAbilities().knowsAbility(toForget)){
+                            MKCore.LOGGER.debug("Failed to learn ability {} from {} - provided unlearned ability for forgetting {}", learning, teacher, toForget);
+                            return;
+                        }
+                        playerData.getAbilities().unlearnAbility(toForget);
+                    }
+
+                    if (playerData.getAbilities().learnAbility(toLearn, AbilitySource.TRAINED, MKCoreRegistry.INVALID_ABILITY)) {
                         entry.onAbilityLearned(playerData);
                     }
                 });

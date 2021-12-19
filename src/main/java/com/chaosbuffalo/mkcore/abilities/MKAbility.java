@@ -4,10 +4,7 @@ import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.abilities.ai.conditions.AbilityUseCondition;
 import com.chaosbuffalo.mkcore.abilities.ai.conditions.StandardUseCondition;
-import com.chaosbuffalo.mkcore.core.AbilityType;
-import com.chaosbuffalo.mkcore.core.IMKEntityData;
-import com.chaosbuffalo.mkcore.core.MKAttributes;
-import com.chaosbuffalo.mkcore.core.MKCombatFormulas;
+import com.chaosbuffalo.mkcore.core.*;
 import com.chaosbuffalo.mkcore.core.damage.MKDamageType;
 import com.chaosbuffalo.mkcore.entities.BaseProjectileEntity;
 import com.chaosbuffalo.mkcore.init.CoreSounds;
@@ -15,6 +12,7 @@ import com.chaosbuffalo.mkcore.serialization.attributes.ISerializableAttribute;
 import com.chaosbuffalo.mkcore.serialization.attributes.ResourceLocationAttribute;
 import com.chaosbuffalo.mkcore.utils.EntityUtils;
 import com.chaosbuffalo.mkcore.utils.RayTraceUtils;
+import com.chaosbuffalo.mkcore.utils.text.IconTextComponent;
 import com.chaosbuffalo.targeting_api.Targeting;
 import com.chaosbuffalo.targeting_api.TargetingContext;
 import com.google.common.collect.ImmutableMap;
@@ -53,6 +51,7 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
     private final Set<Attribute> skillAttributes;
     private static final ResourceLocation EMPTY_PARTICLES = new ResourceLocation(MKCore.MOD_ID, "fx.casting.empty");
     protected final ResourceLocationAttribute casting_particles = new ResourceLocationAttribute("casting_particles", EMPTY_PARTICLES);
+    private final ResourceLocation POOL_SLOT_ICON = new ResourceLocation(MKCore.MOD_ID, "textures/talents/pool_count_icon_filled.png");
 
 
     public MKAbility(String domain, String id) {
@@ -120,6 +119,13 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
     }
 
     public void buildDescription(IMKEntityData entityData, Consumer<ITextComponent> consumer) {
+        if (entityData instanceof MKPlayerData){
+            MKPlayerData playerData = (MKPlayerData) entityData;
+            MKAbilityInfo info = playerData.getAbilities().getKnownAbility(getAbilityId());
+            if (info != null && info.getSource().usesAbilityPool()){
+                consumer.accept(new IconTextComponent(POOL_SLOT_ICON, "mkcore.ability.description.uses_pool", playerData.getAbilities().getCurrentPoolCount(), playerData.getAbilities().getAbilityPoolSize()).mergeStyle(TextFormatting.ITALIC));
+            }
+        }
         if (!skillAttributes.isEmpty()) {
             consumer.accept(getSkillDescription(entityData));
         }

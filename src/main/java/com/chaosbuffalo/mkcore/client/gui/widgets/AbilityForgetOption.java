@@ -5,7 +5,6 @@ import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.PlayerLearnAbilityRequestPacket;
 import com.chaosbuffalo.mkwidgets.client.gui.constraints.MarginConstraint;
 import com.chaosbuffalo.mkwidgets.client.gui.layouts.MKLayout;
-import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKModal;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -14,12 +13,12 @@ import net.minecraft.util.ResourceLocation;
 public class AbilityForgetOption extends MKLayout {
 
     private final ResourceLocation loc;
-    private final MKModal popup;
+    private final ForgetAbilityModal popup;
     private final MKAbility ability;
     private final int trainerEntityId;
 
     public AbilityForgetOption(MKAbility ability,
-                               ResourceLocation loc, MKModal popup,
+                               ResourceLocation loc, ForgetAbilityModal popup,
                                FontRenderer font, int trainerEntity) {
         super(0, 0, 200, 16);
         this.loc = loc;
@@ -34,10 +33,10 @@ public class AbilityForgetOption extends MKLayout {
 
     @Override
     public boolean onMousePressed(Minecraft minecraft, double mouseX, double mouseY, int mouseButton) {
-        PacketHandler.sendMessageToServer(new PlayerLearnAbilityRequestPacket(
-                loc, getAbility().getAbilityId(), trainerEntityId));
-        if (getScreen() != null) {
-            getScreen().closeModal(popup);
+        if (popup.isForgetting(ability)){
+            popup.cancelForget(ability);
+        } else {
+            popup.forget(ability);
         }
         return true;
     }
@@ -48,8 +47,14 @@ public class AbilityForgetOption extends MKLayout {
 
     @Override
     public void postDraw(MatrixStack matrixStack, Minecraft mc, int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks) {
-        if (isHovered()) {
-            mkFill(matrixStack, x, y, x + width, y + height, 0x55ffffff);
+        boolean isForgetting = popup.isForgetting(ability);
+        boolean hovered = isHovered();
+        if (hovered || isForgetting) {
+            int color = isForgetting ? 0x77ff8800 : 0x55ffffff;
+            if (hovered && isForgetting){
+                color = 0xaaff8800;
+            }
+            mkFill(matrixStack, x, y, x + width, y + height, color);
         }
     }
 }

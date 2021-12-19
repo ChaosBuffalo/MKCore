@@ -1,9 +1,7 @@
 package com.chaosbuffalo.mkcore.client.gui.widgets;
 
-import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.abilities.training.AbilityTrainingEvaluation;
-import com.chaosbuffalo.mkcore.client.gui.GuiTextures;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.PlayerLearnAbilityRequestPacket;
@@ -20,7 +18,6 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -48,55 +45,24 @@ public class LearnAbilityTray extends MKStackLayoutVertical {
         setup();
     }
 
-    private MKModal getChoosePoolSlotWidget() {
+    private ForgetAbilityModal getChoosePoolSlotWidget() {
         if (getScreen() == null) {
             return null;
         }
         IMKScreen screen = getScreen();
-        MKModal popup = new MKModal();
+
         int screenWidth = screen.getWidth();
         int screenHeight = screen.getHeight();
         int xPos = (screenWidth - POPUP_WIDTH) / 2;
         int yPos = (screenHeight - POPUP_HEIGHT) / 2;
-        MKImage background = GuiTextures.CORE_TEXTURES.getImageForRegion(
-                GuiTextures.BACKGROUND_180_200, xPos, yPos, POPUP_WIDTH, POPUP_HEIGHT);
-        popup.addWidget(background);
-        ITextComponent promptText = new TranslationTextComponent("mkcore.gui.character.forget_ability", getAbility().getAbilityName());
-        MKText prompt = new MKText(font, promptText, xPos + 6, yPos + 6);
-        prompt.setWidth(POPUP_WIDTH - 10);
-        prompt.setMultiline(true);
-        popup.addWidget(prompt);
-        MKScrollView scrollview = new MKScrollView(xPos + 15, yPos + 40, POPUP_WIDTH - 30,
-                POPUP_HEIGHT - 45, true);
-        popup.addWidget(scrollview);
-        MKStackLayoutVertical abilities = new MKStackLayoutVertical(0, 0, scrollview.getWidth());
-        abilities.setPaddingBot(2);
-        abilities.setPaddingTop(2);
-        abilities.setMargins(2, 2, 2, 2);
-        abilities.doSetChildWidth(true);
-        playerData.getAbilities().getPoolAbilities().forEach(abilityId -> {
-            if (abilityId.equals(MKCoreRegistry.INVALID_ABILITY)) {
-                return;
-            }
-            MKAbility ability = MKCoreRegistry.getAbility(abilityId);
-            if (ability != null) {
-                AbilityForgetOption abilityIcon = new AbilityForgetOption(ability, getAbility().getAbilityId(), popup, font, trainerEntityId);
-                abilities.addWidget(abilityIcon);
-            }
-        });
-        scrollview.addWidget(abilities);
-        abilities.manualRecompute();
-        scrollview.setToRight();
-        scrollview.setToTop();
-
+        ForgetAbilityModal popup = new ForgetAbilityModal(getAbility(), playerData, xPos, yPos, POPUP_WIDTH, POPUP_HEIGHT,
+                font, trainerEntityId);
         return popup;
     }
 
     public void setup() {
         clearWidgets();
-        choosePoolSlotWidget = null;
         if (getAbility() != null) {
-            choosePoolSlotWidget = getChoosePoolSlotWidget();
             MKStackLayoutHorizontal nameTray = new MKStackLayoutHorizontal(0, 0, 20);
             nameTray.setPaddingRight(4);
             nameTray.setPaddingLeft(4);
@@ -164,8 +130,8 @@ public class LearnAbilityTray extends MKStackLayoutVertical {
                 learnButton.setEnabled(canLearn);
                 learnButton.setPressedCallback((button, buttonType) -> {
                     if (evaluation.usesAbilityPool() && playerData.getAbilities().isAbilityPoolFull()) {
-                        if (getScreen() != null && choosePoolSlotWidget != null) {
-                            getScreen().addModal(choosePoolSlotWidget);
+                        if (getScreen() != null) {
+                            getScreen().addModal(getChoosePoolSlotWidget());
                         }
                     } else {
                         PacketHandler.sendMessageToServer(new PlayerLearnAbilityRequestPacket(
