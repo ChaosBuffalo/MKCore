@@ -93,7 +93,7 @@ public class PlayerLearnAbilityRequestPacket {
                         return;
                     }
 
-                    int count = playerData.getAbilities().getCurrentPoolCount() + 1 - playerData.getAbilities().getAbilityPoolSize();
+                    int count = playerData.getAbilities().getSlotDeficitToLearnAnAbility();
                     if (count != forgetting.size()){
                         MKCore.LOGGER.debug("Failed to learn ability {} from {} - a", learning, teacher);
                         return;
