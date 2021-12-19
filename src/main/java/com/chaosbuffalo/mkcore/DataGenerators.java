@@ -1,10 +1,12 @@
 package com.chaosbuffalo.mkcore;
 
+import com.chaosbuffalo.mkcore.abilities.AbilityManager;
 import com.chaosbuffalo.mkcore.core.talents.TalentLineDefinition;
-import com.chaosbuffalo.mkcore.core.talents.TalentNode;
+import com.chaosbuffalo.mkcore.core.talents.TalentManager;
 import com.chaosbuffalo.mkcore.core.talents.TalentTreeDefinition;
 import com.chaosbuffalo.mkcore.core.talents.nodes.AttributeTalentNode;
 import com.chaosbuffalo.mkcore.fx.particles.ParticleAnimation;
+import com.chaosbuffalo.mkcore.fx.particles.ParticleAnimationManager;
 import com.chaosbuffalo.mkcore.fx.particles.ParticleKeyFrame;
 import com.chaosbuffalo.mkcore.fx.particles.animation_tracks.motions.BrownianMotionTrack;
 import com.chaosbuffalo.mkcore.fx.particles.animation_tracks.motions.OrbitingInPlaneMotionTrack;
@@ -14,7 +16,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.JsonOps;
-import net.minecraft.block.Block;
 import net.minecraft.data.*;
 import net.minecraft.item.Item;
 import net.minecraft.item.Items;
@@ -26,8 +27,10 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
 public class DataGenerators {
@@ -37,7 +40,7 @@ public class DataGenerators {
         DataGenerator generator = event.getGenerator();
 
         if (event.includeServer()) {
-            MKBlockTagsProvider blockTagsProvider = new MKBlockTagsProvider(generator);
+            MKBlockTagsProvider blockTagsProvider = new MKBlockTagsProvider(generator, MKCore.MOD_ID, event.getExistingFileHelper());
             generator.addProvider(blockTagsProvider);
             generator.addProvider(new AbilityDataGenerator(generator, MKCore.MOD_ID));
             generator.addProvider(new ArmorClassItemTagProvider(generator, blockTagsProvider, event.getExistingFileHelper()));
@@ -50,17 +53,18 @@ public class DataGenerators {
         private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
         private final DataGenerator generator;
 
-        public ParticleAnimationDataGenerator(DataGenerator generator){
+        public ParticleAnimationDataGenerator(DataGenerator generator) {
             this.generator = generator;
         }
 
-        public void writeDefinition(ResourceLocation name, ParticleAnimation animation, @Nonnull DirectoryCache cache){
+        public void writeDefinition(ResourceLocation name, ParticleAnimation animation, @Nonnull DirectoryCache cache) {
             Path outputFolder = this.generator.getOutputFolder();
-            Path path = outputFolder.resolve("data/" + name.getNamespace() + "/particle_animations/" + name.getPath() + ".json");
+            Path local = Paths.get("data", name.getNamespace(), ParticleAnimationManager.DEFINITION_FOLDER, name.getPath() + ".json");
+            Path path = outputFolder.resolve(local);
             try {
                 JsonElement element = animation.serialize(JsonOps.INSTANCE);
                 IDataProvider.save(GSON, cache, element, path);
-            } catch (IOException e){
+            } catch (IOException e) {
                 MKCore.LOGGER.error("Couldn't write particle animation {}", path, e);
             }
         }
@@ -70,18 +74,19 @@ public class DataGenerators {
         private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
         private final DataGenerator generator;
 
-        public TalentTreeDataGenerator(DataGenerator generator){
+        public TalentTreeDataGenerator(DataGenerator generator) {
             this.generator = generator;
         }
 
-        public void writeDefinition(TalentTreeDefinition definition, @Nonnull DirectoryCache cache){
+        public void writeDefinition(TalentTreeDefinition definition, @Nonnull DirectoryCache cache) {
             Path outputFolder = this.generator.getOutputFolder();
             ResourceLocation key = definition.getTreeId();
-            Path path = outputFolder.resolve("data/" + key.getNamespace() + "/player_talents/" + key.getPath() + ".json");
+            Path local = Paths.get("data", key.getNamespace(), TalentManager.DEFINITION_FOLDER, key.getPath() + ".json");
+            Path path = outputFolder.resolve(local);
             try {
                 JsonElement element = definition.serialize(JsonOps.INSTANCE);
                 IDataProvider.save(GSON, cache, element, path);
-            } catch (IOException e){
+            } catch (IOException e) {
                 MKCore.LOGGER.error("Couldn't write talent tree definition {}", path, e);
             }
         }
@@ -89,15 +94,16 @@ public class DataGenerators {
 
     public static class CoreParticleAnimGenerator extends ParticleAnimationDataGenerator {
 
-        public CoreParticleAnimGenerator(DataGenerator generator){
+        public CoreParticleAnimGenerator(DataGenerator generator) {
             super(generator);
         }
 
         @Override
-        public void act(DirectoryCache cache) throws IOException {
+        public void act(@Nonnull DirectoryCache cache) {
             writeBlueMagicTest(cache);
         }
 
+        @Nonnull
         @Override
         public String getName() {
             return "MKCore Particle Animations";
@@ -135,8 +141,9 @@ public class DataGenerators {
         }
 
         @Override
-        public void act(@Nonnull DirectoryCache cache) throws IOException {
+        public void act(@Nonnull DirectoryCache cache) {
             TalentTreeDefinition test = new TalentTreeDefinition(MKCore.makeRL("knight"));
+            test.setVersion(1);
             TalentLineDefinition line = new TalentLineDefinition(test, "knight_1");
             line.addNode(new AttributeTalentNode(CoreTalents.MAX_HEALTH_TALENT, 1, 1.0));
             test.addLine(line);
@@ -144,6 +151,7 @@ public class DataGenerators {
 
         }
 
+        @Nonnull
         @Override
         public String getName() {
             return "MKCore Talent Trees";
@@ -165,7 +173,7 @@ public class DataGenerators {
             Path outputFolder = this.generator.getOutputFolder();
             MKCoreRegistry.ABILITIES.forEach(ability -> {
                 ResourceLocation key = ability.getAbilityId();
-                if (!key.getNamespace().equals(modId)){
+                if (!key.getNamespace().equals(modId)) {
                     MKCore.LOGGER.info("Skipping ability {} not from this mod", key);
                     return;
                 }
@@ -175,7 +183,8 @@ public class DataGenerators {
                     return;
                 }
                 String name = key.getPath().substring(8); // skip ability.
-                Path path = outputFolder.resolve("data/" + key.getNamespace() + "/player_abilities/" + name + ".json");
+                Path local = Paths.get("data", key.getNamespace(), AbilityManager.DEFINITION_FOLDER, name + ".json");
+                Path path = outputFolder.resolve(local);
                 try {
                     JsonElement element = ability.serializeDynamic(JsonOps.INSTANCE);
                     IDataProvider.save(GSON, cache, element, path);
@@ -194,29 +203,31 @@ public class DataGenerators {
 
     static class MKBlockTagsProvider extends BlockTagsProvider {
 
-        public MKBlockTagsProvider(DataGenerator generatorIn) {
-            super(generatorIn);
+        public MKBlockTagsProvider(DataGenerator generatorIn, String modId,
+                                   @Nullable ExistingFileHelper existingFileHelper) {
+            super(generatorIn, modId, existingFileHelper);
         }
 
         @Override
         protected void registerTags() {
         }
-
-        private TagsProvider.Builder<Block> tag(ITag.INamedTag<Block> tag) {
-            return this.getOrCreateBuilder(tag);
-        }
     }
 
     public static class ArmorClassItemTagProvider extends ItemTagsProvider {
-        public ArmorClassItemTagProvider(DataGenerator dataGenerator, BlockTagsProvider blockTagProvider, ExistingFileHelper existingFileHelper) {
+        public ArmorClassItemTagProvider(DataGenerator dataGenerator, BlockTagsProvider blockTagProvider,
+                                         ExistingFileHelper existingFileHelper) {
             super(dataGenerator, blockTagProvider, MKCore.MOD_ID, existingFileHelper);
         }
 
         @Override
         protected void registerTags() {
             tag(CoreTags.Items.LIGHT_ARMOR).add(Items.LEATHER_HELMET, Items.LEATHER_CHESTPLATE, Items.LEATHER_LEGGINGS, Items.LEATHER_BOOTS);
-            tag(CoreTags.Items.MEDIUM_ARMOR).add(Items.IRON_HELMET, Items.IRON_CHESTPLATE, Items.IRON_LEGGINGS, Items.IRON_BOOTS);
-            tag(CoreTags.Items.HEAVY_ARMOR).add(Items.DIAMOND_HELMET, Items.DIAMOND_CHESTPLATE, Items.DIAMOND_LEGGINGS, Items.DIAMOND_BOOTS);
+            tag(CoreTags.Items.MEDIUM_ARMOR)
+                    .add(Items.IRON_HELMET, Items.IRON_CHESTPLATE, Items.IRON_LEGGINGS, Items.IRON_BOOTS)
+                    .add(Items.TURTLE_HELMET);
+            tag(CoreTags.Items.HEAVY_ARMOR)
+                    .add(Items.DIAMOND_HELMET, Items.DIAMOND_CHESTPLATE, Items.DIAMOND_LEGGINGS, Items.DIAMOND_BOOTS)
+                    .add(Items.NETHERITE_HELMET, Items.NETHERITE_CHESTPLATE, Items.NETHERITE_LEGGINGS, Items.NETHERITE_BOOTS);
             tag(CoreTags.Items.ARMOR).addTag(CoreTags.Items.LIGHT_ARMOR).addTag(CoreTags.Items.MEDIUM_ARMOR).addTag(CoreTags.Items.HEAVY_ARMOR);
         }
 

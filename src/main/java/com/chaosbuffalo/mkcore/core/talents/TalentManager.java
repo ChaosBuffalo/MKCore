@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class TalentManager extends JsonReloadListener {
+    public static String DEFINITION_FOLDER = "player_talents";
 
     private static final Gson GSON = (new GsonBuilder()).setPrettyPrinting().disableHtmlEscaping().create();
 
@@ -39,7 +40,7 @@ public class TalentManager extends JsonReloadListener {
     private Collection<TalentTreeDefinition> defaultTrees;
 
     public TalentManager() {
-        super(GSON, "player_talents");
+        super(GSON, DEFINITION_FOLDER);
         this.defaultTrees = null;
         MinecraftForge.EVENT_BUS.register(this);
     }
