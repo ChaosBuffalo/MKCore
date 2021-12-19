@@ -109,7 +109,7 @@
   "mkcore.gui.character.persona_name": "Persona: %s",
   "mkcore.gui.character.current_health": "Health: %s / %s",
   "mkcore.gui.character.current_mana": "Mana: %s / %s",
-  "mkcore.gui.character.forget_ability": "Your memory is full, you must forget an ability to learn %s.",
+  "mkcore.gui.character.forget_ability": "Your memory is full, you must forget %d to learn %s.",
   "mkcore.gui.character.already_known": "Already Known",
   "mkcore.gui.character.unmet_req": "Unmet Requirement",
   "mkcore.gui.character.can_learn": "Can Learn",
@@ -188,5 +188,7 @@
   "mkcore.subtitle.level_up": "An aetherial ding echoes in the area",
   "mkcore.talent.pool_count.name": "Ability Memory Slot",
   "mkcore.talent.pool_count.description": "Increases your ability memory pool by 1",
-  "mkcore.talent_type.pool_slot.name": "Memory Pool"
+  "mkcore.talent_type.pool_slot.name": "Memory Pool",
+  "mkcore.ability.description.uses_pool": "Using Memory Slot (%d/%d)",
+  "mkcore.gui.character.forget_confirm": "Forget"
 }

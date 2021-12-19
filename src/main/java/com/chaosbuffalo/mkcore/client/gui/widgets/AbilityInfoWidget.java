@@ -3,6 +3,7 @@ package com.chaosbuffalo.mkcore.client.gui.widgets;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.client.gui.AbilityPanelScreen;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
+import com.chaosbuffalo.mkcore.utils.text.IconTextComponent;
 import com.chaosbuffalo.mkwidgets.client.gui.layouts.MKStackLayoutVertical;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKText;
 import net.minecraft.client.gui.FontRenderer;
@@ -30,10 +31,18 @@ public class AbilityInfoWidget extends MKStackLayoutVertical {
     }
 
     private void addDescriptionLine(ITextComponent component) {
-        MKText text = new MKText(fontRenderer, component);
-        text.setColor(0xaaffffff);
-        text.setMultiline(true);
-        addWidget(text);
+        if (component instanceof IconTextComponent){
+            IconText icon = new IconText(0, 0, 16, component, ((IconTextComponent) component).getIcon(), fontRenderer, 16, 1);
+            icon.getText().setColor(0xaaffffff);
+            addWidget(icon);
+        } else {
+            MKText text = new MKText(fontRenderer, component);
+            text.setColor(0xaaffffff);
+            text.setMultiline(true);
+            addWidget(text);
+        }
+
+
     }
 
     public void setup() {
