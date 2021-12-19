@@ -43,6 +43,18 @@ public class PlayerAbilityKnowledge implements IMKAbilityKnowledge, IPlayerSyncC
         return poolSize.get();
     }
 
+    public int getEmptySlotCount(){
+        return getAbilityPoolSize() - getCurrentPoolCount();
+    }
+
+    public int getSlotDeficitToLearnAnAbility(){
+        int emptySlots = getEmptySlotCount();
+        if (emptySlots <= 0){
+            return 1 - emptySlots;
+        }
+        return 0;
+    }
+
     public void modifyAbilityPoolSize(int delta) {
         poolSize.add(delta);
     }

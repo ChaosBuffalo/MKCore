@@ -30,7 +30,7 @@ public class ForgetAbilityModal extends MKModal {
         addWidget(background);
         this.tryingToLearn = tryingToLearn;
         this.trainerEntityId = trainerEntityId;
-        int count = playerData.getAbilities().getCurrentPoolCount() + 1 - playerData.getAbilities().getAbilityPoolSize();
+        int count = playerData.getAbilities().getSlotDeficitToLearnAnAbility();
         numberToForget = count;
         ITextComponent promptText = new TranslationTextComponent("mkcore.gui.character.forget_ability", count, tryingToLearn.getAbilityName());
         MKText prompt = new MKText(font, promptText, xPos + 6, yPos + 6);
