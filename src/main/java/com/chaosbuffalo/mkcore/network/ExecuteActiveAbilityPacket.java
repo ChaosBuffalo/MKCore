@@ -1,7 +1,7 @@
 package com.chaosbuffalo.mkcore.network;
 
 import com.chaosbuffalo.mkcore.CoreCapabilities;
-import com.chaosbuffalo.mkcore.core.AbilityType;
+import com.chaosbuffalo.mkcore.core.AbilityGroupId;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent;
@@ -10,21 +10,21 @@ import java.util.function.Supplier;
 
 public class ExecuteActiveAbilityPacket {
 
-    private final AbilityType type;
+    private final AbilityGroupId group;
     private final int slot;
 
-    public ExecuteActiveAbilityPacket(AbilityType type, int slot) {
-        this.type = type;
+    public ExecuteActiveAbilityPacket(AbilityGroupId group, int slot) {
+        this.group = group;
         this.slot = slot;
     }
 
     public ExecuteActiveAbilityPacket(PacketBuffer buffer) {
-        type = buffer.readEnumValue(AbilityType.class);
+        group = buffer.readEnumValue(AbilityGroupId.class);
         slot = buffer.readVarInt();
     }
 
     public void toBytes(PacketBuffer buffer) {
-        buffer.writeEnumValue(type);
+        buffer.writeEnumValue(group);
         buffer.writeVarInt(slot);
     }
 
@@ -36,7 +36,7 @@ public class ExecuteActiveAbilityPacket {
                 return;
 
             entity.getCapability(CoreCapabilities.PLAYER_CAPABILITY).ifPresent(cap ->
-                    cap.getAbilityExecutor().executeHotBarAbility(type, slot));
+                    cap.getAbilityExecutor().executeHotBarAbility(group, slot));
         });
         ctx.setPacketHandled(true);
     }

@@ -29,7 +29,7 @@ public class MKCommand {
 
     public static void registerArguments() {
         ArgumentTypes.register("ability_id", AbilityIdArgument.class, new ArgumentSerializer<>(AbilityIdArgument::ability));
-        ArgumentTypes.register("ability_type", HotBarCommand.AbilityTypeArgument.class, new ArgumentSerializer<>(HotBarCommand.AbilityTypeArgument::abilityType));
+        ArgumentTypes.register("ability_group", HotBarCommand.AbilityGroupArgument.class, new ArgumentSerializer<>(HotBarCommand.AbilityGroupArgument::abilityGroup));
         ArgumentTypes.register("talent_id", TalentIdArgument.class, new ArgumentSerializer<>(() -> new TalentIdArgument(TalentType.ATTRIBUTE)));
         ArgumentTypes.register("talent_tree_id", TalentTreeIdArgument.class, new ArgumentSerializer<>(TalentTreeIdArgument::talent));
         ArgumentTypes.register("talent_line_id", TalentLineIdArgument.class, new ArgumentSerializer<>(TalentLineIdArgument::talentLine));

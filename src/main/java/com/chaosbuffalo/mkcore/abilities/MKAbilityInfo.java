@@ -61,4 +61,13 @@ public class MKAbilityInfo implements IMKSerializable<CompoundNBT> {
         }
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "MKAbilityInfo{" +
+                "ability=" + ability +
+                ", known=" + known +
+                ", source=" + source +
+                '}';
+    }
 }

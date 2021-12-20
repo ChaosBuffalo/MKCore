@@ -4,6 +4,7 @@ import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.core.IMKAbilityProvider;
 import com.chaosbuffalo.mkcore.test.abilities.BurningSoul;
+import com.chaosbuffalo.mkcore.test.abilities.EmberAbility;
 import com.chaosbuffalo.mkcore.test.abilities.WhirlwindBlades;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.*;
@@ -21,20 +22,26 @@ public class CoreItems {
 
     @SubscribeEvent
     public static void registerItems(RegistryEvent.Register<Item> event) {
-        event.getRegistry().register(new AbilityArmor(ArmorMaterial.IRON, EquipmentSlotType.CHEST, new Item.Properties())
-                .setRegistryName(MKCore.makeRL("ability_chest")));
+        event.getRegistry().register(
+                new AbilityArmor(ArmorMaterial.IRON, EquipmentSlotType.CHEST, new Item.Properties(), BurningSoul.INSTANCE)
+                        .setRegistryName(MKCore.makeRL("ability_chest")));
         event.getRegistry().register(new AbilitySword().setRegistryName(MKCore.makeRL("ability_sword")));
+        event.getRegistry().register(
+                new AbilityArmor(ArmorMaterial.IRON, EquipmentSlotType.FEET, new Item.Properties(), EmberAbility.INSTANCE)
+                        .setRegistryName(MKCore.makeRL("ability_boots")));
     }
 
     public static class AbilityArmor extends ArmorItem implements IMKAbilityProvider {
+        private final MKAbility ability;
 
-        public AbilityArmor(IArmorMaterial materialIn, EquipmentSlotType slot, Properties builder) {
+        public AbilityArmor(IArmorMaterial materialIn, EquipmentSlotType slot, Properties builder, MKAbility ability) {
             super(materialIn, slot, builder);
+            this.ability = ability;
         }
 
         @Override
         public MKAbility getAbility(ItemStack item) {
-            return BurningSoul.INSTANCE;
+            return ability;
         }
     }
 

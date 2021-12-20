@@ -3,7 +3,7 @@ package com.chaosbuffalo.mkcore.core.talents;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
-import com.chaosbuffalo.mkcore.core.AbilityType;
+import com.chaosbuffalo.mkcore.core.AbilityGroupId;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.player.ActiveAbilityGroup;
 import net.minecraft.util.ResourceLocation;
@@ -11,8 +11,8 @@ import net.minecraft.util.ResourceLocation;
 public class ActiveTalentAbilityGroup extends ActiveAbilityGroup {
     protected TalentType<?> talentType;
 
-    public ActiveTalentAbilityGroup(MKPlayerData playerData, String name, AbilityType type, TalentType<?> talentType) {
-        super(playerData, name, type);
+    public ActiveTalentAbilityGroup(MKPlayerData playerData, String name, AbilityGroupId group, TalentType<?> talentType) {
+        super(playerData, name, group);
         this.talentType = talentType;
     }
 

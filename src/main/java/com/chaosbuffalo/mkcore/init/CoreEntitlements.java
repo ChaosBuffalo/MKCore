@@ -3,7 +3,7 @@ package com.chaosbuffalo.mkcore.init;
 
 import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.MKCore;
-import com.chaosbuffalo.mkcore.core.AbilityType;
+import com.chaosbuffalo.mkcore.core.AbilityGroupId;
 import com.chaosbuffalo.mkcore.core.entitlements.MKEntitlement;
 import com.chaosbuffalo.mkcore.core.player.AbilityPoolEntitlement;
 import com.chaosbuffalo.mkcore.core.player.AbilitySlotEntitlement;
@@ -30,9 +30,9 @@ public class CoreEntitlements {
 
     @SubscribeEvent
     public static void registerEntitlements(RegistryEvent.Register<MKEntitlement> evt) {
-        evt.getRegistry().register(new AbilitySlotEntitlement(MKCore.makeRL("ability_slot.basic"), AbilityType.Basic));
-        evt.getRegistry().register(new AbilitySlotEntitlement(MKCore.makeRL("ability_slot.passive"), AbilityType.Passive));
-        evt.getRegistry().register(new AbilitySlotEntitlement(MKCore.makeRL("ability_slot.ultimate"), AbilityType.Ultimate));
+        evt.getRegistry().register(new AbilitySlotEntitlement(MKCore.makeRL("ability_slot.basic"), AbilityGroupId.Basic));
+        evt.getRegistry().register(new AbilitySlotEntitlement(MKCore.makeRL("ability_slot.passive"), AbilityGroupId.Passive));
+        evt.getRegistry().register(new AbilitySlotEntitlement(MKCore.makeRL("ability_slot.ultimate"), AbilityGroupId.Ultimate));
         evt.getRegistry().register(new AbilityPoolEntitlement(MKCore.makeRL("ability_pool.count"), GameConstants.MAX_ABILITY_POOL_SIZE - GameConstants.DEFAULT_ABILITY_POOL_SIZE));
     }
 }

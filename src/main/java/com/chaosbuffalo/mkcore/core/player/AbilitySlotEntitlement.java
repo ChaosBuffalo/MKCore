@@ -1,6 +1,6 @@
 package com.chaosbuffalo.mkcore.core.player;
 
-import com.chaosbuffalo.mkcore.core.AbilityType;
+import com.chaosbuffalo.mkcore.core.AbilityGroupId;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.entitlements.EntitlementInstance;
 import com.chaosbuffalo.mkcore.core.entitlements.EntitlementTypeHandler;
@@ -9,16 +9,16 @@ import com.chaosbuffalo.mkcore.core.records.IRecordType;
 import net.minecraft.util.ResourceLocation;
 
 public class AbilitySlotEntitlement extends MKEntitlement {
-    private final AbilityType abilityType;
+    private final AbilityGroupId group;
     private final IRecordType<AbilitySlotEntitlementHandler> recordType;
 
-    public AbilitySlotEntitlement(ResourceLocation name, AbilityType abilityType) {
-        this(name, abilityType, abilityType.getMaxSlots());
+    public AbilitySlotEntitlement(ResourceLocation name, AbilityGroupId group) {
+        this(name, group, group.getMaxSlots());
     }
 
-    public AbilitySlotEntitlement(ResourceLocation name, AbilityType abilityType, int maxEntitlements) {
+    public AbilitySlotEntitlement(ResourceLocation name, AbilityGroupId group, int maxEntitlements) {
         super(name, maxEntitlements);
-        this.abilityType = abilityType;
+        this.group = group;
         recordType = playerData -> new AbilitySlotEntitlementHandler(playerData, this);
     }
 
@@ -39,8 +39,8 @@ public class AbilitySlotEntitlement extends MKEntitlement {
         private void recalculateSlots() {
             int count = playerData.getEntitlements().getEntitlementLevel(entitlement);
             playerData.getLoadout()
-                    .getAbilityGroup(entitlement.abilityType)
-                    .setSlots(entitlement.abilityType.getDefaultSlots() + count);
+                    .getAbilityGroup(entitlement.group)
+                    .setSlots(entitlement.group.getDefaultSlots() + count);
         }
 
         @Override
