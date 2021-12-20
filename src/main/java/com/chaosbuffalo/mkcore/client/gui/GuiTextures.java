@@ -42,7 +42,7 @@ public class GuiTextures {
         CORE_TEXTURES.addTextureRegion(XP_BAR_BACKGROUND, 326, 74, 67, 11);
         CORE_TEXTURES.addTextureRegion(XP_BAR_BLUE, 330, 89, 59, 11);
         CORE_TEXTURES.addTextureRegion(XP_BAR_YELLOW, 330, 105, 59, 11);
-        CORE_TEXTURES.addTextureRegion(DATA_BOX_SHORT, 0, 404, 308, 132);
+        CORE_TEXTURES.addTextureRegion(DATA_BOX_SHORT, 0, 404, 308, 133);
 
 
     }

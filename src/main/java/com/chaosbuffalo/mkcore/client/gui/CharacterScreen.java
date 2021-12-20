@@ -13,15 +13,18 @@ import com.chaosbuffalo.mkcore.core.talents.TalentTreeRecord;
 import com.chaosbuffalo.mkwidgets.client.gui.constraints.LayoutRelativeWidthConstraint;
 import com.chaosbuffalo.mkwidgets.client.gui.constraints.MarginConstraint;
 import com.chaosbuffalo.mkwidgets.client.gui.constraints.OffsetConstraint;
+import com.chaosbuffalo.mkwidgets.client.gui.instructions.HoveringTextInstruction;
 import com.chaosbuffalo.mkwidgets.client.gui.layouts.MKLayout;
 import com.chaosbuffalo.mkwidgets.client.gui.layouts.MKStackLayoutHorizontal;
 import com.chaosbuffalo.mkwidgets.client.gui.layouts.MKStackLayoutVertical;
+import com.chaosbuffalo.mkwidgets.client.gui.math.Vec2i;
 import com.chaosbuffalo.mkwidgets.client.gui.screens.IMKScreen;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKButton;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKRectangle;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKText;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKWidget;
 import com.chaosbuffalo.mkwidgets.utils.TextureRegion;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.resources.I18n;
@@ -131,14 +134,13 @@ public class CharacterScreen extends AbilityPanelScreen {
                 GuiTextures.DATA_BOX, GuiTextures.BACKGROUND_320_240);
         int yStart = yPos + DATA_BOX_OFFSET + 136;
         MKStackLayoutHorizontal layout = new MKStackLayoutHorizontal(xPos + xOffset, yStart, 20);
-        layout.setPaddingLeft(30);
-        layout.setPaddingRight(30);
-        String learnButtonText = I18n.format("mkcore.gui.character.learn");
-        int marginLeft = font.getStringWidth(learnButtonText) + 10 + 60 + 10;
+        layout.setPaddingLeft(16);
+        layout.setPaddingRight(16);
+        int marginLeft = 116;
         layout.setMarginLeft(marginLeft);
         TranslationTextComponent manageText = new TranslationTextComponent("mkcore.gui.manage_memory");
         MKButton manage = new MKButton(0, 0, manageText);
-        manage.setWidth(font.getStringPropertyWidth(manageText) + 10);
+        manage.setWidth(60);
 
         manage.setPressedCallback((but, click) -> {
             ForgetAbilityModal modal = getChoosePoolSlotWidget(playerData, null, -1);
@@ -147,10 +149,15 @@ public class CharacterScreen extends AbilityPanelScreen {
         });
         TranslationTextComponent poolUsageText = new TranslationTextComponent("mkcore.gui.memory_pool",
                 playerData.getAbilities().getCurrentPoolCount(), playerData.getAbilities().getAbilityPoolSize());
-        MKText poolText = new MKText(font, poolUsageText);
-        poolText.setWidth(font.getStringPropertyWidth(poolUsageText));
+        IconText poolText = new IconText(0, 0, 16, poolUsageText, MKAbility.POOL_SLOT_ICON, font, 16, 2);
+        poolText.setTooltip(I18n.format("mkcore.gui.memory_pool_tooltip"));
+        poolText.manualRecompute();
+        int margins = 100 - poolText.getWidth();
+        poolText.setMarginLeft(margins/2);
+        poolText.setMarginRight(margins/2);
+        poolText.getText().setColor(0xff000000);
         layout.addWidget(poolText);
-        layout.addConstraintToWidget(new OffsetConstraint(0, (20 - font.FONT_HEIGHT) / 2 + 1, false, true), poolText);
+        layout.addConstraintToWidget(new OffsetConstraint(0, 2, false, true), poolText);
         layout.addWidget(manage);
         return layout;
 
