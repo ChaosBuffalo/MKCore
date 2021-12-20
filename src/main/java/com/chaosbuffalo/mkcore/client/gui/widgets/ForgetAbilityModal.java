@@ -4,6 +4,7 @@ import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.client.gui.GuiTextures;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
+import com.chaosbuffalo.mkcore.network.ForgetAbilitiesRequestPacket;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.PlayerLearnAbilityRequestPacket;
 import com.chaosbuffalo.mkwidgets.client.gui.layouts.MKStackLayoutVertical;
@@ -18,21 +19,33 @@ import java.util.stream.Collectors;
 
 public class ForgetAbilityModal extends MKModal {
 
-    private final List<MKAbility> forgeting = new ArrayList<>();
+    private final List<MKAbility> forgetting = new ArrayList<>();
     private final int numberToForget;
     private final MKButton forgetButton;
     private final MKAbility tryingToLearn;
     private final int trainerEntityId;
+    private final boolean isLearning;
 
     public ForgetAbilityModal(MKAbility tryingToLearn, MKPlayerData playerData, int xPos, int yPos, int width, int height, FontRenderer font, int trainerEntityId){
         MKImage background = GuiTextures.CORE_TEXTURES.getImageForRegion(
                 GuiTextures.BACKGROUND_180_200, xPos, yPos, width, height);
         addWidget(background);
+        if (tryingToLearn != null && trainerEntityId != -1){
+            isLearning = true;
+        } else {
+            isLearning = false;
+        }
         this.tryingToLearn = tryingToLearn;
         this.trainerEntityId = trainerEntityId;
         int count = playerData.getAbilities().getSlotDeficitToLearnAnAbility();
         numberToForget = count;
-        ITextComponent promptText = new TranslationTextComponent("mkcore.gui.character.forget_ability", count, tryingToLearn.getAbilityName());
+
+        ITextComponent promptText;
+        if (isLearning){
+            promptText= new TranslationTextComponent("mkcore.gui.character.forget_ability", count, tryingToLearn.getAbilityName());
+        } else {
+            promptText = new TranslationTextComponent("mkcore.gui.character.forget");
+        }
         MKText prompt = new MKText(font, promptText, xPos + 6, yPos + 6);
         prompt.setWidth(width - 10);
         prompt.setMultiline(true);
@@ -60,7 +73,7 @@ public class ForgetAbilityModal extends MKModal {
             }
             MKAbility ability = MKCoreRegistry.getAbility(abilityId);
             if (ability != null) {
-                AbilityForgetOption abilityIcon = new AbilityForgetOption(ability, tryingToLearn.getAbilityId(), this, font, trainerEntityId);
+                AbilityForgetOption abilityIcon = new AbilityForgetOption(ability,this, font);
                 abilities.addWidget(abilityIcon);
             }
         });
@@ -71,9 +84,14 @@ public class ForgetAbilityModal extends MKModal {
     }
 
     private boolean forgetCallback(MKButton button, int click){
-        PacketHandler.sendMessageToServer(new PlayerLearnAbilityRequestPacket(
-                forgeting.stream().map(MKAbility::getAbilityId).collect(Collectors.toList()),
-                tryingToLearn.getAbilityId(), trainerEntityId));
+        if (isLearning){
+            PacketHandler.sendMessageToServer(new PlayerLearnAbilityRequestPacket(
+                    forgetting.stream().map(MKAbility::getAbilityId).collect(Collectors.toList()),
+                    tryingToLearn.getAbilityId(), trainerEntityId));
+        } else {
+            PacketHandler.sendMessageToServer(new ForgetAbilitiesRequestPacket(forgetting.stream().map(MKAbility::getAbilityId).collect(Collectors.toList())));
+        }
+
         if (getScreen() != null) {
             getScreen().closeModal(this);
         }
@@ -85,21 +103,21 @@ public class ForgetAbilityModal extends MKModal {
     }
 
     public void forget(MKAbility ability){
-        forgeting.add(ability);
+        forgetting.add(ability);
         checkStatus();
     }
 
     public void cancelForget(MKAbility ability){
-        forgeting.remove(ability);
+        forgetting.remove(ability);
         checkStatus();
     }
 
     public boolean isForgetting(MKAbility ability){
-        return forgeting.contains(ability);
+        return forgetting.contains(ability);
     }
 
     public boolean ready(){
-        return forgeting.size() == numberToForget;
+        return isLearning ? forgetting.size() == numberToForget : forgetting.size() > 0;
     }
 
 }

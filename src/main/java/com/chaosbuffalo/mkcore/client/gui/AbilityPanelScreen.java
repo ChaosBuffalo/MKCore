@@ -5,6 +5,7 @@ import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.client.gui.widgets.AbilityInfoWidget;
 import com.chaosbuffalo.mkcore.client.gui.widgets.AbilityListEntry;
+import com.chaosbuffalo.mkcore.client.gui.widgets.ForgetAbilityModal;
 import com.chaosbuffalo.mkcore.client.gui.widgets.ScrollingListPanelLayout;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkwidgets.client.gui.layouts.MKLayout;
@@ -22,9 +23,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.ITextComponent;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 
@@ -37,6 +36,8 @@ public abstract class AbilityPanelScreen extends MKScreen implements IPlayerData
     protected final int PANEL_WIDTH = 320;
     protected final int PANEL_HEIGHT = 240;
     protected final int DATA_BOX_OFFSET = 78;
+    protected final int POPUP_WIDTH = 180;
+    protected final int POPUP_HEIGHT = 200;
     protected ScrollingListPanelLayout currentScrollingPanel;
     protected boolean wasResized;
     protected boolean isDraggingAbility;
@@ -45,12 +46,14 @@ public abstract class AbilityPanelScreen extends MKScreen implements IPlayerData
     protected ScrollingListPanelLayout abilitiesScrollPanel;
     private MKAbility ability;
     private boolean doAbilityDrag;
+    protected final Set<String> shortDataBoxScreens;
 
     public AbilityPanelScreen(ITextComponent title) {
         super(title);
         wasResized = false;
         isDraggingAbility = false;
         dragging = null;
+        this.shortDataBoxScreens = new HashSet<>();
         setDoAbilityDrag(false);
     }
 
@@ -71,6 +74,16 @@ public abstract class AbilityPanelScreen extends MKScreen implements IPlayerData
             root.addWidget(statebuttons);
         }
         return root;
+    }
+
+    protected ForgetAbilityModal getChoosePoolSlotWidget(MKPlayerData playerData, MKAbility tryingToLearn, int trainingId) {
+        int screenWidth = getWidth();
+        int screenHeight = getHeight();
+        int xPos = (screenWidth - POPUP_WIDTH) / 2;
+        int yPos = (screenHeight - POPUP_HEIGHT) / 2;
+        ForgetAbilityModal popup = new ForgetAbilityModal(tryingToLearn, playerData, xPos, yPos, POPUP_WIDTH, POPUP_HEIGHT,
+                font, trainingId);
+        return popup;
     }
 
     @Override
@@ -184,9 +197,10 @@ public abstract class AbilityPanelScreen extends MKScreen implements IPlayerData
         RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
         GuiTextures.CORE_TEXTURES.bind(getMinecraft());
         RenderSystem.disableLighting();
+        String dataBoxTex = shortDataBoxScreens.contains(getState()) ? GuiTextures.DATA_BOX_SHORT : GuiTextures.DATA_BOX;
         GuiTextures.CORE_TEXTURES.drawRegionAtPos(matrixStack, GuiTextures.BACKGROUND_320_240, xPos, yPos);
-        int xOffset = GuiTextures.CORE_TEXTURES.getCenterXOffset(GuiTextures.DATA_BOX, GuiTextures.BACKGROUND_320_240);
-        GuiTextures.CORE_TEXTURES.drawRegionAtPos(matrixStack, GuiTextures.DATA_BOX, xPos + xOffset, yPos + DATA_BOX_OFFSET);
+        int xOffset = GuiTextures.CORE_TEXTURES.getCenterXOffset(dataBoxTex, GuiTextures.BACKGROUND_320_240);
+        GuiTextures.CORE_TEXTURES.drawRegionAtPos(matrixStack, dataBoxTex, xPos + xOffset, yPos + DATA_BOX_OFFSET);
         super.render(matrixStack, mouseX, mouseY, partialTicks);
         RenderSystem.enableLighting();
     }

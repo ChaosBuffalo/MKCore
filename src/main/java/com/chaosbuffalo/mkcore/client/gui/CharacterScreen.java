@@ -16,6 +16,8 @@ import com.chaosbuffalo.mkwidgets.client.gui.constraints.OffsetConstraint;
 import com.chaosbuffalo.mkwidgets.client.gui.layouts.MKLayout;
 import com.chaosbuffalo.mkwidgets.client.gui.layouts.MKStackLayoutHorizontal;
 import com.chaosbuffalo.mkwidgets.client.gui.layouts.MKStackLayoutVertical;
+import com.chaosbuffalo.mkwidgets.client.gui.screens.IMKScreen;
+import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKButton;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKRectangle;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKText;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKWidget;
@@ -118,7 +120,40 @@ public class CharacterScreen extends AbilityPanelScreen {
         super(new TranslationTextComponent("mk_character_screen.title"));
         abilitySlots = new HashMap<>();
         states.addAll(Arrays.asList("stats", "abilities", "talents", "damages"));
+        shortDataBoxScreens.add("abilities");
         setDoAbilityDrag(true);
+    }
+
+    private MKLayout createPoolManagementFooter(MKPlayerData playerData){
+        int xPos = width / 2 - PANEL_WIDTH / 2;
+        int yPos = height / 2 - PANEL_HEIGHT / 2;
+        int xOffset = GuiTextures.CORE_TEXTURES.getCenterXOffset(
+                GuiTextures.DATA_BOX, GuiTextures.BACKGROUND_320_240);
+        int yStart = yPos + DATA_BOX_OFFSET + 136;
+        MKStackLayoutHorizontal layout = new MKStackLayoutHorizontal(xPos + xOffset, yStart, 20);
+        layout.setPaddingLeft(30);
+        layout.setPaddingRight(30);
+        String learnButtonText = I18n.format("mkcore.gui.character.learn");
+        int marginLeft = font.getStringWidth(learnButtonText) + 10 + 60 + 10;
+        layout.setMarginLeft(marginLeft);
+        TranslationTextComponent manageText = new TranslationTextComponent("mkcore.gui.manage_memory");
+        MKButton manage = new MKButton(0, 0, manageText);
+        manage.setWidth(font.getStringPropertyWidth(manageText) + 10);
+
+        manage.setPressedCallback((but, click) -> {
+            ForgetAbilityModal modal = getChoosePoolSlotWidget(playerData, null, -1);
+            addModal(modal);
+            return true;
+        });
+        TranslationTextComponent poolUsageText = new TranslationTextComponent("mkcore.gui.memory_pool",
+                playerData.getAbilities().getCurrentPoolCount(), playerData.getAbilities().getAbilityPoolSize());
+        MKText poolText = new MKText(font, poolUsageText);
+        poolText.setWidth(font.getStringPropertyWidth(poolUsageText));
+        layout.addWidget(poolText);
+        layout.addConstraintToWidget(new OffsetConstraint(0, (20 - font.FONT_HEIGHT) / 2 + 1, false, true), poolText);
+        layout.addWidget(manage);
+        return layout;
+
     }
 
     private MKWidget createStatList(MKPlayerData pData, int panelWidth, List<Attribute> toDisplay) {
@@ -210,7 +245,7 @@ public class CharacterScreen extends AbilityPanelScreen {
     private MKWidget createAbilitiesPage() {
         int xPos = width / 2 - PANEL_WIDTH / 2;
         int yPos = height / 2 - PANEL_HEIGHT / 2;
-        TextureRegion dataBoxRegion = GuiTextures.CORE_TEXTURES.getRegion(GuiTextures.DATA_BOX);
+        TextureRegion dataBoxRegion = GuiTextures.CORE_TEXTURES.getRegion(GuiTextures.DATA_BOX_SHORT);
         if (minecraft == null || minecraft.player == null || dataBoxRegion == null) {
             return new MKLayout(xPos, yPos, PANEL_WIDTH, PANEL_HEIGHT);
         }
@@ -256,6 +291,9 @@ public class CharacterScreen extends AbilityPanelScreen {
             currentScrollingPanel = panel;
             abilitiesScrollPanel = panel;
             root.addWidget(panel);
+            MKLayout footer = createPoolManagementFooter(pData);
+            root.addWidget(footer);
+
         });
         return root;
     }

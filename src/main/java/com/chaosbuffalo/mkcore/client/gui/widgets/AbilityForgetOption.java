@@ -12,19 +12,14 @@ import net.minecraft.util.ResourceLocation;
 
 public class AbilityForgetOption extends MKLayout {
 
-    private final ResourceLocation loc;
     private final ForgetAbilityModal popup;
     private final MKAbility ability;
-    private final int trainerEntityId;
 
-    public AbilityForgetOption(MKAbility ability,
-                               ResourceLocation loc, ForgetAbilityModal popup,
-                               FontRenderer font, int trainerEntity) {
+    public AbilityForgetOption(MKAbility ability, ForgetAbilityModal popup,
+                               FontRenderer font) {
         super(0, 0, 200, 16);
-        this.loc = loc;
         this.popup = popup;
         this.ability = ability;
-        this.trainerEntityId = trainerEntity;
         IconText iconText = new IconText(0, 0, 16, ability.getAbilityName(), ability.getAbilityIcon(), font, 16, 1);
         this.addWidget(iconText);
         addConstraintToWidget(MarginConstraint.TOP, iconText);
