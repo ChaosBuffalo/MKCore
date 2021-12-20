@@ -1,6 +1,9 @@
 package com.chaosbuffalo.mkcore.core.player;
 
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
+import com.chaosbuffalo.mkcore.abilities.AbilitySource;
+import com.chaosbuffalo.mkcore.abilities.MKAbility;
+import com.chaosbuffalo.mkcore.abilities.MKAbilityInfo;
 import com.chaosbuffalo.mkcore.core.AbilityType;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.talents.ActiveTalentAbilityGroup;
@@ -100,6 +103,36 @@ public class PlayerAbilityLoadout implements IPlayerSyncComponentProvider {
         public int getCurrentSlotCount() {
             // Only report nonzero if the slot is filled
             return !getSlot(0).equals(MKCoreRegistry.INVALID_ABILITY) ? 1 : 0;
+        }
+
+        @Override
+        protected boolean canSlotAbility(int slot, ResourceLocation abilityId) {
+            MKAbility ability = MKCoreRegistry.getAbility(abilityId);
+            if (ability == null)
+                return false;
+
+            return ability.getType() == AbilityType.Basic || ability.getType() == AbilityType.Ultimate;
+        }
+
+        @Override
+        public void executeSlot(int index) {
+            ResourceLocation abilityId = getSlot(index);
+            if (abilityId.equals(MKCoreRegistry.INVALID_ABILITY))
+                return;
+
+            // If the ability is already known by another method, lookup that info
+            MKAbilityInfo info = playerData.getAbilities().getKnownAbility(abilityId);
+            if (info == null) {
+                // If not, create a temporary info struct
+                MKAbility ability = MKCoreRegistry.getAbility(abilityId);
+                if (ability != null) {
+                    info = ability.createAbilityInfo(AbilitySource.ITEM);
+                }
+            }
+
+            if (info != null) {
+                playerData.getAbilityExecutor().executeAbilityInfoWithContext(info, null);
+            }
         }
     }
 

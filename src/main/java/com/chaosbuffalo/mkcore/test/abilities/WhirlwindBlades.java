@@ -50,7 +50,7 @@ public class WhirlwindBlades extends MKAbility {
 
     @Override
     public AbilityType getType() {
-        return AbilityType.Item;
+        return AbilityType.Ultimate;
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.chaosbuffalo.mkcore.core.talents.handlers;
 
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.abilities.AbilityContext;
+import com.chaosbuffalo.mkcore.abilities.MKAbilityInfo;
 import com.chaosbuffalo.mkcore.abilities.PassiveTalentAbility;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.talents.TalentManager;
@@ -56,7 +57,8 @@ public class PassiveTalentHandler extends AbilityTalentHandler {
     }
 
     private void activatePassive(PassiveTalentAbility talentAbility) {
-        talentAbility.executeWithContext(playerData, AbilityContext.selfTarget(playerData));
+        MKAbilityInfo info = playerData.getAbilities().getKnownAbility(talentAbility.getAbilityId());
+        talentAbility.executeWithContext(playerData, AbilityContext.selfTarget(playerData), info);
     }
 
     private void deactivatePassive(PassiveTalentAbility talent) {

@@ -39,7 +39,7 @@ public abstract class PassiveTalentAbility extends MKAbility {
     }
 
     @Override
-    public void executeWithContext(IMKEntityData entityData, AbilityContext context) {
+    public void executeWithContext(IMKEntityData entityData, AbilityContext context, MKAbilityInfo abilityInfo) {
         LivingEntity entity = entityData.getEntity();
         if (entity instanceof PlayerEntity) {
             if (entity.getActivePotionEffect(getPassiveEffect()) == null) {

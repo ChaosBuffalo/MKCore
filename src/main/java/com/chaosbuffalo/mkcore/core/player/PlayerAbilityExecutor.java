@@ -21,15 +21,14 @@ public class PlayerAbilityExecutor extends AbilityExecutor {
     }
 
     public void executeHotBarAbility(AbilityType type, int slot) {
-        ResourceLocation abilityId = getPlayerData().getLoadout().getAbilityInSlot(type, slot);
-        if (abilityId.equals(MKCoreRegistry.INVALID_ABILITY))
-            return;
-
-        executeAbility(abilityId);
+        getPlayerData().getLoadout().getAbilityGroup(type).executeSlot(slot);
     }
 
     public boolean clientSimulateAbility(MKAbility ability) {
-        MKAbilityInfo info = entityData.getKnowledge().getAbilityKnowledge().getKnownAbility(ability.getAbilityId());
+        MKAbilityInfo info = getPlayerData().getAbilities().getKnownAbility(ability.getAbilityId());
+        if (info == null) { // FIXME
+            info = ability.createAbilityInfo(AbilitySource.ITEM);
+        }
         if (info == null)
             return false;
 

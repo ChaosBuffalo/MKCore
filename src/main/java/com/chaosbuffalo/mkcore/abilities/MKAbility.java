@@ -329,8 +329,8 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
         return CoreSounds.spell_cast_default;
     }
 
-    public void executeWithContext(IMKEntityData entityData, AbilityContext context) {
-        entityData.getAbilityExecutor().startAbility(context, this);
+    public void executeWithContext(IMKEntityData entityData, AbilityContext context, MKAbilityInfo abilityInfo) {
+        entityData.getAbilityExecutor().startAbility(context, abilityInfo);
     }
 
     public ITextComponent getTargetContextLocalization() {

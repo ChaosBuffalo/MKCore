@@ -59,6 +59,8 @@ public interface IActiveAbilityGroup {
 
     void clearAbility(ResourceLocation abilityId);
 
+    void executeSlot(int index);
+
     default void onAbilityLearned(MKAbilityInfo info) {
         if (info.getSource().placeOnBarWhenLearned()) {
             tryEquip(info.getId());
@@ -130,6 +132,11 @@ public interface IActiveAbilityGroup {
 
         @Override
         public void clearAbility(ResourceLocation abilityId) {
+
+        }
+
+        @Override
+        public void executeSlot(int index) {
 
         }
 

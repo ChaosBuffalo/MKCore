@@ -6,7 +6,6 @@ import com.chaosbuffalo.mkcore.CoreCapabilities;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
-import com.chaosbuffalo.mkcore.abilities.MKAbilityInfo;
 import com.chaosbuffalo.mkcore.core.AbilityType;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.player.IActiveAbilityGroup;
@@ -62,11 +61,12 @@ public class MKOverlay {
         if (!executor.isCasting()) {
             return;
         }
-        MKAbilityInfo info = data.getAbilities().getKnownAbility(executor.getCastingAbility());
-        if (info == null) {
+
+        MKAbility ability = MKCoreRegistry.getAbility(executor.getCastingAbility());
+        if (ability == null) {
             return;
         }
-        MKAbility ability = info.getAbility();
+
         int castTime = data.getStats().getAbilityCastTime(ability);
         if (castTime == 0) {
             return;
@@ -124,7 +124,6 @@ public class MKOverlay {
 
         int barStartY = getBarStartY(totalSlots);
 
-        PlayerAbilityKnowledge abilityKnowledge = data.getAbilities();
         IActiveAbilityGroup container = data.getLoadout().getAbilityGroup(type);
         int slotCount = container.getCurrentSlotCount();
         drawBarSlots(matrixStack, type, startingSlot, slotCount, totalSlots);
@@ -137,11 +136,9 @@ public class MKOverlay {
             if (abilityId.equals(MKCoreRegistry.INVALID_ABILITY))
                 continue;
 
-            MKAbilityInfo info = abilityKnowledge.getKnownAbility(abilityId);
-            if (info == null)
+            MKAbility ability = MKCoreRegistry.getAbility(abilityId);
+            if (ability == null)
                 continue;
-
-            MKAbility ability = info.getAbility();
 
             float manaCost = data.getStats().getAbilityManaCost(ability);
             if (!executor.isCasting() && data.getStats().getMana() >= manaCost) {

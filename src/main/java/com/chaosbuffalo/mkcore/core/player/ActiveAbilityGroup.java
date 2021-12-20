@@ -133,7 +133,8 @@ public class ActiveAbilityGroup implements IActiveAbilityGroup, IPlayerSyncCompo
             return;
         }
 
-        if (!playerData.getAbilities().knowsAbility(abilityId)) {
+        // FIXME
+        if (abilityType != AbilityType.Item && !playerData.getAbilities().knowsAbility(abilityId)) {
             MKCore.LOGGER.error("setAbilityInSlot({}, {}, {}) - player does not know ability!", abilityType, index, abilityId);
             return;
         }
@@ -160,6 +161,14 @@ public class ActiveAbilityGroup implements IActiveAbilityGroup, IPlayerSyncCompo
         if (slot != GameConstants.ACTION_BAR_INVALID_SLOT) {
             clearSlot(slot);
         }
+    }
+
+    @Override
+    public void executeSlot(int index) {
+        ResourceLocation abilityId = getSlot(index);
+        if (abilityId.equals(MKCoreRegistry.INVALID_ABILITY))
+            return;
+        playerData.getAbilityExecutor().executeAbility(abilityId);
     }
 
     @Override

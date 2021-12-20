@@ -64,14 +64,15 @@ public class PlayerEquipmentModule {
         if (to.getItem() instanceof IMKAbilityProvider) {
             currentMainAbility = ((IMKAbilityProvider) to.getItem()).getAbility(to);
             if (currentMainAbility != null) {
-                if (currentMainAbility.getType() == AbilityType.Item) {
-                    if (!playerData.getAbilities().knowsAbility(currentMainAbility.getAbilityId())) {
-                        playerData.getAbilities().learnAbility(currentMainAbility, AbilitySource.ITEM);
-                    }
-                    playerData.getLoadout().getAbilityGroup(AbilityType.Item).setSlot(0, currentMainAbility.getAbilityId());
-                } else {
-                    MKCore.LOGGER.error("Cannot use ability {} provided by Item {} because it uses the wrong AbilitySlot", currentMainAbility, to);
-                }
+                playerData.getLoadout().getAbilityGroup(AbilityType.Item).setSlot(0, currentMainAbility.getAbilityId());
+//                if (currentMainAbility.getType() == AbilityType.Item) {
+////                    if (!playerData.getAbilities().knowsAbility(currentMainAbility.getAbilityId())) {
+////                        playerData.getAbilities().learnAbility(currentMainAbility, AbilitySource.ITEM);
+////                    }
+//
+//                } else {
+//                    MKCore.LOGGER.error("Cannot use ability {} provided by Item {} because it uses the wrong AbilitySlot", currentMainAbility, to);
+//                }
             }
         }
     }
