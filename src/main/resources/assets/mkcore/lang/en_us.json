@@ -193,5 +193,6 @@
   "mkcore.gui.character.forget_confirm": "Forget",
   "mkcore.gui.character.forget": "Do you want to forget any known abilities?",
   "mkcore.gui.manage_memory": "Manage",
-  "mkcore.gui.memory_pool": "Memory Pool: %d/%d"
+  "mkcore.gui.memory_pool": "%d/%d",
+  "mkcore.gui.memory_pool_tooltip": "Memory Pool Slot Usage"
 }

@@ -4,6 +4,7 @@ import com.chaosbuffalo.mkcore.CoreCapabilities;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.abilities.training.AbilityTrainingEvaluation;
 import com.chaosbuffalo.mkcore.client.gui.widgets.ForgetAbilityModal;
+import com.chaosbuffalo.mkcore.client.gui.widgets.IconText;
 import com.chaosbuffalo.mkcore.client.gui.widgets.LearnAbilityTray;
 import com.chaosbuffalo.mkcore.client.gui.widgets.ScrollingListPanelLayout;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
@@ -57,12 +58,12 @@ public class LearnAbilitiesScreen extends AbilityPanelScreen {
                 GuiTextures.DATA_BOX, GuiTextures.BACKGROUND_320_240);
         int yStart = yPos + DATA_BOX_OFFSET + 136;
         MKStackLayoutHorizontal layout = new MKStackLayoutHorizontal(xPos + xOffset, yStart, 20);
-        layout.setMarginLeft(10);
-        layout.setPaddingLeft(30);
-        layout.setPaddingRight(30);
+        layout.setPaddingLeft(16);
+        layout.setPaddingRight(16);
+        layout.setMarginLeft(24);
         TranslationTextComponent manageText = new TranslationTextComponent("mkcore.gui.manage_memory");
         MKButton manage = new MKButton(0, 0, manageText);
-        manage.setWidth(font.getStringPropertyWidth(manageText) + 10);
+        manage.setWidth(60);
 
         manage.setPressedCallback((but, click) -> {
             ForgetAbilityModal modal = getChoosePoolSlotWidget(playerData, abilityTray.getAbility(), abilityTray.getTrainerEntityId());
@@ -91,7 +92,7 @@ public class LearnAbilitiesScreen extends AbilityPanelScreen {
                 }
             }
         };
-        learnButton.setWidth(font.getStringWidth(learnButtonText) + 10);
+        learnButton.setWidth(60);
         learnButton.setEnabled(canLearnCurrentAbility(playerData));
         learnButton.setPressedCallback((button, buttonType) -> {
             if (abilityTray.getEvaluation().usesAbilityPool() && playerData.getAbilities().isAbilityPoolFull()) {
@@ -106,10 +107,15 @@ public class LearnAbilitiesScreen extends AbilityPanelScreen {
 
         TranslationTextComponent poolUsageText = new TranslationTextComponent("mkcore.gui.memory_pool",
                 playerData.getAbilities().getCurrentPoolCount(), playerData.getAbilities().getAbilityPoolSize());
-        MKText poolText = new MKText(font, poolUsageText);
-        poolText.setWidth(font.getStringPropertyWidth(poolUsageText));
+        IconText poolText = new IconText(0, 0, 16, poolUsageText, MKAbility.POOL_SLOT_ICON, font, 16, 2);
+        poolText.setTooltip(I18n.format("mkcore.gui.memory_pool_tooltip"));
+        poolText.manualRecompute();
+        int margins = 100 - poolText.getWidth();
+        poolText.setMarginLeft(margins/2);
+        poolText.setMarginRight(margins/2);
+        poolText.getText().setColor(0xff000000);
         layout.addWidget(poolText);
-        layout.addConstraintToWidget(new OffsetConstraint(0, (20 - font.FONT_HEIGHT) / 2 + 1, false, true), poolText);
+        layout.addConstraintToWidget(new OffsetConstraint(0, 2, false, true), poolText);
         layout.addWidget(manage);
         this.footer = layout;
         return layout;
