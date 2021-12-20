@@ -6,7 +6,7 @@ import com.chaosbuffalo.mkwidgets.utils.ManualAtlas;
 public class GuiTextures {
 
     public static final ManualAtlas CORE_TEXTURES = new ManualAtlas(MKCore.makeRL("textures/gui/mkcore_ui.png"),
-            512, 512);
+            1024, 1024);
     public static final String MANA_REGION = "mana";
     public static final String CAST_BAR_REGION = "cast_bar";
     public static final String ABILITY_BAR_REG = "ability_bar_regular";
@@ -19,6 +19,7 @@ public class GuiTextures {
     public static final String ABILITY_SLOT_PASSIVE = "ability_slot_passive";
     public static final String BACKGROUND_320_240 = "background_320_240";
     public static final String DATA_BOX = "data_box";
+    public static final String DATA_BOX_SHORT = "data_box_short";
     public static final String BACKGROUND_180_200 = "background_180_200";
     public static final String XP_BAR_BACKGROUND = "xp_background";
     public static final String XP_BAR_BLUE = "xp_bar_blue";
@@ -41,6 +42,7 @@ public class GuiTextures {
         CORE_TEXTURES.addTextureRegion(XP_BAR_BACKGROUND, 326, 74, 67, 11);
         CORE_TEXTURES.addTextureRegion(XP_BAR_BLUE, 330, 89, 59, 11);
         CORE_TEXTURES.addTextureRegion(XP_BAR_YELLOW, 330, 105, 59, 11);
+        CORE_TEXTURES.addTextureRegion(DATA_BOX_SHORT, 0, 404, 308, 132);
 
 
     }

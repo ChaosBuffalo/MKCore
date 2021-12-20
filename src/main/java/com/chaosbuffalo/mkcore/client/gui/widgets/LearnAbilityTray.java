@@ -27,10 +27,7 @@ public class LearnAbilityTray extends MKStackLayoutVertical {
     private AbilityTrainingEvaluation evaluation;
     private final MKPlayerData playerData;
     private final FontRenderer font;
-    protected final int POPUP_WIDTH = 180;
-    protected final int POPUP_HEIGHT = 201;
     private final int trainerEntityId;
-    private MKModal choosePoolSlotWidget;
 
     public LearnAbilityTray(int x, int y, int width, MKPlayerData playerData, FontRenderer font, int trainerEntityId) {
         super(x, y, width);
@@ -45,19 +42,12 @@ public class LearnAbilityTray extends MKStackLayoutVertical {
         setup();
     }
 
-    private ForgetAbilityModal getChoosePoolSlotWidget() {
-        if (getScreen() == null) {
-            return null;
-        }
-        IMKScreen screen = getScreen();
+    public AbilityTrainingEvaluation getEvaluation() {
+        return evaluation;
+    }
 
-        int screenWidth = screen.getWidth();
-        int screenHeight = screen.getHeight();
-        int xPos = (screenWidth - POPUP_WIDTH) / 2;
-        int yPos = (screenHeight - POPUP_HEIGHT) / 2;
-        ForgetAbilityModal popup = new ForgetAbilityModal(getAbility(), playerData, xPos, yPos, POPUP_WIDTH, POPUP_HEIGHT,
-                font, trainerEntityId);
-        return popup;
+    public int getTrainerEntityId() {
+        return trainerEntityId;
     }
 
     public void setup() {
@@ -105,42 +95,6 @@ public class LearnAbilityTray extends MKStackLayoutVertical {
             manualRecompute();
             reqScrollView.setToTop();
             reqScrollView.setToRight();
-            if (!isKnown) {
-                String learnButtonText = I18n.format("mkcore.gui.character.learn");
-                MKButton learnButton = new MKButton(0, 0, learnButtonText) {
-
-                    @Override
-                    public boolean checkHovered(int mouseX, int mouseY) {
-                        return this.isVisible() && this.isInBounds(mouseX, mouseY);
-                    }
-
-                    @Override
-                    public void onMouseHover(Minecraft mc, int mouseX, int mouseY, float partialTicks) {
-                        super.onMouseHover(mc, mouseX, mouseY, partialTicks);
-                        if (evaluation.getRequirements().size() > 0) {
-                            if (getScreen() != null) {
-                                getScreen().addPostRenderInstruction(new HoveringTextInstruction(
-                                        I18n.format("mkcore.gui.character.unmet_req_tooltip"),
-                                        getParentCoords(new Vec2i(mouseX, mouseY))));
-                            }
-                        }
-                    }
-                };
-                learnButton.setWidth(font.getStringWidth(learnButtonText) + 10);
-                learnButton.setEnabled(canLearn);
-                learnButton.setPressedCallback((button, buttonType) -> {
-                    if (evaluation.usesAbilityPool() && playerData.getAbilities().isAbilityPoolFull()) {
-                        if (getScreen() != null) {
-                            getScreen().addModal(getChoosePoolSlotWidget());
-                        }
-                    } else {
-                        PacketHandler.sendMessageToServer(new PlayerLearnAbilityRequestPacket(
-                                getAbility().getAbilityId(), trainerEntityId));
-                    }
-                    return true;
-                });
-                nameTray.addWidget(learnButton);
-            }
         } else {
             MKText prompt = new MKText(font, I18n.format("mkcore.gui.character.learn_ability_prompt"));
             addWidget(prompt);

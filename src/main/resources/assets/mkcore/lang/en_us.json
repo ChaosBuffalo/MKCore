@@ -189,6 +189,9 @@
   "mkcore.talent.pool_count.name": "Ability Memory Slot",
   "mkcore.talent.pool_count.description": "Increases your ability memory pool by 1",
   "mkcore.talent_type.pool_slot.name": "Memory Pool",
-  "mkcore.ability.description.uses_pool": "Using Memory Slot (%d/%d)",
-  "mkcore.gui.character.forget_confirm": "Forget"
+  "mkcore.ability.description.uses_pool": "Using Memory Slot",
+  "mkcore.gui.character.forget_confirm": "Forget",
+  "mkcore.gui.character.forget": "Do you want to forget any known abilities?",
+  "mkcore.gui.manage_memory": "Manage",
+  "mkcore.gui.memory_pool": "Memory Pool: %d/%d"
 }

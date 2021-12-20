@@ -123,7 +123,7 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
             MKPlayerData playerData = (MKPlayerData) entityData;
             MKAbilityInfo info = playerData.getAbilities().getKnownAbility(getAbilityId());
             if (info != null && info.getSource().usesAbilityPool()){
-                consumer.accept(new IconTextComponent(POOL_SLOT_ICON, "mkcore.ability.description.uses_pool", playerData.getAbilities().getCurrentPoolCount(), playerData.getAbilities().getAbilityPoolSize()).mergeStyle(TextFormatting.ITALIC));
+                consumer.accept(new IconTextComponent(POOL_SLOT_ICON, "mkcore.ability.description.uses_pool").mergeStyle(TextFormatting.ITALIC));
             }
         }
         if (!skillAttributes.isEmpty()) {
