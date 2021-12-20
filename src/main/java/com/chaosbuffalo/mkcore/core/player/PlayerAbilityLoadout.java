@@ -20,7 +20,7 @@ public class PlayerAbilityLoadout implements IPlayerSyncComponentProvider {
     private final MKPlayerData playerData;
     private final SyncComponent sync = new SyncComponent("loadout");
 
-    private final Map<AbilityGroupId, IActiveAbilityGroup> abilityGroups = new HashMap<>();
+    private final Map<AbilityGroupId, ActiveAbilityGroup> abilityGroups = new HashMap<>();
     private final ActiveTalentAbilityGroup passiveContainer;
     private final ActiveTalentAbilityGroup ultimateContainer;
     private final BasicAbilityGroup basicAbilityContainer;
@@ -44,8 +44,8 @@ public class PlayerAbilityLoadout implements IPlayerSyncComponentProvider {
     }
 
     @Nonnull
-    public IActiveAbilityGroup getAbilityGroup(AbilityGroupId group) {
-        return abilityGroups.getOrDefault(group, IActiveAbilityGroup.EMPTY);
+    public ActiveAbilityGroup getAbilityGroup(AbilityGroupId group) {
+        return abilityGroups.get(group);
     }
 
     private void registerAbilityContainer(AbilityGroupId group, ActiveAbilityGroup container) {
@@ -82,7 +82,7 @@ public class PlayerAbilityLoadout implements IPlayerSyncComponentProvider {
     }
 
     public void onPersonaSwitch() {
-        abilityGroups.values().forEach(IActiveAbilityGroup::onPersonaSwitch);
+        abilityGroups.values().forEach(ActiveAbilityGroup::onPersonaSwitch);
     }
 
 

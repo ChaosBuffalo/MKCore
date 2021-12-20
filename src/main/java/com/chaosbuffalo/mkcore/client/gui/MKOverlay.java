@@ -8,7 +8,7 @@ import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.core.AbilityGroupId;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
-import com.chaosbuffalo.mkcore.core.player.IActiveAbilityGroup;
+import com.chaosbuffalo.mkcore.core.player.ActiveAbilityGroup;
 import com.chaosbuffalo.mkcore.core.player.PlayerAbilityExecutor;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -123,7 +123,7 @@ public class MKOverlay {
 
         int barStartY = getBarStartY(totalSlots);
 
-        IActiveAbilityGroup container = data.getLoadout().getAbilityGroup(group);
+        ActiveAbilityGroup container = data.getLoadout().getAbilityGroup(group);
         int slotCount = container.getCurrentSlotCount();
         drawBarSlots(matrixStack, group, startingSlot, slotCount, totalSlots);
 

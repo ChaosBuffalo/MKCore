@@ -19,11 +19,13 @@ import net.minecraft.nbt.NBTDynamicOps;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 
+import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.stream.IntStream;
 
-public class ActiveAbilityGroup implements IActiveAbilityGroup, IPlayerSyncComponentProvider {
+public class ActiveAbilityGroup implements IPlayerSyncComponentProvider {
     protected final MKPlayerData playerData;
     protected final SyncComponent sync;
     protected final String name;
@@ -53,22 +55,18 @@ public class ActiveAbilityGroup implements IActiveAbilityGroup, IPlayerSyncCompo
         return sync;
     }
 
-    @Override
     public List<ResourceLocation> getAbilities() {
         return Collections.unmodifiableList(activeAbilities);
     }
 
-    @Override
     public int getCurrentSlotCount() {
         return slots.get();
     }
 
-    @Override
     public int getMaximumSlotCount() {
         return activeAbilities.size();
     }
 
-    @Override
     public boolean setSlots(int newSlotCount) {
         if (newSlotCount < 0 || newSlotCount > getMaximumSlotCount()) {
             MKCore.LOGGER.error("setSlots({}, {}) - bad count", newSlotCount, getMaximumSlotCount());
@@ -110,7 +108,6 @@ public class ActiveAbilityGroup implements IActiveAbilityGroup, IPlayerSyncCompo
         return getAbilitySlot(MKCoreRegistry.INVALID_ABILITY);
     }
 
-    @Override
     public int tryEquip(ResourceLocation abilityId) {
         int slot = getAbilitySlot(abilityId);
         if (slot == GameConstants.ACTION_BAR_INVALID_SLOT) {
@@ -124,7 +121,26 @@ public class ActiveAbilityGroup implements IActiveAbilityGroup, IPlayerSyncCompo
         return slot;
     }
 
-    @Override
+    public int getAbilitySlot(ResourceLocation abilityId) {
+        int slot = getAbilities().indexOf(abilityId);
+        if (slot != -1)
+            return slot;
+        return GameConstants.ACTION_BAR_INVALID_SLOT;
+    }
+
+    public boolean isAbilitySlotted(ResourceLocation abilityId) {
+        return getAbilitySlot(abilityId) != GameConstants.ACTION_BAR_INVALID_SLOT;
+    }
+
+    @Nonnull
+    public ResourceLocation getSlot(int slot) {
+        List<ResourceLocation> list = getAbilities();
+        if (slot < list.size()) {
+            return list.get(slot);
+        }
+        return MKCoreRegistry.INVALID_ABILITY;
+    }
+
     public void setSlot(int index, ResourceLocation abilityId) {
         MKCore.LOGGER.debug("ActiveAbilityContainer.setAbilityInSlot({}, {}, {})", group, index, abilityId);
 
@@ -154,7 +170,36 @@ public class ActiveAbilityGroup implements IActiveAbilityGroup, IPlayerSyncCompo
         }
     }
 
-    @Override
+    public boolean isSlotUnlocked(int slot) {
+        return slot < getCurrentSlotCount();
+    }
+
+    public boolean isSlotFilled(int slot) {
+        if (!isSlotUnlocked(slot)) {
+            return false;
+        }
+        return !getSlot(slot).equals(MKCoreRegistry.INVALID_ABILITY);
+    }
+
+    public void resetSlots() {
+        for (int i = 0; i < getAbilities().size(); i++) {
+            clearSlot(i);
+        }
+    }
+
+    public int getFilledSlotCount() {
+        return (int) IntStream.range(0, getCurrentSlotCount())
+                .filter(this::isSlotFilled)
+                .count();
+    }
+
+    public int getHighestFilledSlot() {
+        return IntStream.range(0, getCurrentSlotCount())
+                .filter(this::isSlotFilled)
+                .max()
+                .orElse(-1);
+    }
+
     public void clearAbility(ResourceLocation abilityId) {
         int slot = getAbilitySlot(abilityId);
         if (slot != GameConstants.ACTION_BAR_INVALID_SLOT) {
@@ -162,7 +207,6 @@ public class ActiveAbilityGroup implements IActiveAbilityGroup, IPlayerSyncCompo
         }
     }
 
-    @Override
     public void executeSlot(int index) {
         ResourceLocation abilityId = getSlot(index);
         if (abilityId.equals(MKCoreRegistry.INVALID_ABILITY))
@@ -170,7 +214,6 @@ public class ActiveAbilityGroup implements IActiveAbilityGroup, IPlayerSyncCompo
         playerData.getAbilityExecutor().executeAbility(abilityId);
     }
 
-    @Override
     public void clearSlot(int slot) {
         setSlot(slot, MKCoreRegistry.INVALID_ABILITY);
     }
@@ -193,6 +236,16 @@ public class ActiveAbilityGroup implements IActiveAbilityGroup, IPlayerSyncCompo
         activeUpdater.setDirty(newSlot);
     }
 
+    public void onAbilityLearned(MKAbilityInfo info) {
+        if (info.getSource().placeOnBarWhenLearned()) {
+            tryEquip(info.getId());
+        }
+    }
+
+    public void onAbilityUnlearned(MKAbilityInfo info) {
+        clearAbility(info.getId());
+    }
+
     protected void onSlotChanged(int index, ResourceLocation previous, ResourceLocation newAbility) {
         playerData.getAbilityExecutor().onSlotChanged(group, index, previous, newAbility);
     }
@@ -209,7 +262,6 @@ public class ActiveAbilityGroup implements IActiveAbilityGroup, IPlayerSyncCompo
         clearAbility(abilityId);
     }
 
-    @Override
     public void onPersonaSwitch() {
         getAbilities().forEach(this::ensureValidAbility);
     }

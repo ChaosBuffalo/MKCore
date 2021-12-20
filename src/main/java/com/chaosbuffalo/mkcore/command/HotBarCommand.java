@@ -5,7 +5,7 @@ import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.abilities.MKAbilityInfo;
 import com.chaosbuffalo.mkcore.command.arguments.AbilityIdArgument;
 import com.chaosbuffalo.mkcore.core.AbilityGroupId;
-import com.chaosbuffalo.mkcore.core.player.IActiveAbilityGroup;
+import com.chaosbuffalo.mkcore.core.player.ActiveAbilityGroup;
 import com.chaosbuffalo.mkcore.core.player.PlayerAbilityKnowledge;
 import com.chaosbuffalo.mkcore.utils.TextUtils;
 import com.mojang.brigadier.Command;
@@ -66,7 +66,7 @@ public class HotBarCommand {
         int count = IntegerArgumentType.getInteger(ctx, "count");
 
         MKCore.getPlayer(player).ifPresent(playerData -> {
-            IActiveAbilityGroup container = playerData.getLoadout().getAbilityGroup(group);
+            ActiveAbilityGroup container = playerData.getLoadout().getAbilityGroup(group);
             if (container.setSlots(count)) {
                 MKCore.LOGGER.info("Updated slot count for {}", group);
             } else {
@@ -139,7 +139,7 @@ public class HotBarCommand {
         AbilityGroupId group = ctx.getArgument("group", AbilityGroupId.class);
         ServerPlayerEntity player = ctx.getSource().asPlayer();
         MKCore.getPlayer(player).ifPresent(playerData -> {
-            IActiveAbilityGroup container = playerData.getLoadout().getAbilityGroup(group);
+            ActiveAbilityGroup container = playerData.getLoadout().getAbilityGroup(group);
             int current = container.getCurrentSlotCount();
             int max = container.getMaximumSlotCount();
             TextUtils.sendPlayerChatMessage(player, String.format("%s Action Bar (%d/%d slots)", group, current, max));
