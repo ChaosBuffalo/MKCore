@@ -66,7 +66,7 @@ public class LearnAbilitiesScreen extends AbilityPanelScreen {
         manage.setWidth(60);
 
         manage.setPressedCallback((but, click) -> {
-            ForgetAbilityModal modal = getChoosePoolSlotWidget(playerData, abilityTray.getAbility(), abilityTray.getTrainerEntityId());
+            ForgetAbilityModal modal = getChoosePoolSlotWidget(playerData, null, -1);
             addModal(modal);
             return true;
         });
