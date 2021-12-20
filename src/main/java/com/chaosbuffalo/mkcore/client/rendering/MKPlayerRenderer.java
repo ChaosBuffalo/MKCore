@@ -11,6 +11,7 @@ import com.chaosbuffalo.mkcore.fx.particles.ParticleAnimationManager;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
+import net.minecraft.client.renderer.FirstPersonRenderer;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.client.renderer.entity.PlayerRenderer;
@@ -51,7 +52,6 @@ public class MKPlayerRenderer extends PlayerRenderer {
                     }
                 }
             }
-
             data.getAnimationModule().getParticleInstances().forEach(instance -> {
                 instance.update(entityIn, skeleton, partialTicks, getRenderOffset(entityIn, partialTicks));
             });
@@ -71,14 +71,12 @@ public class MKPlayerRenderer extends PlayerRenderer {
                         if (ability.hasCastingParticles()){
                             ParticleAnimation anim = ParticleAnimationManager.ANIMATIONS.get(ability.getCastingParticles());
                             if (anim != null){
-//                                Vector3d handPos = getFirstPersonHandPosition(HandSide.RIGHT, (ClientPlayerEntity) playerIn, 0.0f);
-//                                anim.spawn(playerIn.getEntityWorld(), handPos, null);
-//                                Vector3d otherPos = getFirstPersonHandPosition(HandSide.LEFT, (ClientPlayerEntity) playerIn, 0.0f);
-//                                anim.spawn(playerIn.getEntityWorld(), otherPos, null);
-                                Optional<Vector3d> leftPos = getHandPosition(0.0f, playerIn, HandSide.LEFT);
-                                leftPos.ifPresent(x -> anim.spawn(playerIn.getEntityWorld(), x, null));
-                                Optional<Vector3d> rightPos = getHandPosition(0.0f, playerIn, HandSide.RIGHT);
-                                rightPos.ifPresent(x -> anim.spawn(playerIn.getEntityWorld(), x, null));
+                                Vector3d leftPos = getFirstPersonHandPosition(HandSide.LEFT,
+                                        (ClientPlayerEntity) playerIn, 0.0f, getRenderOffset(playerIn, 0.0f));
+                                anim.spawn(playerIn.getEntityWorld(), leftPos, null);
+                                Vector3d rightPos = getFirstPersonHandPosition(HandSide.RIGHT,
+                                        (ClientPlayerEntity) playerIn, 0.0f, getRenderOffset(playerIn, 0.0f));
+                                anim.spawn(playerIn.getEntityWorld(), rightPos, null);
                             }
                         }
                     }
@@ -106,14 +104,12 @@ public class MKPlayerRenderer extends PlayerRenderer {
                         if (ability.hasCastingParticles()){
                             ParticleAnimation anim = ParticleAnimationManager.ANIMATIONS.get(ability.getCastingParticles());
                             if (anim != null){
-//                                Vector3d handPos = getFirstPersonHandPosition(HandSide.LEFT, (ClientPlayerEntity) playerIn, 0.0f);
-//                                anim.spawn(playerIn.getEntityWorld(), handPos, null);
-//                                Vector3d otherPos = getFirstPersonHandPosition(HandSide.RIGHT, (ClientPlayerEntity) playerIn, 0.0f);
-//                                anim.spawn(playerIn.getEntityWorld(), otherPos, null);
-                                Optional<Vector3d> leftPos = getHandPosition(0.0f, playerIn, HandSide.LEFT);
-                                leftPos.ifPresent(x -> anim.spawn(playerIn.getEntityWorld(), x, null));
-                                Optional<Vector3d> rightPos = getHandPosition(0.0f, playerIn, HandSide.RIGHT);
-                                rightPos.ifPresent(x -> anim.spawn(playerIn.getEntityWorld(), x, null));
+                                Vector3d leftPos = getFirstPersonHandPosition(HandSide.LEFT,
+                                        (ClientPlayerEntity) playerIn, 0.0f, getRenderOffset(playerIn, 0.0f));
+                                anim.spawn(playerIn.getEntityWorld(), leftPos, null);
+                                Vector3d rightPos = getFirstPersonHandPosition(HandSide.RIGHT,
+                                        (ClientPlayerEntity) playerIn, 0.0f, getRenderOffset(playerIn, 0.0f));
+                                anim.spawn(playerIn.getEntityWorld(), rightPos, null);
                             }
                         }
                     }
@@ -130,7 +126,9 @@ public class MKPlayerRenderer extends PlayerRenderer {
         return new Vector3d(i * 0.56F, -0.52F + equippedProg * -0.6F, -0.72F);
     }
 
-    private Vector3d getFirstPersonHandPosition(HandSide handSide, ClientPlayerEntity playerEntityIn, float partialTicks){
+    private Vector3d getFirstPersonHandPosition(HandSide handSide,
+                                                ClientPlayerEntity playerEntityIn, float partialTicks,
+                                                Vector3d renderOffset){
         double entX = MathHelper.lerp(partialTicks, playerEntityIn.prevPosX, playerEntityIn.getPosX());
         double entY = MathHelper.lerp(partialTicks, playerEntityIn.prevPosY, playerEntityIn.getPosY());
         double entZ = MathHelper.lerp(partialTicks, playerEntityIn.prevPosZ, playerEntityIn.getPosZ());
@@ -141,20 +139,10 @@ public class MKPlayerRenderer extends PlayerRenderer {
         // the rest from bone system
         MCBone shoulderBone = handSide == HandSide.RIGHT ? skeleton.rightArm : skeleton.leftArm;
         MCBone castLoc = handSide == HandSide.RIGHT ? skeleton.rightHand : skeleton.leftHand;
-        Vector3d boneLoc = castLoc.getBoneLocation();
-        boneLoc = boneLoc.rotatePitch(-shoulderBone.getPitch());
-        boneLoc = boneLoc.rotateYaw(-shoulderBone.getYaw());
-        boneLoc = boneLoc.rotateRoll(-shoulderBone.getRoll());
-        boneLoc.add(shoulderLoc);
-        boneLoc = boneLoc.rotatePitch(-skeleton.root.getPitch());
-        boneLoc = boneLoc.rotateYaw(-skeleton.root.getYaw());
-        boneLoc = boneLoc.rotateRoll(-skeleton.root.getRoll());
-        Vector3d heightOffset = new Vector3d(0, playerEntityIn.getHeight() - 0.4, 0);
-        // account for render offset from things like crouching
-        if (playerEntityIn.isCrouching()){
-            heightOffset = heightOffset.subtract(getRenderOffset(playerEntityIn, 0.0f));
-        }
-        return new Vector3d(entX, entY, entZ).add(heightOffset.add(boneLoc.rotateYaw(-yaw).scale(-1)));
+        Vector3d bonePos = MCBone.getOffsetForStopAt(castLoc, shoulderBone);
+        bonePos = bonePos.add(shoulderLoc);
+        //a height fudge factor
+        return new Vector3d(entX, entY, entZ).add(renderOffset).add(new Vector3d(0.0, 1.25, 0.0)).add(bonePos.rotateYaw(-yaw));
     }
 
 
