@@ -79,7 +79,7 @@ public class PlayerAbilityExecutor extends AbilityExecutor {
         deactivateCurrentToggleAbilities(abilityLoadout.getAbilityGroup(AbilityGroupId.Item));
     }
 
-    private void deactivateCurrentToggleAbilities(ActiveAbilityGroup group) {
+    private void deactivateCurrentToggleAbilities(AbilityGroup group) {
         for (int i = 0; i < group.getMaximumSlotCount(); i++) {
             ResourceLocation abilityId = group.getSlot(i);
             MKAbility ability = MKCoreRegistry.getAbility(abilityId);
@@ -97,7 +97,7 @@ public class PlayerAbilityExecutor extends AbilityExecutor {
         rebuildActiveToggleMap(abilityLoadout.getAbilityGroup(AbilityGroupId.Item));
     }
 
-    private void rebuildActiveToggleMap(ActiveAbilityGroup group) {
+    private void rebuildActiveToggleMap(AbilityGroup group) {
         // Inspect the player's action bar and see if there are any toggle abilities slotted.
         // If there are, and the corresponding toggle effect is active on the player, set the toggle exclusive group
         for (int i = 0; i < group.getMaximumSlotCount(); i++) {
@@ -117,8 +117,8 @@ public class PlayerAbilityExecutor extends AbilityExecutor {
         if (previous.equals(MKCoreRegistry.INVALID_ABILITY))
             return;
 
-        ActiveAbilityGroup container = getPlayerData().getLoadout().getAbilityGroup(group);
-        if (!container.isAbilitySlotted(previous)) {
+        AbilityGroup abilityGroup = getPlayerData().getLoadout().getAbilityGroup(group);
+        if (!abilityGroup.isAbilitySlotted(previous)) {
             MKAbility ability = MKCoreRegistry.getAbility(previous);
             if (ability instanceof MKToggleAbility) {
                 ((MKToggleAbility) ability).removeEffect(getPlayerData().getEntity(), getPlayerData());

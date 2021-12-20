@@ -92,7 +92,7 @@ public class EventHandler {
 
         if (event.getEntityLiving() instanceof ServerPlayerEntity && event.getPotion() instanceof PassiveTalentEffect) {
             MKCore.getPlayer(event.getEntityLiving()).ifPresent(playerData -> {
-                if (!playerData.getTalents().getTypeHandler(TalentType.PASSIVE).getPassiveTalentsUnlocked()) {
+                if (!playerData.getLoadout().getPassiveGroup().getPassiveTalentsUnlocked()) {
                     MKCore.LOGGER.info("Effect {} is a passive and passives are not unlocked", event.getPotion());
                     event.setCanceled(true);
                 }

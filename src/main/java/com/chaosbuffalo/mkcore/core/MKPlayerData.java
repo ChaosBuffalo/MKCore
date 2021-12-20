@@ -168,7 +168,6 @@ public class MKPlayerData implements IMKEntityData {
         getEquipment().onPersonaActivated();
         getAbilityExecutor().onPersonaActivated();
         getStats().onPersonaActivated();
-        getLoadout().onPersonaSwitch();
     }
 
     public void onPersonaDeactivated() {

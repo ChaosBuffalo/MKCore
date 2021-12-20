@@ -105,7 +105,7 @@ public class PlayerAbilityKnowledge implements IMKAbilityKnowledge, IPlayerSyncC
         return source.usesAbilityPool() && isAbilityPoolFull() && replacing.equals(MKCoreRegistry.INVALID_ABILITY);
     }
 
-    private ActiveAbilityGroup getAbilityGroup(MKAbility ability) {
+    private AbilityGroup getAbilityGroup(MKAbility ability) {
         return playerData.getLoadout().getAbilityGroup(ability.getType().getGroup());
     }
 

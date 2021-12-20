@@ -1,9 +1,10 @@
-package com.chaosbuffalo.mkcore.core.talents.handlers;
+package com.chaosbuffalo.mkcore.core.player;
 
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.abilities.AbilityContext;
 import com.chaosbuffalo.mkcore.abilities.MKAbilityInfo;
 import com.chaosbuffalo.mkcore.abilities.PassiveTalentAbility;
+import com.chaosbuffalo.mkcore.core.AbilityGroupId;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.talents.TalentManager;
 import com.chaosbuffalo.mkcore.effects.PassiveEffect;
@@ -14,33 +15,16 @@ import net.minecraft.util.ResourceLocation;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-public class PassiveTalentHandler extends AbilityTalentHandler {
+public class PassiveAbilityGroup extends AbilityGroup {
 
     private boolean talentPassivesUnlocked;
 
-    public PassiveTalentHandler(MKPlayerData playerData) {
-        super(playerData);
+    public PassiveAbilityGroup(MKPlayerData playerData) {
+        super(playerData, "passive", AbilityGroupId.Passive);
     }
 
     @Override
-    public void onJoinWorld() {
-        if (playerData.isServerSide()) {
-            activateAllPassives();
-        }
-    }
-
-    @Override
-    public void onPersonaActivated() {
-        activateAllPassives();
-    }
-
-    @Override
-    public void onPersonaDeactivated() {
-        removeAllPassiveTalents();
-    }
-
-    @Override
-    public void onSlotChanged(int index, ResourceLocation oldAbilityId, ResourceLocation newAbilityId) {
+    protected void onSlotChanged(int index, ResourceLocation oldAbilityId, ResourceLocation newAbilityId) {
         if (!oldAbilityId.equals(MKCoreRegistry.INVALID_ABILITY)) {
             PassiveTalentAbility current = TalentManager.getPassiveTalentAbility(oldAbilityId);
             if (current != null) {
@@ -54,6 +38,28 @@ public class PassiveTalentHandler extends AbilityTalentHandler {
                 activatePassive(passiveTalent);
             }
         }
+
+        super.onSlotChanged(index, oldAbilityId, newAbilityId);
+    }
+
+    @Override
+    public void onJoinWorld() {
+        super.onJoinWorld();
+        if (playerData.isServerSide()) {
+            activateAllPassives();
+        }
+    }
+
+    @Override
+    public void onPersonaActivated() {
+        super.onPersonaActivated();
+        activateAllPassives();
+    }
+
+    @Override
+    public void onPersonaDeactivated() {
+        super.onPersonaDeactivated();
+        removeAllPassiveTalents();
     }
 
     private void activatePassive(PassiveTalentAbility talentAbility) {
@@ -67,7 +73,7 @@ public class PassiveTalentHandler extends AbilityTalentHandler {
 
     private Stream<PassiveTalentAbility> getPassiveAbilitiesStream() {
         return playerData.getLoadout()
-                .getPassiveContainer()
+                .getPassiveGroup()
                 .getAbilities()
                 .stream()
                 .map(TalentManager::getPassiveTalentAbility)

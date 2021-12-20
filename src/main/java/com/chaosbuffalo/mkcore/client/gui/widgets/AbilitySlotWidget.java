@@ -7,7 +7,7 @@ import com.chaosbuffalo.mkcore.client.gui.CharacterScreen;
 import com.chaosbuffalo.mkcore.client.gui.GuiTextures;
 import com.chaosbuffalo.mkcore.core.AbilityGroupId;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
-import com.chaosbuffalo.mkcore.core.player.ActiveAbilityGroup;
+import com.chaosbuffalo.mkcore.core.player.AbilityGroup;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.PlayerSlotAbilityPacket;
 import com.chaosbuffalo.mkwidgets.client.gui.UIConstants;
@@ -78,8 +78,8 @@ public class AbilitySlotWidget extends MKLayout {
         if (background != null) {
             removeWidget(background);
         }
-        ActiveAbilityGroup container = playerData.getLoadout().getAbilityGroup(slotGroup);
-        unlocked = container.isSlotUnlocked(slotIndex);
+        AbilityGroup abilityGroup = playerData.getLoadout().getAbilityGroup(slotGroup);
+        unlocked = abilityGroup.isSlotUnlocked(slotIndex);
         background = getAbilityGroupSlotImage(slotGroup, unlocked);
         addWidget(background);
         addConstraintToWidget(new FillConstraint(), background);
