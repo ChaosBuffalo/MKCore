@@ -4,7 +4,6 @@ import com.chaosbuffalo.mkcore.command.arguments.AbilityIdArgument;
 import com.chaosbuffalo.mkcore.command.arguments.TalentIdArgument;
 import com.chaosbuffalo.mkcore.command.arguments.TalentLineIdArgument;
 import com.chaosbuffalo.mkcore.command.arguments.TalentTreeIdArgument;
-import com.chaosbuffalo.mkcore.core.talents.TalentType;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import net.minecraft.command.CommandSource;
@@ -30,8 +29,8 @@ public class MKCommand {
     public static void registerArguments() {
         ArgumentTypes.register("ability_id", AbilityIdArgument.class, new ArgumentSerializer<>(AbilityIdArgument::ability));
         ArgumentTypes.register("ability_group", HotBarCommand.AbilityGroupArgument.class, new ArgumentSerializer<>(HotBarCommand.AbilityGroupArgument::abilityGroup));
-        ArgumentTypes.register("talent_id", TalentIdArgument.class, new ArgumentSerializer<>(() -> new TalentIdArgument(TalentType.ATTRIBUTE)));
-        ArgumentTypes.register("talent_tree_id", TalentTreeIdArgument.class, new ArgumentSerializer<>(TalentTreeIdArgument::talent));
+        ArgumentTypes.register("talent_id", TalentIdArgument.class, new ArgumentSerializer<>(TalentIdArgument::talentId));
+        ArgumentTypes.register("talent_tree_id", TalentTreeIdArgument.class, new ArgumentSerializer<>(TalentTreeIdArgument::talentTreeId));
         ArgumentTypes.register("talent_line_id", TalentLineIdArgument.class, new ArgumentSerializer<>(TalentLineIdArgument::talentLine));
     }
 

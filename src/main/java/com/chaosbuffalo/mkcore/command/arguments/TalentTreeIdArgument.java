@@ -15,7 +15,7 @@ import java.util.stream.Stream;
 
 public class TalentTreeIdArgument implements ArgumentType<ResourceLocation> {
 
-    public static TalentTreeIdArgument talent() {
+    public static TalentTreeIdArgument talentTreeId() {
         return new TalentTreeIdArgument();
     }
 
