@@ -158,15 +158,15 @@ public class AbilityExecutor {
 
         if (currentCast.getAbility().isInterruptible()) {
             currentCast.interrupt();
+            if (interruptCastCallback != null) {
+                interruptCastCallback.accept(currentCast.getAbility());
+            }
             clearCastingAbility();
         }
     }
 
     protected void onAbilityInterrupted(MKAbility ability, int ticks) {
 //        MKCore.LOGGER.info("onAbilityInterrupted {} {}", ability, ticks);
-        if (interruptCastCallback != null){
-            interruptCastCallback.accept(ability);
-        }
     }
 
     private void updateCurrentCast() {
