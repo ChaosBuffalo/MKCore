@@ -2,6 +2,9 @@ package com.chaosbuffalo.mkcore.core.player;
 
 import com.chaosbuffalo.mkcore.core.AbilityGroupId;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
+import com.chaosbuffalo.mkcore.core.player.loadout.ItemAbilityGroup;
+import com.chaosbuffalo.mkcore.core.player.loadout.PassiveAbilityGroup;
+import com.chaosbuffalo.mkcore.core.player.loadout.UltimateAbilityGroup;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 

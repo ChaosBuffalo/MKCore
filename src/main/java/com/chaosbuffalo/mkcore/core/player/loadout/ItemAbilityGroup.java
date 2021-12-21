@@ -1,4 +1,4 @@
-package com.chaosbuffalo.mkcore.core.player;
+package com.chaosbuffalo.mkcore.core.player.loadout;
 
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.abilities.AbilitySource;
@@ -6,6 +6,7 @@ import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.abilities.MKAbilityInfo;
 import com.chaosbuffalo.mkcore.core.AbilityGroupId;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
+import com.chaosbuffalo.mkcore.core.player.AbilityGroup;
 import net.minecraft.util.ResourceLocation;
 
 public class ItemAbilityGroup extends AbilityGroup {

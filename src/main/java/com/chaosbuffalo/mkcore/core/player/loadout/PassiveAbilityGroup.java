@@ -1,4 +1,4 @@
-package com.chaosbuffalo.mkcore.core.player;
+package com.chaosbuffalo.mkcore.core.player.loadout;
 
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.abilities.AbilityContext;
@@ -6,6 +6,7 @@ import com.chaosbuffalo.mkcore.abilities.MKAbilityInfo;
 import com.chaosbuffalo.mkcore.abilities.PassiveTalentAbility;
 import com.chaosbuffalo.mkcore.core.AbilityGroupId;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
+import com.chaosbuffalo.mkcore.core.player.AbilityGroup;
 import com.chaosbuffalo.mkcore.core.talents.TalentManager;
 import com.chaosbuffalo.mkcore.effects.PassiveEffect;
 import com.chaosbuffalo.mkcore.effects.PassiveTalentEffect;
@@ -17,7 +18,7 @@ import java.util.stream.Stream;
 
 public class PassiveAbilityGroup extends AbilityGroup {
 
-    private boolean talentPassivesUnlocked;
+    private boolean passiveEffectsUnlocked;
 
     public PassiveAbilityGroup(MKPlayerData playerData) {
         super(playerData, "passive", AbilityGroupId.Passive);
@@ -102,13 +103,13 @@ public class PassiveAbilityGroup extends AbilityGroup {
         });
     }
 
-    public boolean getPassiveTalentsUnlocked() {
-        return talentPassivesUnlocked;
+    public boolean canRemovePassiveEffects() {
+        return passiveEffectsUnlocked;
     }
 
     private void removePassiveEffect(PassiveEffect passiveEffect) {
-        talentPassivesUnlocked = true;
+        passiveEffectsUnlocked = true;
         playerData.getEntity().removePotionEffect(passiveEffect);
-        talentPassivesUnlocked = false;
+        passiveEffectsUnlocked = false;
     }
 }
