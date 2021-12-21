@@ -5,9 +5,9 @@ import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.client.gui.CharacterScreen;
 import com.chaosbuffalo.mkcore.client.gui.GuiTextures;
-import com.chaosbuffalo.mkcore.core.AbilityType;
+import com.chaosbuffalo.mkcore.core.AbilityGroupId;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
-import com.chaosbuffalo.mkcore.core.player.IActiveAbilityGroup;
+import com.chaosbuffalo.mkcore.core.player.AbilityGroup;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.PlayerSlotAbilityPacket;
 import com.chaosbuffalo.mkwidgets.client.gui.UIConstants;
@@ -26,17 +26,17 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ResourceLocation;
 
 public class AbilitySlotWidget extends MKLayout {
-    private AbilityType slotType;
+    private final AbilityGroupId slotGroup;
     private boolean unlocked;
     private final int slotIndex;
-    private CharacterScreen screen;
+    private final CharacterScreen screen;
     private ResourceLocation abilityId;
     private MKImage background;
     private MKImage icon;
 
-    public AbilitySlotWidget(int x, int y, AbilityType slotType, int slotIndex, CharacterScreen screen) {
+    public AbilitySlotWidget(int x, int y, AbilityGroupId group, int slotIndex, CharacterScreen screen) {
         super(x, y, 20, 20);
-        this.slotType = slotType;
+        this.slotGroup = group;
         this.screen = screen;
         this.slotIndex = slotIndex;
         this.setMargins(2, 2, 2, 2);
@@ -59,8 +59,8 @@ public class AbilitySlotWidget extends MKLayout {
         return slotIndex;
     }
 
-    public AbilityType getSlotType() {
-        return slotType;
+    public AbilityGroupId getSlotGroup() {
+        return slotGroup;
     }
 
     private void refreshSlot() {
@@ -68,7 +68,7 @@ public class AbilitySlotWidget extends MKLayout {
         if (playerEntity == null)
             return;
         MKCore.getPlayer(playerEntity).ifPresent((playerData -> {
-            abilityId = playerData.getLoadout().getAbilityInSlot(slotType, slotIndex);
+            abilityId = playerData.getLoadout().getAbilityInSlot(slotGroup, slotIndex);
             setupBackground(playerData);
             setupIcon(abilityId);
         }));
@@ -78,9 +78,9 @@ public class AbilitySlotWidget extends MKLayout {
         if (background != null) {
             removeWidget(background);
         }
-        IActiveAbilityGroup container = playerData.getLoadout().getAbilityGroup(slotType);
-        unlocked = container.isSlotUnlocked(slotIndex);
-        background = getImageForSlotType(slotType, unlocked);
+        AbilityGroup abilityGroup = playerData.getLoadout().getAbilityGroup(slotGroup);
+        unlocked = abilityGroup.isSlotUnlocked(slotIndex);
+        background = getAbilityGroupSlotImage(slotGroup, unlocked);
         addWidget(background);
         addConstraintToWidget(new FillConstraint(), background);
     }
@@ -100,8 +100,8 @@ public class AbilitySlotWidget extends MKLayout {
         }
     }
 
-    private MKImage getImageForSlotType(AbilityType slotType, boolean unlocked) {
-        switch (slotType) {
+    private MKImage getAbilityGroupSlotImage(AbilityGroupId group, boolean unlocked) {
+        switch (group) {
             case Ultimate:
                 return GuiTextures.CORE_TEXTURES.getImageForRegion(unlocked ?
                                 GuiTextures.ABILITY_SLOT_ULT : GuiTextures.ABILITY_SLOT_ULT_LOCKED,
@@ -122,7 +122,7 @@ public class AbilitySlotWidget extends MKLayout {
     }
 
     private void setSlotToAbility(ResourceLocation ability) {
-        PacketHandler.sendMessageToServer(new PlayerSlotAbilityPacket(slotType, slotIndex, ability));
+        PacketHandler.sendMessageToServer(new PlayerSlotAbilityPacket(slotGroup, slotIndex, ability));
     }
 
     @Override
@@ -154,7 +154,7 @@ public class AbilitySlotWidget extends MKLayout {
     @Override
     public boolean onMouseRelease(double mouseX, double mouseY, int mouseButton) {
         if (screen.isDraggingAbility()) {
-            if (unlocked && screen.getDragging().getType() == slotType) {
+            if (unlocked && slotGroup.fitsAbilityType(screen.getDragging().getType())) {
                 ResourceLocation ability = screen.getDragging().getAbilityId();
                 setSlotToAbility(ability);
             }

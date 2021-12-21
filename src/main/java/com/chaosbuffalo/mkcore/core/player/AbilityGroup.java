@@ -5,7 +5,7 @@ import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.abilities.MKAbilityInfo;
-import com.chaosbuffalo.mkcore.core.AbilityType;
+import com.chaosbuffalo.mkcore.core.AbilityGroupId;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.sync.ResourceListUpdater;
 import com.chaosbuffalo.mkcore.sync.SyncInt;
@@ -19,28 +19,29 @@ import net.minecraft.nbt.NBTDynamicOps;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 
+import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.BiConsumer;
 
-public class ActiveAbilityGroup implements IActiveAbilityGroup, IPlayerSyncComponentProvider {
+public class AbilityGroup implements IPlayerSyncComponentProvider {
     protected final MKPlayerData playerData;
     protected final SyncComponent sync;
     protected final String name;
     private final List<ResourceLocation> activeAbilities;
     private final SyncListUpdater<ResourceLocation> activeUpdater;
     private final SyncInt slots;
-    protected final AbilityType abilityType;
+    protected final AbilityGroupId groupId;
 
-    public ActiveAbilityGroup(MKPlayerData playerData, String name, AbilityType abilityType) {
-        this(playerData, name, abilityType, abilityType.getDefaultSlots(), abilityType.getMaxSlots());
+    public AbilityGroup(MKPlayerData playerData, String name, AbilityGroupId groupId) {
+        this(playerData, name, groupId, groupId.getDefaultSlots(), groupId.getMaxSlots());
     }
 
-    public ActiveAbilityGroup(MKPlayerData playerData, String name, AbilityType abilityType, int defaultSize, int max) {
+    public AbilityGroup(MKPlayerData playerData, String name, AbilityGroupId groupId, int defaultSize, int max) {
         sync = new SyncComponent(name);
         this.playerData = playerData;
         this.name = name;
-        this.abilityType = abilityType;
+        this.groupId = groupId;
         activeAbilities = NonNullList.withSize(max, MKCoreRegistry.INVALID_ABILITY);
         activeUpdater = new ResourceListUpdater("active", () -> activeAbilities);
         slots = new SyncInt("slots", defaultSize);
@@ -53,22 +54,18 @@ public class ActiveAbilityGroup implements IActiveAbilityGroup, IPlayerSyncCompo
         return sync;
     }
 
-    @Override
     public List<ResourceLocation> getAbilities() {
         return Collections.unmodifiableList(activeAbilities);
     }
 
-    @Override
     public int getCurrentSlotCount() {
         return slots.get();
     }
 
-    @Override
     public int getMaximumSlotCount() {
         return activeAbilities.size();
     }
 
-    @Override
     public boolean setSlots(int newSlotCount) {
         if (newSlotCount < 0 || newSlotCount > getMaximumSlotCount()) {
             MKCore.LOGGER.error("setSlots({}, {}) - bad count", newSlotCount, getMaximumSlotCount());
@@ -98,19 +95,10 @@ public class ActiveAbilityGroup implements IActiveAbilityGroup, IPlayerSyncCompo
 
     }
 
-    protected boolean canSlotAbility(int slot, ResourceLocation abilityId) {
-        MKAbility ability = MKCoreRegistry.getAbility(abilityId);
-        if (ability == null)
-            return false;
-
-        return ability.getType() == this.abilityType;
-    }
-
     protected int getFirstFreeAbilitySlot() {
         return getAbilitySlot(MKCoreRegistry.INVALID_ABILITY);
     }
 
-    @Override
     public int tryEquip(ResourceLocation abilityId) {
         int slot = getAbilitySlot(abilityId);
         if (slot == GameConstants.ACTION_BAR_INVALID_SLOT) {
@@ -124,22 +112,46 @@ public class ActiveAbilityGroup implements IActiveAbilityGroup, IPlayerSyncCompo
         return slot;
     }
 
-    @Override
+    public int getAbilitySlot(ResourceLocation abilityId) {
+        int slot = getAbilities().indexOf(abilityId);
+        if (slot != -1)
+            return slot;
+        return GameConstants.ACTION_BAR_INVALID_SLOT;
+    }
+
+    public boolean isAbilitySlotted(ResourceLocation abilityId) {
+        return getAbilitySlot(abilityId) != GameConstants.ACTION_BAR_INVALID_SLOT;
+    }
+
+    @Nonnull
+    public ResourceLocation getSlot(int slot) {
+        List<ResourceLocation> list = getAbilities();
+        if (slot < list.size()) {
+            return list.get(slot);
+        }
+        return MKCoreRegistry.INVALID_ABILITY;
+    }
+
     public void setSlot(int index, ResourceLocation abilityId) {
-        MKCore.LOGGER.debug("ActiveAbilityContainer.setAbilityInSlot({}, {}, {})", abilityType, index, abilityId);
+        MKCore.LOGGER.debug("AbilityGroup.setAbilityInSlot({}, {}, {})", groupId, index, abilityId);
 
         if (abilityId.equals(MKCoreRegistry.INVALID_ABILITY)) {
             setSlotInternal(index, MKCoreRegistry.INVALID_ABILITY);
             return;
         }
 
-        if (!playerData.getAbilities().knowsAbility(abilityId)) {
-            MKCore.LOGGER.error("setAbilityInSlot({}, {}, {}) - player does not know ability!", abilityType, index, abilityId);
+        if (groupId.requiresAbilityKnown() && !playerData.getAbilities().knowsAbility(abilityId)) {
+            MKCore.LOGGER.error("setAbilityInSlot({}, {}, {}) - player does not know ability!", groupId, index, abilityId);
             return;
         }
 
-        if (!canSlotAbility(index, abilityId)) {
-            MKCore.LOGGER.error("setAbilityInSlot({}, {}, {}) - blocked by ability container", abilityType, index, abilityId);
+        MKAbility ability = MKCoreRegistry.getAbility(abilityId);
+        if (ability == null) {
+            return;
+        }
+
+        if (!groupId.fitsAbilityType(ability.getType())) {
+            MKCore.LOGGER.error("setAbilityInSlot({}, {}, {}) - ability does not fit in group", groupId, index, abilityId);
             return;
         }
 
@@ -154,7 +166,16 @@ public class ActiveAbilityGroup implements IActiveAbilityGroup, IPlayerSyncCompo
         }
     }
 
-    @Override
+    public boolean isSlotUnlocked(int slot) {
+        return slot < getCurrentSlotCount();
+    }
+
+    public void resetSlots() {
+        for (int i = 0; i < getAbilities().size(); i++) {
+            clearSlot(i);
+        }
+    }
+
     public void clearAbility(ResourceLocation abilityId) {
         int slot = getAbilitySlot(abilityId);
         if (slot != GameConstants.ACTION_BAR_INVALID_SLOT) {
@@ -162,13 +183,20 @@ public class ActiveAbilityGroup implements IActiveAbilityGroup, IPlayerSyncCompo
         }
     }
 
-    @Override
+    public void executeSlot(int index) {
+        ResourceLocation abilityId = getSlot(index);
+        if (abilityId.equals(MKCoreRegistry.INVALID_ABILITY))
+            return;
+
+        playerData.getAbilityExecutor().executeAbility(abilityId);
+    }
+
     public void clearSlot(int slot) {
         setSlot(slot, MKCoreRegistry.INVALID_ABILITY);
     }
 
     protected void setSlotInternal(int index, ResourceLocation abilityId) {
-        MKCore.LOGGER.debug("ActiveAbilityContainer.setSlotInternal({}, {}, {})", abilityType, index, abilityId);
+        MKCore.LOGGER.debug("AbilityGroup.setSlotInternal({}, {}, {})", groupId, index, abilityId);
         ResourceLocation previous = activeAbilities.set(index, abilityId);
         activeUpdater.setDirty(index);
         if (playerData.getEntity().isAddedToWorld()) {
@@ -185,24 +213,44 @@ public class ActiveAbilityGroup implements IActiveAbilityGroup, IPlayerSyncCompo
         activeUpdater.setDirty(newSlot);
     }
 
+    public void onAbilityLearned(MKAbilityInfo info) {
+        if (info.getSource().placeOnBarWhenLearned()) {
+            tryEquip(info.getId());
+        }
+    }
+
+    public void onAbilityUnlearned(MKAbilityInfo info) {
+        clearAbility(info.getId());
+    }
+
     protected void onSlotChanged(int index, ResourceLocation previous, ResourceLocation newAbility) {
-        playerData.getAbilityExecutor().onSlotChanged(abilityType, index, previous, newAbility);
+        playerData.getAbilityExecutor().onSlotChanged(groupId, index, previous, newAbility);
     }
 
     private void ensureValidAbility(ResourceLocation abilityId) {
         if (abilityId.equals(MKCoreRegistry.INVALID_ABILITY))
             return;
 
-        MKAbilityInfo info = playerData.getAbilities().getKnownAbility(abilityId);
-        if (info != null)
+        if (!groupId.requiresAbilityKnown() || playerData.getAbilities().knowsAbility(abilityId))
             return;
 
-        MKCore.LOGGER.debug("ensureValidAbility({}, {}) - bad", abilityType, abilityId);
+        MKCore.LOGGER.debug("ensureValidAbility({}, {}) - bad", groupId, abilityId);
         clearAbility(abilityId);
     }
 
-    @Override
-    public void onPersonaSwitch() {
+    public void onJoinWorld() {
+
+    }
+
+    public void onPersonaActivated() {
+        onPersonaSwitch();
+    }
+
+    public void onPersonaDeactivated() {
+
+    }
+
+    protected void onPersonaSwitch() {
         getAbilities().forEach(this::ensureValidAbility);
     }
 

@@ -1,7 +1,7 @@
 package com.chaosbuffalo.mkcore.network;
 
 import com.chaosbuffalo.mkcore.CoreCapabilities;
-import com.chaosbuffalo.mkcore.core.AbilityType;
+import com.chaosbuffalo.mkcore.core.AbilityGroupId;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
@@ -11,12 +11,12 @@ import java.util.function.Supplier;
 
 public class PlayerSlotAbilityPacket {
 
-    private final AbilityType type;
+    private final AbilityGroupId group;
     private final ResourceLocation ability;
     private final int slotIndex;
 
-    public PlayerSlotAbilityPacket(AbilityType type, int slotIndex, ResourceLocation ability) {
-        this.type = type;
+    public PlayerSlotAbilityPacket(AbilityGroupId group, int slotIndex, ResourceLocation ability) {
+        this.group = group;
         this.slotIndex = slotIndex;
         this.ability = ability;
     }
@@ -24,13 +24,13 @@ public class PlayerSlotAbilityPacket {
 
     public PlayerSlotAbilityPacket(PacketBuffer buf) {
         ability = buf.readResourceLocation();
-        type = buf.readEnumValue(AbilityType.class);
+        group = buf.readEnumValue(AbilityGroupId.class);
         slotIndex = buf.readInt();
     }
 
     public void toBytes(PacketBuffer buf) {
         buf.writeResourceLocation(ability);
-        buf.writeEnumValue(type);
+        buf.writeEnumValue(group);
         buf.writeInt(slotIndex);
     }
 
@@ -43,7 +43,7 @@ public class PlayerSlotAbilityPacket {
             }
             entity.getCapability(CoreCapabilities.PLAYER_CAPABILITY).ifPresent(playerData ->
                     playerData.getLoadout()
-                            .getAbilityGroup(type)
+                            .getAbilityGroup(group)
                             .setSlot(slotIndex, ability));
         });
         ctx.setPacketHandled(true);

@@ -6,12 +6,10 @@ import com.chaosbuffalo.mkcore.CoreCapabilities;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
-import com.chaosbuffalo.mkcore.abilities.MKAbilityInfo;
-import com.chaosbuffalo.mkcore.core.AbilityType;
+import com.chaosbuffalo.mkcore.core.AbilityGroupId;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
-import com.chaosbuffalo.mkcore.core.player.IActiveAbilityGroup;
+import com.chaosbuffalo.mkcore.core.player.AbilityGroup;
 import com.chaosbuffalo.mkcore.core.player.PlayerAbilityExecutor;
-import com.chaosbuffalo.mkcore.core.player.PlayerAbilityKnowledge;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
@@ -62,11 +60,12 @@ public class MKOverlay {
         if (!executor.isCasting()) {
             return;
         }
-        MKAbilityInfo info = data.getAbilities().getKnownAbility(executor.getCastingAbility());
-        if (info == null) {
+
+        MKAbility ability = MKCoreRegistry.getAbility(executor.getCastingAbility());
+        if (ability == null) {
             return;
         }
-        MKAbility ability = info.getAbility();
+
         int castTime = data.getStats().getAbilityCastTime(ability);
         if (castTime == 0) {
             return;
@@ -88,33 +87,33 @@ public class MKOverlay {
         return Math.max(barStart, MIN_BAR_START_Y);
     }
 
-    private String getTextureForType(AbilityType type) {
-        if (type == AbilityType.Basic) {
+    private String getAbilityGroupTexture(AbilityGroupId group) {
+        if (group == AbilityGroupId.Basic) {
             return GuiTextures.ABILITY_BAR_REG;
-        } else if (type == AbilityType.Ultimate) {
+        } else if (group == AbilityGroupId.Ultimate) {
             return GuiTextures.ABILITY_BAR_ULT;
-        } else if (type == AbilityType.Item) {
+        } else if (group == AbilityGroupId.Item) {
             // TODO: item slot texture?
             return GuiTextures.ABILITY_BAR_REG;
         }
         return null;
     }
 
-    private void drawBarSlots(MatrixStack matrixStack, AbilityType type, int startSlot, int slotCount, int totalSlots) {
+    private void drawBarSlots(MatrixStack matrixStack, AbilityGroupId group, int startSlot, int slotCount, int totalSlots) {
         GuiTextures.CORE_TEXTURES.bind(mc);
         RenderSystem.disableLighting();
         int xOffset = 0;
         int yOffset = getBarStartY(totalSlots);
         for (int i = startSlot; i < (startSlot + slotCount); i++) {
             int yPos = yOffset - i + i * SLOT_HEIGHT;
-            String texture = getTextureForType(type);
+            String texture = getAbilityGroupTexture(group);
             if (texture != null) {
                 GuiTextures.CORE_TEXTURES.drawRegionAtPos(matrixStack, texture, xOffset, yPos);
             }
         }
     }
 
-    private int drawAbilities(MatrixStack matrixStack, MKPlayerData data, AbilityType type, int startingSlot, int totalSlots, float partialTicks) {
+    private int drawAbilities(MatrixStack matrixStack, MKPlayerData data, AbilityGroupId group, int startingSlot, int totalSlots, float partialTicks) {
         RenderSystem.disableLighting();
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
@@ -124,24 +123,21 @@ public class MKOverlay {
 
         int barStartY = getBarStartY(totalSlots);
 
-        PlayerAbilityKnowledge abilityKnowledge = data.getAbilities();
-        IActiveAbilityGroup container = data.getLoadout().getAbilityGroup(type);
-        int slotCount = container.getCurrentSlotCount();
-        drawBarSlots(matrixStack, type, startingSlot, slotCount, totalSlots);
+        AbilityGroup abilityGroup = data.getLoadout().getAbilityGroup(group);
+        int slotCount = abilityGroup.getCurrentSlotCount();
+        drawBarSlots(matrixStack, group, startingSlot, slotCount, totalSlots);
 
         float globalCooldown = ClientEventHandler.getGlobalCooldown();
         PlayerAbilityExecutor executor = data.getAbilityExecutor();
 
         for (int i = 0; i < slotCount; i++) {
-            ResourceLocation abilityId = container.getSlot(i);
+            ResourceLocation abilityId = abilityGroup.getSlot(i);
             if (abilityId.equals(MKCoreRegistry.INVALID_ABILITY))
                 continue;
 
-            MKAbilityInfo info = abilityKnowledge.getKnownAbility(abilityId);
-            if (info == null)
+            MKAbility ability = MKCoreRegistry.getAbility(abilityId);
+            if (ability == null)
                 continue;
-
-            MKAbility ability = info.getAbility();
 
             float manaCost = data.getStats().getAbilityManaCost(ability);
             if (!executor.isCasting() && data.getStats().getMana() >= manaCost) {
@@ -194,14 +190,14 @@ public class MKOverlay {
             drawMana(event.getMatrixStack(), cap);
             drawCastBar(event.getMatrixStack(), cap);
 
-            int totalSlots = Arrays.stream(AbilityType.values())
-                    .filter(AbilityType::isActive)
+            int totalSlots = Arrays.stream(AbilityGroupId.values())
+                    .filter(AbilityGroupId::isActive)
                     .mapToInt(type -> cap.getLoadout().getAbilityGroup(type).getCurrentSlotCount())
                     .sum();
 
-            int slot = drawAbilities(event.getMatrixStack(), cap, AbilityType.Basic, 0, totalSlots, event.getPartialTicks());
-            slot = drawAbilities(event.getMatrixStack(), cap, AbilityType.Ultimate, slot, totalSlots, event.getPartialTicks());
-            slot = drawAbilities(event.getMatrixStack(), cap, AbilityType.Item, slot, totalSlots, event.getPartialTicks());
+            int slot = drawAbilities(event.getMatrixStack(), cap, AbilityGroupId.Basic, 0, totalSlots, event.getPartialTicks());
+            slot = drawAbilities(event.getMatrixStack(), cap, AbilityGroupId.Ultimate, slot, totalSlots, event.getPartialTicks());
+            slot = drawAbilities(event.getMatrixStack(), cap, AbilityGroupId.Item, slot, totalSlots, event.getPartialTicks());
         });
     }
 }

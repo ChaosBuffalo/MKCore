@@ -1,9 +1,8 @@
 package com.chaosbuffalo.mkcore.core.player;
 
-import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.abilities.AbilitySource;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
-import com.chaosbuffalo.mkcore.core.AbilityType;
+import com.chaosbuffalo.mkcore.core.AbilityGroupId;
 import com.chaosbuffalo.mkcore.core.IMKAbilityProvider;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.item.ArmorClass;
@@ -33,6 +32,9 @@ public class PlayerEquipmentModule {
     }
 
     public void onEquipmentChange(EquipmentSlotType slot, ItemStack from, ItemStack to) {
+        if (ItemStack.areItemsEqualIgnoreDurability(from, to))
+            return;
+
 //        MKCore.LOGGER.info("Equipment[{}] {} -> {}", slot, from, to);
         if (slot.getSlotType() == EquipmentSlotType.Group.ARMOR) {
             handleArmorChange(slot, from, to);
@@ -57,21 +59,14 @@ public class PlayerEquipmentModule {
     private void handleMainHandChange(ItemStack to) {
         // Clear the current ability if present
         if (currentMainAbility != null) {
-            playerData.getLoadout().getAbilityGroup(AbilityType.Item).clearSlot(0);
+            playerData.getLoadout().getAbilityGroup(AbilityGroupId.Item).clearSlot(0);
             currentMainAbility = null;
         }
 
         if (to.getItem() instanceof IMKAbilityProvider) {
             currentMainAbility = ((IMKAbilityProvider) to.getItem()).getAbility(to);
             if (currentMainAbility != null) {
-                if (currentMainAbility.getType() == AbilityType.Item) {
-                    if (!playerData.getAbilities().knowsAbility(currentMainAbility.getAbilityId())) {
-                        playerData.getAbilities().learnAbility(currentMainAbility, AbilitySource.ITEM);
-                    }
-                    playerData.getLoadout().getAbilityGroup(AbilityType.Item).setSlot(0, currentMainAbility.getAbilityId());
-                } else {
-                    MKCore.LOGGER.error("Cannot use ability {} provided by Item {} because it uses the wrong AbilitySlot", currentMainAbility, to);
-                }
+                playerData.getLoadout().getAbilityGroup(AbilityGroupId.Item).setSlot(0, currentMainAbility.getAbilityId());
             }
         }
     }

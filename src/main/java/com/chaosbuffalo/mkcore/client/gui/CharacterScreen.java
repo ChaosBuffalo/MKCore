@@ -5,7 +5,7 @@ import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.abilities.MKAbilityInfo;
 import com.chaosbuffalo.mkcore.client.gui.widgets.*;
-import com.chaosbuffalo.mkcore.core.AbilityType;
+import com.chaosbuffalo.mkcore.core.AbilityGroupId;
 import com.chaosbuffalo.mkcore.core.MKAttributes;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.damage.MKDamageType;
@@ -13,18 +13,14 @@ import com.chaosbuffalo.mkcore.core.talents.TalentTreeRecord;
 import com.chaosbuffalo.mkwidgets.client.gui.constraints.LayoutRelativeWidthConstraint;
 import com.chaosbuffalo.mkwidgets.client.gui.constraints.MarginConstraint;
 import com.chaosbuffalo.mkwidgets.client.gui.constraints.OffsetConstraint;
-import com.chaosbuffalo.mkwidgets.client.gui.instructions.HoveringTextInstruction;
 import com.chaosbuffalo.mkwidgets.client.gui.layouts.MKLayout;
 import com.chaosbuffalo.mkwidgets.client.gui.layouts.MKStackLayoutHorizontal;
 import com.chaosbuffalo.mkwidgets.client.gui.layouts.MKStackLayoutVertical;
-import com.chaosbuffalo.mkwidgets.client.gui.math.Vec2i;
-import com.chaosbuffalo.mkwidgets.client.gui.screens.IMKScreen;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKButton;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKRectangle;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKText;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKWidget;
 import com.chaosbuffalo.mkwidgets.utils.TextureRegion;
-import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.resources.I18n;
@@ -50,24 +46,24 @@ public class CharacterScreen extends AbilityPanelScreen {
     private static final ArrayList<Attribute> STAT_PANEL_ATTRIBUTES = new ArrayList<>();
 
     public static class AbilitySlotKey {
-        public AbilityType type;
+        public AbilityGroupId group;
         public int slot;
 
-        public AbilitySlotKey(AbilityType type, int index) {
-            this.type = type;
+        public AbilitySlotKey(AbilityGroupId group, int index) {
+            this.group = group;
             this.slot = index;
         }
 
         @Override
         public int hashCode() {
-            return slot + type.hashCode();
+            return slot + group.hashCode();
         }
 
         @Override
         public boolean equals(Object other) {
             if (other instanceof AbilitySlotKey) {
                 AbilitySlotKey otherKey = (AbilitySlotKey) other;
-                return slot == otherKey.slot && type.equals(otherKey.type);
+                return slot == otherKey.slot && group.equals(otherKey.group);
             }
             return false;
         }
@@ -75,14 +71,8 @@ public class CharacterScreen extends AbilityPanelScreen {
 
     private final Map<AbilitySlotKey, AbilitySlotWidget> abilitySlots;
 
-    public List<AbilitySlotWidget> getSlotsForType(AbilityType slotType) {
-        List<AbilitySlotWidget> widgets = new ArrayList<>();
-        for (AbilitySlotWidget slot : abilitySlots.values()) {
-            if (slot.getSlotType().equals(slotType)) {
-                widgets.add(slot);
-            }
-        }
-        return widgets;
+    public List<AbilitySlotWidget> getGroupSlots(AbilityGroupId group) {
+        return abilitySlots.values().stream().filter(slot -> slot.getSlotGroup() == group).collect(Collectors.toList());
     }
 
     static {
@@ -267,11 +257,11 @@ public class CharacterScreen extends AbilityPanelScreen {
             activesLabel.setX(slotsX);
             activesLabel.setY(slotsY - 12);
             root.addWidget(activesLabel);
-            MKLayout regularSlots = getLayoutOfAbilitySlots(slotsX, slotsY, AbilityType.Basic);
+            MKLayout regularSlots = createAbilityGroupLayout(slotsX, slotsY, AbilityGroupId.Basic);
             root.addWidget(regularSlots);
             regularSlots.manualRecompute();
             int ultSlotsX = regularSlots.getX() + regularSlots.getWidth() + 30;
-            MKLayout ultSlots = getLayoutOfAbilitySlots(ultSlotsX, slotsY, AbilityType.Ultimate);
+            MKLayout ultSlots = createAbilityGroupLayout(ultSlotsX, slotsY, AbilityGroupId.Ultimate);
             root.addWidget(ultSlots);
             ultSlots.manualRecompute();
             MKText ultLabel = new MKText(font, new TranslationTextComponent("mkcore.gui.ultimates"));
@@ -279,7 +269,7 @@ public class CharacterScreen extends AbilityPanelScreen {
             ultLabel.setY(slotsY - 12);
             root.addWidget(ultLabel);
             int passiveSlotX = ultSlots.getX() + ultSlots.getWidth() + 30;
-            MKLayout passiveSlots = getLayoutOfAbilitySlots(passiveSlotX, slotsY, AbilityType.Passive);
+            MKLayout passiveSlots = createAbilityGroupLayout(passiveSlotX, slotsY, AbilityGroupId.Passive);
             MKText passivesLabel = new MKText(font, new TranslationTextComponent("mkcore.gui.passives"));
             passivesLabel.setX(passiveSlotX);
             passivesLabel.setY(slotsY - 12);
@@ -371,13 +361,13 @@ public class CharacterScreen extends AbilityPanelScreen {
         return textWidget;
     }
 
-    private MKLayout getLayoutOfAbilitySlots(int x, int y, AbilityType slotType) {
+    private MKLayout createAbilityGroupLayout(int x, int y, AbilityGroupId group) {
         MKStackLayoutHorizontal layout = new MKStackLayoutHorizontal(x, y, 24);
         layout.setPaddings(2, 2, 0, 0);
         layout.setMargins(2, 2, 2, 2);
-        for (int i = 0; i < slotType.getMaxSlots(); i++) {
-            AbilitySlotWidget slot = new AbilitySlotWidget(0, 0, slotType, i, this);
-            abilitySlots.put(new AbilitySlotKey(slot.getSlotType(), slot.getSlotIndex()), slot);
+        for (int i = 0; i < group.getMaxSlots(); i++) {
+            AbilitySlotWidget slot = new AbilitySlotWidget(0, 0, group, i, this);
+            abilitySlots.put(new AbilitySlotKey(slot.getSlotGroup(), slot.getSlotIndex()), slot);
             layout.addWidget(slot);
         }
         return layout;
@@ -508,10 +498,10 @@ public class CharacterScreen extends AbilityPanelScreen {
     @Override
     public void setDragging(MKAbility dragging) {
         super.setDragging(dragging);
-        Arrays.stream(AbilityType.values())
-                .filter(type -> type != dragging.getType())
-                .forEach(type -> {
-                    for (AbilitySlotWidget widget : getSlotsForType(type)) {
+        Arrays.stream(AbilityGroupId.values())
+                .filter(group -> !group.fitsAbilityType(dragging.getType()))
+                .forEach(group -> {
+                    for (AbilitySlotWidget widget : getGroupSlots(group)) {
                         widget.setBackgroundColor(0xff555555);
                         widget.setIconColor(0xff555555);
                     }

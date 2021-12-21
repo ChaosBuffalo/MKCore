@@ -2,7 +2,6 @@ package com.chaosbuffalo.mkcore;
 
 import com.chaosbuffalo.mkcore.core.MKEntityData;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
-import com.chaosbuffalo.mkcore.core.talents.TalentType;
 import com.chaosbuffalo.mkcore.effects.PassiveTalentEffect;
 import com.chaosbuffalo.mkcore.effects.status.StunEffect;
 import com.chaosbuffalo.mkcore.entities.IUpdateEngineProvider;
@@ -68,8 +67,8 @@ public class EventHandler {
         PlayerEntity player = evt.getPlayer();
         PlayerEntity oldPlayer = evt.getOriginal();
 
-        player.getCapability(CoreCapabilities.PLAYER_CAPABILITY)
-                .ifPresent(newCap -> oldPlayer.getCapability(CoreCapabilities.PLAYER_CAPABILITY)
+        MKCore.getPlayer(player)
+                .ifPresent(newCap -> MKCore.getPlayer(oldPlayer)
                         .ifPresent(oldCap -> newCap.clone(oldCap, evt.isWasDeath())));
     }
 
@@ -77,10 +76,9 @@ public class EventHandler {
     public static void onStartTracking(PlayerEvent.StartTracking event) {
 //        MKCore.LOGGER.info("StartTracking {} {}", event.getTarget(), event.getTarget().getEntityId());
         if (event.getTarget() instanceof ServerPlayerEntity) {
-            PlayerEntity player = event.getPlayer();
             ServerPlayerEntity target = (ServerPlayerEntity) event.getTarget();
 
-            player.getCapability(CoreCapabilities.PLAYER_CAPABILITY).ifPresent(cap -> cap.fullSyncTo(target));
+            MKCore.getPlayer(event.getPlayer()).ifPresent(cap -> cap.fullSyncTo(target));
         } else if (event.getTarget() instanceof IUpdateEngineProvider && event.getPlayer() instanceof ServerPlayerEntity) {
             ((IUpdateEngineProvider) event.getTarget()).getUpdateEngine().sendAll((ServerPlayerEntity) event.getPlayer());
         }
@@ -92,7 +90,7 @@ public class EventHandler {
 
         if (event.getEntityLiving() instanceof ServerPlayerEntity && event.getPotion() instanceof PassiveTalentEffect) {
             MKCore.getPlayer(event.getEntityLiving()).ifPresent(playerData -> {
-                if (!playerData.getTalents().getTypeHandler(TalentType.PASSIVE).getPassiveTalentsUnlocked()) {
+                if (!playerData.getLoadout().getPassiveGroup().canRemovePassiveEffects()) {
                     MKCore.LOGGER.info("Effect {} is a passive and passives are not unlocked", event.getPotion());
                     event.setCanceled(true);
                 }

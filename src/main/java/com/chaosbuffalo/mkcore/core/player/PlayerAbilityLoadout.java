@@ -1,10 +1,10 @@
 package com.chaosbuffalo.mkcore.core.player;
 
-import com.chaosbuffalo.mkcore.MKCoreRegistry;
-import com.chaosbuffalo.mkcore.core.AbilityType;
+import com.chaosbuffalo.mkcore.core.AbilityGroupId;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
-import com.chaosbuffalo.mkcore.core.talents.ActiveTalentAbilityGroup;
-import com.chaosbuffalo.mkcore.core.talents.TalentType;
+import com.chaosbuffalo.mkcore.core.player.loadout.ItemAbilityGroup;
+import com.chaosbuffalo.mkcore.core.player.loadout.PassiveAbilityGroup;
+import com.chaosbuffalo.mkcore.core.player.loadout.UltimateAbilityGroup;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 
@@ -17,22 +17,22 @@ public class PlayerAbilityLoadout implements IPlayerSyncComponentProvider {
     private final MKPlayerData playerData;
     private final SyncComponent sync = new SyncComponent("loadout");
 
-    private final Map<AbilityType, IActiveAbilityGroup> abilityGroups = new HashMap<>();
-    private final ActiveTalentAbilityGroup passiveContainer;
-    private final ActiveTalentAbilityGroup ultimateContainer;
-    private final BasicAbilityGroup basicAbilityContainer;
-    private final ItemAbilityGroup itemAbilityContainer;
+    private final Map<AbilityGroupId, AbilityGroup> abilityGroups = new HashMap<>();
+    private final PassiveAbilityGroup passiveAbilityGroup;
+    private final UltimateAbilityGroup ultimateAbilityGroup;
+    private final BasicAbilityGroup basicAbilityGroup;
+    private final ItemAbilityGroup itemAbilityGroup;
 
     public PlayerAbilityLoadout(MKPlayerData playerData) {
         this.playerData = playerData;
-        basicAbilityContainer = new BasicAbilityGroup(playerData);
-        passiveContainer = new PassiveTalentGroup(playerData);
-        ultimateContainer = new UltimateTalentGroup(playerData);
-        itemAbilityContainer = new ItemAbilityGroup(playerData);
-        registerAbilityContainer(AbilityType.Basic, basicAbilityContainer);
-        registerAbilityContainer(AbilityType.Item, itemAbilityContainer);
-        registerAbilityContainer(AbilityType.Passive, passiveContainer);
-        registerAbilityContainer(AbilityType.Ultimate, ultimateContainer);
+        basicAbilityGroup = new BasicAbilityGroup(playerData);
+        passiveAbilityGroup = new PassiveAbilityGroup(playerData);
+        ultimateAbilityGroup = new UltimateAbilityGroup(playerData);
+        itemAbilityGroup = new ItemAbilityGroup(playerData);
+        registerAbilityGroup(AbilityGroupId.Basic, basicAbilityGroup);
+        registerAbilityGroup(AbilityGroupId.Item, itemAbilityGroup);
+        registerAbilityGroup(AbilityGroupId.Passive, passiveAbilityGroup);
+        registerAbilityGroup(AbilityGroupId.Ultimate, ultimateAbilityGroup);
     }
 
     @Override
@@ -41,91 +41,64 @@ public class PlayerAbilityLoadout implements IPlayerSyncComponentProvider {
     }
 
     @Nonnull
-    public IActiveAbilityGroup getAbilityGroup(AbilityType type) {
-        return abilityGroups.getOrDefault(type, IActiveAbilityGroup.EMPTY);
+    public AbilityGroup getAbilityGroup(AbilityGroupId group) {
+        return abilityGroups.get(group);
     }
 
-    private void registerAbilityContainer(AbilityType type, ActiveAbilityGroup container) {
-        abilityGroups.put(type, container);
-        addSyncChild(container);
+    private void registerAbilityGroup(AbilityGroupId group, AbilityGroup abilityGroup) {
+        abilityGroups.put(group, abilityGroup);
+        addSyncChild(abilityGroup);
     }
 
-    public ResourceLocation getAbilityInSlot(AbilityType type, int slot) {
-        return getAbilityGroup(type).getSlot(slot);
+    public ResourceLocation getAbilityInSlot(AbilityGroupId group, int slot) {
+        return getAbilityGroup(group).getSlot(slot);
     }
 
-    public ActiveTalentAbilityGroup getPassiveContainer() {
-        return passiveContainer;
+    public PassiveAbilityGroup getPassiveGroup() {
+        return passiveAbilityGroup;
     }
 
-    public ActiveTalentAbilityGroup getUltimateGroup() {
-        return ultimateContainer;
+    public UltimateAbilityGroup getUltimateGroup() {
+        return ultimateAbilityGroup;
+    }
+
+    public ItemAbilityGroup getItemGroup() {
+        return itemAbilityGroup;
     }
 
     public CompoundNBT serializeNBT() {
         CompoundNBT tag = new CompoundNBT();
-        tag.put("basic", basicAbilityContainer.serializeNBT());
-        tag.put("passive", passiveContainer.serializeNBT());
-        tag.put("ultimate", ultimateContainer.serializeNBT());
-        tag.put("item", itemAbilityContainer.serializeNBT());
+        tag.put("basic", basicAbilityGroup.serializeNBT());
+        tag.put("passive", passiveAbilityGroup.serializeNBT());
+        tag.put("ultimate", ultimateAbilityGroup.serializeNBT());
+        tag.put("item", itemAbilityGroup.serializeNBT());
         return tag;
     }
 
     public void deserializeNBT(CompoundNBT tag) {
-        basicAbilityContainer.deserializeNBT(tag.get("basic"));
-        passiveContainer.deserializeNBT(tag.get("passive"));
-        ultimateContainer.deserializeNBT(tag.get("ultimate"));
-        itemAbilityContainer.deserializeNBT(tag.get("item"));
+        basicAbilityGroup.deserializeNBT(tag.get("basic"));
+        passiveAbilityGroup.deserializeNBT(tag.get("passive"));
+        ultimateAbilityGroup.deserializeNBT(tag.get("ultimate"));
+        itemAbilityGroup.deserializeNBT(tag.get("item"));
     }
 
-    public void onPersonaSwitch() {
-        abilityGroups.values().forEach(IActiveAbilityGroup::onPersonaSwitch);
+    public void onJoinWorld() {
+        abilityGroups.values().forEach(AbilityGroup::onJoinWorld);
     }
 
+    public void onPersonaActivated() {
+        abilityGroups.values().forEach(AbilityGroup::onPersonaActivated);
+    }
 
-    public static class BasicAbilityGroup extends ActiveAbilityGroup {
+    public void onPersonaDeactivated() {
+        abilityGroups.values().forEach(AbilityGroup::onPersonaDeactivated);
+    }
+
+    public static class BasicAbilityGroup extends AbilityGroup {
 
         public BasicAbilityGroup(MKPlayerData playerData) {
-            super(playerData, "basic", AbilityType.Basic);
+            super(playerData, "basic", AbilityGroupId.Basic);
         }
     }
 
-    public static class ItemAbilityGroup extends ActiveAbilityGroup {
-
-        public ItemAbilityGroup(MKPlayerData playerData) {
-            super(playerData, "item", AbilityType.Item);
-        }
-
-        @Override
-        public int getCurrentSlotCount() {
-            // Only report nonzero if the slot is filled
-            return !getSlot(0).equals(MKCoreRegistry.INVALID_ABILITY) ? 1 : 0;
-        }
-    }
-
-    static class PassiveTalentGroup extends ActiveTalentAbilityGroup {
-
-        public PassiveTalentGroup(MKPlayerData playerData) {
-            super(playerData, "passive", AbilityType.Passive, TalentType.PASSIVE);
-        }
-
-        @Override
-        protected void onSlotChanged(int index, ResourceLocation previous, ResourceLocation newAbility) {
-            playerData.getTalents().getTypeHandler(TalentType.PASSIVE).onSlotChanged(index, previous, newAbility);
-            super.onSlotChanged(index, previous, newAbility);
-        }
-    }
-
-    static class UltimateTalentGroup extends ActiveTalentAbilityGroup {
-
-        public UltimateTalentGroup(MKPlayerData playerData) {
-            super(playerData, "ultimate", AbilityType.Ultimate, TalentType.ULTIMATE);
-        }
-
-        @Override
-        protected void onSlotChanged(int index, ResourceLocation previous, ResourceLocation newAbility) {
-            playerData.getTalents().getTypeHandler(TalentType.ULTIMATE).onSlotChanged(index, previous, newAbility);
-            super.onSlotChanged(index, previous, newAbility);
-        }
-    }
 }

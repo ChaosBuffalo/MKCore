@@ -146,6 +146,10 @@ public class PlayerTalentKnowledge implements IPlayerSyncComponentProvider {
         return talentTreeRecordMap.containsKey(treeId);
     }
 
+    public boolean knowsTalent(ResourceLocation talentId) {
+        return getKnownTalentsStream().anyMatch(rec -> rec.getNode().getTalent().getTalentId() == talentId);
+    }
+
     public TalentTreeRecord getTree(ResourceLocation treeId) {
         return talentTreeRecordMap.get(treeId);
     }

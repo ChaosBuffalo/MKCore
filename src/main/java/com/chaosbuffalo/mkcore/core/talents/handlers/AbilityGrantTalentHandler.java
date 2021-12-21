@@ -7,16 +7,15 @@ import com.chaosbuffalo.mkcore.core.player.PlayerAbilityKnowledge;
 import com.chaosbuffalo.mkcore.core.talents.TalentManager;
 import com.chaosbuffalo.mkcore.core.talents.TalentRecord;
 import com.chaosbuffalo.mkcore.core.talents.TalentTypeHandler;
-import net.minecraft.util.ResourceLocation;
 
-public abstract class AbilityTalentHandler extends TalentTypeHandler {
-    public AbilityTalentHandler(MKPlayerData playerData) {
+public class AbilityGrantTalentHandler extends TalentTypeHandler {
+    public AbilityGrantTalentHandler(MKPlayerData playerData) {
         super(playerData);
     }
 
     @Override
     public void onRecordUpdated(TalentRecord record) {
-        MKAbility ability = TalentManager.getTalentAbility(record.getNode().getTalent().getRegistryName());
+        MKAbility ability = TalentManager.getTalentAbility(record.getNode().getTalent().getTalentId());
         if (ability == null)
             return;
 
@@ -30,7 +29,7 @@ public abstract class AbilityTalentHandler extends TalentTypeHandler {
     @Override
     public void onRecordLoaded(TalentRecord record) {
         if (record.isKnown()) {
-            MKAbility ability = TalentManager.getTalentAbility(record.getNode().getTalent().getRegistryName());
+            MKAbility ability = TalentManager.getTalentAbility(record.getNode().getTalent().getTalentId());
             if (ability == null)
                 return;
             tryLearn(ability);
@@ -51,6 +50,4 @@ public abstract class AbilityTalentHandler extends TalentTypeHandler {
             abilityKnowledge.learnAbility(ability, AbilitySource.TALENT);
         }
     }
-
-    public abstract void onSlotChanged(int index, ResourceLocation oldAbilityId, ResourceLocation newAbilityId);
 }

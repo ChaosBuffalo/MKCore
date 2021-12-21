@@ -4,7 +4,7 @@ import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.client.gui.CharacterScreen;
 import com.chaosbuffalo.mkcore.client.gui.IPlayerDataAwareScreen;
 import com.chaosbuffalo.mkcore.client.gui.ParticleEditorScreen;
-import com.chaosbuffalo.mkcore.core.AbilityType;
+import com.chaosbuffalo.mkcore.core.AbilityGroupId;
 import com.chaosbuffalo.mkcore.core.MKAttributes;
 import com.chaosbuffalo.mkcore.core.MKRangedAttribute;
 import com.chaosbuffalo.mkcore.effects.status.StunEffect;
@@ -130,20 +130,20 @@ public class ClientEventHandler {
         }
     }
 
-    static void handleAbilityBarPressed(PlayerEntity player, AbilityType type, int slot) {
+    static void handleAbilityBarPressed(PlayerEntity player, AbilityGroupId group, int slot) {
         if (isOnGlobalCooldown() || player.isPotionActive(StunEffect.INSTANCE))
             return;
 
         MKCore.getPlayer(player).ifPresent(pData -> {
-            ResourceLocation abilityId = pData.getLoadout().getAbilityInSlot(type, slot);
+            ResourceLocation abilityId = pData.getLoadout().getAbilityInSlot(group, slot);
             if (abilityId.equals(MKCoreRegistry.INVALID_ABILITY))
                 return;
 
             MKAbility ability = MKCoreRegistry.getAbility(abilityId);
 
-            if (ability != null && pData.getAbilityExecutor().clientSimulateAbility(ability)) {
-                MKCore.LOGGER.info("sending execute ability {} {}", type, slot);
-                PacketHandler.sendMessageToServer(new ExecuteActiveAbilityPacket(type, slot));
+            if (ability != null && pData.getAbilityExecutor().clientSimulateAbility(ability, group)) {
+                MKCore.LOGGER.info("sending execute ability {} {}", group, slot);
+                PacketHandler.sendMessageToServer(new ExecuteActiveAbilityPacket(group, slot));
                 startGlobalCooldown();
             }
         });
@@ -165,19 +165,19 @@ public class ClientEventHandler {
         for (int i = 0; i < activeAbilityBinds.length; i++) {
             KeyBinding bind = activeAbilityBinds[i];
             while (bind.isPressed()) {
-                handleAbilityBarPressed(player, AbilityType.Basic, i);
+                handleAbilityBarPressed(player, AbilityGroupId.Basic, i);
             }
         }
 
         for (int i = 0; i < ultimateAbilityBinds.length; i++) {
             KeyBinding bind = ultimateAbilityBinds[i];
             while (bind.isPressed()) {
-                handleAbilityBarPressed(player, AbilityType.Ultimate, i);
+                handleAbilityBarPressed(player, AbilityGroupId.Ultimate, i);
             }
         }
 
         while (itemAbilityBind.isPressed()) {
-            handleAbilityBarPressed(player, AbilityType.Item, 0);
+            handleAbilityBarPressed(player, AbilityGroupId.Item, 0);
         }
     }
 
