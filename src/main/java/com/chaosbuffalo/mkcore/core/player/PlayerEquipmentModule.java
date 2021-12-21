@@ -32,6 +32,9 @@ public class PlayerEquipmentModule {
     }
 
     public void onEquipmentChange(EquipmentSlotType slot, ItemStack from, ItemStack to) {
+        if (ItemStack.areItemsEqualIgnoreDurability(from, to))
+            return;
+
 //        MKCore.LOGGER.info("Equipment[{}] {} -> {}", slot, from, to);
         if (slot.getSlotType() == EquipmentSlotType.Group.ARMOR) {
             handleArmorChange(slot, from, to);
