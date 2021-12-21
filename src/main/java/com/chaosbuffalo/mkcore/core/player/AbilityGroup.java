@@ -231,8 +231,7 @@ public class AbilityGroup implements IPlayerSyncComponentProvider {
         if (abilityId.equals(MKCoreRegistry.INVALID_ABILITY))
             return;
 
-        MKAbilityInfo info = playerData.getAbilities().getKnownAbility(abilityId);
-        if (info != null)
+        if (!groupId.requiresAbilityKnown() || playerData.getAbilities().knowsAbility(abilityId))
             return;
 
         MKCore.LOGGER.debug("ensureValidAbility({}, {}) - bad", groupId, abilityId);
