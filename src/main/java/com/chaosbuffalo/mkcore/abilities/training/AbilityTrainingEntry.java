@@ -1,5 +1,6 @@
 package com.chaosbuffalo.mkcore.abilities.training;
 
+import com.chaosbuffalo.mkcore.abilities.AbilitySource;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 
@@ -10,13 +11,13 @@ import java.util.stream.Collectors;
 public class AbilityTrainingEntry {
 
     private final MKAbility ability;
-    private final boolean isPoolAbility;
+    private final AbilitySource source;
     private final List<IAbilityTrainingRequirement> requirementList;
 
-    public AbilityTrainingEntry(MKAbility ability, boolean useAbilityPool) {
+    public AbilityTrainingEntry(MKAbility ability, AbilitySource source) {
         this.ability = ability;
         requirementList = new ArrayList<>();
-        isPoolAbility = useAbilityPool;
+        this.source = source;
     }
 
     public MKAbility getAbility() {
@@ -25,10 +26,6 @@ public class AbilityTrainingEntry {
 
     public List<IAbilityTrainingRequirement> getRequirements() {
         return requirementList;
-    }
-
-    public boolean isPoolAbility() {
-        return isPoolAbility;
     }
 
     public AbilityTrainingEntry addRequirement(IAbilityTrainingRequirement requirement) {
@@ -53,6 +50,6 @@ public class AbilityTrainingEntry {
                 .stream()
                 .map(req -> evaluateRequirement(req, playerData))
                 .collect(Collectors.toList());
-        return new AbilityTrainingEvaluation(getAbility(), requirements, isPoolAbility());
+        return new AbilityTrainingEvaluation(getAbility(), requirements, source.usesAbilityPool());
     }
 }

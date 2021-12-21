@@ -37,7 +37,7 @@ public class AbilityGrantTalentHandler extends TalentTypeHandler {
     }
 
     protected void onUnknownAbilityUpdated(TalentRecord record, MKAbility ability) {
-        playerData.getAbilities().unlearnAbility(ability.getAbilityId());
+        playerData.getAbilities().unlearnAbility(ability.getAbilityId(), AbilitySource.TALENT);
     }
 
     protected void onKnownAbilityUpdated(TalentRecord record, MKAbility ability) {
@@ -46,7 +46,7 @@ public class AbilityGrantTalentHandler extends TalentTypeHandler {
 
     protected void tryLearn(MKAbility ability) {
         PlayerAbilityKnowledge abilityKnowledge = playerData.getAbilities();
-        if (!abilityKnowledge.knowsAbility(ability.getAbilityId())) {
+        if (!abilityKnowledge.knowsAbility(ability.getAbilityId(), AbilitySource.TALENT)) {
             abilityKnowledge.learnAbility(ability, AbilitySource.TALENT);
         }
     }

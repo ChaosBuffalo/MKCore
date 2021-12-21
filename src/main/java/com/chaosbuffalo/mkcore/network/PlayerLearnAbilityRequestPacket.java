@@ -37,7 +37,7 @@ public class PlayerLearnAbilityRequestPacket {
         learning = buffer.readResourceLocation();
         int count = buffer.readInt();
         forgetting = new ArrayList<>();
-        for (int i = 0; i < count; i++){
+        for (int i = 0; i < count; i++) {
             forgetting.add(buffer.readResourceLocation());
         }
     }
@@ -46,7 +46,7 @@ public class PlayerLearnAbilityRequestPacket {
         buffer.writeInt(entityId);
         buffer.writeResourceLocation(learning);
         buffer.writeInt(forgetting.size());
-        for (ResourceLocation loc : forgetting){
+        for (ResourceLocation loc : forgetting) {
             buffer.writeResourceLocation(loc);
         }
 //        if (!replacingId.equals(MKCoreRegistry.INVALID_ABILITY)) {
@@ -65,7 +65,7 @@ public class PlayerLearnAbilityRequestPacket {
                 return;
 
 
-            for (ResourceLocation loc : forgetting){
+            for (ResourceLocation loc : forgetting) {
                 MKAbility ability = MKCoreRegistry.getAbility(loc);
                 if (ability == null) {
                     MKCore.LOGGER.error("Forget ability failed because ability with id {} is null for player: {}.", loc.toString(), player);
@@ -73,7 +73,7 @@ public class PlayerLearnAbilityRequestPacket {
                 }
             }
             MKAbility toLearn = MKCoreRegistry.getAbility(learning);
-            if (toLearn == null){
+            if (toLearn == null) {
                 MKCore.LOGGER.error("Learn ability failed because ability with id {} is null for player: {}.", learning.toString(), player);
             }
 
@@ -94,16 +94,16 @@ public class PlayerLearnAbilityRequestPacket {
                     }
 
                     int count = playerData.getAbilities().getSlotDeficitToLearnAnAbility();
-                    if (count != forgetting.size()){
+                    if (count != forgetting.size()) {
                         MKCore.LOGGER.debug("Failed to learn ability {} from {} - a", learning, teacher);
                         return;
                     }
-                    for (ResourceLocation toForget : forgetting){
-                        if (!playerData.getAbilities().knowsAbility(toForget)){
+                    for (ResourceLocation toForget : forgetting) {
+                        if (!playerData.getAbilities().knowsAbility(toForget)) {
                             MKCore.LOGGER.debug("Failed to learn ability {} from {} - provided unlearned ability for forgetting {}", learning, teacher, toForget);
                             return;
                         }
-                        playerData.getAbilities().unlearnAbility(toForget);
+                        playerData.getAbilities().unlearnAbility(toForget, AbilitySource.TRAINED);
                     }
 
                     if (playerData.getAbilities().learnAbility(toLearn, AbilitySource.TRAINED, MKCoreRegistry.INVALID_ABILITY)) {

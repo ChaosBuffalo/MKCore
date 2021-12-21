@@ -1,5 +1,6 @@
 package com.chaosbuffalo.mkcore.abilities.training;
 
+import com.chaosbuffalo.mkcore.abilities.AbilitySource;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import net.minecraft.entity.Entity;
@@ -34,7 +35,7 @@ public class EntityAbilityTrainer implements IAbilityTrainer {
 
     @Override
     public AbilityTrainingEntry addTrainedAbility(MKAbility ability) {
-        AbilityTrainingEntry entry = new AbilityTrainingEntry(ability, true);
+        AbilityTrainingEntry entry = new AbilityTrainingEntry(ability, AbilitySource.TRAINED);
         entries.add(entry);
         return entry;
     }
