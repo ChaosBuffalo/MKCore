@@ -26,5 +26,50 @@
         "attenuation_distance": 32
       }
     ]
+  },
+  "weapon_block": {
+    "subtitle": "mkcore.subtitle.weapon_block",
+    "sounds": [
+      {
+        "name": "mkcore:other/weapon_block",
+        "attenuation_distance": 20
+      }
+    ]
+  },
+  "block_break": {
+    "subtitle": "mkcore.subtitle.block_break",
+    "sounds": [
+      {
+        "name": "mkcore:other/block_break",
+        "attenuation_distance": 20
+      }
+    ]
+  },
+  "fist_block": {
+    "subtitle": "mkcore.subtitle.fist_block",
+    "sounds": [
+      {
+        "name": "mkcore:other/fist_block",
+        "attenuation_distance": 20
+      }
+    ]
+  },
+  "arrow_block": {
+    "subtitle": "mkcore.subtitle.arrow_block",
+    "sounds": [
+      {
+        "name": "mkcore:other/arrow_block",
+        "attenuation_distance": 20
+      }
+    ]
+  },
+  "parry": {
+    "subtitle": "mkcore.subtitle.parry",
+    "sounds": [
+      {
+        "name": "mkcore:other/parry",
+        "attenuation_distance": 20
+      }
+    ]
   }
 }

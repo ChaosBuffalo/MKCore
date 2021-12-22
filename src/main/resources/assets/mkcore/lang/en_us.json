@@ -194,5 +194,13 @@
   "mkcore.gui.character.forget": "Do you want to forget any known abilities?",
   "mkcore.gui.manage_memory": "Manage",
   "mkcore.gui.memory_pool": "%d/%d",
-  "mkcore.gui.memory_pool_tooltip": "Memory Pool Slot Usage"
+  "mkcore.gui.memory_pool_tooltip": "Memory Pool Slot Usage",
+  "mkcore.block_efficiency.description": "Block Efficiency: %.1f%%",
+  "mkcore.max_poise.description": "Max Poise: %.0f",
+  "mkcore.subtitle.block_break": "The sound of someone's block breaking",
+  "mkcore.subtitle.fist_block": "The sound of fist on shield rings out",
+  "mkcore.subtitle.weapon_block": "The sound of weapon shield rings out",
+  "mkcore.subtitle.arrow_block": "The sound of an arrow thudding into a shield",
+  "mkcore.subtitle.parry": "The sound of a deftly executed parry rings in the air"
+
 }

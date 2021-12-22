@@ -85,7 +85,7 @@ public class AbilityExecutor {
     }
 
     public boolean canActivateAbility(MKAbility ability) {
-        if (isCasting())
+        if (isCasting() || entityData.getEntity().isActiveItemStackBlocking())
             return false;
 
         if (getCurrentAbilityCooldown(ability.getAbilityId()) > 0)
