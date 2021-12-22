@@ -211,9 +211,9 @@ public class ClientEventHandler {
             return;
         if (event.getItemStack().getItem() instanceof ShieldItem){
             event.getToolTip().add(new TranslationTextComponent("mkcore.max_poise.description",
-                    50).mergeStyle(TextFormatting.GRAY));
+                    50f).mergeStyle(TextFormatting.GRAY));
             event.getToolTip().add(new TranslationTextComponent("mkcore.block_efficiency.description",
-                    1.0).mergeStyle(TextFormatting.GRAY));
+                    100.0f).mergeStyle(TextFormatting.GRAY));
         }
         if (!MKConfig.CLIENT.showArmorClassOnTooltip.get())
             return;
