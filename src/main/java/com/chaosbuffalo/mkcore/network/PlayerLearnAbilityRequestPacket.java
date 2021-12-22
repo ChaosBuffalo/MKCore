@@ -99,14 +99,13 @@ public class PlayerLearnAbilityRequestPacket {
                         return;
                     }
                     for (ResourceLocation toForget : forgetting) {
-                        if (!playerData.getAbilities().knowsAbility(toForget)) {
+                        if (!playerData.getAbilities().unlearnAbility(toForget, AbilitySource.TRAINED)) {
                             MKCore.LOGGER.debug("Failed to learn ability {} from {} - provided unlearned ability for forgetting {}", learning, teacher, toForget);
                             return;
                         }
-                        playerData.getAbilities().unlearnAbility(toForget, AbilitySource.TRAINED);
                     }
 
-                    if (playerData.getAbilities().learnAbility(toLearn, AbilitySource.TRAINED, MKCoreRegistry.INVALID_ABILITY)) {
+                    if (playerData.getAbilities().learnAbility(toLearn, AbilitySource.TRAINED)) {
                         entry.onAbilityLearned(playerData);
                     }
                 });

@@ -70,11 +70,6 @@ public class PlayerAbilityKnowledge implements IMKAbilityKnowledge, IPlayerSyncC
                 .map(MKAbilityInfo::getId);
     }
 
-    private boolean isPoolAbility(ResourceLocation abilityId) {
-        MKAbilityInfo info = getKnownAbility(abilityId);
-        return info != null && info.getSource().usesAbilityPool();
-    }
-
     public List<ResourceLocation> getPoolAbilities() {
         return getPoolAbilityStream().collect(Collectors.toList());
     }
@@ -101,10 +96,6 @@ public class PlayerAbilityKnowledge implements IMKAbilityKnowledge, IPlayerSyncC
         return abilityInfoMap.values().stream().filter(MKAbilityInfo::isCurrentlyKnown);
     }
 
-    private boolean isBlockedFromLearning(MKAbility ability, AbilitySource source, ResourceLocation replacing) {
-        return source.usesAbilityPool() && isAbilityPoolFull() && replacing.equals(MKCoreRegistry.INVALID_ABILITY);
-    }
-
     private AbilityGroup getAbilityGroup(MKAbility ability) {
         return playerData.getLoadout().getAbilityGroup(ability.getType().getGroup());
     }
@@ -124,7 +115,7 @@ public class PlayerAbilityKnowledge implements IMKAbilityKnowledge, IPlayerSyncC
             return true;
         }
 
-        if (isBlockedFromLearning(ability, source, MKCoreRegistry.INVALID_ABILITY)) {
+        if (source.usesAbilityPool() && isAbilityPoolFull()) {
             MKCore.LOGGER.warn("Player {} tried to learn pool ability {} with a full pool ({}/{})",
                     playerData.getEntity(), ability.getAbilityId(), getCurrentPoolCount(), getAbilityPoolSize());
             return false;
@@ -136,32 +127,6 @@ public class PlayerAbilityKnowledge implements IMKAbilityKnowledge, IPlayerSyncC
 
         getAbilityGroup(ability).onAbilityLearned(info);
         return true;
-    }
-
-    public boolean learnAbility(MKAbility ability, AbilitySource source, ResourceLocation replacingAbilityId) {
-        if (isBlockedFromLearning(ability, source, replacingAbilityId)) {
-            return false;
-        }
-
-        if (!replacingAbilityId.equals(MKCoreRegistry.INVALID_ABILITY)) {
-            if (isPoolAbility(replacingAbilityId)) {
-                if (!unlearnAbility(replacingAbilityId, AbilitySource.TRAINED)) {
-                    MKCore.LOGGER.error("learnAbility - failed to unlearn forget ability {}", replacingAbilityId);
-                    return false;
-                }
-            } else {
-                // pool was full but ability to unlearn was not in our pool
-                MKCore.LOGGER.error("learnAbility error - forget ability was not a pool ability");
-                return false;
-            }
-        }
-
-        if (!source.usesAbilityPool() || !isAbilityPoolFull()) {
-            return learnAbility(ability, source);
-        } else {
-            MKCore.LOGGER.error("learnAbility called with full pool!");
-            return false;
-        }
     }
 
     @Override
