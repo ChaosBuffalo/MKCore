@@ -57,6 +57,30 @@ public class MKOverlay {
         }
     }
 
+    private void drawPoise(MatrixStack matrixStack, MKPlayerData data){
+
+        boolean isBroken = data.getStats().isPoiseBroke();
+        float poiseAmount = isBroken ? data.getStats().getPoiseBreakTime() : data.getStats().getPoise();
+        float maxPoise = isBroken ? data.getStats().getPoiseBreakCooldown() : data.getStats().getMaxPoise();
+        int width = 50;
+        int barSize = Math.round(width * (poiseAmount / maxPoise));
+        int castStartX;
+        int height = mc.getMainWindow().getScaledHeight();
+        int castStartY;
+        if (data.getEntity().isActiveItemStackBlocking()){
+            castStartY = height / 2 + 8;
+            castStartX = mc.getMainWindow().getScaledWidth() / 2 - barSize / 2;
+        } else {
+            castStartY = height - 40;
+            castStartX = 24;
+        }
+
+        GuiTextures.CORE_TEXTURES.bind(mc);
+        RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
+        GuiTextures.CORE_TEXTURES.drawRegionAtPosPartialWidth(matrixStack, isBroken ? GuiTextures.POISE_BREAK : GuiTextures.POISE_BAR, castStartX, castStartY, barSize);
+
+    }
+
     private void drawCastBar(MatrixStack matrixStack, MKPlayerData data) {
         PlayerAbilityExecutor executor = data.getAbilityExecutor();
         if (!executor.isCasting()) {
@@ -193,6 +217,7 @@ public class MKOverlay {
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
             drawMana(event.getMatrixStack(), cap);
             drawCastBar(event.getMatrixStack(), cap);
+            drawPoise(event.getMatrixStack(), cap);
 
             int totalSlots = Arrays.stream(AbilityType.values())
                     .filter(AbilityType::isActive)

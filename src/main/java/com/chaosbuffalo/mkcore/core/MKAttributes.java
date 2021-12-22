@@ -211,6 +211,26 @@ public class MKAttributes {
             .setRegistryName(MKCore.makeRL("marksmanship"))
             .setShouldWatch(true);
 
+    public static final RangedAttribute MAX_POISE = (RangedAttribute) new RangedAttribute(
+            "attribute.name.mk.max_poise", 0, 0, 2048)
+            .setRegistryName(MKCore.makeRL("max_poise"))
+            .setShouldWatch(true);
+
+    public static final RangedAttribute POISE_REGEN = (RangedAttribute) new RangedAttribute(
+            "attribute.name.mk.poise_regen", 5, 0, 2048)
+            .setRegistryName(MKCore.makeRL("poise_regen"))
+            .setShouldWatch(true);
+
+    public static final RangedAttribute POISE_BREAK_CD = (RangedAttribute) new RangedAttribute(
+            "attribute.name.mk.poise_break_cd", 20.0, 0, 2048)
+            .setRegistryName(MKCore.makeRL("poise_break_cd"))
+            .setShouldWatch(true);
+
+    public static final RangedAttribute BLOCK_EFFICIENCY = (RangedAttribute) new RangedAttribute(
+            "attribute.name.mk.block_efficiency", 0, 0, 1.0)
+            .setRegistryName(MKCore.makeRL("block_efficiency"))
+            .setShouldWatch(true);
+
     public static final List<RangedAttribute> SPELL_SKILLS = new ArrayList<>();
     public static final List<RangedAttribute> COMBAT_SKILLS = new ArrayList<>();
 
@@ -269,6 +289,11 @@ public class MKAttributes {
         consumer.accept(PANKRATION);
         consumer.accept(EVOCATION);
         consumer.accept(MARKSMANSHIP);
+
+        consumer.accept(MAX_POISE);
+        consumer.accept(POISE_REGEN);
+        consumer.accept(POISE_BREAK_CD);
+        consumer.accept(BLOCK_EFFICIENCY);
     }
 
     public static void iteratePlayerAttributes(Consumer<Attribute> consumer) {

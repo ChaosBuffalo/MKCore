@@ -18,6 +18,16 @@ public class CoreSounds {
     public static SoundEvent spell_cast_default;
     @ObjectHolder("level_up")
     public static SoundEvent level_up;
+    @ObjectHolder("block_break")
+    public static SoundEvent block_break;
+    @ObjectHolder("weapon_block")
+    public static SoundEvent weapon_block;
+    @ObjectHolder("arrow_block")
+    public static SoundEvent arrow_block;
+    @ObjectHolder("fist_block")
+    public static SoundEvent fist_block;
+    @ObjectHolder("parry")
+    public static SoundEvent parry;
 
     public static void registerSound(RegistryEvent.Register<SoundEvent> evt, SoundEvent event) {
         evt.getRegistry().register(event);
@@ -35,5 +45,10 @@ public class CoreSounds {
         registerSound(evt, createSound("casting_default"));
         registerSound(evt, createSound("spell_cast_default"));
         registerSound(evt, createSound("level_up"));
+        registerSound(evt, createSound("block_break"));
+        registerSound(evt, createSound("arrow_block"));
+        registerSound(evt, createSound("fist_block"));
+        registerSound(evt, createSound("weapon_block"));
+        registerSound(evt, createSound("parry"));
     }
 }

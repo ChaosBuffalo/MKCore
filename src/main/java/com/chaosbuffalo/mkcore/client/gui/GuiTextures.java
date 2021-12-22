@@ -24,6 +24,8 @@ public class GuiTextures {
     public static final String XP_BAR_BACKGROUND = "xp_background";
     public static final String XP_BAR_BLUE = "xp_bar_blue";
     public static final String XP_BAR_YELLOW = "xp_bar_yellow";
+    public static final String POISE_BAR = "poise_bar";
+    public static final String POISE_BREAK = "poise_break";
 
     static {
         CORE_TEXTURES.addTextureRegion(MANA_REGION, 326, 51, 3, 8);
@@ -43,6 +45,8 @@ public class GuiTextures {
         CORE_TEXTURES.addTextureRegion(XP_BAR_BLUE, 330, 89, 59, 11);
         CORE_TEXTURES.addTextureRegion(XP_BAR_YELLOW, 330, 105, 59, 11);
         CORE_TEXTURES.addTextureRegion(DATA_BOX_SHORT, 0, 404, 308, 133);
+        CORE_TEXTURES.addTextureRegion(POISE_BAR, 326, 118, 50, 3);
+        CORE_TEXTURES.addTextureRegion(POISE_BREAK, 326, 125, 50, 3);
 
 
     }

@@ -4,14 +4,22 @@ import com.chaosbuffalo.mkcore.CoreCapabilities;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.damage.MKDamageSource;
 import com.chaosbuffalo.mkcore.effects.SpellTriggers;
+import com.chaosbuffalo.mkcore.init.CoreDamageTypes;
+import com.chaosbuffalo.mkcore.init.CoreSounds;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.PlayerLeftClickEmptyPacket;
+import com.chaosbuffalo.mkcore.utils.SoundUtils;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.entity.projectile.AbstractArrowEntity;
+import net.minecraft.item.SwordItem;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.Hand;
+import net.minecraft.util.Tuple;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.event.entity.ProjectileImpactEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
@@ -80,14 +88,81 @@ public class CombatEventHandler {
         }
     }
 
+    private static boolean canBlock(DamageSource source, LivingEntity entity){
+
+        Entity sourceEntity = source.getImmediateSource();
+        boolean hasPiercing = false;
+        if (sourceEntity instanceof AbstractArrowEntity) {
+            AbstractArrowEntity abstractarrowentity = (AbstractArrowEntity)sourceEntity;
+            if (abstractarrowentity.getPierceLevel() > 0) {
+                hasPiercing = true;
+            }
+        }
+
+        if (!source.isUnblockable() && entity.isActiveItemStackBlocking() && !hasPiercing) {
+            Vector3d damageLoc = source.getDamageLocation();
+            if (damageLoc != null) {
+                Vector3d lookVec = entity.getLook(1.0F);
+                Vector3d damageDir = damageLoc.subtractReverse(entity.getPositionVec()).normalize();
+                damageDir = new Vector3d(damageDir.x, 0.0D, damageDir.z);
+                if (damageDir.dotProduct(lookVec) < 0.0D) {
+                    return true;
+                }
+            }
+        }
+        return false;
+
+    }
+
     @SubscribeEvent
     public static void onLivingAttackEvent(LivingAttackEvent event) {
         Entity target = event.getEntity();
         if (target.world.isRemote)
             return;
 
+
+
         DamageSource dmgSource = event.getSource();
         Entity source = dmgSource.getTrueSource();
+
+        if (canBlock(dmgSource, event.getEntityLiving())){
+            MKCore.getPlayer(target).ifPresent(playerData -> {
+                Tuple<Float, Boolean> breakResult = playerData.getStats().handlePoiseDamage(event.getAmount());
+                float left = breakResult.getA();
+                if (!(dmgSource instanceof MKDamageSource)){
+                    // correct for if we're a vanilla damage source and we're going to bypass armor so pre-apply armor
+                    left = CoreDamageTypes.MeleeDamage.applyResistance(event.getEntityLiving(), left);
+                }
+                event.setCanceled(true);
+                if (left > 0){
+                    target.attackEntityFrom(dmgSource instanceof MKDamageSource ? ((MKDamageSource) dmgSource)
+                            .setSuppressTriggers(true).setDamageBypassesArmor() : dmgSource.setDamageBypassesArmor(),
+                            left);
+                }
+                if (breakResult.getB()){
+                    SoundUtils.serverPlaySoundAtEntity(event.getEntityLiving(),
+                            CoreSounds.block_break, event.getEntityLiving().getSoundCategory());
+                } else {
+                    if (event.getEntityLiving().getItemInUseMaxCount() <= 6){
+                        SoundUtils.serverPlaySoundAtEntity(event.getEntityLiving(),
+                                CoreSounds.parry, event.getEntityLiving().getSoundCategory());
+                    }
+                    else if (dmgSource.getImmediateSource() instanceof AbstractArrowEntity){
+                        SoundUtils.serverPlaySoundAtEntity(event.getEntityLiving(),
+                                CoreSounds.arrow_block, event.getEntityLiving().getSoundCategory());
+                    } else if (source instanceof LivingEntity){
+                        if (((LivingEntity) source).getHeldItem(Hand.MAIN_HAND).getItem() instanceof SwordItem){
+                            SoundUtils.serverPlaySoundAtEntity(event.getEntityLiving(),
+                                    CoreSounds.weapon_block, event.getEntityLiving().getSoundCategory());
+                        } else {
+                            SoundUtils.serverPlaySoundAtEntity(event.getEntityLiving(),
+                                    CoreSounds.fist_block, event.getEntityLiving().getSoundCategory());
+                        }
+                    }
+                }
+
+            });
+        }
         if (dmgSource instanceof MKDamageSource) {
             if (((MKDamageSource) dmgSource).shouldSuppressTriggers())
                 return;

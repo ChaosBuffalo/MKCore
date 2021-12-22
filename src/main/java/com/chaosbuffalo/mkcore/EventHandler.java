@@ -35,6 +35,7 @@ public class EventHandler {
     public static void onEntityJoinWorld(EntityJoinWorldEvent event) {
     }
 
+
     @SubscribeEvent
     public static void onPlayerJoinWorld(PlayerEvent.PlayerLoggedInEvent event) {
         if (event.getEntity() instanceof PlayerEntity) {

@@ -4,7 +4,9 @@
   "compatibilityLevel": "JAVA_8",
   "refmap": "mkcore.refmap.json",
   "mixins": [
-    "WorldRendererMixins"
+    "WorldRendererMixins",
+    "LivingEntityMixins",
+    "ShieldItemMixins"
   ],
   "minVersion": "0.8"
 }

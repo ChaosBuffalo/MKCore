@@ -1,5 +1,6 @@
 package com.chaosbuffalo.mkcore.core.player;
 
+import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.core.MKAttributes;
@@ -12,6 +13,7 @@ import net.minecraft.entity.ai.attributes.Attribute;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Tuple;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextComponent;
@@ -22,11 +24,15 @@ public class PlayerStatsModule extends EntityStatsModule implements IPlayerSyncC
     private final SyncComponent sync = new SyncComponent("stats");
     private float manaRegenTimer;
     private final SyncFloat mana = new SyncFloat("mana", 0f);
+    private final SyncFloat poise = new SyncFloat("poise", 0f);
+    private final SyncFloat poise_break = new SyncFloat("poise_break", 0f);
 
     public PlayerStatsModule(MKPlayerData playerData) {
         super(playerData);
         manaRegenTimer = 0f;
         addSyncPublic(mana);
+        addSyncPrivate(poise);
+        addSyncPrivate(poise_break);
         addSyncPrivate(abilityTracker);
     }
 
@@ -69,6 +75,27 @@ public class PlayerStatsModule extends EntityStatsModule implements IPlayerSyncC
         mana.set(value, sendUpdate);
     }
 
+    public float getMaxPoise() {
+        return (float) getEntity().getAttribute(MKAttributes.MAX_POISE).getValue();
+    }
+
+    public void setMaxPoise(float max){
+        getEntity().getAttribute(MKAttributes.MAX_MANA).setBaseValue(max);
+        setMana(getMana()); // Refresh the mana to account for the updated maximum
+    }
+
+    public void setPoise(float value){
+        setPoise(value, true);
+    }
+
+    private void setPoise(float value, boolean sendUpdate) {
+        if (getEntity().isAddedToWorld()) {
+            value = MathHelper.clamp(value, 0, getMaxPoise());
+//            MKCore.LOGGER.info("setMana clamp {}", value);
+        }
+        poise.set(value, sendUpdate);
+    }
+
     public float getMaxMana() {
         return (float) getEntity().getAttribute(MKAttributes.MAX_MANA).getValue();
     }
@@ -78,6 +105,10 @@ public class PlayerStatsModule extends EntityStatsModule implements IPlayerSyncC
         setMana(getMana()); // Refresh the mana to account for the updated maximum
     }
 
+    public float getPoiseRegenRate(){
+        return (float) getEntity().getAttribute(MKAttributes.POISE_REGEN).getValue();
+    }
+
     public float getManaRegenRate() {
         return (float) getEntity().getAttribute(MKAttributes.MANA_REGEN).getValue();
     }
@@ -85,6 +116,7 @@ public class PlayerStatsModule extends EntityStatsModule implements IPlayerSyncC
     public void tick() {
         super.tick();
         updateMana();
+        updatePoise();
     }
 
     public void onJoinWorld() {
@@ -106,9 +138,64 @@ public class PlayerStatsModule extends EntityStatsModule implements IPlayerSyncC
         }
     }
 
+    public float getPoise(){
+        return poise.get();
+    }
+
+    public float getPoiseBreakTime(){
+        return poise_break.get();
+    }
+
     private void setupBaseStats() {
         addBaseStat(MKAttributes.MAX_MANA, 20);
         addBaseStat(MKAttributes.MANA_REGEN, 1);
+
+    }
+
+    public float getPoiseBreakCooldown(){
+        return (float) getEntity().getAttribute(MKAttributes.POISE_BREAK_CD).getValue();
+    }
+
+
+
+    public void breakPoise(){
+        setPoise(0);
+        poise_break.set(getPoiseBreakCooldown());
+        getEntity().stopActiveHand();
+    }
+
+    public boolean isPoiseBroke(){
+        return poise_break.get() > 0.0f;
+    }
+
+    private void updatePoise(){
+        float break_time = poise_break.get();
+        if (getEntity().isActiveItemStackBlocking()){
+            if (entityData.getAbilityExecutor().isCasting()){
+                entityData.getAbilityExecutor().interruptCast();
+            }
+            if (break_time > 0f){
+                getEntity().stopActiveHand();
+            }
+            return;
+        }
+        if (break_time > 0f){
+            poise_break.set(Math.max(0f, break_time - (1.0f / GameConstants.TICKS_PER_SECOND)));
+        }
+        if (poise_break.get() > 0f || getPoiseRegenRate() <= 0f){
+            return;
+        }
+
+        float max = getMaxPoise();
+        if (getPoise() > max){
+            setPoise(max);
+        }
+
+        if (getPoise() == max){
+            return;
+        }
+
+        setPoise(Math.min(getPoise() + (getPoiseRegenRate() / 20.0f), max));
     }
 
     private void updateMana() {
@@ -148,6 +235,22 @@ public class PlayerStatsModule extends EntityStatsModule implements IPlayerSyncC
 
         setMana(getMana() - amount);
         return true;
+    }
+
+    public Tuple<Float, Boolean> handlePoiseDamage(float damageIn){
+        float blockPortion = (float) (getEntity().getAttribute(MKAttributes.BLOCK_EFFICIENCY).getValue() * damageIn);
+        float remainder = damageIn - blockPortion;
+        float poise = getPoise();
+        if (blockPortion >= poise){
+            breakPoise();
+            return new Tuple<>(remainder + blockPortion - poise, true);
+        } else {
+            if (getEntity().getItemInUseMaxCount() < 6){
+                blockPortion *= 0.25f;
+            }
+            setPoise(poise - blockPortion);
+            return new Tuple<>(remainder, false);
+        }
     }
 
     public float getAbilityManaCost(MKAbility ability) {

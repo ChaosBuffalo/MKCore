@@ -25,6 +25,7 @@ import net.minecraft.entity.ai.attributes.Attribute;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ArmorItem;
+import net.minecraft.item.ShieldItem;
 import net.minecraft.util.Hand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.EntityRayTraceResult;
@@ -208,6 +209,12 @@ public class ClientEventHandler {
         // Don't do anything during the initial search tree population
         if (event.getPlayer() == null)
             return;
+        if (event.getItemStack().getItem() instanceof ShieldItem){
+            event.getToolTip().add(new TranslationTextComponent("mkcore.max_poise.description",
+                    50).mergeStyle(TextFormatting.GRAY));
+            event.getToolTip().add(new TranslationTextComponent("mkcore.block_efficiency.description",
+                    1.0).mergeStyle(TextFormatting.GRAY));
+        }
         if (!MKConfig.CLIENT.showArmorClassOnTooltip.get())
             return;
 
@@ -236,6 +243,7 @@ public class ClientEventHandler {
                 }
             }
         }
+
     }
 
     private static void addAttributeToTooltip(List<ITextComponent> tooltip, Attribute attribute,
