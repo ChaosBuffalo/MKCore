@@ -6,7 +6,9 @@
   "mixins": [
     "WorldRendererMixins",
     "LivingEntityMixins",
-    "ShieldItemMixins"
+    "ShieldItemMixins",
+    "MobEntityMixins",
+    "ItemStackMixins"
   ],
   "minVersion": "0.8"
 }
