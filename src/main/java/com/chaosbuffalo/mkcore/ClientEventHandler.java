@@ -308,7 +308,7 @@ public class ClientEventHandler {
                     EntityRayTraceResult traceResult = (EntityRayTraceResult) lookingAt;
                     Entity entityHit = traceResult.getEntity();
                     if (!Targeting.isValidFriendly(player, entityHit)) {
-                        if (player.ticksSinceLastSwing -2 > player.getCooldownPeriod()) {
+                        if (player.ticksSinceLastSwing - 2 > player.getCooldownPeriod()) {
                             doPlayerAttack(player, entityHit, Minecraft.getInstance());
                             event.setSwingHand(true);
                         }

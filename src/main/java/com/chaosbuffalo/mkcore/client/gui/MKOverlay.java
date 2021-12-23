@@ -1,10 +1,7 @@
 package com.chaosbuffalo.mkcore.client.gui;
 
 
-import com.chaosbuffalo.mkcore.ClientEventHandler;
-import com.chaosbuffalo.mkcore.CoreCapabilities;
-import com.chaosbuffalo.mkcore.MKCore;
-import com.chaosbuffalo.mkcore.MKCoreRegistry;
+import com.chaosbuffalo.mkcore.*;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.core.AbilityGroupId;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
@@ -59,7 +56,7 @@ public class MKOverlay {
 
         boolean isBroken = data.getStats().isPoiseBroke();
         float poiseAmount = isBroken ? data.getStats().getPoiseBreakTime() : data.getStats().getPoise();
-        float maxPoise = isBroken ? data.getStats().getPoiseBreakCooldown() : data.getStats().getMaxPoise();
+        float maxPoise = isBroken ? data.getStats().getPoiseBreakCooldown() * GameConstants.TICKS_PER_SECOND : data.getStats().getMaxPoise();
         int width = 50;
         int barSize = Math.round(width * (poiseAmount / maxPoise));
         int castStartX;
