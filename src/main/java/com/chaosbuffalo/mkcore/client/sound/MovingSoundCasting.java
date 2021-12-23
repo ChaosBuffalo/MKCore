@@ -6,10 +6,8 @@ import net.minecraft.client.audio.TickableSound;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
+
 public class MovingSoundCasting extends TickableSound {
     private final LivingEntity caster;
     private final int castTime;

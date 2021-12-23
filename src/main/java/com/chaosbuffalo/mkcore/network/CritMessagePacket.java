@@ -13,8 +13,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Util;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.UUID;
@@ -108,86 +106,87 @@ public class CritMessagePacket {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
-    private void handleClient() {
-        PlayerEntity player = Minecraft.getInstance().player;
-        if (player == null) {
-            return;
-        }
-        boolean isSelf = player.getUniqueID().equals(sourceUUID);
-        PlayerEntity playerSource = player.getEntityWorld().getPlayerByUuid(sourceUUID);
-        Entity target = player.getEntityWorld().getEntityByID(targetId);
-        if (target == null || playerSource == null) {
-            return;
-        }
-        boolean isSelfTarget = player.getEntityId() == targetId;
-        if (isSelf || isSelfTarget) {
-            if (!MKConfig.CLIENT.showMyCrits.get()) {
-                return;
-            }
-        } else {
-            if (!MKConfig.CLIENT.showOthersCrits.get()) {
-                return;
-            }
-        }
-        switch (type) {
-            case MELEE_CRIT:
-                if (isSelf) {
-                    player.sendMessage(new TranslationTextComponent("mkcore.crit.melee.self",
-                            target.getDisplayName(),
-                            playerSource.getHeldItemMainhand().getDisplayName(),
-                            Math.round(critDamage)
-                    ).mergeStyle(TextFormatting.DARK_RED), Util.DUMMY_UUID);
-                } else {
-                    player.sendMessage(new TranslationTextComponent("mkcore.crit.melee.other",
-                            playerSource.getDisplayName(),
-                            target.getDisplayName(),
-                            playerSource.getHeldItemMainhand().getDisplayName(),
-                            Math.round(critDamage)
-                    ).mergeStyle(TextFormatting.DARK_RED), Util.DUMMY_UUID);
-                }
-                break;
-            case MK_CRIT:
-//                messageStyle.setColor(TextFormatting.AQUA);
-                MKAbility ability = MKCoreRegistry.getAbility(abilityName);
-                MKDamageType mkDamageType = MKCoreRegistry.getDamageType(damageType);
-                if (ability == null || mkDamageType == null) {
-                    break;
-                }
-                player.sendMessage(mkDamageType.getAbilityCritMessage(playerSource, (LivingEntity) target, critDamage, ability, isSelf), Util.DUMMY_UUID);
-                break;
-            case PROJECTILE_CRIT:
-                Entity projectile = player.getEntityWorld().getEntityByID(projectileId);
-                if (projectile != null) {
-                    if (isSelf) {
-                        player.sendMessage(new TranslationTextComponent("mkcore.crit.projectile.self",
-                                target.getDisplayName(),
-                                projectile.getDisplayName(),
-                                Math.round(critDamage)
-                        ).mergeStyle(TextFormatting.LIGHT_PURPLE), Util.DUMMY_UUID);
-                    } else {
-                        player.sendMessage(new TranslationTextComponent("mkcore.crit.projectile.other",
-                                playerSource.getDisplayName(),
-                                target.getDisplayName(),
-                                projectile.getDisplayName(),
-                                Math.round(critDamage)
-                        ).mergeStyle(TextFormatting.LIGHT_PURPLE), Util.DUMMY_UUID);
-                    }
-                }
-                break;
-            case TYPED_CRIT:
-                mkDamageType = MKCoreRegistry.getDamageType(damageType);
-                if (mkDamageType == null) {
-                    break;
-                }
-                player.sendMessage(mkDamageType.getEffectCritMessage(playerSource, (LivingEntity) target, critDamage, typeName, isSelf), Util.DUMMY_UUID);
-                break;
-        }
+    public static void handle(CritMessagePacket packet, Supplier<NetworkEvent.Context> supplier) {
+        NetworkEvent.Context ctx = supplier.get();
+        ctx.enqueueWork(() -> ClientHandler.handleClient(packet));
+        ctx.setPacketHandled(true);
     }
 
-    public void handle(Supplier<NetworkEvent.Context> supplier) {
-        NetworkEvent.Context ctx = supplier.get();
-        ctx.enqueueWork(this::handleClient);
-        ctx.setPacketHandled(true);
+    static class ClientHandler {
+        public static void handleClient(CritMessagePacket packet) {
+            PlayerEntity player = Minecraft.getInstance().player;
+            if (player == null) {
+                return;
+            }
+            boolean isSelf = player.getUniqueID().equals(packet.sourceUUID);
+            PlayerEntity playerSource = player.getEntityWorld().getPlayerByUuid(packet.sourceUUID);
+            Entity target = player.getEntityWorld().getEntityByID(packet.targetId);
+            if (target == null || playerSource == null) {
+                return;
+            }
+            boolean isSelfTarget = player.getEntityId() == packet.targetId;
+            if (isSelf || isSelfTarget) {
+                if (!MKConfig.CLIENT.showMyCrits.get()) {
+                    return;
+                }
+            } else {
+                if (!MKConfig.CLIENT.showOthersCrits.get()) {
+                    return;
+                }
+            }
+            switch (packet.type) {
+                case MELEE_CRIT:
+                    if (isSelf) {
+                        player.sendMessage(new TranslationTextComponent("mkcore.crit.melee.self",
+                                target.getDisplayName(),
+                                playerSource.getHeldItemMainhand().getDisplayName(),
+                                Math.round(packet.critDamage)
+                        ).mergeStyle(TextFormatting.DARK_RED), Util.DUMMY_UUID);
+                    } else {
+                        player.sendMessage(new TranslationTextComponent("mkcore.crit.melee.other",
+                                playerSource.getDisplayName(),
+                                target.getDisplayName(),
+                                playerSource.getHeldItemMainhand().getDisplayName(),
+                                Math.round(packet.critDamage)
+                        ).mergeStyle(TextFormatting.DARK_RED), Util.DUMMY_UUID);
+                    }
+                    break;
+                case MK_CRIT:
+//                messageStyle.setColor(TextFormatting.AQUA);
+                    MKAbility ability = MKCoreRegistry.getAbility(packet.abilityName);
+                    MKDamageType mkDamageType = MKCoreRegistry.getDamageType(packet.damageType);
+                    if (ability == null || mkDamageType == null) {
+                        break;
+                    }
+                    player.sendMessage(mkDamageType.getAbilityCritMessage(playerSource, (LivingEntity) target, packet.critDamage, ability, isSelf), Util.DUMMY_UUID);
+                    break;
+                case PROJECTILE_CRIT:
+                    Entity projectile = player.getEntityWorld().getEntityByID(packet.projectileId);
+                    if (projectile != null) {
+                        if (isSelf) {
+                            player.sendMessage(new TranslationTextComponent("mkcore.crit.projectile.self",
+                                    target.getDisplayName(),
+                                    projectile.getDisplayName(),
+                                    Math.round(packet.critDamage)
+                            ).mergeStyle(TextFormatting.LIGHT_PURPLE), Util.DUMMY_UUID);
+                        } else {
+                            player.sendMessage(new TranslationTextComponent("mkcore.crit.projectile.other",
+                                    playerSource.getDisplayName(),
+                                    target.getDisplayName(),
+                                    projectile.getDisplayName(),
+                                    Math.round(packet.critDamage)
+                            ).mergeStyle(TextFormatting.LIGHT_PURPLE), Util.DUMMY_UUID);
+                        }
+                    }
+                    break;
+                case TYPED_CRIT:
+                    mkDamageType = MKCoreRegistry.getDamageType(packet.damageType);
+                    if (mkDamageType == null) {
+                        break;
+                    }
+                    player.sendMessage(mkDamageType.getEffectCritMessage(playerSource, (LivingEntity) target, packet.critDamage, packet.typeName, isSelf), Util.DUMMY_UUID);
+                    break;
+            }
+        }
     }
 }

@@ -6,8 +6,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.world.World;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.function.Supplier;
@@ -33,22 +31,23 @@ public class EntityDataSyncPacket {
 //        MKCore.LOGGER.info("sync toBytes priv:{} {}", privateUpdate, updateTag);
     }
 
-    @OnlyIn(Dist.CLIENT)
-    private void handleClient() {
-        World world = Minecraft.getInstance().world;
-        if (world == null) {
-            return;
-        }
-        Entity target = world.getEntityByID(targetID);
-        if (target instanceof IUpdateEngineProvider){
-            ((IUpdateEngineProvider) target).getUpdateEngine().deserializeUpdate(updateTag, false);
-        }
+    public static void handle(EntityDataSyncPacket packet, Supplier<NetworkEvent.Context> supplier) {
+        NetworkEvent.Context ctx = supplier.get();
+        ctx.enqueueWork(() -> ClientHandler.handleClient(packet));
+        ctx.setPacketHandled(true);
     }
 
-    public void handle(Supplier< NetworkEvent.Context> supplier) {
-        NetworkEvent.Context ctx = supplier.get();
-        ctx.enqueueWork(this::handleClient);
-        ctx.setPacketHandled(true);
+    static class ClientHandler {
+        public static void handleClient(EntityDataSyncPacket packet) {
+            World world = Minecraft.getInstance().world;
+            if (world == null) {
+                return;
+            }
+            Entity target = world.getEntityByID(packet.targetID);
+            if (target instanceof IUpdateEngineProvider) {
+                ((IUpdateEngineProvider) target).getUpdateEngine().deserializeUpdate(packet.updateTag, false);
+            }
+        }
     }
 
     public String toString() {

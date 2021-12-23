@@ -4,8 +4,6 @@ import com.chaosbuffalo.mkcore.MKCore;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.function.Supplier;
@@ -26,18 +24,20 @@ public class ResetAttackSwingPacket {
         buf.writeInt(ticksToSet);
     }
 
-    @OnlyIn(Dist.CLIENT)
-    private void handleClient() {
-        PlayerEntity entity = Minecraft.getInstance().player;
-        if (entity == null)
-            return;
-
-        MKCore.getPlayer(entity).ifPresent(cap -> cap.getCombatExtension().setEntityTicksSinceLastSwing(ticksToSet));
+    public static void handle(ResetAttackSwingPacket packet, Supplier<NetworkEvent.Context> supplier) {
+        NetworkEvent.Context ctx = supplier.get();
+        ctx.enqueueWork(() -> ClientHandler.handleClient(packet));
+        ctx.setPacketHandled(true);
     }
 
-    public void handle(Supplier<NetworkEvent.Context> supplier) {
-        NetworkEvent.Context ctx = supplier.get();
-        ctx.enqueueWork(this::handleClient);
-        ctx.setPacketHandled(true);
+    static class ClientHandler {
+        public static void handleClient(ResetAttackSwingPacket packet) {
+            PlayerEntity entity = Minecraft.getInstance().player;
+            if (entity == null)
+                return;
+
+            MKCore.getPlayer(entity).ifPresent(cap ->
+                    cap.getCombatExtension().setEntityTicksSinceLastSwing(packet.ticksToSet));
+        }
     }
 }

@@ -7,8 +7,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.function.Supplier;
@@ -63,28 +61,29 @@ public class EntityCastPacket {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
-    private void handleClient() {
-        World world = Minecraft.getInstance().world;
-        if (world == null)
-            return;
-
-        Entity entity = world.getEntityByID(entityId);
-        if (entity == null)
-            return;
-
-        MKCore.getEntityData(entity).ifPresent(entityData -> {
-            if (action == CastAction.START) {
-                entityData.getAbilityExecutor().startCastClient(abilityId, castTicks);
-            } else if (action == CastAction.INTERRUPT) {
-                entityData.getAbilityExecutor().interruptCast();
-            }
-        });
+    public static void handle(EntityCastPacket packet, Supplier<NetworkEvent.Context> supplier) {
+        NetworkEvent.Context ctx = supplier.get();
+        ctx.enqueueWork(() -> ClientHandler.handleClient(packet));
+        ctx.setPacketHandled(true);
     }
 
-    public void handle(Supplier<NetworkEvent.Context> supplier) {
-        NetworkEvent.Context ctx = supplier.get();
-        ctx.enqueueWork(this::handleClient);
-        ctx.setPacketHandled(true);
+    static class ClientHandler {
+        public static void handleClient(EntityCastPacket packet) {
+            World world = Minecraft.getInstance().world;
+            if (world == null)
+                return;
+
+            Entity entity = world.getEntityByID(packet.entityId);
+            if (entity == null)
+                return;
+
+            MKCore.getEntityData(entity).ifPresent(entityData -> {
+                if (packet.action == CastAction.START) {
+                    entityData.getAbilityExecutor().startCastClient(packet.abilityId, packet.castTicks);
+                } else if (packet.action == CastAction.INTERRUPT) {
+                    entityData.getAbilityExecutor().interruptCast();
+                }
+            });
+        }
     }
 }
