@@ -42,7 +42,7 @@ public class AbilityTrainingEntry {
     }
 
     private AbilityRequirementEvaluation evaluateRequirement(IAbilityTrainingRequirement req, MKPlayerData playerData) {
-        return new AbilityRequirementEvaluation(req.describe(), req.check(playerData, getAbility()));
+        return new AbilityRequirementEvaluation(req.describe(playerData), req.check(playerData, getAbility()));
     }
 
     public AbilityTrainingEvaluation evaluate(MKPlayerData playerData) {

@@ -12,6 +12,9 @@ import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraftforge.fml.LogicalSide;
 
+import javax.annotation.Nonnull;
+import java.util.Objects;
+
 public class MKPlayerData implements IMKEntityData {
     private final PlayerEntity player;
     private final PlayerAbilityExecutor abilityExecutor;
@@ -24,7 +27,7 @@ public class MKPlayerData implements IMKEntityData {
     private final PlayerEditorModule editorModule;
 
     public MKPlayerData(PlayerEntity playerEntity) {
-        player = playerEntity;
+        player = Objects.requireNonNull(playerEntity);
         updateEngine = new PlayerUpdateEngine(this);
         personaManager = PersonaManager.getPersonaManager(this);
         abilityExecutor = new PlayerAbilityExecutor(this);
@@ -110,6 +113,7 @@ public class MKPlayerData implements IMKEntityData {
         deserialize(tag);
     }
 
+    @Nonnull
     @Override
     public PlayerEntity getEntity() {
         return player;

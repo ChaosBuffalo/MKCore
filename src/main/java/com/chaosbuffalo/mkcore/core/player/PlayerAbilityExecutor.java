@@ -83,7 +83,7 @@ public class PlayerAbilityExecutor extends AbilityExecutor {
         for (int i = 0; i < group.getMaximumSlotCount(); i++) {
             ResourceLocation abilityId = group.getSlot(i);
             MKAbility ability = MKCoreRegistry.getAbility(abilityId);
-            if (ability instanceof MKToggleAbility && entityData.getEntity() != null) {
+            if (ability instanceof MKToggleAbility) {
                 MKToggleAbility toggle = (MKToggleAbility) ability;
                 toggle.removeEffect(entityData.getEntity(), entityData);
             }
@@ -103,7 +103,7 @@ public class PlayerAbilityExecutor extends AbilityExecutor {
         for (int i = 0; i < group.getMaximumSlotCount(); i++) {
             ResourceLocation abilityId = group.getSlot(i);
             MKAbility ability = MKCoreRegistry.getAbility(abilityId);
-            if (ability instanceof MKToggleAbility && entityData.getEntity() != null) {
+            if (ability instanceof MKToggleAbility) {
                 MKToggleAbility toggle = (MKToggleAbility) ability;
                 if (entityData.getEntity().isPotionActive(toggle.getToggleEffect()))
                     setToggleGroupAbility(toggle.getToggleGroupId(), toggle);

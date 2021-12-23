@@ -5,6 +5,9 @@ import com.chaosbuffalo.mkcore.core.entity.EntityStatsModule;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.nbt.CompoundNBT;
 
+import javax.annotation.Nonnull;
+import java.util.Objects;
+
 public class MKEntityData implements IMKEntityData {
 
     private final LivingEntity entity;
@@ -14,7 +17,7 @@ public class MKEntityData implements IMKEntityData {
     private final CombatExtensionModule combatExtensionModule;
 
     public MKEntityData(LivingEntity livingEntity) {
-        entity = livingEntity;
+        entity = Objects.requireNonNull(livingEntity);
         knowledge = new EntityAbilityKnowledge(this);
         abilityExecutor = new AbilityExecutor(this);
         stats = new EntityStatsModule(this);
@@ -35,6 +38,7 @@ public class MKEntityData implements IMKEntityData {
         getEntity().getEntityWorld().getProfiler().endSection();
     }
 
+    @Nonnull
     @Override
     public LivingEntity getEntity() {
         return entity;
