@@ -76,10 +76,12 @@ public class CombatEventHandler {
     @SubscribeEvent
     public static void onLeftClickEmpty(PlayerInteractEvent.LeftClickEmpty event) {
         if (event.getPlayer().world.isRemote) {
-            PacketHandler.sendMessageToServer(new PlayerLeftClickEmptyPacket());
+            // Only send this spammy packet if someone will listen to it
+            if (SpellTriggers.EMPTY_LEFT_CLICK.hasTriggers()) {
+                PacketHandler.sendMessageToServer(new PlayerLeftClickEmptyPacket());
+            }
         }
     }
-
 
     @SubscribeEvent
     public static void onLeftClickEmptyServer(ServerSideLeftClickEmpty event) {
@@ -119,8 +121,6 @@ public class CombatEventHandler {
         Entity target = event.getEntity();
         if (target.world.isRemote)
             return;
-
-
 
         DamageSource dmgSource = event.getSource();
         Entity source = dmgSource.getTrueSource();

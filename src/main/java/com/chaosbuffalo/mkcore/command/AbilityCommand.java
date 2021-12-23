@@ -7,7 +7,6 @@ import com.chaosbuffalo.mkcore.abilities.AbilitySource;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.abilities.MKAbilityInfo;
 import com.chaosbuffalo.mkcore.command.arguments.AbilityIdArgument;
-import com.chaosbuffalo.mkcore.core.AbilityType;
 import com.chaosbuffalo.mkcore.core.player.PlayerAbilityKnowledge;
 import com.chaosbuffalo.mkcore.utils.TextUtils;
 import com.mojang.brigadier.Command;
@@ -24,8 +23,6 @@ import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 
@@ -58,7 +55,7 @@ public class AbilityCommand {
         return ISuggestionProvider.suggest(MKCore.getPlayer(player)
                         .map(playerData -> playerData.getAbilities()
                                 .getKnownStream()
-                                .filter(info -> info.getSource().canUnlearn())
+                                .filter(MKAbilityInfo::canUnlearnByCommand)
                                 .map(MKAbilityInfo::getId)
                                 .map(ResourceLocation::toString))
                         .orElse(Stream.empty()),
@@ -69,12 +66,9 @@ public class AbilityCommand {
                                                                   final SuggestionsBuilder builder) throws CommandSyntaxException {
         ServerPlayerEntity player = context.getSource().asPlayer();
         return ISuggestionProvider.suggest(MKCore.getPlayer(player)
-                        .map(playerData -> {
-                            Set<MKAbility> allAbilities = new HashSet<>(MKCoreRegistry.ABILITIES.getValues());
-                            allAbilities.removeIf(ability -> playerData.getAbilities().knowsAbility(ability.getAbilityId()));
-                            allAbilities.removeIf(ability -> ability.getType() == AbilityType.Item); // TODO: remove with item ability rework
-                            return allAbilities.stream().map(MKAbility::getAbilityId).map(ResourceLocation::toString);
-                        })
+                        .map(playerData -> MKCoreRegistry.ABILITIES.getKeys().stream()
+                                .filter(abilityId -> !playerData.getAbilities().knowsAbility(abilityId))
+                                .map(ResourceLocation::toString))
                         .orElse(Stream.empty()),
                 builder);
     }
@@ -127,7 +121,11 @@ public class AbilityCommand {
         ServerPlayerEntity player = ctx.getSource().asPlayer();
         ResourceLocation abilityId = ctx.getArgument("ability", ResourceLocation.class);
 
-        MKCore.getPlayer(player).ifPresent(cap -> cap.getAbilities().unlearnAbility(abilityId));
+        for (AbilitySource source : AbilitySource.values()) {
+            if (source.isSimple()) {
+                MKCore.getPlayer(player).ifPresent(cap -> cap.getAbilities().unlearnAbility(abilityId, source));
+            }
+        }
 
         return Command.SINGLE_SUCCESS;
     }
@@ -140,7 +138,13 @@ public class AbilityCommand {
             Collection<MKAbilityInfo> abilities = abilityKnowledge.getAllAbilities();
             if (abilities.size() > 0) {
                 TextUtils.sendPlayerChatMessage(player, "Known Abilities");
-                abilities.forEach(info -> TextUtils.sendPlayerChatMessage(player, String.format("%s: %b", info.getId(), info.isCurrentlyKnown())));
+                abilities.forEach(info -> {
+                    if (info.isCurrentlyKnown()) {
+                        TextUtils.sendPlayerChatMessage(player, String.format("%s: %b - %s", info.getId(), info.isCurrentlyKnown(), info.getSource()));
+                    } else {
+                        TextUtils.sendPlayerChatMessage(player, String.format("%s: %b", info.getId(), info.isCurrentlyKnown()));
+                    }
+                });
             } else {
                 TextUtils.sendPlayerChatMessage(player, "No known abilities");
             }

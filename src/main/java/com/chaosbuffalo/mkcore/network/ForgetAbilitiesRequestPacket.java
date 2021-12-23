@@ -1,6 +1,7 @@
 package com.chaosbuffalo.mkcore.network;
 
 import com.chaosbuffalo.mkcore.MKCore;
+import com.chaosbuffalo.mkcore.abilities.AbilitySource;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
@@ -20,14 +21,14 @@ public class ForgetAbilitiesRequestPacket {
     public ForgetAbilitiesRequestPacket(PacketBuffer buffer) {
         int count = buffer.readInt();
         forgetting = new ArrayList<>();
-        for (int i = 0; i < count; i++){
+        for (int i = 0; i < count; i++) {
             forgetting.add(buffer.readResourceLocation());
         }
     }
 
     public void toBytes(PacketBuffer buffer) {
         buffer.writeInt(forgetting.size());
-        for (ResourceLocation loc : forgetting){
+        for (ResourceLocation loc : forgetting) {
             buffer.writeResourceLocation(loc);
         }
     }
@@ -40,8 +41,8 @@ public class ForgetAbilitiesRequestPacket {
                 return;
 
             MKCore.getPlayer(player).ifPresent(playerData -> {
-                for (ResourceLocation toForget : forgetting){
-                    playerData.getAbilities().unlearnAbility(toForget);
+                for (ResourceLocation toForget : forgetting) {
+                    playerData.getAbilities().unlearnAbility(toForget, AbilitySource.TRAINED);
                 }
             });
 

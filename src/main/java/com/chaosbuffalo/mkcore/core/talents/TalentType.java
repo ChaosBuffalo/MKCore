@@ -3,10 +3,7 @@ package com.chaosbuffalo.mkcore.core.talents;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.records.IRecordType;
 import com.chaosbuffalo.mkcore.core.records.IRecordTypeHandler;
-import com.chaosbuffalo.mkcore.core.talents.handlers.AttributeTalentHandler;
-import com.chaosbuffalo.mkcore.core.talents.handlers.EntitlementGrantTalentTypeHandler;
-import com.chaosbuffalo.mkcore.core.talents.handlers.PassiveTalentHandler;
-import com.chaosbuffalo.mkcore.core.talents.handlers.UltimateTalentHandler;
+import com.chaosbuffalo.mkcore.core.talents.handlers.*;
 import com.chaosbuffalo.mkcore.init.CoreEntitlements;
 import net.minecraft.util.text.TranslationTextComponent;
 
@@ -16,11 +13,11 @@ public class TalentType<T extends IRecordTypeHandler<TalentRecord>> implements I
     public static TalentType<AttributeTalentHandler> ATTRIBUTE =
             new TalentType<AttributeTalentHandler>("mkcore.talent_type.attribute.name", AttributeTalentHandler::new)
                     .setDisplayName("mkcore.talent_type.tooltip_name");
-    public static TalentType<PassiveTalentHandler> PASSIVE =
-            new TalentType<>("mkcore.talent_type.passive.name", PassiveTalentHandler::new)
+    public static TalentType<AbilityGrantTalentHandler> PASSIVE =
+            new TalentType<>("mkcore.talent_type.passive.name", AbilityGrantTalentHandler::new)
                     .setDisplayName("mkcore.talent_type.tooltip_name_with_ability");
-    public static TalentType<UltimateTalentHandler> ULTIMATE =
-            new TalentType<>("mkcore.talent_type.ultimate.name", UltimateTalentHandler::new)
+    public static TalentType<AbilityGrantTalentHandler> ULTIMATE =
+            new TalentType<>("mkcore.talent_type.ultimate.name", AbilityGrantTalentHandler::new)
                     .setDisplayName("mkcore.talent_type.tooltip_name_with_ability");
     public static TalentType<EntitlementGrantTalentTypeHandler> BASIC_SLOT =
             new TalentType<>("mkcore.talent_type.basic_slot.name",

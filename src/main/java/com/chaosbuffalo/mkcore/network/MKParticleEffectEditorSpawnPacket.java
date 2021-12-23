@@ -7,21 +7,21 @@ import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
-public class MKParticleEffectEditorSpawnPacket extends MKParticleEffectSpawnPacket{
+public class MKParticleEffectEditorSpawnPacket extends MKParticleEffectSpawnPacket {
 
     public MKParticleEffectEditorSpawnPacket(Vector3d posVec, ParticleAnimation anim) {
         super(posVec, anim);
     }
 
-    public MKParticleEffectEditorSpawnPacket(PacketBuffer buffer){
+    public MKParticleEffectEditorSpawnPacket(PacketBuffer buffer) {
         super(buffer);
     }
 
-    public void handle(Supplier<NetworkEvent.Context> supplier) {
+    public static void handle(MKParticleEffectEditorSpawnPacket packet, Supplier<NetworkEvent.Context> supplier) {
         NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
-            if (ctx.getSender().isCreative()){
-                PacketHandler.sendToTrackingAndSelf(new MKParticleEffectSpawnPacket(xPos, yPos, zPos, anim),
+            if (ctx.getSender() != null && ctx.getSender().isCreative()) {
+                PacketHandler.sendToTrackingAndSelf(new MKParticleEffectSpawnPacket(packet.xPos, packet.yPos, packet.zPos, packet.anim),
                         ctx.getSender());
             }
         });

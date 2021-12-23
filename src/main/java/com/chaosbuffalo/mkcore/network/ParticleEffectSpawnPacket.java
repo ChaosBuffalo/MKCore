@@ -7,8 +7,6 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.particles.IParticleData;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.function.Supplier;
@@ -102,23 +100,24 @@ public class ParticleEffectSpawnPacket {
         buf.writeDouble(this.headingZ);
     }
 
-    @OnlyIn(Dist.CLIENT)
-    private void handleClient() {
-        PlayerEntity player = Minecraft.getInstance().player;
-        if (player == null)
-            return;
-
-        ParticleEffects.spawnParticleEffect(
-                particleID, motionType, data, speed, count,
-                new Vector3d(xPos, yPos, zPos),
-                new Vector3d(radiusX, radiusY, radiusZ),
-                new Vector3d(headingX, headingY, headingZ),
-                player.world);
+    public static void handle(ParticleEffectSpawnPacket packet, Supplier<NetworkEvent.Context> supplier) {
+        NetworkEvent.Context ctx = supplier.get();
+        ctx.enqueueWork(() -> ClientHandler.handleClient(packet));
+        ctx.setPacketHandled(true);
     }
 
-    public void handle(Supplier<NetworkEvent.Context> supplier) {
-        NetworkEvent.Context ctx = supplier.get();
-        ctx.enqueueWork(this::handleClient);
-        ctx.setPacketHandled(true);
+    static class ClientHandler {
+        public static void handleClient(ParticleEffectSpawnPacket packet) {
+            PlayerEntity player = Minecraft.getInstance().player;
+            if (player == null)
+                return;
+
+            ParticleEffects.spawnParticleEffect(
+                    packet.particleID, packet.motionType, packet.data, packet.speed, packet.count,
+                    new Vector3d(packet.xPos, packet.yPos, packet.zPos),
+                    new Vector3d(packet.radiusX, packet.radiusY, packet.radiusZ),
+                    new Vector3d(packet.headingX, packet.headingY, packet.headingZ),
+                    player.world);
+        }
     }
 }

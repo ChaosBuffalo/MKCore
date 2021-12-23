@@ -13,7 +13,7 @@ public interface IMKAbilityKnowledge {
 
     boolean learnAbility(MKAbility ability, AbilitySource source);
 
-    boolean unlearnAbility(ResourceLocation abilityId);
+    boolean unlearnAbility(ResourceLocation abilityId, AbilitySource source);
 
     boolean knowsAbility(ResourceLocation abilityId);
 

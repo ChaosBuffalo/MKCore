@@ -1,20 +1,13 @@
 package com.chaosbuffalo.mkcore.network;
 
 import com.chaosbuffalo.mkcore.MKCore;
-import com.chaosbuffalo.mkcore.fx.particles.MKParticleData;
 import com.chaosbuffalo.mkcore.fx.particles.ParticleAnimation;
-import com.chaosbuffalo.mkcore.fx.particles.ParticleAnimationManager;
-import com.chaosbuffalo.mkcore.fx.particles.spawn_patterns.CircleSpawnPattern;
-import com.chaosbuffalo.mkcore.fx.particles.spawn_patterns.ParticleSpawnPattern;
 import com.mojang.serialization.Dynamic;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.NBTDynamicOps;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.particles.ParticleType;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.network.NetworkEvent;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.function.Supplier;
 
@@ -30,7 +23,6 @@ public class ParticleAnimationEditorSyncPacket {
         this.anim = anim;
         this.currentKeyFrame = currentKeyFrame;
     }
-
 
 
     public ParticleAnimationEditorSyncPacket(PacketBuffer buf) {
@@ -54,7 +46,7 @@ public class ParticleAnimationEditorSyncPacket {
     public void handle(Supplier<NetworkEvent.Context> supplier) {
         NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
-            if (ctx.getSender() != null && ctx.getSender().isCreative()){
+            if (ctx.getSender() != null && ctx.getSender().isCreative()) {
                 MKCore.getPlayer(ctx.getSender()).ifPresent(data -> data.getEditor().getParticleEditorData()
                         .update(anim, currentKeyFrame, false));
             }

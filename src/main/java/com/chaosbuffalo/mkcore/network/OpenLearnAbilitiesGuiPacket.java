@@ -9,8 +9,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.HashMap;
@@ -48,15 +46,16 @@ public class OpenLearnAbilitiesGuiPacket {
         abilityOffers.forEach((key, offer) -> offer.write(buffer));
     }
 
-    @OnlyIn(Dist.CLIENT)
-    private void handleClient() {
-        ITextComponent text = new StringTextComponent("Learn Abilities");
-        Minecraft.getInstance().displayGuiScreen(new LearnAbilitiesScreen(text, abilityOffers, entityId));
+    public static void handle(OpenLearnAbilitiesGuiPacket packet, Supplier<NetworkEvent.Context> supplier) {
+        NetworkEvent.Context ctx = supplier.get();
+        ctx.enqueueWork(() -> ClientHandler.handleClient(packet));
+        ctx.setPacketHandled(true);
     }
 
-    public void handle(Supplier<NetworkEvent.Context> supplier) {
-        NetworkEvent.Context ctx = supplier.get();
-        ctx.enqueueWork(this::handleClient);
-        ctx.setPacketHandled(true);
+    static class ClientHandler {
+        public static void handleClient(OpenLearnAbilitiesGuiPacket packet) {
+            ITextComponent text = new StringTextComponent("Learn Abilities");
+            Minecraft.getInstance().displayGuiScreen(new LearnAbilitiesScreen(text, packet.abilityOffers, packet.entityId));
+        }
     }
 }

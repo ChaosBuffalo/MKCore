@@ -4,12 +4,14 @@
   "compatibilityLevel": "JAVA_8",
   "refmap": "mkcore.refmap.json",
   "mixins": [
-    "WorldRendererMixins",
     "LivingEntityMixins",
     "ShieldItemMixins",
     "MobEntityMixins",
     "ItemStackMixins",
     "SwordItemMixins"
+  ],
+  "client": [
+    "WorldRendererMixins"
   ],
   "minVersion": "0.8"
 }

@@ -68,17 +68,20 @@ public class PlayerKnowledge implements IMKEntityKnowledge, IPlayerSyncComponent
         MKCore.LOGGER.debug("PlayerKnowledge.onPersonaActivated");
         entitlementsKnowledge.onPersonaActivated();
         talentKnowledge.onPersonaActivated();
+        loadout.onPersonaActivated();
     }
 
     public void onPersonaDeactivated() {
         MKCore.LOGGER.debug("PlayerKnowledge.onPersonaDeactivated");
         entitlementsKnowledge.onPersonaDeactivated();
         talentKnowledge.onPersonaDeactivated();
+        loadout.onPersonaDeactivated();
     }
 
     public void onJoinWorld() {
         MKCore.LOGGER.debug("PlayerKnowledge.onJoinWorld");
         entitlementsKnowledge.onJoinWorld();
         talentKnowledge.onJoinWorld();
+        loadout.onJoinWorld();
     }
 }

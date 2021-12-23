@@ -19,7 +19,7 @@ public class WriteAnimationPacket {
     protected final ResourceLocation name;
     protected final ParticleAnimation anim;
 
-    public WriteAnimationPacket(ResourceLocation name, ParticleAnimation anim){
+    public WriteAnimationPacket(ResourceLocation name, ParticleAnimation anim) {
         this.name = name;
         this.anim = anim;
     }
@@ -43,7 +43,7 @@ public class WriteAnimationPacket {
     public void handle(Supplier<NetworkEvent.Context> supplier) {
         NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
-            if (ctx.getSender() != null && ctx.getSender().isCreative()){
+            if (ctx.getSender() != null && ctx.getSender().isCreative()) {
                 MKCore.getAnimationManager().writeAnimationToWorldGenerated(name, anim);
             }
         });

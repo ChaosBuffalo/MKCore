@@ -1,13 +1,11 @@
 package com.chaosbuffalo.mkcore.network;
 
-import com.chaosbuffalo.mkcore.CoreCapabilities;
+import com.chaosbuffalo.mkcore.MKCore;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.world.World;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.UUID;
@@ -38,24 +36,25 @@ public class PlayerDataSyncPacket {
 //        MKCore.LOGGER.info("sync toBytes priv:{} {}", privateUpdate, updateTag);
     }
 
-    @OnlyIn(Dist.CLIENT)
-    private void handleClient() {
-        World world = Minecraft.getInstance().world;
-        if (world == null) {
-            return;
-        }
-        PlayerEntity entity = world.getPlayerByUuid(targetUUID);
-        if (entity == null)
-            return;
-
-        entity.getCapability(CoreCapabilities.PLAYER_CAPABILITY).ifPresent(cap ->
-                cap.getUpdateEngine().deserializeUpdate(updateTag, privateUpdate));
+    public static void handle(PlayerDataSyncPacket packet, Supplier<NetworkEvent.Context> supplier) {
+        NetworkEvent.Context ctx = supplier.get();
+        ctx.enqueueWork(() -> ClientHandler.handleClient(packet));
+        ctx.setPacketHandled(true);
     }
 
-    public void handle(Supplier<NetworkEvent.Context> supplier) {
-        NetworkEvent.Context ctx = supplier.get();
-        ctx.enqueueWork(this::handleClient);
-        ctx.setPacketHandled(true);
+    static class ClientHandler {
+        public static void handleClient(PlayerDataSyncPacket packet) {
+            World world = Minecraft.getInstance().world;
+            if (world == null) {
+                return;
+            }
+            PlayerEntity entity = world.getPlayerByUuid(packet.targetUUID);
+            if (entity == null)
+                return;
+
+            MKCore.getPlayer(entity).ifPresent(cap ->
+                    cap.getUpdateEngine().deserializeUpdate(packet.updateTag, packet.privateUpdate));
+        }
     }
 
     public String toString() {

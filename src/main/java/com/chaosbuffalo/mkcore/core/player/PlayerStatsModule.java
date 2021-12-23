@@ -19,6 +19,9 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 
+import javax.annotation.Nonnull;
+import java.util.Objects;
+
 
 public class PlayerStatsModule extends EntityStatsModule implements IPlayerSyncComponentProvider {
     private final SyncComponent sync = new SyncComponent("stats");
@@ -26,14 +29,12 @@ public class PlayerStatsModule extends EntityStatsModule implements IPlayerSyncC
     private final SyncFloat mana = new SyncFloat("mana", 0f);
     private final SyncFloat poise = new SyncFloat("poise", 0f);
     public static final ResourceLocation POISE_BREAK_TIMER = new ResourceLocation(MKCore.MOD_ID, "timer.poise_break");
-//    private final SyncFloat poise_break = new SyncFloat("poise_break", 0f);
 
     public PlayerStatsModule(MKPlayerData playerData) {
         super(playerData);
         manaRegenTimer = 0f;
         addSyncPublic(mana);
         addSyncPrivate(poise);
-//        addSyncPrivate(poise_break);
         addSyncPrivate(abilityTracker);
     }
 
@@ -42,20 +43,10 @@ public class PlayerStatsModule extends EntityStatsModule implements IPlayerSyncC
         return sync;
     }
 
-    public float getMeleeCritChance() {
-        return (float) getEntity().getAttribute(MKAttributes.MELEE_CRIT).getValue();
-    }
-
-    public float getSpellCritChance() {
-        return (float) getEntity().getAttribute(MKAttributes.SPELL_CRIT).getValue();
-    }
-
-    public float getSpellCritDamage() {
-        return (float) getEntity().getAttribute(MKAttributes.SPELL_CRIT_MULTIPLIER).getValue();
-    }
-
-    public float getMeleeCritDamage() {
-        return (float) getEntity().getAttribute(MKAttributes.MELEE_CRIT_MULTIPLIER).getValue();
+    // Mostly to shut up warning about null returns from getAttribute. Only use this for attrs you know will be present
+    @Nonnull
+    protected ModifiableAttributeInstance requiredAttribute(Attribute attribute) {
+        return Objects.requireNonNull(getEntity().getAttribute(attribute));
     }
 
     public float getMana() {
@@ -67,51 +58,52 @@ public class PlayerStatsModule extends EntityStatsModule implements IPlayerSyncC
     }
 
     private void setMana(float value, boolean sendUpdate) {
-//        MKCore.LOGGER.info("setMana {} {}", value, getMaxMana());
         // Here we're using isAddedToWorld as a proxy to know that attribute deserialization is done and max mana is available
         if (getEntity().isAddedToWorld()) {
             value = MathHelper.clamp(value, 0, getMaxMana());
-//            MKCore.LOGGER.info("setMana clamp {}", value);
         }
         mana.set(value, sendUpdate);
     }
 
-    public float getMaxPoise() {
-        return (float) getEntity().getAttribute(MKAttributes.MAX_POISE).getValue();
+    public float getPoise() {
+        return poise.get();
     }
 
-    public void setMaxPoise(float max){
-        getEntity().getAttribute(MKAttributes.MAX_POISE).setBaseValue(max);
+    public float getMaxPoise() {
+        return (float) requiredAttribute(MKAttributes.MAX_POISE).getValue();
+    }
+
+    public void setMaxPoise(float max) {
+        requiredAttribute(MKAttributes.MAX_POISE).setBaseValue(max);
         setPoise(getPoise()); // Refresh the poise to account for the updated maximum
     }
 
-    public void setPoise(float value){
+    public void setPoise(float value) {
         setPoise(value, true);
     }
 
     private void setPoise(float value, boolean sendUpdate) {
         if (getEntity().isAddedToWorld()) {
             value = MathHelper.clamp(value, 0, getMaxPoise());
-//            MKCore.LOGGER.info("setMana clamp {}", value);
         }
         poise.set(value, sendUpdate);
     }
 
     public float getMaxMana() {
-        return (float) getEntity().getAttribute(MKAttributes.MAX_MANA).getValue();
+        return (float) requiredAttribute(MKAttributes.MAX_MANA).getValue();
     }
 
     public void setMaxMana(float max) {
-        getEntity().getAttribute(MKAttributes.MAX_MANA).setBaseValue(max);
+        requiredAttribute(MKAttributes.MAX_MANA).setBaseValue(max);
         setMana(getMana()); // Refresh the mana to account for the updated maximum
     }
 
-    public float getPoiseRegenRate(){
-        return (float) getEntity().getAttribute(MKAttributes.POISE_REGEN).getValue();
+    public float getPoiseRegenRate() {
+        return (float) requiredAttribute(MKAttributes.POISE_REGEN).getValue();
     }
 
     public float getManaRegenRate() {
-        return (float) getEntity().getAttribute(MKAttributes.MANA_REGEN).getValue();
+        return (float) requiredAttribute(MKAttributes.MANA_REGEN).getValue();
     }
 
     public void tick() {
@@ -132,19 +124,10 @@ public class PlayerStatsModule extends EntityStatsModule implements IPlayerSyncC
 
         ModifiableAttributeInstance instance = entity.getAttribute(attribute);
         if (instance != null) {
-//            MKCore.LOGGER.info("Adding MK base stat {} {} to player", attribute.getAttributeName(), value);
             instance.setBaseValue(value);
         } else {
             MKCore.LOGGER.error("Cannot apply base stat mod to {} - missing attribute {}", getEntity(), attribute);
         }
-    }
-
-    public float getPoise(){
-        return poise.get();
-    }
-
-    public int getPoiseBreakTime(){
-        return getTimer(POISE_BREAK_TIMER);
     }
 
     private void setupBaseStats() {
@@ -153,47 +136,55 @@ public class PlayerStatsModule extends EntityStatsModule implements IPlayerSyncC
 
     }
 
-    public float getPoiseBreakCooldown(){
-        return (float) getEntity().getAttribute(MKAttributes.POISE_BREAK_CD).getValue();
+    public int getPoiseBreakRemainingTicks() {
+        return getTimer(POISE_BREAK_TIMER);
     }
 
+    public int getPoiseBreakCooldownTicks() {
+        return (int) Math.round(requiredAttribute(MKAttributes.POISE_BREAK_CD).getValue() * GameConstants.TICKS_PER_SECOND);
+    }
 
+    public float getPoiseBreakPercent(float partialTick) {
+        return abilityTracker.getCooldownPercent(POISE_BREAK_TIMER, partialTick);
+    }
 
-    public void breakPoise(){
+    public void breakPoise() {
         setPoise(0);
-        setTimer(POISE_BREAK_TIMER, Math.round(getPoiseBreakCooldown() * GameConstants.TICKS_PER_SECOND));
+        setTimer(POISE_BREAK_TIMER, getPoiseBreakCooldownTicks());
         getEntity().stopActiveHand();
     }
 
-    public boolean isPoiseBroke(){
-        return getTimer(POISE_BREAK_TIMER) > 0;
+    public boolean isPoiseBroke() {
+        return getPoiseBreakRemainingTicks() > 0;
     }
 
-    private void updatePoise(){
-        int break_time = getPoiseBreakTime();
-        if (getEntity().isActiveItemStackBlocking()){
-            if (entityData.getAbilityExecutor().isCasting()){
+    private void updatePoise() {
+        boolean isBroken = isPoiseBroke();
+        if (getEntity().isActiveItemStackBlocking()) {
+            if (entityData.getAbilityExecutor().isCasting()) {
                 entityData.getAbilityExecutor().interruptCast();
             }
-            if (break_time > 0){
+            if (isBroken) {
                 getEntity().stopActiveHand();
             }
             return;
         }
-        if (break_time > 0 || getPoiseRegenRate() <= 0f){
+        if (isBroken || getPoiseRegenRate() <= 0f) {
             return;
         }
 
         float max = getMaxPoise();
-        if (getPoise() > max){
+        if (getPoise() > max) {
             setPoise(max);
         }
 
-        if (getPoise() == max){
+        if (getPoise() == max) {
             return;
         }
 
-        setPoise(Math.min(getPoise() + (getPoiseRegenRate() / 20.0f), max));
+        // if getPoiseRegenRate == 1, this is 1 poise per 1 seconds
+        float newPoise = Math.min(getPoise() + (getPoiseRegenRate() / GameConstants.TICKS_PER_SECOND), max);
+        setPoise(newPoise, newPoise == max);
     }
 
     private void updateMana() {
@@ -208,7 +199,7 @@ public class PlayerStatsModule extends EntityStatsModule implements IPlayerSyncC
         if (getMana() == max)
             return;
 
-        manaRegenTimer += 1 / 20f;
+        manaRegenTimer += 1f / GameConstants.TICKS_PER_SECOND;
 
         // if getManaRegenRate == 1, this is 1 mana per 3 seconds
         float i_regen = 3.0f / getManaRegenRate();
@@ -235,15 +226,15 @@ public class PlayerStatsModule extends EntityStatsModule implements IPlayerSyncC
         return true;
     }
 
-    public Tuple<Float, Boolean> handlePoiseDamage(float damageIn){
-        float blockPortion = (float) (getEntity().getAttribute(MKAttributes.BLOCK_EFFICIENCY).getValue() * damageIn);
+    public Tuple<Float, Boolean> handlePoiseDamage(float damageIn) {
+        float blockPortion = (float) (requiredAttribute(MKAttributes.BLOCK_EFFICIENCY).getValue() * damageIn);
         float remainder = damageIn - blockPortion;
         float poise = getPoise();
-        if (blockPortion >= poise){
+        if (blockPortion >= poise) {
             breakPoise();
             return new Tuple<>(remainder + blockPortion - poise, true);
         } else {
-            if (getEntity().getItemInUseMaxCount() < 6){
+            if (getEntity().getItemInUseMaxCount() < 6) {
                 blockPortion *= 0.25f;
             }
             setPoise(poise - blockPortion);
@@ -283,6 +274,9 @@ public class PlayerStatsModule extends EntityStatsModule implements IPlayerSyncC
         }
         if (getMana() > getMaxMana()) {
             setMana(getMana());
+        }
+        if (getPoise() > getMaxPoise()) {
+            setPoise(getPoise());
         }
     }
 

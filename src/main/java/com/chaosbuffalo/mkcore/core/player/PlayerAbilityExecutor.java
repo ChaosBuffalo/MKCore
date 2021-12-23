@@ -4,7 +4,7 @@ import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.abilities.*;
 import com.chaosbuffalo.mkcore.core.AbilityExecutor;
-import com.chaosbuffalo.mkcore.core.AbilityType;
+import com.chaosbuffalo.mkcore.core.AbilityGroupId;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.events.PlayerAbilityEvent;
 import net.minecraft.util.ResourceLocation;
@@ -20,18 +20,15 @@ public class PlayerAbilityExecutor extends AbilityExecutor {
         return (MKPlayerData) entityData;
     }
 
-    public void executeHotBarAbility(AbilityType type, int slot) {
-        ResourceLocation abilityId = getPlayerData().getLoadout().getAbilityInSlot(type, slot);
-        if (abilityId.equals(MKCoreRegistry.INVALID_ABILITY))
-            return;
-
-        executeAbility(abilityId);
+    public void executeHotBarAbility(AbilityGroupId group, int slot) {
+        getPlayerData().getLoadout().getAbilityGroup(group).executeSlot(slot);
     }
 
-    public boolean clientSimulateAbility(MKAbility ability) {
-        MKAbilityInfo info = entityData.getKnowledge().getAbilityKnowledge().getKnownAbility(ability.getAbilityId());
-        if (info == null)
+    public boolean clientSimulateAbility(MKAbility ability, AbilityGroupId executingGroup) {
+        MKAbilityInfo info = getPlayerData().getAbilities().getKnownAbility(ability.getAbilityId());
+        if (executingGroup.requiresAbilityKnown() && info == null) {
             return false;
+        }
 
         if (abilityExecutionCheck(ability, info)) {
             AbilityTargetSelector selector = ability.getTargetSelector();
@@ -77,16 +74,16 @@ public class PlayerAbilityExecutor extends AbilityExecutor {
 
     private void deactivateCurrentToggleAbilities() {
         PlayerAbilityLoadout abilityLoadout = getPlayerData().getLoadout();
-        deactivateCurrentToggleAbilities(abilityLoadout.getAbilityGroup(AbilityType.Basic));
-        deactivateCurrentToggleAbilities(abilityLoadout.getAbilityGroup(AbilityType.Ultimate));
-        deactivateCurrentToggleAbilities(abilityLoadout.getAbilityGroup(AbilityType.Item));
+        deactivateCurrentToggleAbilities(abilityLoadout.getAbilityGroup(AbilityGroupId.Basic));
+        deactivateCurrentToggleAbilities(abilityLoadout.getAbilityGroup(AbilityGroupId.Ultimate));
+        deactivateCurrentToggleAbilities(abilityLoadout.getAbilityGroup(AbilityGroupId.Item));
     }
 
-    private void deactivateCurrentToggleAbilities(IActiveAbilityGroup group) {
+    private void deactivateCurrentToggleAbilities(AbilityGroup group) {
         for (int i = 0; i < group.getMaximumSlotCount(); i++) {
             ResourceLocation abilityId = group.getSlot(i);
             MKAbility ability = MKCoreRegistry.getAbility(abilityId);
-            if (ability instanceof MKToggleAbility && entityData.getEntity() != null) {
+            if (ability instanceof MKToggleAbility) {
                 MKToggleAbility toggle = (MKToggleAbility) ability;
                 toggle.removeEffect(entityData.getEntity(), entityData);
             }
@@ -95,18 +92,18 @@ public class PlayerAbilityExecutor extends AbilityExecutor {
 
     private void rebuildActiveToggleMap() {
         PlayerAbilityLoadout abilityLoadout = getPlayerData().getLoadout();
-        rebuildActiveToggleMap(abilityLoadout.getAbilityGroup(AbilityType.Basic));
-        rebuildActiveToggleMap(abilityLoadout.getAbilityGroup(AbilityType.Ultimate));
-        rebuildActiveToggleMap(abilityLoadout.getAbilityGroup(AbilityType.Item));
+        rebuildActiveToggleMap(abilityLoadout.getAbilityGroup(AbilityGroupId.Basic));
+        rebuildActiveToggleMap(abilityLoadout.getAbilityGroup(AbilityGroupId.Ultimate));
+        rebuildActiveToggleMap(abilityLoadout.getAbilityGroup(AbilityGroupId.Item));
     }
 
-    private void rebuildActiveToggleMap(IActiveAbilityGroup group) {
+    private void rebuildActiveToggleMap(AbilityGroup group) {
         // Inspect the player's action bar and see if there are any toggle abilities slotted.
         // If there are, and the corresponding toggle effect is active on the player, set the toggle exclusive group
         for (int i = 0; i < group.getMaximumSlotCount(); i++) {
             ResourceLocation abilityId = group.getSlot(i);
             MKAbility ability = MKCoreRegistry.getAbility(abilityId);
-            if (ability instanceof MKToggleAbility && entityData.getEntity() != null) {
+            if (ability instanceof MKToggleAbility) {
                 MKToggleAbility toggle = (MKToggleAbility) ability;
                 if (entityData.getEntity().isPotionActive(toggle.getToggleEffect()))
                     setToggleGroupAbility(toggle.getToggleGroupId(), toggle);
@@ -114,14 +111,14 @@ public class PlayerAbilityExecutor extends AbilityExecutor {
         }
     }
 
-    public void onSlotChanged(AbilityType type, int index, ResourceLocation previous, ResourceLocation newAbility) {
-        MKCore.LOGGER.debug("PlayerAbilityExecutor.onSlotChanged({}, {}, {}, {})", type, index, previous, newAbility);
+    public void onSlotChanged(AbilityGroupId group, int index, ResourceLocation previous, ResourceLocation newAbility) {
+        MKCore.LOGGER.debug("PlayerAbilityExecutor.onSlotChanged({}, {}, {}, {})", group, index, previous, newAbility);
 
         if (previous.equals(MKCoreRegistry.INVALID_ABILITY))
             return;
 
-        IActiveAbilityGroup container = getPlayerData().getLoadout().getAbilityGroup(type);
-        if (!container.isAbilitySlotted(previous)) {
+        AbilityGroup abilityGroup = getPlayerData().getLoadout().getAbilityGroup(group);
+        if (!abilityGroup.isAbilitySlotted(previous)) {
             MKAbility ability = MKCoreRegistry.getAbility(previous);
             if (ability instanceof MKToggleAbility) {
                 ((MKToggleAbility) ability).removeEffect(getPlayerData().getEntity(), getPlayerData());

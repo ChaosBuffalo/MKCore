@@ -17,6 +17,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
 
+import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -61,6 +62,10 @@ public class AbilityExecutor {
         if (info == null)
             return;
 
+        executeAbilityInfoWithContext(info, context);
+    }
+
+    public void executeAbilityInfoWithContext(MKAbilityInfo info, AbilityContext context) {
         MKAbility ability = info.getAbility();
         if (abilityExecutionCheck(ability, info)) {
             if (context == null) {
@@ -68,14 +73,14 @@ public class AbilityExecutor {
             } else {
                 boolean validContext = ability.getTargetSelector().validateContext(entityData, context);
                 if (!validContext) {
-                    MKCore.LOGGER.warn("Entity {} tried to execute ability {} with a context that failed validation!", entityData.getEntity(), abilityId);
+                    MKCore.LOGGER.warn("Entity {} tried to execute ability {} with a context that failed validation!", entityData.getEntity(), info.getAbility().getAbilityId());
                     return;
                 }
             }
             if (context != null) {
-                ability.executeWithContext(entityData, context);
+                ability.executeWithContext(entityData, context, info);
             } else {
-                MKCore.LOGGER.warn("Entity {} tried to execute ability {} with a null context!", entityData.getEntity(), abilityId);
+                MKCore.LOGGER.warn("Entity {} tried to execute ability {} with a null context!", entityData.getEntity(), info.getAbility().getAbilityId());
             }
         }
     }
@@ -119,8 +124,9 @@ public class AbilityExecutor {
         return currentCast != null ? currentCast.getCastTicks() : 0;
     }
 
-    public ResourceLocation getCastingAbility() {
-        return currentCast != null ? currentCast.getAbilityId() : MKCoreRegistry.INVALID_ABILITY;
+    @Nullable
+    public MKAbility getCastingAbility() {
+        return currentCast != null ? currentCast.getAbility() : null;
     }
 
     private void clearCastingAbility() {
@@ -144,7 +150,7 @@ public class AbilityExecutor {
             if (startCastCallback != null) {
                 startCastCallback.accept(ability);
             }
-            if (castTicks <= 0){
+            if (castTicks <= 0) {
                 currentCast.finish();
             }
         } else {
@@ -158,15 +164,15 @@ public class AbilityExecutor {
 
         if (currentCast.getAbility().isInterruptible()) {
             currentCast.interrupt();
+            if (interruptCastCallback != null) {
+                interruptCastCallback.accept(currentCast.getAbility());
+            }
             clearCastingAbility();
         }
     }
 
     protected void onAbilityInterrupted(MKAbility ability, int ticks) {
 //        MKCore.LOGGER.info("onAbilityInterrupted {} {}", ability, ticks);
-        if (interruptCastCallback != null){
-            interruptCastCallback.accept(ability);
-        }
     }
 
     private void updateCurrentCast() {
@@ -178,15 +184,10 @@ public class AbilityExecutor {
         }
     }
 
-    public boolean startAbility(AbilityContext context, MKAbility ability) {
+    public boolean startAbility(AbilityContext context, MKAbilityInfo info) {
+        MKAbility ability = info.getAbility();
         if (isCasting()) {
             MKCore.LOGGER.warn("startAbility({}) failed - {} currently casting", ability.getAbilityId(), entityData.getEntity());
-            return false;
-        }
-
-        MKAbilityInfo info = entityData.getKnowledge().getAbilityKnowledge().getKnownAbility(ability.getAbilityId());
-        if (info == null) {
-            MKCore.LOGGER.warn("startAbility({}) failed - {} does not know", ability.getAbilityId(), entityData.getEntity());
             return false;
         }
 

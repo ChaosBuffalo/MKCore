@@ -2,7 +2,7 @@ package com.chaosbuffalo.mkcore.abilities.training.requirements;
 
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.abilities.training.IAbilityTrainingRequirement;
-import com.chaosbuffalo.mkcore.core.IMKEntityData;
+import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Hand;
@@ -20,8 +20,8 @@ public class HeldItemRequirement implements IAbilityTrainingRequirement {
     }
 
     @Override
-    public boolean check(IMKEntityData entityData, MKAbility ability) {
-        ItemStack stack = entityData.getEntity().getHeldItem(hand);
+    public boolean check(MKPlayerData playerData, MKAbility ability) {
+        ItemStack stack = playerData.getEntity().getHeldItem(hand);
         if (stack.isEmpty())
             return false;
 
@@ -29,12 +29,12 @@ public class HeldItemRequirement implements IAbilityTrainingRequirement {
     }
 
     @Override
-    public void onLearned(IMKEntityData entityData, MKAbility ability) {
+    public void onLearned(MKPlayerData playerData, MKAbility ability) {
 
     }
 
     @Override
-    public ITextComponent describe() {
+    public ITextComponent describe(MKPlayerData playerData) {
         String handName = hand == Hand.MAIN_HAND ? "Main" : "Off";
         return new StringTextComponent("You must be holding a ")
                 .appendSibling(new TranslationTextComponent(item.getTranslationKey())) // Item.getName is client-only
