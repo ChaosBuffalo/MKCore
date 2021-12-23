@@ -57,7 +57,6 @@ public class EntityAbilityKnowledge implements IMKEntityKnowledge, IMKAbilityKno
                     ability.getAbilityId(), entityData.getEntity());
             return false;
         }
-        info.setKnown(true);
         abilityInfoMap.put(ability.getAbilityId(), info);
         return true;
     }
@@ -81,7 +80,7 @@ public class EntityAbilityKnowledge implements IMKEntityKnowledge, IMKAbilityKno
     }
 
     @Override
-    public boolean unlearnAbility(ResourceLocation abilityId) {
+    public boolean unlearnAbility(ResourceLocation abilityId, AbilitySource source) {
         abilityInfoMap.remove(abilityId);
         abilityPriorities.remove(abilityId);
         updatePriorityOrder();

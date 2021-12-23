@@ -43,13 +43,13 @@ public class PlayerAbilityKnowledge implements IMKAbilityKnowledge, IPlayerSyncC
         return poolSize.get();
     }
 
-    public int getEmptySlotCount(){
+    public int getEmptySlotCount() {
         return getAbilityPoolSize() - getCurrentPoolCount();
     }
 
-    public int getSlotDeficitToLearnAnAbility(){
+    public int getSlotDeficitToLearnAnAbility() {
         int emptySlots = getEmptySlotCount();
-        if (emptySlots <= 0){
+        if (emptySlots <= 0) {
             return 1 - emptySlots;
         }
         return 0;
@@ -68,11 +68,6 @@ public class PlayerAbilityKnowledge implements IMKAbilityKnowledge, IPlayerSyncC
         return getKnownStream()
                 .filter(info -> info.getSource().usesAbilityPool())
                 .map(MKAbilityInfo::getId);
-    }
-
-    private boolean isPoolAbility(ResourceLocation abilityId) {
-        MKAbilityInfo info = getKnownAbility(abilityId);
-        return info != null && info.getSource().usesAbilityPool();
     }
 
     public List<ResourceLocation> getPoolAbilities() {
@@ -101,80 +96,66 @@ public class PlayerAbilityKnowledge implements IMKAbilityKnowledge, IPlayerSyncC
         return abilityInfoMap.values().stream().filter(MKAbilityInfo::isCurrentlyKnown);
     }
 
-    private boolean isBlockedFromLearning(MKAbility ability, AbilitySource source, ResourceLocation replacing) {
-        return source.usesAbilityPool() && isAbilityPoolFull() && replacing.equals(MKCoreRegistry.INVALID_ABILITY);
-    }
-
     private AbilityGroup getAbilityGroup(MKAbility ability) {
         return playerData.getLoadout().getAbilityGroup(ability.getType().getGroup());
     }
 
     @Override
     public boolean learnAbility(MKAbility ability, AbilitySource source) {
-        if (isBlockedFromLearning(ability, source, MKCoreRegistry.INVALID_ABILITY)) {
+        MKCore.LOGGER.debug("learnAbility {} {}", ability, source);
+        MKAbilityInfo info = getKnownAbility(ability.getAbilityId());
+        if (info != null) {
+            if (info.hasSource(source)) {
+                // Already knows this ability from this source
+                return true;
+            }
+            MKCore.LOGGER.warn("Player {} updated known ability {} with new source {}", playerData.getEntity(), info, source);
+            info.addSource(source);
+            markDirty(info);
+            return true;
+        }
+
+        if (source.usesAbilityPool() && isAbilityPoolFull()) {
             MKCore.LOGGER.warn("Player {} tried to learn pool ability {} with a full pool ({}/{})",
                     playerData.getEntity(), ability.getAbilityId(), getCurrentPoolCount(), getAbilityPoolSize());
             return false;
         }
 
-        MKAbilityInfo info = abilityInfoMap.computeIfAbsent(ability.getAbilityId(), id -> ability.createAbilityInfo(source));
-        if (info.isCurrentlyKnown()) {
-            MKCore.LOGGER.warn("Player {} tried to learn already-known ability {}", playerData.getEntity(), ability.getAbilityId());
-            return true;
-        }
-
-        info.setKnown(true);
+        info = abilityInfoMap.computeIfAbsent(ability.getAbilityId(), id -> ability.createAbilityInfo(source));
+        info.addSource(source);
         markDirty(info);
 
         getAbilityGroup(ability).onAbilityLearned(info);
         return true;
     }
 
-    public boolean learnAbility(MKAbility ability, AbilitySource source, ResourceLocation replacingAbilityId) {
-        if (isBlockedFromLearning(ability, source, replacingAbilityId)) {
-            return false;
-        }
-
-        if (!replacingAbilityId.equals(MKCoreRegistry.INVALID_ABILITY)) {
-            if (isPoolAbility(replacingAbilityId)) {
-                if (!unlearnAbility(replacingAbilityId)) {
-                    MKCore.LOGGER.error("learnAbility - failed to unlearn forget ability {}", replacingAbilityId);
-                    return false;
-                }
-            } else {
-                // pool was full but ability to unlearn was not in our pool
-                MKCore.LOGGER.error("learnAbility error - forget ability was not a pool ability");
-                return false;
-            }
-        }
-
-        if (!source.usesAbilityPool() || !isAbilityPoolFull()) {
-            return learnAbility(ability, source);
-        } else {
-            MKCore.LOGGER.error("learnAbility called with full pool!");
-            return false;
-        }
-    }
-
     @Override
-    public boolean unlearnAbility(ResourceLocation abilityId) {
+    public boolean unlearnAbility(ResourceLocation abilityId, AbilitySource source) {
         MKAbilityInfo info = getKnownAbility(abilityId);
         if (info == null) {
             MKCore.LOGGER.error("{} tried to unlearn unknown ability {}", playerData.getEntity(), abilityId);
             return false;
         }
-        info.setKnown(false);
+
+        info.removeSource(source);
         markDirty(info);
 
-        MKAbility ability = info.getAbility();
-        playerData.getAbilityExecutor().onAbilityUnlearned(ability);
-        getAbilityGroup(ability).onAbilityUnlearned(info);
+        if (!info.isCurrentlyKnown()) {
+            MKAbility ability = info.getAbility();
+            playerData.getAbilityExecutor().onAbilityUnlearned(ability);
+            getAbilityGroup(ability).onAbilityUnlearned(info);
+        }
         return true;
     }
 
     @Override
     public boolean knowsAbility(ResourceLocation abilityId) {
         return getKnownAbility(abilityId) != null;
+    }
+
+    public boolean knowsAbility(ResourceLocation abilityId, AbilitySource source) {
+        MKAbilityInfo info = getKnownAbility(abilityId);
+        return info != null && info.hasSource(source);
     }
 
     @Nullable
@@ -189,16 +170,9 @@ public class PlayerAbilityKnowledge implements IMKAbilityKnowledge, IPlayerSyncC
         knownAbilityUpdater.markDirty(info.getId());
     }
 
-    private boolean serializationFilter(ResourceLocation key, MKAbilityInfo info) {
-        // Talent abilities are granted when deserializing the talent records, so they don't need to be persisted here
-        if (info.getSource() == AbilitySource.TALENT)
-            return false;
-        return true;
-    }
-
     public CompoundNBT serialize() {
         CompoundNBT tag = new CompoundNBT();
-        tag.put("known", knownAbilityUpdater.serializeStorage(this::serializationFilter));
+        tag.put("known", knownAbilityUpdater.serializeStorage());
         tag.putInt("poolSize", poolSize.get());
         return tag;
     }

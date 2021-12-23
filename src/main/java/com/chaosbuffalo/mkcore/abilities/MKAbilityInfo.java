@@ -5,17 +5,17 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
 
 
 public class MKAbilityInfo implements IMKSerializable<CompoundNBT> {
     private final MKAbility ability;
-    private boolean known;
     private AbilitySource source;
+    private int sourceMask;
 
     public MKAbilityInfo(MKAbility ability, AbilitySource source) {
         this.ability = ability;
-        known = false;
-        this.source = source;
+        addSource(source);
     }
 
     @Nonnull
@@ -28,36 +28,57 @@ public class MKAbilityInfo implements IMKSerializable<CompoundNBT> {
     }
 
     public boolean isCurrentlyKnown() {
-        return known;
+        return sourceMask != 0;
     }
 
-    public void setKnown(boolean learn) {
-        this.known = learn;
+    public boolean hasSource(AbilitySource source) {
+        return (sourceMask & source.mask()) != 0;
     }
 
-    public void setSource(AbilitySource source) {
-        this.source = source;
+    private void setSources(int mask) {
+        sourceMask = mask;
+        updateHighestSource();
+    }
+
+    public void addSource(AbilitySource source) {
+        sourceMask |= source.mask();
+        updateHighestSource();
+    }
+
+    public void removeSource(AbilitySource source) {
+        sourceMask &= ~source.mask();
+        updateHighestSource();
+    }
+
+    private void updateHighestSource() {
+        for (AbilitySource src : AbilitySource.VALUES) {
+            if (hasSource(src)) {
+                source = src;
+            }
+        }
     }
 
     public AbilitySource getSource() {
         return source;
     }
 
+    public boolean canUnlearnByCommand() {
+        return Arrays.stream(AbilitySource.VALUES)
+                .filter(this::hasSource)
+                .anyMatch(AbilitySource::isSimple);
+    }
+
     @Override
     public CompoundNBT serialize() {
         CompoundNBT tag = new CompoundNBT();
-        tag.putBoolean("known", known);
-        tag.putString("source", source.name());
+        tag.putInt("mask", sourceMask);
         return tag;
     }
 
     @Override
     public boolean deserialize(CompoundNBT tag) {
-        if (tag.contains("known")) {
-            known = tag.getBoolean("known");
-        }
-        if (tag.contains("source")) {
-            source = AbilitySource.valueOf(tag.getString("source"));
+        if (tag.contains("mask")) {
+            setSources(tag.getInt("mask"));
         }
         return true;
     }
@@ -66,7 +87,7 @@ public class MKAbilityInfo implements IMKSerializable<CompoundNBT> {
     public String toString() {
         return "MKAbilityInfo{" +
                 "ability=" + ability +
-                ", known=" + known +
+                ", mask=" + sourceMask +
                 ", source=" + source +
                 '}';
     }

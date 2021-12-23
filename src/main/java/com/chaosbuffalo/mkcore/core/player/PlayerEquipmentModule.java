@@ -121,14 +121,14 @@ public class PlayerEquipmentModule {
         if (oldItem.getItem() instanceof IMKAbilityProvider) {
             MKAbility ability = ((IMKAbilityProvider) oldItem.getItem()).getAbility(oldItem);
             if (ability != null) {
-                playerData.getAbilities().unlearnAbility(ability.getAbilityId());
+                playerData.getAbilities().unlearnAbility(ability.getAbilityId(), AbilitySource.ITEM);
             }
         }
     }
 
     public void onPersonaActivated() {
         PlayerEntity player = playerData.getEntity();
-        ItemStack mainHand = playerData.getEntity().getItemStackFromSlot(EquipmentSlotType.MAINHAND);
+        ItemStack mainHand = player.getItemStackFromSlot(EquipmentSlotType.MAINHAND);
         handleMainHandChange(mainHand);
         addAbilityItem(player.getItemStackFromSlot(EquipmentSlotType.HEAD));
         addAbilityItem(player.getItemStackFromSlot(EquipmentSlotType.CHEST));
@@ -138,7 +138,6 @@ public class PlayerEquipmentModule {
 
     public void onPersonaDeactivated() {
         PlayerEntity player = playerData.getEntity();
-        ItemStack mainHand = playerData.getEntity().getItemStackFromSlot(EquipmentSlotType.MAINHAND);
         handleMainHandChange(ItemStack.EMPTY);
         removeAbilityItem(player.getItemStackFromSlot(EquipmentSlotType.HEAD));
         removeAbilityItem(player.getItemStackFromSlot(EquipmentSlotType.CHEST));

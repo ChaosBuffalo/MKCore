@@ -92,9 +92,10 @@ public class TalentManager extends JsonReloadListener {
         return talentTreeMap.get(treeId);
     }
 
-    public Collection<TalentTreeDefinition> getDefaultTrees(){
-        if (defaultTrees == null){
-            defaultTrees = talentTreeMap.values().stream().filter(TalentTreeDefinition::isDefault)
+    public Collection<TalentTreeDefinition> getDefaultTrees() {
+        if (defaultTrees == null) {
+            defaultTrees = talentTreeMap.values().stream()
+                    .filter(TalentTreeDefinition::isDefault)
                     .collect(Collectors.toList());
         }
         return defaultTrees;
@@ -114,15 +115,6 @@ public class TalentManager extends JsonReloadListener {
             return (PassiveTalentAbility) ability;
         }
         return null;
-    }
-
-    public static MKAbility getTalentAbility(ResourceLocation talentId) {
-        MKTalent talent = MKCoreRegistry.TALENTS.getValue(talentId);
-        if (talent instanceof IAbilityTalent<?>) {
-            return ((IAbilityTalent<?>) talent).getAbility();
-        } else {
-            return null;
-        }
     }
 
     public void syncToPlayers() {
