@@ -37,9 +37,9 @@ public class ResetAttackSwingPacket {
             PlayerEntity entity = Minecraft.getInstance().player;
             if (entity == null)
                 return;
-
+            // +2 to account for the client 2 tick lag before allowing attack
             MKCore.getPlayer(entity).ifPresent(cap ->
-                    cap.getCombatExtension().setEntityTicksSinceLastSwing(packet.ticksToSet));
+                    cap.getCombatExtension().setEntityTicksSinceLastSwing(packet.ticksToSet + 2));
             SoundUtils.clientPlaySoundAtPlayer(entity, CoreSounds.attack_cd_reset, entity.getSoundCategory(), 1.0f, 1.0f);
         }
     }
