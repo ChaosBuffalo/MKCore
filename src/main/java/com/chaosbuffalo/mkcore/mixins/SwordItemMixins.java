@@ -14,14 +14,17 @@ import org.spongepowered.asm.mixin.Mixin;
 @Mixin(SwordItem.class)
 public class SwordItemMixins {
 
+    // change sword to block when used
     public UseAction getUseAction(ItemStack stack) {
         return UseAction.BLOCK;
     }
 
+    // give use duration same as shield
     public int getUseDuration(ItemStack stack) {
         return 72000;
     }
 
+    // make sword block only when we are not poise broke and shield is not in offhand
     public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand handIn) {
         ItemStack itemstack = playerIn.getHeldItem(handIn);
         ItemStack offhand = playerIn.getHeldItemOffhand();

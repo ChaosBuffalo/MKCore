@@ -77,6 +77,10 @@ public class StatCommand {
                 .then(createAttributeStat("pankration", MKAttributes.PANKRATION))
                 .then(createAttributeStat("evocation", MKAttributes.EVOCATION))
                 .then(createAttributeStat("marksmanship", MKAttributes.MARKSMANSHIP))
+                .then(createAttributeStat("block_efficiency", MKAttributes.BLOCK_EFFICIENCY))
+                .then(createAttributeStat("max_poise", MKAttributes.MAX_POISE))
+                .then(createAttributeStat("poise_regen", MKAttributes.POISE_REGEN))
+                .then(createAttributeStat("poise_break_cd", MKAttributes.POISE_BREAK_CD))
                 ;
     }
 

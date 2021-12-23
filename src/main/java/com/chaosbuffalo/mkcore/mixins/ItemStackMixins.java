@@ -17,6 +17,7 @@ public abstract class ItemStackMixins {
 
     @Shadow public abstract Multimap<Attribute, AttributeModifier> getAttributeModifiers(EquipmentSlotType equipmentSlot);
 
+    // lets us remove attributes only from the automatic tooltip generation in item stack
     @Redirect(method= "Lnet/minecraft/item/ItemStack;getTooltip(Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/client/util/ITooltipFlag;)Ljava/util/List;",
             at=@At(target="Lnet/minecraft/item/ItemStack;getAttributeModifiers(Lnet/minecraft/inventory/EquipmentSlotType;)Lcom/google/common/collect/Multimap;", value="INVOKE"))
     private Multimap<Attribute, AttributeModifier> proxyGetAttributeModifiers(ItemStack itemStack, EquipmentSlotType equipmentSlot){
