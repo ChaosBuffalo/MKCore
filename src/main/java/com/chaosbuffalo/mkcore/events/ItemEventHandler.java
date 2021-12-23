@@ -37,9 +37,6 @@ public class ItemEventHandler {
 
         Item from = event.getFrom().getItem();
         Item to = event.getTo().getItem();
-        if (from.equals(to)){
-            return;
-        }
         if (from instanceof ShieldItem){
             event.getEntityLiving().getAttribute(MKAttributes.BLOCK_EFFICIENCY).removeModifier(SHIELD_EFFICIENCY_MOD);
             event.getEntityLiving().getAttribute(MKAttributes.MAX_POISE).removeModifier(SHIELD_POISE_MOD);
