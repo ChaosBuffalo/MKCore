@@ -86,7 +86,7 @@ public class MKOverlay {
             return;
         }
 
-        MKAbility ability = MKCoreRegistry.getAbility(executor.getCastingAbility());
+        MKAbility ability = executor.getCastingAbility();
         if (ability == null) {
             return;
         }

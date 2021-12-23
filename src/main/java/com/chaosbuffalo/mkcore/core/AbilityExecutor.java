@@ -17,6 +17,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
 
+import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -123,8 +124,9 @@ public class AbilityExecutor {
         return currentCast != null ? currentCast.getCastTicks() : 0;
     }
 
-    public ResourceLocation getCastingAbility() {
-        return currentCast != null ? currentCast.getAbilityId() : MKCoreRegistry.INVALID_ABILITY;
+    @Nullable
+    public MKAbility getCastingAbility() {
+        return currentCast != null ? currentCast.getAbility() : null;
     }
 
     private void clearCastingAbility() {
@@ -148,7 +150,7 @@ public class AbilityExecutor {
             if (startCastCallback != null) {
                 startCastCallback.accept(ability);
             }
-            if (castTicks <= 0){
+            if (castTicks <= 0) {
                 currentCast.finish();
             }
         } else {
