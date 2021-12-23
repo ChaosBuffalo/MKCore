@@ -205,5 +205,7 @@
   "attribute.name.mk.poise_regen": "Poise Regen",
   "attribute.name.mk.max_poise": "Max Poise",
   "attribute.name.mk.poise_break_cd": "Poise Break Time",
-  "attribute.name.mk.block_efficiency": "Block Efficiency"
+  "attribute.name.mk.block_efficiency": "Block Efficiency",
+  "mkcore.subtitle.attack_cd_reset": "The sound of you swiftly readying your weapon for another strike",
+  "mkcore.subtitle.stun": "The sound of someone getting stunned"
 }

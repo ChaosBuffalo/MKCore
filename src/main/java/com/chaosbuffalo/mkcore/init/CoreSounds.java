@@ -28,6 +28,10 @@ public class CoreSounds {
     public static SoundEvent fist_block;
     @ObjectHolder("parry")
     public static SoundEvent parry;
+    @ObjectHolder("attack_cd_reset")
+    public static SoundEvent attack_cd_reset;
+    @ObjectHolder("stun")
+    public static SoundEvent stun_sound;
 
     public static void registerSound(RegistryEvent.Register<SoundEvent> evt, SoundEvent event) {
         evt.getRegistry().register(event);
@@ -50,5 +54,7 @@ public class CoreSounds {
         registerSound(evt, createSound("fist_block"));
         registerSound(evt, createSound("weapon_block"));
         registerSound(evt, createSound("parry"));
+        registerSound(evt, createSound("attack_cd_reset"));
+        registerSound(evt, createSound("stun"));
     }
 }

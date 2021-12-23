@@ -71,5 +71,23 @@
         "attenuation_distance": 20
       }
     ]
+  },
+  "attack_cd_reset": {
+    "subtitle": "mkcore.subtitle.attack_cd_reset",
+    "sounds": [
+      {
+        "name": "mkcore:other/attack_cd_reset",
+        "attenuation_distance": 20
+      }
+    ]
+  },
+  "stun": {
+    "subtitle": "mkcore.subtitle.stun",
+    "sounds": [
+      {
+        "name": "mkcore:other/stun",
+        "attenuation_distance": 20
+      }
+    ]
   }
 }

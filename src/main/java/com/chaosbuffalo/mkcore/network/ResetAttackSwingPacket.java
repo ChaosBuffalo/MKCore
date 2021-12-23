@@ -1,6 +1,8 @@
 package com.chaosbuffalo.mkcore.network;
 
 import com.chaosbuffalo.mkcore.MKCore;
+import com.chaosbuffalo.mkcore.init.CoreSounds;
+import com.chaosbuffalo.mkcore.utils.SoundUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketBuffer;
@@ -38,6 +40,7 @@ public class ResetAttackSwingPacket {
 
             MKCore.getPlayer(entity).ifPresent(cap ->
                     cap.getCombatExtension().setEntityTicksSinceLastSwing(packet.ticksToSet));
+            SoundUtils.clientPlaySoundAtPlayer(entity, CoreSounds.attack_cd_reset, entity.getSoundCategory(), 1.0f, 1.0f);
         }
     }
 }

@@ -3,6 +3,8 @@ package com.chaosbuffalo.mkcore.effects.status;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.effects.PassiveEffect;
 import com.chaosbuffalo.mkcore.effects.SpellCast;
+import com.chaosbuffalo.mkcore.init.CoreSounds;
+import com.chaosbuffalo.mkcore.utils.SoundUtils;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MobEntity;
@@ -47,6 +49,7 @@ public class StunEffect extends PassiveEffect {
             mob.setNoAI(true);
         }
         MKCore.getEntityData(target).ifPresent(entityData -> entityData.getAbilityExecutor().interruptCast());
+        SoundUtils.serverPlaySoundAtEntity(target, CoreSounds.stun_sound, target.getSoundCategory());
     }
 
     @Override
