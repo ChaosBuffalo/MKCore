@@ -52,17 +52,21 @@ public class MKOverlay {
         }
     }
 
-    private void drawPoise(MatrixStack matrixStack, MKPlayerData data){
+    private void drawPoise(MatrixStack matrixStack, MKPlayerData data, float partialTick) {
 
+        float percentage;
         boolean isBroken = data.getStats().isPoiseBroke();
-        float poiseAmount = isBroken ? data.getStats().getPoiseBreakTime() : data.getStats().getPoise();
-        float maxPoise = isBroken ? data.getStats().getPoiseBreakCooldown() * GameConstants.TICKS_PER_SECOND : data.getStats().getMaxPoise();
+        if (isBroken) {
+            percentage = data.getStats().getPoiseBreakPercent(partialTick);
+        } else {
+            percentage = data.getStats().getPoise() / data.getStats().getMaxPoise();
+        }
         int width = 50;
-        int barSize = Math.round(width * (poiseAmount / maxPoise));
+        int barSize = Math.round(width * percentage);
         int castStartX;
         int height = mc.getMainWindow().getScaledHeight();
         int castStartY;
-        if (data.getEntity().isActiveItemStackBlocking()){
+        if (data.getEntity().isActiveItemStackBlocking()) {
             castStartY = height / 2 + 8;
             castStartX = mc.getMainWindow().getScaledWidth() / 2 - barSize / 2;
         } else {
@@ -210,7 +214,7 @@ public class MKOverlay {
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
             drawMana(event.getMatrixStack(), cap);
             drawCastBar(event.getMatrixStack(), cap);
-            drawPoise(event.getMatrixStack(), cap);
+            drawPoise(event.getMatrixStack(), cap, event.getPartialTicks());
 
             int totalSlots = Arrays.stream(AbilityGroupId.values())
                     .filter(AbilityGroupId::isActive)
