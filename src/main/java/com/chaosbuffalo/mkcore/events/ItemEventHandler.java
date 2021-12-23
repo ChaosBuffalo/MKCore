@@ -8,6 +8,7 @@ import com.chaosbuffalo.mkcore.item.IImplementsBlocking;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.item.ShieldItem;
 import net.minecraft.item.SwordItem;
 import net.minecraftforge.event.entity.living.LivingEquipmentChangeEvent;
@@ -36,6 +37,9 @@ public class ItemEventHandler {
 
         Item from = event.getFrom().getItem();
         Item to = event.getTo().getItem();
+        if (from.equals(to)){
+            return;
+        }
         if (from instanceof ShieldItem){
             event.getEntityLiving().getAttribute(MKAttributes.BLOCK_EFFICIENCY).removeModifier(SHIELD_EFFICIENCY_MOD);
             event.getEntityLiving().getAttribute(MKAttributes.MAX_POISE).removeModifier(SHIELD_POISE_MOD);

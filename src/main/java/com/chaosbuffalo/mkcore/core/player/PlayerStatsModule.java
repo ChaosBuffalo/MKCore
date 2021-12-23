@@ -25,14 +25,15 @@ public class PlayerStatsModule extends EntityStatsModule implements IPlayerSyncC
     private float manaRegenTimer;
     private final SyncFloat mana = new SyncFloat("mana", 0f);
     private final SyncFloat poise = new SyncFloat("poise", 0f);
-    private final SyncFloat poise_break = new SyncFloat("poise_break", 0f);
+    public static final ResourceLocation POISE_BREAK_TIMER = new ResourceLocation(MKCore.MOD_ID, "timer.poise_break");
+//    private final SyncFloat poise_break = new SyncFloat("poise_break", 0f);
 
     public PlayerStatsModule(MKPlayerData playerData) {
         super(playerData);
         manaRegenTimer = 0f;
         addSyncPublic(mana);
         addSyncPrivate(poise);
-        addSyncPrivate(poise_break);
+//        addSyncPrivate(poise_break);
         addSyncPrivate(abilityTracker);
     }
 
@@ -80,8 +81,8 @@ public class PlayerStatsModule extends EntityStatsModule implements IPlayerSyncC
     }
 
     public void setMaxPoise(float max){
-        getEntity().getAttribute(MKAttributes.MAX_MANA).setBaseValue(max);
-        setMana(getMana()); // Refresh the mana to account for the updated maximum
+        getEntity().getAttribute(MKAttributes.MAX_POISE).setBaseValue(max);
+        setPoise(getPoise()); // Refresh the poise to account for the updated maximum
     }
 
     public void setPoise(float value){
@@ -142,8 +143,8 @@ public class PlayerStatsModule extends EntityStatsModule implements IPlayerSyncC
         return poise.get();
     }
 
-    public float getPoiseBreakTime(){
-        return poise_break.get();
+    public int getPoiseBreakTime(){
+        return getTimer(POISE_BREAK_TIMER);
     }
 
     private void setupBaseStats() {
@@ -160,29 +161,26 @@ public class PlayerStatsModule extends EntityStatsModule implements IPlayerSyncC
 
     public void breakPoise(){
         setPoise(0);
-        poise_break.set(getPoiseBreakCooldown());
+        setTimer(POISE_BREAK_TIMER, Math.round(getPoiseBreakCooldown() * GameConstants.TICKS_PER_SECOND));
         getEntity().stopActiveHand();
     }
 
     public boolean isPoiseBroke(){
-        return poise_break.get() > 0.0f;
+        return getTimer(POISE_BREAK_TIMER) > 0;
     }
 
     private void updatePoise(){
-        float break_time = poise_break.get();
+        int break_time = getPoiseBreakTime();
         if (getEntity().isActiveItemStackBlocking()){
             if (entityData.getAbilityExecutor().isCasting()){
                 entityData.getAbilityExecutor().interruptCast();
             }
-            if (break_time > 0f){
+            if (break_time > 0){
                 getEntity().stopActiveHand();
             }
             return;
         }
-        if (break_time > 0f){
-            poise_break.set(Math.max(0f, break_time - (1.0f / GameConstants.TICKS_PER_SECOND)));
-        }
-        if (poise_break.get() > 0f || getPoiseRegenRate() <= 0f){
+        if (break_time > 0 || getPoiseRegenRate() <= 0f){
             return;
         }
 
