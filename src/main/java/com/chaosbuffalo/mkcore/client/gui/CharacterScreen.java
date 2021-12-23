@@ -107,6 +107,10 @@ public class CharacterScreen extends AbilityPanelScreen {
         STAT_PANEL_ATTRIBUTES.add(MKAttributes.PNEUMA);
         STAT_PANEL_ATTRIBUTES.add(MKAttributes.PANKRATION);
         STAT_PANEL_ATTRIBUTES.add(MKAttributes.MARKSMANSHIP);
+        STAT_PANEL_ATTRIBUTES.add(MKAttributes.BLOCK_EFFICIENCY);
+        STAT_PANEL_ATTRIBUTES.add(MKAttributes.MAX_POISE);
+        STAT_PANEL_ATTRIBUTES.add(MKAttributes.POISE_REGEN);
+        STAT_PANEL_ATTRIBUTES.add(MKAttributes.POISE_BREAK_CD);
     }
 
     public CharacterScreen() {

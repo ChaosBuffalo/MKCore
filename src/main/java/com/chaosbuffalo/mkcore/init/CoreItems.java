@@ -8,10 +8,14 @@ import com.chaosbuffalo.mkcore.test.abilities.EmberAbility;
 import com.chaosbuffalo.mkcore.test.abilities.WhirlwindBlades;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.*;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ObjectHolder;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 @ObjectHolder(MKCore.MOD_ID)
@@ -55,5 +59,23 @@ public class CoreItems {
         public MKAbility getAbility(ItemStack item) {
             return WhirlwindBlades.INSTANCE;
         }
+    }
+
+    public static void registerItemProperties(){
+        List<Item> swordsToAddBlocking = new ArrayList<>();
+        swordsToAddBlocking.add(Items.DIAMOND_SWORD);
+        swordsToAddBlocking.add(Items.WOODEN_SWORD);
+        swordsToAddBlocking.add(Items.STONE_SWORD);
+        swordsToAddBlocking.add(Items.IRON_SWORD);
+        swordsToAddBlocking.add(Items.GOLDEN_SWORD);
+        swordsToAddBlocking.add(Items.NETHERITE_SWORD);
+        for (Item sword : swordsToAddBlocking){
+
+            ItemModelsProperties.registerProperty(sword, new ResourceLocation("blocking"),
+                    (itemStack, world, entity) -> entity != null && entity.isHandActive()
+                            && entity.getActiveItemStack() == itemStack ? 1.0F : 0.0F);
+        }
+
+
     }
 }
