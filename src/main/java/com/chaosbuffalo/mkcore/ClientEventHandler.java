@@ -11,6 +11,7 @@ import com.chaosbuffalo.mkcore.effects.status.StunEffect;
 import com.chaosbuffalo.mkcore.events.PlayerDataEvent;
 import com.chaosbuffalo.mkcore.events.PostAttackEvent;
 import com.chaosbuffalo.mkcore.item.ArmorClass;
+import com.chaosbuffalo.mkcore.item.IImplementsBlocking;
 import com.chaosbuffalo.mkcore.network.ExecuteActiveAbilityPacket;
 import com.chaosbuffalo.mkcore.network.MKItemAttackPacket;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
@@ -26,6 +27,7 @@ import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ArmorItem;
 import net.minecraft.item.ShieldItem;
+import net.minecraft.item.SwordItem;
 import net.minecraft.util.Hand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.EntityRayTraceResult;
@@ -215,6 +217,12 @@ public class ClientEventHandler {
             event.getToolTip().add(new TranslationTextComponent("mkcore.block_efficiency.description",
                     100.0f).mergeStyle(TextFormatting.GRAY));
         }
+        if (event.getItemStack().getItem() instanceof SwordItem && !(event.getItemStack().getItem() instanceof IImplementsBlocking)){
+            event.getToolTip().add(new TranslationTextComponent("mkcore.max_poise.description",
+                    20f).mergeStyle(TextFormatting.GRAY));
+            event.getToolTip().add(new TranslationTextComponent("mkcore.block_efficiency.description",
+                    75.0f).mergeStyle(TextFormatting.GRAY));
+        }
         if (!MKConfig.CLIENT.showArmorClassOnTooltip.get())
             return;
 
@@ -300,7 +308,7 @@ public class ClientEventHandler {
                     EntityRayTraceResult traceResult = (EntityRayTraceResult) lookingAt;
                     Entity entityHit = traceResult.getEntity();
                     if (!Targeting.isValidFriendly(player, entityHit)) {
-                        if (player.ticksSinceLastSwing > player.getCooldownPeriod()) {
+                        if (player.ticksSinceLastSwing -2 > player.getCooldownPeriod()) {
                             doPlayerAttack(player, entityHit, Minecraft.getInstance());
                             event.setSwingHand(true);
                         }

@@ -12,6 +12,7 @@ import com.chaosbuffalo.mkcore.core.persona.IPersonaExtensionProvider;
 import com.chaosbuffalo.mkcore.core.persona.PersonaManager;
 import com.chaosbuffalo.mkcore.core.talents.TalentManager;
 import com.chaosbuffalo.mkcore.fx.particles.ParticleAnimationManager;
+import com.chaosbuffalo.mkcore.init.CoreItems;
 import com.chaosbuffalo.mkcore.init.CoreParticles;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import net.minecraft.entity.Entity;
@@ -106,6 +107,7 @@ public class MKCore {
         MinecraftForge.EVENT_BUS.register(new MKOverlay());
         ClientEventHandler.initKeybindings();
         MKRenderers.registerPlayerRenderers();
+        CoreItems.registerItemProperties();
     }
 
     // You can use SubscribeEvent and let the Event Bus discover methods to call

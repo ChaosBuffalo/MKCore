@@ -217,7 +217,7 @@ public class MKAttributes {
             .setShouldWatch(true);
 
     public static final RangedAttribute POISE_REGEN = (RangedAttribute) new RangedAttribute(
-            "attribute.name.mk.poise_regen", 5, 0, 2048)
+            "attribute.name.mk.poise_regen", 2, 0, 2048)
             .setRegistryName(MKCore.makeRL("poise_regen"))
             .setShouldWatch(true);
 
