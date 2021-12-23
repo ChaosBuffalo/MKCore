@@ -1,6 +1,9 @@
 package com.chaosbuffalo.mkcore.command;
 
 import com.chaosbuffalo.mkcore.MKCore;
+import com.chaosbuffalo.mkcore.network.PacketHandler;
+import com.chaosbuffalo.mkcore.network.ResetAttackSwingPacket;
+import com.chaosbuffalo.mkcore.utils.EntityUtils;
 import com.chaosbuffalo.mkcore.utils.TextUtils;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
@@ -28,7 +31,19 @@ public class CooldownCommand {
                 )
                 .then(Commands.literal("reset")
                         .executes(CooldownCommand::resetTimers)
+                )
+                .then(Commands.literal("attack_reset")
+                    .executes(CooldownCommand::resetAttackCd)
                 );
+    }
+
+    static int resetAttackCd(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
+        ServerPlayerEntity player = ctx.getSource().asPlayer();
+        double cooldownPeriod = EntityUtils.getCooldownPeriod(player);
+
+        PacketHandler.sendMessage(new ResetAttackSwingPacket((int) Math.round(cooldownPeriod)), player);
+
+        return Command.SINGLE_SUCCESS;
     }
 
     static int newTimer(CommandContext<CommandSource> ctx) throws CommandSyntaxException {

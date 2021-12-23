@@ -22,6 +22,13 @@ public class SoundUtils {
         playSoundAtEntity(entity, event, cat, volume, 1.0F);
     }
 
+    public static void clientPlaySoundAtPlayer(PlayerEntity player, SoundEvent event, SoundCategory cat, float volume, float pitch){
+        if (event == null) {
+            return;
+        }
+        player.world.playSound(player, player.getPosX(), player.getPosY(), player.getPosZ(), event, cat, volume, pitch);
+    }
+
     public static void playSoundAtEntity(Entity entity, SoundEvent event, SoundCategory cat, float volume, float pitch) {
         if (event == null) {
             return;
