@@ -22,6 +22,7 @@ public abstract class LivingEntityMixins {
 
     @Shadow protected int activeItemStackUseCount;
 
+    // disable player blocking as we handle it ourselves
     @Redirect(at = @At(value = "INVOKE", target="Lnet/minecraft/entity/LivingEntity;canBlockDamageSource(Lnet/minecraft/util/DamageSource;)Z"),
             method = "Lnet/minecraft/entity/LivingEntity;attackEntityFrom(Lnet/minecraft/util/DamageSource;F)Z")
     private boolean proxyCanBlockDamageSource(LivingEntity entity, DamageSource damageSourceIn){

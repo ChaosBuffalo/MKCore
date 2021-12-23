@@ -28,6 +28,7 @@ public abstract class WorldRendererMixins {
 
     @Shadow public abstract void renderClouds(MatrixStack matrixStackIn, float partialTicks, double viewEntityX, double viewEntityY, double viewEntityZ);
 
+    // move clouds to before particle rendering
     @Inject(method= "updateCameraAndRender(Lcom/mojang/blaze3d/matrix/MatrixStack;FJZLnet/minecraft/client/renderer/ActiveRenderInfo;Lnet/minecraft/client/renderer/GameRenderer;Lnet/minecraft/client/renderer/LightTexture;Lnet/minecraft/util/math/vector/Matrix4f;)V",
             at=@At(target="Lnet/minecraft/client/renderer/RenderTypeBuffers;getCrumblingBufferSource()Lnet/minecraft/client/renderer/IRenderTypeBuffer$Impl;", value="INVOKE", ordinal = 2, shift = At.Shift.BY, by=2),
             locals = LocalCapture.CAPTURE_FAILHARD)
@@ -57,6 +58,7 @@ public abstract class WorldRendererMixins {
 
     }
 
+    // restore cloud options to original settings for next render
     @Inject(method= "updateCameraAndRender(Lcom/mojang/blaze3d/matrix/MatrixStack;FJZLnet/minecraft/client/renderer/ActiveRenderInfo;Lnet/minecraft/client/renderer/GameRenderer;Lnet/minecraft/client/renderer/LightTexture;Lnet/minecraft/util/math/vector/Matrix4f;)V",
             at=@At("RETURN"),
             locals = LocalCapture.CAPTURE_FAILHARD)

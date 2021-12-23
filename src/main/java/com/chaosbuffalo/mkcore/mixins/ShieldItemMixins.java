@@ -13,6 +13,7 @@ import org.spongepowered.asm.mixin.Mixin;
 public abstract class ShieldItemMixins {
 
 
+    //  shield can't block if we're poise broke
     public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand handIn){
         ItemStack itemstack = playerIn.getHeldItem(handIn);
         if (MKCore.getPlayer(playerIn).map(x -> x.getStats().isPoiseBroke()).orElse(false)){
