@@ -221,14 +221,18 @@ public class DataGenerators {
 
         @Override
         protected void registerTags() {
-            tag(CoreTags.Items.LIGHT_ARMOR).add(Items.LEATHER_HELMET, Items.LEATHER_CHESTPLATE, Items.LEATHER_LEGGINGS, Items.LEATHER_BOOTS);
+            tag(CoreTags.Items.LIGHT_ARMOR)
+                    .add(Items.LEATHER_HELMET, Items.LEATHER_CHESTPLATE, Items.LEATHER_LEGGINGS, Items.LEATHER_BOOTS);
             tag(CoreTags.Items.MEDIUM_ARMOR)
                     .add(Items.IRON_HELMET, Items.IRON_CHESTPLATE, Items.IRON_LEGGINGS, Items.IRON_BOOTS)
                     .add(Items.TURTLE_HELMET);
             tag(CoreTags.Items.HEAVY_ARMOR)
                     .add(Items.DIAMOND_HELMET, Items.DIAMOND_CHESTPLATE, Items.DIAMOND_LEGGINGS, Items.DIAMOND_BOOTS)
                     .add(Items.NETHERITE_HELMET, Items.NETHERITE_CHESTPLATE, Items.NETHERITE_LEGGINGS, Items.NETHERITE_BOOTS);
-            tag(CoreTags.Items.ARMOR).addTag(CoreTags.Items.LIGHT_ARMOR).addTag(CoreTags.Items.MEDIUM_ARMOR).addTag(CoreTags.Items.HEAVY_ARMOR);
+            tag(CoreTags.Items.ARMOR)
+                    .addTag(CoreTags.Items.LIGHT_ARMOR)
+                    .addTag(CoreTags.Items.MEDIUM_ARMOR)
+                    .addTag(CoreTags.Items.HEAVY_ARMOR);
         }
 
         private TagsProvider.Builder<Item> tag(ITag.INamedTag<Item> tag) {
