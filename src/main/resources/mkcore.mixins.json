@@ -10,6 +10,9 @@
     "ItemStackMixins",
     "SwordItemMixins"
   ],
+  "injectors": {
+    "maxShiftBy": 2
+  },
   "client": [
     "WorldRendererMixins"
   ],
