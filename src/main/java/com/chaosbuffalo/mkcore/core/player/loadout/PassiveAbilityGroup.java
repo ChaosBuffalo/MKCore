@@ -1,16 +1,12 @@
 package com.chaosbuffalo.mkcore.core.player.loadout;
 
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
-import com.chaosbuffalo.mkcore.abilities.AbilityContext;
-import com.chaosbuffalo.mkcore.abilities.MKAbilityInfo;
-import com.chaosbuffalo.mkcore.abilities.PassiveTalentAbility;
+import com.chaosbuffalo.mkcore.abilities.*;
 import com.chaosbuffalo.mkcore.core.AbilityGroupId;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.player.AbilityGroup;
 import com.chaosbuffalo.mkcore.core.talents.TalentManager;
 import com.chaosbuffalo.mkcore.effects.PassiveEffect;
-import com.chaosbuffalo.mkcore.effects.PassiveTalentEffect;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.Objects;
@@ -31,12 +27,17 @@ public class PassiveAbilityGroup extends AbilityGroup {
             if (current != null) {
                 deactivatePassive(current);
             }
+            MKAbility oldAbility = MKCoreRegistry.getAbility(oldAbilityId);
+            if (oldAbility instanceof MKPassiveAbility) {
+                MKPassiveAbility passiveAbility = (MKPassiveAbility) oldAbility;
+                deactivatePassive(passiveAbility);
+            }
         }
 
         if (!newAbilityId.equals(MKCoreRegistry.INVALID_ABILITY)) {
-            PassiveTalentAbility passiveTalent = TalentManager.getPassiveTalentAbility(newAbilityId);
-            if (passiveTalent != null) {
-                activatePassive(passiveTalent);
+            MKAbility newAbility = MKCoreRegistry.getAbility(newAbilityId);
+            if (newAbility instanceof IMKPassiveAbility) {
+                activatePassive(newAbility);
             }
         }
 
@@ -46,15 +47,13 @@ public class PassiveAbilityGroup extends AbilityGroup {
     @Override
     public void onJoinWorld() {
         super.onJoinWorld();
-        if (playerData.isServerSide()) {
-            activateAllPassives();
-        }
+        activateAllPassives(true);
     }
 
     @Override
     public void onPersonaActivated() {
         super.onPersonaActivated();
-        activateAllPassives();
+        activateAllPassives(false);
     }
 
     @Override
@@ -63,7 +62,7 @@ public class PassiveAbilityGroup extends AbilityGroup {
         removeAllPassiveTalents();
     }
 
-    private void activatePassive(PassiveTalentAbility talentAbility) {
+    private void activatePassive(MKAbility talentAbility) {
         MKAbilityInfo info = playerData.getAbilities().getKnownAbility(talentAbility.getAbilityId());
         talentAbility.executeWithContext(playerData, AbilityContext.selfTarget(playerData), info);
     }
@@ -72,35 +71,44 @@ public class PassiveAbilityGroup extends AbilityGroup {
         removePassiveEffect(talent.getPassiveEffect());
     }
 
-    private Stream<PassiveTalentAbility> getPassiveAbilitiesStream() {
+    private void deactivatePassive(MKPassiveAbility talent) {
+        if (playerData.getEffects().isEffectActive(talent.getPassiveEffect())) {
+            playerData.getEffects().removeEffect(talent.getPassiveEffect());
+        }
+    }
+
+    private Stream<MKAbility> getPassiveAbilitiesStream() {
         return playerData.getLoadout()
                 .getPassiveGroup()
                 .getAbilities()
                 .stream()
-                .map(TalentManager::getPassiveTalentAbility)
-                .filter(Objects::nonNull);
+                .map(MKCoreRegistry::getAbility)
+                .filter(Objects::nonNull)
+                .filter(ability -> ability instanceof IMKPassiveAbility);
     }
 
-    private void activateAllPassives() {
-        if (!playerData.getEntity().isAddedToWorld()) {
-            // We come here during deserialization of the active persona, and it tries to apply effects which will crash the client because it's too early
-            // Active persona passives should be caught by onJoinWorld
-            // Persona switching while in-game should not go inside this branch
+    private void activateAllPassives(boolean willBeInWorld) {
+        if (!playerData.isServerSide())
             return;
-        }
 
-        getPassiveAbilitiesStream().forEach(this::activatePassive);
+        // We come here during deserialization of the active persona, and it tries to apply effects which will crash the client because it's too early
+        // Active persona passives should be caught by onJoinWorld
+        // Persona switching while in-game should not go inside this branch
+        if (willBeInWorld || playerData.getEntity().isAddedToWorld()) {
+            getPassiveAbilitiesStream().forEach(this::activatePassive);
+        }
+    }
+
+    private void removePassive(MKAbility ability) {
+        if (ability instanceof PassiveTalentAbility) {
+            deactivatePassive((PassiveTalentAbility) ability);
+        } else if (ability instanceof MKPassiveAbility) {
+            deactivatePassive((MKPassiveAbility) ability);
+        }
     }
 
     private void removeAllPassiveTalents() {
-        PlayerEntity playerEntity = playerData.getEntity();
-
-        getPassiveAbilitiesStream().forEach(talentAbility -> {
-            PassiveTalentEffect talentEffect = talentAbility.getPassiveEffect();
-            if (playerEntity.isPotionActive(talentEffect)) {
-                removePassiveEffect(talentEffect);
-            }
-        });
+        getPassiveAbilitiesStream().forEach(this::removePassive);
     }
 
     public boolean canRemovePassiveEffects() {
@@ -108,8 +116,10 @@ public class PassiveAbilityGroup extends AbilityGroup {
     }
 
     private void removePassiveEffect(PassiveEffect passiveEffect) {
-        passiveEffectsUnlocked = true;
-        playerData.getEntity().removePotionEffect(passiveEffect);
-        passiveEffectsUnlocked = false;
+        if (playerData.getEntity().isPotionActive(passiveEffect)) {
+            passiveEffectsUnlocked = true;
+            playerData.getEntity().removePotionEffect(passiveEffect);
+            passiveEffectsUnlocked = false;
+        }
     }
 }

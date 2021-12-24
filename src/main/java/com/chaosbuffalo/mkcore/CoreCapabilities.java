@@ -56,9 +56,7 @@ public class CoreCapabilities {
             PlayerDataProvider.attach(e, playerEntity);
         } else if (e.getObject() instanceof LivingEntity) {
             LivingEntity livingEntity = (LivingEntity) e.getObject();
-            if (entityAdditionPredicates.stream().anyMatch(p -> p.test(livingEntity))) {
-                EntityDataProvider.attach(e, livingEntity);
-            }
+            EntityDataProvider.attach(e, livingEntity);
         }
     }
 

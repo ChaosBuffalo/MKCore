@@ -17,6 +17,7 @@ import com.chaosbuffalo.mkcore.init.CoreParticles;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ResourceLocation;
@@ -37,6 +38,8 @@ import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import javax.annotation.Nullable;
 
 
 // The value here should match an entry in the META-INF/mods.toml file
@@ -157,12 +160,25 @@ public class MKCore {
         return playerEntity.getCapability(CoreCapabilities.PLAYER_CAPABILITY);
     }
 
-    public static LazyOptional<? extends IMKEntityData> getEntityData(Entity entity) {
+    @SuppressWarnings("ConstantConditions")
+    @Nullable
+    public static MKPlayerData getPlayerOrNull(Entity playerEntity) {
+        return playerEntity.getCapability(CoreCapabilities.PLAYER_CAPABILITY).orElse(null);
+    }
+
+    public static LazyOptional<? extends IMKEntityData> getEntityData(@Nullable Entity entity) {
         if (entity instanceof PlayerEntity) {
             return entity.getCapability(CoreCapabilities.PLAYER_CAPABILITY);
-        } else {
+        } else if (entity instanceof LivingEntity) {
             return entity.getCapability(CoreCapabilities.ENTITY_CAPABILITY);
         }
+        return LazyOptional.empty();
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    @Nullable
+    public static IMKEntityData getEntityDataOrNull(@Nullable Entity entity) {
+        return getEntityData(entity).orElse(null);
     }
 
     public static TalentManager getTalentManager() {

@@ -2,28 +2,28 @@ package com.chaosbuffalo.mkcore.abilities;
 
 import com.chaosbuffalo.mkcore.abilities.description.AbilityDescriptions;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
+import com.chaosbuffalo.mkcore.effects.MKEffect;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.potion.Effect;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 
 import java.util.function.Consumer;
 
-public abstract class MKToggleAbility extends MKToggleAbilityBase {
+public abstract class MKToggleAbilityNew extends MKToggleAbilityBase {
 
-    public MKToggleAbility(ResourceLocation abilityId) {
+    public MKToggleAbilityNew(ResourceLocation abilityId) {
         super(abilityId);
     }
 
-    public MKToggleAbility(String namespace, String path) {
+    public MKToggleAbilityNew(String namespace, String path) {
         super(namespace, path);
     }
 
-    public abstract Effect getToggleEffect();
+    public abstract MKEffect getToggleEffect();
 
     @Override
     public boolean isEffectActive(IMKEntityData entityData) {
-        return entityData.getEntity().isPotionActive(getToggleEffect());
+        return entityData.getEffects().isEffectActive(getToggleEffect());
     }
 
     @Override
@@ -36,7 +36,7 @@ public abstract class MKToggleAbility extends MKToggleAbilityBase {
     public void removeEffect(LivingEntity entity, IMKEntityData entityData) {
         entityData.getAbilityExecutor().clearToggleGroupAbility(getToggleGroupId());
         if (isEffectActive(entityData)) {
-            entity.removePotionEffect(getToggleEffect());
+            entityData.getEffects().removeEffect(getToggleEffect());
         }
     }
 }

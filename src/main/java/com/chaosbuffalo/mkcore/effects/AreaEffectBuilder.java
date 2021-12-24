@@ -60,6 +60,11 @@ public class AreaEffectBuilder {
         return this;
     }
 
+    public AreaEffectBuilder effect(MKEffectInstance effect, TargetingContext targetContext) {
+        areaEffectCloud.addEffect(effect, targetContext);
+        return this;
+    }
+
     public AreaEffectBuilder radius(float radius) {
         return radius(radius, false);
     }

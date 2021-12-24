@@ -10,7 +10,6 @@ import com.chaosbuffalo.mkcore.sync.PlayerUpdateEngine;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraftforge.fml.LogicalSide;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;
@@ -25,6 +24,7 @@ public class MKPlayerData implements IMKEntityData {
     private final PlayerEquipmentModule equipmentModule;
     private final PlayerCombatExtensionModule combatExtensionModule;
     private final PlayerEditorModule editorModule;
+    private final PlayerEffectHandler effectHandler;
 
     public MKPlayerData(PlayerEntity playerEntity) {
         player = Objects.requireNonNull(playerEntity);
@@ -45,19 +45,8 @@ public class MKPlayerData implements IMKEntityData {
         equipmentModule = new PlayerEquipmentModule(this);
         editorModule = new PlayerEditorModule(this);
         editorModule.getSyncComponent().attach(updateEngine);
-    }
 
-    public void onJoinWorld() {
-        getPersonaManager().ensurePersonaLoaded();
-        getKnowledge().onJoinWorld();
-        getStats().onJoinWorld();
-        getAbilityExecutor().onJoinWorld();
-        if (isServerSide()) {
-            MKCore.LOGGER.info("server player joined world!");
-            initialSync();
-        } else {
-            MKCore.LOGGER.info("client player joined world!");
-        }
+        effectHandler = new PlayerEffectHandler(this);
     }
 
     @Override
@@ -108,11 +97,6 @@ public class MKPlayerData implements IMKEntityData {
         return equipmentModule;
     }
 
-    public void clone(IMKEntityData previous, boolean death) {
-        CompoundNBT tag = previous.serialize();
-        deserialize(tag);
-    }
-
     @Nonnull
     @Override
     public PlayerEntity getEntity() {
@@ -123,18 +107,41 @@ public class MKPlayerData implements IMKEntityData {
         return animationModule;
     }
 
+    @Override
+    public PlayerEffectHandler getEffects() {
+        return effectHandler;
+    }
+
+    @Override
     public boolean isServerSide() {
         return player instanceof ServerPlayerEntity;
     }
 
-    public LogicalSide getSide() {
-        return isServerSide() ? LogicalSide.SERVER : LogicalSide.CLIENT;
+    @Override
+    public void onJoinWorld() {
+        getPersonaManager().ensurePersonaLoaded();
+        getKnowledge().onJoinWorld();
+        getStats().onJoinWorld();
+        getAbilityExecutor().onJoinWorld();
+        getEffects().onJoinWorld();
+        if (isServerSide()) {
+            MKCore.LOGGER.info("server player joined world!");
+            initialSync();
+        } else {
+            MKCore.LOGGER.info("client player joined world!");
+        }
+    }
+
+    private void onDeath() {
+        getEffects().onDeath();
     }
 
     public void update() {
         getEntity().getEntityWorld().getProfiler().startSection("MKPlayerData.update");
 
-        getEntity().getEntityWorld().getProfiler().startSection("PlayerStats.tick");
+        getEntity().getEntityWorld().getProfiler().startSection("PlayerEffects.tick");
+        getEffects().tick();
+        getEntity().getEntityWorld().getProfiler().endStartSection("PlayerStats.tick");
         getStats().tick();
         getEntity().getEntityWorld().getProfiler().endStartSection("AbilityExecutor.tick");
         getAbilityExecutor().tick();
@@ -152,20 +159,29 @@ public class MKPlayerData implements IMKEntityData {
         getEntity().getEntityWorld().getProfiler().endSection();
     }
 
+    public void clone(MKPlayerData previous, boolean death) {
+        if (death) {
+            previous.onDeath();
+        }
+        CompoundNBT tag = previous.serialize();
+        deserialize(tag);
+    }
+
     private void syncState() {
         updateEngine.syncUpdates();
     }
 
-    public void fullSyncTo(ServerPlayerEntity otherPlayer) {
-        MKCore.LOGGER.info("Full public sync {} -> {}", player, otherPlayer);
-        updateEngine.sendAll(otherPlayer);
-    }
-
     public void initialSync() {
-        MKCore.LOGGER.info("Sending initial sync for {}", player);
         if (isServerSide()) {
+            MKCore.LOGGER.debug("Sending initial sync for {}", player);
             updateEngine.sendAll((ServerPlayerEntity) player);
         }
+    }
+
+    @Override
+    public void onPlayerStartTracking(ServerPlayerEntity otherPlayer) {
+        updateEngine.sendAll(otherPlayer);
+        getEffects().sendAllEffectsToPlayer(otherPlayer);
     }
 
     public void onPersonaActivated() {
@@ -190,6 +206,7 @@ public class MKPlayerData implements IMKEntityData {
         tag.put("persona", personaManager.serialize());
         tag.put("stats", getStats().serialize());
         tag.put("editor", getEditor().serialize());
+        tag.put("effects", getEffects().serialize());
         return tag;
     }
 
@@ -203,5 +220,6 @@ public class MKPlayerData implements IMKEntityData {
         personaManager.deserialize(tag.getCompound("persona"));
         getStats().deserialize(tag.getCompound("stats"));
         getEditor().deserialize(tag.getCompound("editor"));
+        getEffects().deserialize(tag.getCompound("effects"));
     }
 }
