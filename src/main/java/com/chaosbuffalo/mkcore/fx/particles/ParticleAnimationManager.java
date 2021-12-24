@@ -2,8 +2,8 @@ package com.chaosbuffalo.mkcore.fx.particles;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.fx.particles.animation_tracks.ParticleAnimationTrack;
-import com.chaosbuffalo.mkcore.fx.particles.animation_tracks.colors.ParticleLerpColorAnimationTrack;
 import com.chaosbuffalo.mkcore.fx.particles.animation_tracks.ParticleRenderScaleAnimationTrack;
+import com.chaosbuffalo.mkcore.fx.particles.animation_tracks.colors.ParticleLerpColorAnimationTrack;
 import com.chaosbuffalo.mkcore.fx.particles.animation_tracks.colors.ParticleStaticColorAnimationTrack;
 import com.chaosbuffalo.mkcore.fx.particles.animation_tracks.motions.BrownianMotionTrack;
 import com.chaosbuffalo.mkcore.fx.particles.animation_tracks.motions.InheritMotionTrack;
@@ -20,7 +20,6 @@ import com.google.gson.JsonElement;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.JsonOps;
 import net.minecraft.client.resources.JsonReloadListener;
-import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.particles.ParticleType;
 import net.minecraft.profiler.IProfiler;
 import net.minecraft.resources.IResourceManager;
@@ -29,11 +28,10 @@ import net.minecraft.util.JSONUtils;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.storage.FolderName;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.OnDatapackSyncEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent;
 import net.minecraftforge.fml.event.server.FMLServerStoppingEvent;
-import net.minecraftforge.fml.network.NetworkDirection;
 
 import javax.annotation.Nullable;
 import java.io.*;
@@ -183,7 +181,6 @@ public class ParticleAnimationManager extends JsonReloadListener {
         }
         if (serverStarted){
             handleWorldGenerated();
-            syncToPlayers();
         }
     }
 
@@ -201,29 +198,23 @@ public class ParticleAnimationManager extends JsonReloadListener {
     }
 
     @SubscribeEvent
-    public void playerLoggedInEvent(PlayerEvent.PlayerLoggedInEvent event){
-        if (event.getPlayer() instanceof ServerPlayerEntity){
-            ParticleAnimationsSyncPacket updatePacket = new ParticleAnimationsSyncPacket(ANIMATIONS);
+    public void onDataPackSync(OnDatapackSyncEvent event) {
+        MKCore.LOGGER.debug("ParticleAnimationManager.onDataPackSync");
+        ParticleAnimationsSyncPacket updatePacket = new ParticleAnimationsSyncPacket(ANIMATIONS);
+        if (event.getPlayer() != null) {
+            // sync to single player
             MKCore.LOGGER.info("Sending {} particle animation sync packet", event.getPlayer());
-            ((ServerPlayerEntity) event.getPlayer()).connection.sendPacket(
-                    PacketHandler.getNetworkChannel().toVanillaPacket(
-                            updatePacket, NetworkDirection.PLAY_TO_CLIENT));
+            PacketHandler.sendMessage(updatePacket, event.getPlayer());
+        } else {
+            // sync to playerlist
+            PacketHandler.sendToAll(updatePacket);
         }
     }
 
-    public void syncToPlayers(){
-        if (server != null){
-            ParticleAnimationsSyncPacket updatePacket = new ParticleAnimationsSyncPacket(ANIMATIONS);
-            server.getPlayerList().sendPacketToAllPlayers(PacketHandler.getNetworkChannel().toVanillaPacket(
-                    updatePacket, NetworkDirection.PLAY_TO_CLIENT));
-        }
-    }
-
-    public void syncAnimations(Map<ResourceLocation, ParticleAnimation> anims){
-        if (server != null){
+    public void syncAnimations(Map<ResourceLocation, ParticleAnimation> anims) {
+        if (server != null) {
             ParticleAnimationsSyncPacket updatePacket = new ParticleAnimationsSyncPacket(anims);
-            server.getPlayerList().sendPacketToAllPlayers(PacketHandler.getNetworkChannel().toVanillaPacket(
-                    updatePacket, NetworkDirection.PLAY_TO_CLIENT));
+            PacketHandler.sendToAll(updatePacket);
         }
     }
 

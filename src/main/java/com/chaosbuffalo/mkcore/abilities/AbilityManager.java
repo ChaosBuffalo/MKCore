@@ -11,15 +11,12 @@ import com.google.gson.JsonObject;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.JsonOps;
 import net.minecraft.client.resources.JsonReloadListener;
-import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.profiler.IProfiler;
 import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.OnDatapackSyncEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent;
-import net.minecraftforge.fml.event.server.FMLServerStoppingEvent;
 
 import javax.annotation.Nonnull;
 import java.util.Map;
@@ -27,22 +24,11 @@ import java.util.Map;
 public class AbilityManager extends JsonReloadListener {
     public static final String DEFINITION_FOLDER = "player_abilities";
 
-    private static final Gson GSON = (new GsonBuilder()).setPrettyPrinting().disableHtmlEscaping().create();
-    private boolean serverStarted = false;
+    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 
     public AbilityManager() {
         super(GSON, DEFINITION_FOLDER);
         MinecraftForge.EVENT_BUS.register(this);
-    }
-
-    @SubscribeEvent
-    public void serverStart(FMLServerAboutToStartEvent event) {
-        serverStarted = true;
-    }
-
-    @SubscribeEvent
-    public void serverStop(FMLServerStoppingEvent event) {
-        serverStarted = false;
     }
 
     @Override
@@ -50,35 +36,26 @@ public class AbilityManager extends JsonReloadListener {
                          @Nonnull IResourceManager resourceManagerIn,
                          @Nonnull IProfiler profilerIn) {
         MKCore.LOGGER.debug("Loading ability definitions from Json");
-        boolean wasChanged = false;
         for (Map.Entry<ResourceLocation, JsonElement> entry : objectIn.entrySet()) {
             ResourceLocation resourcelocation = entry.getKey();
             MKCore.LOGGER.debug("Found file: {}", resourcelocation);
             if (resourcelocation.getPath().startsWith("_"))
                 continue; //Forge: filter anything beginning with "_" as it's used for metadata.
-            if (parse(entry.getKey(), entry.getValue().getAsJsonObject())) {
-                wasChanged = true;
-            }
-        }
-        if (serverStarted && wasChanged) {
-            syncToPlayers();
+            parse(entry.getKey(), entry.getValue().getAsJsonObject());
         }
     }
 
-    public void syncToPlayers() {
-        PlayerAbilitiesSyncPacket updatePacket = new PlayerAbilitiesSyncPacket(MKCoreRegistry.ABILITIES.getValues());
-        PacketHandler.sendToAll(updatePacket);
-    }
-
-    @SuppressWarnings("unused")
     @SubscribeEvent
-    public void playerLoggedInEvent(PlayerEvent.PlayerLoggedInEvent event) {
-        MKCore.LOGGER.debug("Player logged in ability manager");
-        if (event.getPlayer() instanceof ServerPlayerEntity) {
-            PlayerAbilitiesSyncPacket updatePacket = new PlayerAbilitiesSyncPacket(MKCoreRegistry
-                    .ABILITIES.getValues());
-            MKCore.LOGGER.debug("Sending {} update packet", event.getPlayer());
-            PacketHandler.sendMessage(updatePacket, (ServerPlayerEntity) event.getPlayer());
+    public void onDataPackSync(OnDatapackSyncEvent event) {
+        MKCore.LOGGER.debug("AbilityManager.onDataPackSync");
+        PlayerAbilitiesSyncPacket updatePacket = new PlayerAbilitiesSyncPacket(MKCoreRegistry.ABILITIES.getValues());
+        if (event.getPlayer() != null) {
+            // sync to single player
+            MKCore.LOGGER.debug("Sending {} ability definition update packet", event.getPlayer());
+            PacketHandler.sendMessage(updatePacket, event.getPlayer());
+        } else {
+            // sync to playerlist
+            PacketHandler.sendToAll(updatePacket);
         }
     }
 

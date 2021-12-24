@@ -13,15 +13,12 @@ import com.google.gson.JsonObject;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.JsonOps;
 import net.minecraft.client.resources.JsonReloadListener;
-import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.profiler.IProfiler;
 import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.OnDatapackSyncEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent;
-import net.minecraftforge.fml.event.server.FMLServerStoppingEvent;
 
 import javax.annotation.Nonnull;
 import java.util.Collection;
@@ -33,10 +30,9 @@ import java.util.stream.Collectors;
 public class TalentManager extends JsonReloadListener {
     public static final String DEFINITION_FOLDER = "player_talents";
 
-    private static final Gson GSON = (new GsonBuilder()).setPrettyPrinting().disableHtmlEscaping().create();
+    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 
     private final Map<ResourceLocation, TalentTreeDefinition> talentTreeMap = new HashMap<>();
-    private boolean serverStarted = false;
     private Collection<TalentTreeDefinition> defaultTrees;
 
     public TalentManager() {
@@ -45,37 +41,19 @@ public class TalentManager extends JsonReloadListener {
         MinecraftForge.EVENT_BUS.register(this);
     }
 
-    @SubscribeEvent
-    public void serverStart(FMLServerAboutToStartEvent event) {
-        // Can't start sending packets before this event
-        serverStarted = true;
-    }
-
-    @SubscribeEvent
-    public void serverStop(FMLServerStoppingEvent event) {
-        serverStarted = false;
-    }
-
     @Override
     protected void apply(@Nonnull Map<ResourceLocation, JsonElement> objectIn,
                          @Nonnull IResourceManager resourceManagerIn,
                          @Nonnull IProfiler profilerIn) {
 
         MKCore.LOGGER.info("Loading Talent definitions from json");
-        boolean wasChanged = false;
         for (Map.Entry<ResourceLocation, JsonElement> entry : objectIn.entrySet()) {
             ResourceLocation location = entry.getKey();
             if (location.getPath().startsWith("_"))
                 continue; //Forge: filter anything beginning with "_" as it's used for metadata.
-            if (parse(entry.getKey(), entry.getValue().getAsJsonObject())) {
-                wasChanged = true;
-            }
+            parse(entry.getKey(), entry.getValue().getAsJsonObject());
         }
-        if (serverStarted && wasChanged) {
-            defaultTrees = null;
-            syncToPlayers();
-        }
-
+        defaultTrees = null;
     }
 
     private boolean parse(ResourceLocation loc, JsonObject json) {
@@ -117,17 +95,18 @@ public class TalentManager extends JsonReloadListener {
         return null;
     }
 
-    public void syncToPlayers() {
-        TalentDefinitionSyncPacket updatePacket = new TalentDefinitionSyncPacket(talentTreeMap.values());
-        PacketHandler.sendToAll(updatePacket);
-    }
 
-    @SuppressWarnings("unused")
     @SubscribeEvent
-    public void playerLoggedInEvent(PlayerEvent.PlayerLoggedInEvent event) {
-        if (event.getPlayer() instanceof ServerPlayerEntity) {
-            TalentDefinitionSyncPacket updatePacket = new TalentDefinitionSyncPacket(talentTreeMap.values());
-            PacketHandler.sendMessage(updatePacket, (ServerPlayerEntity) event.getPlayer());
+    public void onDataPackSync(OnDatapackSyncEvent event) {
+        MKCore.LOGGER.debug("TalentManager.onDataPackSync");
+        TalentDefinitionSyncPacket updatePacket = new TalentDefinitionSyncPacket(talentTreeMap.values());
+        if (event.getPlayer() != null) {
+            // sync to single player
+            MKCore.LOGGER.debug("Sending {} talent definition update packet", event.getPlayer());
+            PacketHandler.sendMessage(updatePacket, event.getPlayer());
+        } else {
+            // sync to playerlist
+            PacketHandler.sendToAll(updatePacket);
         }
     }
 }
