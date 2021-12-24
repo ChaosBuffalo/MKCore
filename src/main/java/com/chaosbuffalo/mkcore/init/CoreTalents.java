@@ -80,7 +80,7 @@ public class CoreTalents {
         // Vanilla Attributes
         AttributeTalent maxHealth = new AttributeTalent(
                 MKCore.makeRL("talent.max_health"),
-                (RangedAttribute) Attributes.MAX_HEALTH,
+                Attributes.MAX_HEALTH,
                 UUID.fromString("5d95bcd4-a06e-415a-add0-f1f85e20b18b"))
                 .setRequiresStatRefresh(true)
                 .setDefaultPerRank(1);
@@ -88,14 +88,14 @@ public class CoreTalents {
 
         AttributeTalent armor = new AttributeTalent(
                 MKCore.makeRL("talent.armor"),
-                (RangedAttribute) Attributes.ARMOR,
+                Attributes.ARMOR,
                 UUID.fromString("1f917d51-efa1-43ee-8af0-b49175c97c0b"))
                 .setDefaultPerRank(1);
         event.getRegistry().register(armor);
 
         AttributeTalent movementSpeed = new AttributeTalent(
                 MKCore.makeRL("talent.movement_speed"),
-                (RangedAttribute) Attributes.MOVEMENT_SPEED,
+                Attributes.MOVEMENT_SPEED,
                 UUID.fromString("95fcf4d0-aaa9-413f-8362-7706e29412f7"))
                 .setDisplayAsPercentage(true)
                 .setDefaultPerRank(0.01);
@@ -103,7 +103,7 @@ public class CoreTalents {
 
         AttributeTalent attackSpeed = new AttributeTalent(
                 MKCore.makeRL("talent.attack_speed"),
-                (RangedAttribute) Attributes.ATTACK_SPEED,
+                Attributes.ATTACK_SPEED,
                 UUID.fromString("e8d4945f-7435-4b1b-990d-3f32815687ff"))
                 .setDisplayAsPercentage(true)
                 .setOp(AttributeModifier.Operation.MULTIPLY_TOTAL)
@@ -112,7 +112,7 @@ public class CoreTalents {
 
         AttributeTalent attackDamage = new AttributeTalent(
                 MKCore.makeRL("talent.attack_damage"),
-                (RangedAttribute) Attributes.ATTACK_DAMAGE,
+                Attributes.ATTACK_DAMAGE,
                 UUID.fromString("752d8f70-a5de-4111-af81-6bd1020b9433"))
                 .setOp(AttributeModifier.Operation.ADDITION)
                 .setDefaultPerRank(1);

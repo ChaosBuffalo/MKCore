@@ -73,7 +73,7 @@ public class PlayerUpdateEngine extends UpdateEngine {
         if (publicUpdater.isDirty()) {
             PlayerDataSyncPacket packet = getUpdateMessage(false);
             MKCore.LOGGER.info("sending public dirty update {} for {}", packet, player);
-            PacketHandler.sendToTrackingAndSelf(packet, (ServerPlayerEntity) player);
+            PacketHandler.sendToTrackingAndSelf(packet, player);
         }
 
         if (privateUpdater.isDirty()) {

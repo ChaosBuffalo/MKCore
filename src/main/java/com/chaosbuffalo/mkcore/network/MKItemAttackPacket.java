@@ -4,6 +4,7 @@ import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.MKAttributes;
 import com.chaosbuffalo.mkcore.events.PostAttackEvent;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.common.MinecraftForge;
@@ -13,7 +14,7 @@ import java.util.function.Supplier;
 
 public class MKItemAttackPacket {
 
-    private int entityId;
+    private final int entityId;
 
     public MKItemAttackPacket(Entity entity) {
         this.entityId = entity.getEntityId();
@@ -35,7 +36,10 @@ public class MKItemAttackPacket {
                 return;
             }
             Entity target = entity.getServerWorld().getEntityByID(entityId);
-            double reach = entity.getAttribute(MKAttributes.ATTACK_REACH).getValue();
+            ModifiableAttributeInstance instance = entity.getAttribute(MKAttributes.ATTACK_REACH);
+            if (instance == null)
+                return;
+            double reach = instance.getValue();
             if (target != null) {
                 if (entity.getDistanceSq(target) <= reach * reach) {
                     entity.attackTargetEntityWithCurrentItem(target);

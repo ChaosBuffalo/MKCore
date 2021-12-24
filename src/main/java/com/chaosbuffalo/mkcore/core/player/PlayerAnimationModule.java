@@ -9,10 +9,10 @@ import java.util.List;
 public class PlayerAnimationModule implements IPlayerSyncComponentProvider {
     private final SyncComponent sync = new SyncComponent("anim");
     private final MKPlayerData playerData;
+    private final ParticleEffectInstanceTracker effectInstanceTracker;
     private int castAnimTimer;
     private PlayerVisualCastState playerVisualCastState;
     private MKAbility castingAbility;
-    private ParticleEffectInstanceTracker effectInstanceTracker;
 
     @Override
     public SyncComponent getSyncComponent() {

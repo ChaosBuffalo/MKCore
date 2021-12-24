@@ -49,12 +49,6 @@ public class PlayerLearnAbilityRequestPacket {
         for (ResourceLocation loc : forgetting) {
             buffer.writeResourceLocation(loc);
         }
-//        if (!replacingId.equals(MKCoreRegistry.INVALID_ABILITY)) {
-//            buffer.writeBoolean(true);
-//            buffer.writeResourceLocation(replacingId);
-//        } else {
-//            buffer.writeBoolean(false);
-//        }
     }
 
     public void handle(Supplier<NetworkEvent.Context> supplier) {

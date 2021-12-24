@@ -116,7 +116,6 @@ public class StatCommand {
     static ArgumentBuilder<CommandSource, ?> createAttributeStat(String name, Attribute attribute) {
         ToIntFunction<PlayerEntity> getAction = playerEntity -> {
             ModifiableAttributeInstance instance = playerEntity.getAttribute(attribute);
-            //noinspection ConstantConditions
             if (instance != null) {
                 String value = String.format("%s is %f (%f base)", name, instance.getValue(), instance.getBaseValue());
                 TextUtils.sendPlayerChatMessage(playerEntity, value);
@@ -129,7 +128,6 @@ public class StatCommand {
 
         ToIntBiFunction<PlayerEntity, Float> setAction = (playerEntity, value) -> {
             ModifiableAttributeInstance instance = playerEntity.getAttribute(attribute);
-            //noinspection ConstantConditions
             if (instance != null) {
                 instance.setBaseValue(value);
                 String output = String.format("%s is now %f (%f base)", name, instance.getValue(), instance.getBaseValue());
@@ -180,7 +178,7 @@ public class StatCommand {
 
             TextUtils.sendPlayerChatMessage(entity, String.format("%s modifiers", attr.getAttributeName()));
             for (AttributeModifier mod : instance.getModifierListCopy()) {
-                String msg = String.format("%s: %f %s", mod.getName(), mod.getAmount(), mod.getID().toString());
+                String msg = String.format("%s: %f %s", mod.getName(), mod.getAmount(), mod.getID());
                 TextUtils.sendChatMessage(entity, msg);
             }
         }
@@ -203,7 +201,7 @@ public class StatCommand {
             } else {
                 instance.applyPersistentModifier(mod);
             }
-            TextUtils.sendChatMessage(entity, String.format("Temp mod added with UUID %s", mod.getID().toString()));
+            TextUtils.sendChatMessage(entity, String.format("Temp mod added with UUID %s", mod.getID()));
         }
 
         return Command.SINGLE_SUCCESS;

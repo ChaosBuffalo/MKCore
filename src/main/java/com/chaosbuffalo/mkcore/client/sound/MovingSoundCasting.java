@@ -12,6 +12,10 @@ public class MovingSoundCasting extends TickableSound {
     private final LivingEntity caster;
     private final int castTime;
 
+    public MovingSoundCasting(LivingEntity caster, SoundEvent event, int castTime) {
+        this(caster, event, caster.getSoundCategory(), castTime);
+    }
+
     public MovingSoundCasting(LivingEntity caster, SoundEvent event, SoundCategory category, int castTime) {
         super(event, category);
         this.caster = caster;

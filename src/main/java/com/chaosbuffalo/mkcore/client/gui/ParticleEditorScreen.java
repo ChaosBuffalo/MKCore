@@ -182,10 +182,10 @@ public class ParticleEditorScreen extends MKScreen {
         names.setPaddingTop(2);
         names.setMargins(2, 2, 2, 2);
         names.doSetChildWidth(true);
-        ParticleAnimationManager.PARTICLE_TYPES_FOR_EDITOR.entrySet().forEach(x -> {
-            MKButton button = new MKButton(0, 0, new StringTextComponent(x.getKey().toString()));
-            button.setPressedCallback((but, click)-> {
-                setParticleType(x.getKey(), x.getValue());
+        ParticleAnimationManager.PARTICLE_TYPES_FOR_EDITOR.forEach((key, value) -> {
+            MKButton button = new MKButton(0, 0, new StringTextComponent(key.toString()));
+            button.setPressedCallback((but, click) -> {
+                setParticleType(key, value);
                 closeModal(popup);
                 return true;
             });

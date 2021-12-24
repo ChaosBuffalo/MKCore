@@ -36,7 +36,7 @@ public class WriteAnimationPacket {
         if (dyn instanceof CompoundNBT) {
             buf.writeCompoundTag((CompoundNBT) dyn);
         } else {
-            throw new RuntimeException(String.format("Particle Animation %s did not serialize to a CompoundNBT!", name.toString()));
+            throw new RuntimeException(String.format("Particle Animation %s did not serialize to a CompoundNBT!", name));
         }
     }
 

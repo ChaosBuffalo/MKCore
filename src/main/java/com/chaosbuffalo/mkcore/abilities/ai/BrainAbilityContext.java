@@ -14,8 +14,7 @@ public class BrainAbilityContext extends AbilityContext {
         brain = entity.getBrain();
     }
 
-    public <U> void setMemory(MemoryModuleType<U> memoryType,
-                              @SuppressWarnings("OptionalUsedAsFieldOrParameterType") Optional<U> value) {
+    public <U> void setMemory(MemoryModuleType<U> memoryType, Optional<U> value) {
         brain.setMemory(memoryType, value);
     }
 

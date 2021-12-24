@@ -4,8 +4,8 @@ import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.talents.*;
 import com.chaosbuffalo.mkcore.core.talents.nodes.AttributeTalentNode;
 import com.mojang.serialization.Dynamic;
+import net.minecraft.entity.ai.attributes.Attribute;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.ai.attributes.RangedAttribute;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextFormatting;
@@ -15,13 +15,13 @@ import java.util.UUID;
 
 public class AttributeTalent extends MKTalent {
     private final UUID id;
-    private final RangedAttribute attribute;
+    private final Attribute attribute;
     private AttributeModifier.Operation operation;
     private boolean renderAsPercentage;
     private double defaultPerRank;
     private boolean requiresStatRefresh;
 
-    public AttributeTalent(ResourceLocation name, RangedAttribute attr, UUID id) {
+    public AttributeTalent(ResourceLocation name, Attribute attr, UUID id) {
         super(name);
         this.id = id;
         this.attribute = attr;
@@ -30,7 +30,7 @@ public class AttributeTalent extends MKTalent {
         defaultPerRank = 1;
     }
 
-    public RangedAttribute getAttribute() {
+    public Attribute getAttribute() {
         return attribute;
     }
 
