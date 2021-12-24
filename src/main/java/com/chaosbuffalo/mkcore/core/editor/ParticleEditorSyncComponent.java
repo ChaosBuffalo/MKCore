@@ -1,9 +1,7 @@
 package com.chaosbuffalo.mkcore.core.editor;
 
-import com.chaosbuffalo.mkcore.fx.particles.MKParticleData;
 import com.chaosbuffalo.mkcore.fx.particles.ParticleAnimation;
 import com.chaosbuffalo.mkcore.fx.particles.ParticleAnimationManager;
-import com.chaosbuffalo.mkcore.fx.particles.spawn_patterns.ParticleSpawnPattern;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.ParticleAnimationEditorSyncPacket;
 import com.chaosbuffalo.mkcore.sync.ISyncNotifier;
@@ -11,9 +9,6 @@ import com.chaosbuffalo.mkcore.sync.ISyncObject;
 import com.mojang.serialization.Dynamic;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.NBTDynamicOps;
-import net.minecraft.particles.ParticleType;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.registries.ForgeRegistries;
 
 public class ParticleEditorSyncComponent implements ISyncObject {
     private final String name;

@@ -8,7 +8,6 @@ import net.minecraft.nbt.CompoundNBT;
 
 public class PlayerKnowledge implements IMKEntityKnowledge, IPlayerSyncComponentProvider {
 
-    private final MKPlayerData playerData;
     private final SyncComponent sync = new SyncComponent("knowledge");
     private final PlayerAbilityKnowledge abilityKnowledge;
     private final PlayerTalentKnowledge talentKnowledge;
@@ -16,7 +15,6 @@ public class PlayerKnowledge implements IMKEntityKnowledge, IPlayerSyncComponent
     private final PlayerAbilityLoadout loadout;
 
     public PlayerKnowledge(MKPlayerData playerData) {
-        this.playerData = playerData;
         abilityKnowledge = new PlayerAbilityKnowledge(playerData);
         talentKnowledge = new PlayerTalentKnowledge(playerData);
         loadout = new PlayerAbilityLoadout(playerData);

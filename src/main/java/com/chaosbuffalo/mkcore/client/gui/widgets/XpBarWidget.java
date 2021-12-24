@@ -8,9 +8,9 @@ import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKPercentageImage;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKWidget;
 
 public class XpBarWidget extends MKWidget {
-    private MKImage background;
-    private MKPercentageImage yellowBar;
-    private MKPercentageImage blueBar;
+    private final MKImage background;
+    private final MKPercentageImage yellowBar;
+    private final MKPercentageImage blueBar;
 
 
     public XpBarWidget(int x, int y, int width, int height) {

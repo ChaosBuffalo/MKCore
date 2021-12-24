@@ -10,28 +10,28 @@ import net.minecraft.util.text.TranslationTextComponent;
 import java.util.function.Function;
 
 public class TalentType<T extends IRecordTypeHandler<TalentRecord>> implements IRecordType<T> {
-    public static TalentType<AttributeTalentHandler> ATTRIBUTE =
+    public static final TalentType<AttributeTalentHandler> ATTRIBUTE =
             new TalentType<AttributeTalentHandler>("mkcore.talent_type.attribute.name", AttributeTalentHandler::new)
                     .setDisplayName("mkcore.talent_type.tooltip_name");
-    public static TalentType<AbilityGrantTalentHandler> PASSIVE =
+    public static final TalentType<AbilityGrantTalentHandler> PASSIVE =
             new TalentType<>("mkcore.talent_type.passive.name", AbilityGrantTalentHandler::new)
                     .setDisplayName("mkcore.talent_type.tooltip_name_with_ability");
-    public static TalentType<AbilityGrantTalentHandler> ULTIMATE =
+    public static final TalentType<AbilityGrantTalentHandler> ULTIMATE =
             new TalentType<>("mkcore.talent_type.ultimate.name", AbilityGrantTalentHandler::new)
                     .setDisplayName("mkcore.talent_type.tooltip_name_with_ability");
-    public static TalentType<EntitlementGrantTalentTypeHandler> BASIC_SLOT =
+    public static final TalentType<EntitlementGrantTalentTypeHandler> BASIC_SLOT =
             new TalentType<>("mkcore.talent_type.basic_slot.name",
                     (mkPlayerData) -> new EntitlementGrantTalentTypeHandler(mkPlayerData, CoreEntitlements.BasicAbilitySlotCount))
                     .setDisplayName("mkcore.talent_type.tooltip_name");
-    public static TalentType<EntitlementGrantTalentTypeHandler> PASSIVE_SLOT =
+    public static final TalentType<EntitlementGrantTalentTypeHandler> PASSIVE_SLOT =
             new TalentType<>("mkcore.talent_type.passive_slot.name",
                     (mkPlayerData) -> new EntitlementGrantTalentTypeHandler(mkPlayerData, CoreEntitlements.PassiveAbilitySlotCount))
                     .setDisplayName("mkcore.talent_type.tooltip_name");
-    public static TalentType<EntitlementGrantTalentTypeHandler> ULTIMATE_SLOT =
+    public static final TalentType<EntitlementGrantTalentTypeHandler> ULTIMATE_SLOT =
             new TalentType<>("mkcore.talent_type.ultimate_slot.name",
                     (mkPlayerData) -> new EntitlementGrantTalentTypeHandler(mkPlayerData, CoreEntitlements.UltimateAbilitySlotCount))
                     .setDisplayName("mkcore.talent_type.tooltip_name");
-    public static TalentType<EntitlementGrantTalentTypeHandler> POOL_COUNT =
+    public static final TalentType<EntitlementGrantTalentTypeHandler> POOL_COUNT =
             new TalentType<>("mkcore.talent_type.pool_slot.name",
                     (mkPlayerData) -> new EntitlementGrantTalentTypeHandler(mkPlayerData, CoreEntitlements.AbilityPoolCount))
                     .setDisplayName("mkcore.talent_type.tooltip_name");

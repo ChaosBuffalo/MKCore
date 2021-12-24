@@ -25,7 +25,7 @@ import javax.annotation.Nonnull;
 import java.util.Map;
 
 public class AbilityManager extends JsonReloadListener {
-    public static String DEFINITION_FOLDER = "player_abilities";
+    public static final String DEFINITION_FOLDER = "player_abilities";
 
     private static final Gson GSON = (new GsonBuilder()).setPrettyPrinting().disableHtmlEscaping().create();
     private boolean serverStarted = false;

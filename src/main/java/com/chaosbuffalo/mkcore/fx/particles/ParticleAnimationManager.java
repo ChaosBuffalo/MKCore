@@ -46,7 +46,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class ParticleAnimationManager extends JsonReloadListener {
-    public static String DEFINITION_FOLDER = "particle_animations";
+    public static final String DEFINITION_FOLDER = "particle_animations";
 
     public static final ResourceLocation RAW_EFFECT = new ResourceLocation(MKCore.MOD_ID, "particle_anim.raw_effect");
     private MinecraftServer server;

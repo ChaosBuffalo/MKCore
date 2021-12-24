@@ -31,7 +31,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class TalentManager extends JsonReloadListener {
-    public static String DEFINITION_FOLDER = "player_talents";
+    public static final String DEFINITION_FOLDER = "player_talents";
 
     private static final Gson GSON = (new GsonBuilder()).setPrettyPrinting().disableHtmlEscaping().create();
 

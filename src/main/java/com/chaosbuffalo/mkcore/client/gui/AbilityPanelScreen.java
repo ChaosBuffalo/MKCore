@@ -113,11 +113,7 @@ public abstract class AbilityPanelScreen extends MKScreen implements IPlayerData
                 button.setEnabled(false);
             }
             addPreDrawRunnable(() -> {
-                if (state.equals(getState())) {
-                    button.setEnabled(false);
-                } else {
-                    button.setEnabled(true);
-                }
+                button.setEnabled(!state.equals(getState()));
             });
             button.setPressedCallback((btn, mouseButton) -> {
                 pushState(state);

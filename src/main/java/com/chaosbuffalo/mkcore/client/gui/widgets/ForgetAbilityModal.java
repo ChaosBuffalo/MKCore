@@ -30,11 +30,7 @@ public class ForgetAbilityModal extends MKModal {
         MKImage background = GuiTextures.CORE_TEXTURES.getImageForRegion(
                 GuiTextures.BACKGROUND_180_200, xPos, yPos, width, height);
         addWidget(background);
-        if (tryingToLearn != null && trainerEntityId != -1){
-            isLearning = true;
-        } else {
-            isLearning = false;
-        }
+        isLearning = tryingToLearn != null && trainerEntityId != -1;
         this.tryingToLearn = tryingToLearn;
         this.trainerEntityId = trainerEntityId;
         int count = playerData.getAbilities().getSlotDeficitToLearnAnAbility();

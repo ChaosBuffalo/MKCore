@@ -1,6 +1,5 @@
 package com.chaosbuffalo.mkcore.client.gui.widgets;
 
-import com.chaosbuffalo.mkcore.client.gui.CharacterScreen;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.talents.TalentLineDefinition;
 import com.chaosbuffalo.mkcore.core.talents.TalentRecord;
@@ -23,17 +22,15 @@ public class TalentTreeWidget extends MKLayout {
     private final MKPlayerData playerData;
     private TalentTreeRecord treeRecord;
     private final FontRenderer fontRenderer;
-    private final CharacterScreen screen;
     private final int originalWidth;
     private final int oringalHeight;
 
     public TalentTreeWidget(int x, int y, int width, int height,
-                            MKPlayerData data, FontRenderer fontRenderer, CharacterScreen screen) {
+                            MKPlayerData data, FontRenderer fontRenderer) {
         super(x, y, width, height);
         this.playerData = data;
         this.treeRecord = null;
         this.fontRenderer = fontRenderer;
-        this.screen = screen;
         this.originalWidth = width;
         this.oringalHeight = height;
         setMargins(6, 6, 6, 6);

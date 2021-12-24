@@ -8,32 +8,32 @@ import net.minecraft.entity.LivingEntity;
 
 public class AbilityTargeting {
 
-    public static AbilityTargetSelector NONE = new AbilityTargetSelector((entityData, ability) -> AbilityContext.EMPTY)
+    public static final AbilityTargetSelector NONE = new AbilityTargetSelector((entityData, ability) -> AbilityContext.EMPTY)
             .setDescriptionKey("mkcore.ability_target.none");
 
-    public static AbilityTargetSelector PROJECTILE = new AbilityTargetSelector((entityData, ability) -> AbilityContext.EMPTY)
+    public static final AbilityTargetSelector PROJECTILE = new AbilityTargetSelector((entityData, ability) -> AbilityContext.EMPTY)
             .setDescriptionKey("mkcore.ability_target.projectile");
 
-    public static AbilityTargetSelector LINE = new AbilityTargetSelector((entityData, ability) -> AbilityContext.EMPTY)
+    public static final AbilityTargetSelector LINE = new AbilityTargetSelector((entityData, ability) -> AbilityContext.EMPTY)
             .addDynamicDescription(AbilityDescriptions::getRangeDescription)
             .setDescriptionKey("mkcore.ability_target.line");
 
-    public static AbilityTargetSelector SELF = new AbilityTargetSelector(AbilityTargeting::selectSelf)
+    public static final AbilityTargetSelector SELF = new AbilityTargetSelector(AbilityTargeting::selectSelf)
             .setRequiredMemories(ImmutableSet.of(MKAbilityMemories.ABILITY_TARGET))
             .setShowTargetType(false)
             .setDescriptionKey("mkcore.ability_target.self");
 
-    public static AbilityTargetSelector SINGLE_TARGET = new AbilityTargetSelector(AbilityTargeting::selectSingle)
+    public static final AbilityTargetSelector SINGLE_TARGET = new AbilityTargetSelector(AbilityTargeting::selectSingle)
             .setRequiredMemories(ImmutableSet.of(MKAbilityMemories.ABILITY_TARGET))
             .addDynamicDescription(AbilityDescriptions::getRangeDescription)
             .setDescriptionKey("mkcore.ability_target.single_target");
 
-    public static AbilityTargetSelector SINGLE_TARGET_OR_SELF = new AbilityTargetSelector(AbilityTargeting::selectSingleOrSelf)
+    public static final AbilityTargetSelector SINGLE_TARGET_OR_SELF = new AbilityTargetSelector(AbilityTargeting::selectSingleOrSelf)
             .setRequiredMemories(ImmutableSet.of(MKAbilityMemories.ABILITY_TARGET))
             .addDynamicDescription(AbilityDescriptions::getRangeDescription)
             .setDescriptionKey("mkcore.ability_target.single_target_self");
 
-    public static AbilityTargetSelector PBAOE = new AbilityTargetSelector((entityData, mkAbility) -> AbilityContext.EMPTY)
+    public static final AbilityTargetSelector PBAOE = new AbilityTargetSelector((entityData, mkAbility) -> AbilityContext.EMPTY)
             .setDescriptionKey("mkcore.ability_target.pbaoe")
             .addDynamicDescription(AbilityDescriptions::getRangeDescription);
 

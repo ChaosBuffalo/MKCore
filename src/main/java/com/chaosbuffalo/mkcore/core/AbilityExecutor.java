@@ -89,9 +89,7 @@ public class AbilityExecutor {
         if (isCasting() || entityData.getEntity().isActiveItemStackBlocking())
             return false;
 
-        if (getCurrentAbilityCooldown(ability.getAbilityId()) > 0)
-            return false;
-        return true;
+        return getCurrentAbilityCooldown(ability.getAbilityId()) <= 0;
     }
 
     public void tick() {
@@ -239,10 +237,10 @@ public class AbilityExecutor {
     }
 
     static abstract class EntityCastingState {
-        boolean started = false;
-        int castTicks;
-        MKAbility ability;
-        AbilityExecutor executor;
+        protected final MKAbility ability;
+        protected final AbilityExecutor executor;
+        protected boolean started = false;
+        protected int castTicks;
 
         public EntityCastingState(AbilityExecutor executor, MKAbility ability, int castTicks) {
             this.executor = executor;
@@ -294,8 +292,8 @@ public class AbilityExecutor {
     }
 
     static class ServerCastingState extends EntityCastingState {
-        protected MKAbilityInfo info;
-        protected AbilityContext abilityContext;
+        protected final MKAbilityInfo info;
+        protected final AbilityContext abilityContext;
 
         public ServerCastingState(AbilityContext context, AbilityExecutor executor, MKAbilityInfo abilityInfo, int castTicks) {
             super(executor, abilityInfo.getAbility(), castTicks);

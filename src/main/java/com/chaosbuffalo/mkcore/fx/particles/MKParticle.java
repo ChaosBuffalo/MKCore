@@ -267,7 +267,7 @@ public class MKParticle extends SpriteTexturedParticle {
         private final float particleHeight;
         private final int maxAge;
         private final boolean expireOnGround;
-        private Consumer<MKParticle> onExpire;
+        private final Consumer<MKParticle> onExpire;
 
         public MKParticleFactory(IAnimatedSprite spriteSet,
                                  float gravity, float particleWidth, float particleHeight, int maxAge,

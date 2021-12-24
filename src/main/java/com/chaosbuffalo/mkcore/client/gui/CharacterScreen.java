@@ -218,7 +218,7 @@ public class CharacterScreen extends AbilityPanelScreen {
             talentScrollPanel = panel;
             TalentTreeWidget treeWidget = new TalentTreeWidget(0, 0,
                     panel.getContentScrollView().getWidth(),
-                    panel.getContentScrollView().getHeight(), pData, font, this);
+                    panel.getContentScrollView().getHeight(), pData, font);
             talentTreeWidget = treeWidget;
             panel.setContent(treeWidget);
             MKStackLayoutVertical stackLayout = new MKStackLayoutVertical(0, 0,

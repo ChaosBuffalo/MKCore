@@ -51,9 +51,8 @@ public class ParticleEditorScreen extends MKScreen {
 
     public ParticleEditorScreen() {
         super(new TranslationTextComponent("mk.editors.particle_editor.name"));
-        ParticleAnimation anim = ParticleAnimationManager.ANIMATIONS.get(
+        editing = ParticleAnimationManager.ANIMATIONS.get(
                 new ResourceLocation(MKCore.MOD_ID, "particle_anim.blue_magic")).copy();
-        editing = anim;
         currentFrame = null;
         dirty = false;
         PlayerEntity player = Minecraft.getInstance().player;

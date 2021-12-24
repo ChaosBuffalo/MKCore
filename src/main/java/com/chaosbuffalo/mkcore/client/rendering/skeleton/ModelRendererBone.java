@@ -7,9 +7,9 @@ import javax.annotation.Nullable;
 
 public class ModelRendererBone extends MCBone {
     private final ModelRenderer modelRenderer;
-    private boolean invertY;
-    private boolean invertX;
-    private boolean invertZ;
+    private final boolean invertY;
+    private final boolean invertX;
+    private final boolean invertZ;
 
     public ModelRendererBone(String boneName, ModelRenderer modelRenderer, @Nullable MCBone parent, boolean invertY, boolean invertX, boolean invertZ) {
         super(boneName, new Vector3d(modelRenderer.rotationPointX / 16.0,

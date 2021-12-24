@@ -15,7 +15,7 @@ import net.minecraft.util.text.TranslationTextComponent;
 public class AnimationTrackPanel extends MKStackLayoutVertical {
 
     private ParticleAnimationTrack track;
-    private ParticleAnimationTrack.AnimationTrackType trackType;
+    private final ParticleAnimationTrack.AnimationTrackType trackType;
     private final FontRenderer font;
     private final ParticleEditorScreen particleEditor;
 
@@ -37,7 +37,7 @@ public class AnimationTrackPanel extends MKStackLayoutVertical {
     protected void setupLayout(){
         clearWidgets();
         MKLayout header = getHeader();
-        addWidget(getHeader());
+        addWidget(header);
         MKRectangle divider = new MKRectangle(getX(), getY(), getWidth(), 1, 0xffffffff);
         addWidget(divider);
         if (track != null){

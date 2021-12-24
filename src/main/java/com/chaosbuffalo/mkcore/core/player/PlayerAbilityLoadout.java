@@ -14,7 +14,6 @@ import java.util.Map;
 
 public class PlayerAbilityLoadout implements IPlayerSyncComponentProvider {
 
-    private final MKPlayerData playerData;
     private final SyncComponent sync = new SyncComponent("loadout");
 
     private final Map<AbilityGroupId, AbilityGroup> abilityGroups = new HashMap<>();
@@ -24,7 +23,6 @@ public class PlayerAbilityLoadout implements IPlayerSyncComponentProvider {
     private final ItemAbilityGroup itemAbilityGroup;
 
     public PlayerAbilityLoadout(MKPlayerData playerData) {
-        this.playerData = playerData;
         basicAbilityGroup = new BasicAbilityGroup(playerData);
         passiveAbilityGroup = new PassiveAbilityGroup(playerData);
         ultimateAbilityGroup = new UltimateAbilityGroup(playerData);
