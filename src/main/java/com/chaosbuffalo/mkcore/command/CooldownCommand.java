@@ -4,7 +4,7 @@ import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.ResetAttackSwingPacket;
 import com.chaosbuffalo.mkcore.utils.EntityUtils;
-import com.chaosbuffalo.mkcore.utils.TextUtils;
+import com.chaosbuffalo.mkcore.utils.ChatUtils;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -53,7 +53,7 @@ public class CooldownCommand {
 
         MKCore.getPlayer(player).ifPresent(playerData -> {
             playerData.getStats().setTimer(MKCore.makeRL(name), ticks);
-            TextUtils.sendPlayerChatMessage(player, String.format("Created timer %s with %d ticks", name, ticks));
+            ChatUtils.sendMessageWithBrackets(player, "Created timer %s with %d ticks", name, ticks);
         });
 
         return Command.SINGLE_SUCCESS;

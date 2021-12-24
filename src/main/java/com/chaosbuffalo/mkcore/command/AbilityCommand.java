@@ -8,7 +8,7 @@ import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.abilities.MKAbilityInfo;
 import com.chaosbuffalo.mkcore.command.arguments.AbilityIdArgument;
 import com.chaosbuffalo.mkcore.core.player.PlayerAbilityKnowledge;
-import com.chaosbuffalo.mkcore.utils.TextUtils;
+import com.chaosbuffalo.mkcore.utils.ChatUtils;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -98,7 +98,7 @@ public class AbilityCommand {
             PlayerAbilityKnowledge abilityKnowledge = cap.getAbilities();
             int currentSize = abilityKnowledge.getCurrentPoolCount();
             int maxSize = abilityKnowledge.getAbilityPoolSize();
-            TextUtils.sendPlayerChatMessage(player, String.format("Ability Pool: %d/%d", currentSize, maxSize));
+            ChatUtils.sendMessageWithBrackets(player, "Ability Pool: %d/%d", currentSize, maxSize);
         });
         return Command.SINGLE_SUCCESS;
     }
@@ -109,9 +109,9 @@ public class AbilityCommand {
             PlayerAbilityKnowledge abilityKnowledge = cap.getAbilities();
             int currentSize = abilityKnowledge.getCurrentPoolCount();
             int maxSize = abilityKnowledge.getAbilityPoolSize();
-            TextUtils.sendPlayerChatMessage(player, String.format("Ability Pool: %d/%d", currentSize, maxSize));
+            ChatUtils.sendMessageWithBrackets(player, "Ability Pool: %d/%d", currentSize, maxSize);
             abilityKnowledge.getPoolAbilities().forEach(abilityId -> {
-                TextUtils.sendPlayerChatMessage(player, String.format("Pool Ability: %s", abilityId));
+                ChatUtils.sendMessageWithBrackets(player, "Pool Ability: %s", abilityId);
             });
         });
         return Command.SINGLE_SUCCESS;
@@ -137,16 +137,16 @@ public class AbilityCommand {
             PlayerAbilityKnowledge abilityKnowledge = cap.getAbilities();
             Collection<MKAbilityInfo> abilities = abilityKnowledge.getAllAbilities();
             if (abilities.size() > 0) {
-                TextUtils.sendPlayerChatMessage(player, "Known Abilities");
+                ChatUtils.sendMessageWithBrackets(player, "Known Abilities");
                 abilities.forEach(info -> {
                     if (info.isCurrentlyKnown()) {
-                        TextUtils.sendPlayerChatMessage(player, String.format("%s: %b - %s", info.getId(), info.isCurrentlyKnown(), info.getSource()));
+                        ChatUtils.sendMessageWithBrackets(player, "%s: %b - %s", info.getId(), info.isCurrentlyKnown(), info.getSource());
                     } else {
-                        TextUtils.sendPlayerChatMessage(player, String.format("%s: %b", info.getId(), info.isCurrentlyKnown()));
+                        ChatUtils.sendMessageWithBrackets(player, "%s: %b", info.getId(), info.isCurrentlyKnown());
                     }
                 });
             } else {
-                TextUtils.sendPlayerChatMessage(player, "No known abilities");
+                ChatUtils.sendMessageWithBrackets(player, "No known abilities");
             }
         });
 

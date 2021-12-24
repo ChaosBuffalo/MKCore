@@ -7,7 +7,7 @@ import com.chaosbuffalo.mkcore.command.arguments.AbilityIdArgument;
 import com.chaosbuffalo.mkcore.core.AbilityGroupId;
 import com.chaosbuffalo.mkcore.core.player.AbilityGroup;
 import com.chaosbuffalo.mkcore.core.player.PlayerAbilityKnowledge;
-import com.chaosbuffalo.mkcore.utils.TextUtils;
+import com.chaosbuffalo.mkcore.utils.ChatUtils;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
@@ -105,7 +105,7 @@ public class HotBarCommand {
             if (abilityKnowledge.knowsAbility(abilityId)) {
                 int slot = playerData.getLoadout().getAbilityGroup(group).tryEquip(abilityId);
                 if (slot == GameConstants.ACTION_BAR_INVALID_SLOT) {
-                    TextUtils.sendChatMessage(player, "No room for ability");
+                    ChatUtils.sendMessage(player, "No room for ability");
                 }
             }
         });
@@ -142,9 +142,9 @@ public class HotBarCommand {
             AbilityGroup container = playerData.getLoadout().getAbilityGroup(group);
             int current = container.getCurrentSlotCount();
             int max = container.getMaximumSlotCount();
-            TextUtils.sendPlayerChatMessage(player, String.format("%s Action Bar (%d/%d slots)", group, current, max));
+            ChatUtils.sendMessageWithBrackets(player, "%s Action Bar (%d/%d slots)", group, current, max);
             for (int i = 0; i < current; i++) {
-                TextUtils.sendChatMessage(player, String.format("%d: %s", i, container.getSlot(i)));
+                ChatUtils.sendMessage(player, "%d: %s", i, container.getSlot(i));
             }
         });
 

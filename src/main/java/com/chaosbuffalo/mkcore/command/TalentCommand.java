@@ -4,7 +4,7 @@ import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.command.arguments.TalentLineIdArgument;
 import com.chaosbuffalo.mkcore.command.arguments.TalentTreeIdArgument;
 import com.chaosbuffalo.mkcore.core.talents.*;
-import com.chaosbuffalo.mkcore.utils.TextUtils;
+import com.chaosbuffalo.mkcore.utils.ChatUtils;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -66,9 +66,9 @@ public class TalentCommand {
         MKCore.getPlayer(player).ifPresent(cap -> {
             PlayerTalentKnowledge talentKnowledge = cap.getTalents();
             if (talentKnowledge.removeTalentPoints(amount)) {
-                TextUtils.sendChatMessage(player, String.format("Removed %d points", amount));
+                ChatUtils.sendMessage(player, "Removed %d points", amount);
             } else {
-                TextUtils.sendChatMessage(player, String.format("Failed to remove %d points", amount));
+                ChatUtils.sendMessage(player, "Failed to remove %d points", amount);
             }
         });
 
@@ -82,9 +82,9 @@ public class TalentCommand {
         MKCore.getPlayer(player).ifPresent(cap -> {
             PlayerTalentKnowledge talentKnowledge = cap.getTalents();
             if (talentKnowledge.grantTalentPoints(amount)) {
-                TextUtils.sendChatMessage(player, String.format("Granted %d points", amount));
+                ChatUtils.sendMessage(player, "Granted %d points", amount);
             } else {
-                TextUtils.sendChatMessage(player, String.format("Failed to give %d points", amount));
+                ChatUtils.sendMessage(player, "Failed to give %d points", amount);
             }
         });
 
@@ -98,8 +98,7 @@ public class TalentCommand {
             PlayerTalentKnowledge talentKnowledge = cap.getTalents();
             int unspent = talentKnowledge.getUnspentTalentPoints();
             int total = talentKnowledge.getTotalTalentPoints();
-            String msg = String.format("Talent Points: %d (%d unspent)", total, unspent);
-            TextUtils.sendChatMessage(player, msg);
+            ChatUtils.sendMessage(player, "Talent Points: %d (%d unspent)", total, unspent);
         });
 
         return Command.SINGLE_SUCCESS;
@@ -114,9 +113,9 @@ public class TalentCommand {
         MKCore.getPlayer(player).ifPresent(cap -> {
             PlayerTalentKnowledge talentKnowledge = cap.getTalents();
             if (talentKnowledge.spendTalentPoint(talentId, line, index)) {
-                TextUtils.sendChatMessage(player, String.format("Spent point in (%s, %s, %d)", talentId, line, index));
+                ChatUtils.sendMessage(player, "Spent point in (%s, %s, %d)", talentId, line, index);
             } else {
-                TextUtils.sendChatMessage(player, String.format("Failed to spend point in (%s, %s, %d)", talentId, line, index));
+                ChatUtils.sendMessage(player, "Failed to spend point in (%s, %s, %d)", talentId, line, index);
             }
         });
 
@@ -132,9 +131,9 @@ public class TalentCommand {
         MKCore.getPlayer(player).ifPresent(cap -> {
             PlayerTalentKnowledge talentKnowledge = cap.getTalents();
             if (talentKnowledge.refundTalentPoint(talentId, line, index)) {
-                TextUtils.sendChatMessage(player, String.format("Refund point in (%s, %s, %d)", talentId, line, index));
+                ChatUtils.sendMessage(player, "Refund point in (%s, %s, %d)", talentId, line, index);
             } else {
-                TextUtils.sendChatMessage(player, String.format("Failed to refund point in (%s, %s, %d)", talentId, line, index));
+                ChatUtils.sendMessage(player, "Failed to refund point in (%s, %s, %d)", talentId, line, index);
             }
 
         });
@@ -149,14 +148,14 @@ public class TalentCommand {
         MKCore.getPlayer(player).ifPresent(cap -> {
             PlayerTalentKnowledge talentKnowledge = cap.getTalents();
             if (talentKnowledge.knowsTree(talentId)) {
-                TextUtils.sendChatMessage(player, String.format("Tree %s already known", talentId));
+                ChatUtils.sendMessage(player, "Tree %s already known", talentId);
                 return;
             }
 
             if (talentKnowledge.unlockTree(talentId)) {
-                TextUtils.sendChatMessage(player, String.format("Tree %s unlocked", talentId));
+                ChatUtils.sendMessage(player, "Tree %s unlocked", talentId);
             } else {
-                TextUtils.sendChatMessage(player, String.format("Failed to unlock tree %s", talentId));
+                ChatUtils.sendMessage(player, "Failed to unlock tree %s", talentId);
             }
         });
 
@@ -170,10 +169,10 @@ public class TalentCommand {
             PlayerTalentKnowledge talents = cap.getTalents();
             Collection<ResourceLocation> knownTalents = talents.getKnownTrees();
             if (knownTalents.size() > 0) {
-                TextUtils.sendPlayerChatMessage(player, "Known Talent Trees");
-                knownTalents.forEach(info -> TextUtils.sendChatMessage(player, String.format("%s", info)));
+                ChatUtils.sendMessageWithBrackets(player, "Known Talent Trees");
+                knownTalents.forEach(info -> ChatUtils.sendMessage(player, "%s", info));
             } else {
-                TextUtils.sendChatMessage(player, "You do not know any talent trees");
+                ChatUtils.sendMessage(player, "You do not know any talent trees");
             }
         });
 
@@ -191,22 +190,22 @@ public class TalentCommand {
 
             TalentTreeDefinition treeDefinition = MKCore.getTalentManager().getTalentTree(treeId);
             if (treeDefinition == null) {
-                TextUtils.sendPlayerChatMessage(player, String.format("Tree %s does not exist", treeId));
+                ChatUtils.sendMessageWithBrackets(player, "Tree %s does not exist", treeId);
                 return;
             }
 
             TalentLineDefinition lineDefinition = treeDefinition.getLine(line);
             if (lineDefinition == null) {
-                TextUtils.sendPlayerChatMessage(player, String.format("Tree %s does not have line %s", treeId, line));
+                ChatUtils.sendMessageWithBrackets(player, "Tree %s does not have line %s", treeId, line);
                 return;
             }
 
-            TextUtils.sendPlayerChatMessage(player, String.format("%s - %s", treeId, line));
+            ChatUtils.sendMessageWithBrackets(player, "%s - %s", treeId, line);
             lineDefinition.getNodes().stream()
                     .sorted(Comparator.comparing(TalentNode::getPositionString))
                     .forEach(node -> {
                         String msg = describeNode(node, talentKnowledge.getRecord(treeId, line, node.getIndex()));
-                        TextUtils.sendChatMessage(player, msg);
+                        ChatUtils.sendMessage(player, msg);
                     });
         });
 
@@ -227,13 +226,13 @@ public class TalentCommand {
                     .sorted(Comparator.comparing(r -> r.getNode().getPositionString()))
                     .collect(Collectors.toList());
             if (knownTalents.size() > 0) {
-                TextUtils.sendPlayerChatMessage(player, "Known Talents");
+                ChatUtils.sendMessageWithBrackets(player, "Known Talents");
                 knownTalents.forEach(info -> {
                     String msg = describeNode(info.getNode(), info);
-                    TextUtils.sendChatMessage(player, msg);
+                    ChatUtils.sendMessage(player, msg);
                 });
             } else {
-                TextUtils.sendChatMessage(player, "No known talents");
+                ChatUtils.sendMessage(player, "No known talents");
             }
         });
 

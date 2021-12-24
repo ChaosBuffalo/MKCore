@@ -1,6 +1,6 @@
 package com.chaosbuffalo.mkcore.command;
 
-import com.chaosbuffalo.mkcore.utils.TextUtils;
+import com.chaosbuffalo.mkcore.utils.ChatUtils;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -29,12 +29,12 @@ public class EffectCommand {
 
         Collection<EffectInstance> effects = player.getActivePotionEffects();
         if (effects.size() > 0) {
-            TextUtils.sendPlayerChatMessage(player, "Active effects");
+            ChatUtils.sendMessageWithBrackets(player, "Active effects");
             for (EffectInstance instance : player.getActivePotionEffects()) {
-                TextUtils.sendChatMessage(player, String.format("%s: %d", instance.getPotion().getRegistryName(), instance.getDuration()));
+                ChatUtils.sendMessage(player, "%s: %d", instance.getPotion().getRegistryName(), instance.getDuration());
             }
         } else {
-            TextUtils.sendPlayerChatMessage(player, "No active effects");
+            ChatUtils.sendMessageWithBrackets(player, "No active effects");
         }
 
         return Command.SINGLE_SUCCESS;
@@ -43,7 +43,7 @@ public class EffectCommand {
     static int resetTimers(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().asPlayer();
         player.clearActivePotions();
-        TextUtils.sendPlayerChatMessage(player, "Effects cleared");
+        ChatUtils.sendMessageWithBrackets(player, "Effects cleared");
 
         return Command.SINGLE_SUCCESS;
     }

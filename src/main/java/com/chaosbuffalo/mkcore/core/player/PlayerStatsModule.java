@@ -8,9 +8,11 @@ import com.chaosbuffalo.mkcore.core.MKCombatFormulas;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.entity.EntityStatsModule;
 import com.chaosbuffalo.mkcore.sync.SyncFloat;
+import com.chaosbuffalo.mkcore.utils.ChatUtils;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.Attribute;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
@@ -41,6 +43,10 @@ public class PlayerStatsModule extends EntityStatsModule implements IPlayerSyncC
     @Override
     public SyncComponent getSyncComponent() {
         return sync;
+    }
+
+    private PlayerEntity getPlayer() {
+        return (PlayerEntity) getEntity();
     }
 
     // Mostly to shut up warning about null returns from getAttribute. Only use this for attrs you know will be present
@@ -257,14 +263,11 @@ public class PlayerStatsModule extends EntityStatsModule implements IPlayerSyncC
     }
 
     public void printActiveCooldowns() {
-        String msg = "All active cooldowns:";
-
-        getEntity().sendMessage(new StringTextComponent(msg), Util.DUMMY_UUID);
+        ChatUtils.sendMessageWithBrackets(getPlayer(), "All Active Cooldowns");
         abilityTracker.iterateActive((abilityId, current) -> {
             String name = abilityId.toString();
             int max = abilityTracker.getMaxCooldownTicks(abilityId);
-            ITextComponent line = new StringTextComponent(String.format("%s: %d / %d", name, current, max));
-            getEntity().sendMessage(line, Util.DUMMY_UUID);
+            ChatUtils.sendMessage(getPlayer(), "%s: %d / %d", name, current, max);
         });
     }
 

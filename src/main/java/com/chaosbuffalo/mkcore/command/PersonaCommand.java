@@ -2,7 +2,7 @@ package com.chaosbuffalo.mkcore.command;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.persona.PersonaManager;
-import com.chaosbuffalo.mkcore.utils.TextUtils;
+import com.chaosbuffalo.mkcore.utils.ChatUtils;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -64,12 +64,12 @@ public class PersonaCommand {
         MKCore.getPlayer(player).ifPresent(playerData -> {
             PersonaManager personaManager = playerData.getPersonaManager();
 
-            TextUtils.sendPlayerChatMessage(player, "Personas");
+            ChatUtils.sendMessageWithBrackets(player, "Personas");
             for (String name : personaManager.getPersonaNames()) {
                 String pName = name;
                 if (personaManager.isPersonaActive(name))
                     pName = pName + " (active)";
-                TextUtils.sendChatMessage(player, String.format("%s", pName));
+                ChatUtils.sendMessage(player, pName);
             }
         });
 
@@ -83,11 +83,11 @@ public class PersonaCommand {
 
             PersonaManager personaManager = playerData.getPersonaManager();
             if (personaManager.hasPersona(name)) {
-                TextUtils.sendChatMessage(player, String.format("Persona '%s' already exists!", name));
+                ChatUtils.sendMessage(player, "Persona '%s' already exists!", name);
             } else if (personaManager.createPersona(name)) {
-                TextUtils.sendChatMessage(player, String.format("Created persona '%s'", name));
+                ChatUtils.sendMessage(player, "Created persona '%s'", name);
             } else {
-                TextUtils.sendChatMessage(player, String.format("Unable to create persona '%s'", name));
+                ChatUtils.sendMessage(player, "Unable to create persona '%s'", name);
             }
         });
 
@@ -102,13 +102,13 @@ public class PersonaCommand {
 
             PersonaManager personaManager = playerData.getPersonaManager();
             if (!personaManager.hasPersona(name)) {
-                TextUtils.sendChatMessage(player, String.format("Persona '%s' does not exist!", name));
+                ChatUtils.sendMessage(player, "Persona '%s' does not exist!", name);
             } else if (personaManager.isPersonaActive(name)) {
-                TextUtils.sendChatMessage(player, String.format("Persona '%s' already active", name));
+                ChatUtils.sendMessage(player, "Persona '%s' already active", name);
             } else if (personaManager.activatePersona(name)) {
-                TextUtils.sendChatMessage(player, String.format("Activated persona '%s'", name));
+                ChatUtils.sendMessage(player, "Activated persona '%s'", name);
             } else {
-                TextUtils.sendChatMessage(player, String.format("Unable to activate persona '%s'", name));
+                ChatUtils.sendMessage(player, "Unable to activate persona '%s'", name);
             }
         });
 
@@ -122,13 +122,13 @@ public class PersonaCommand {
 
             PersonaManager personaManager = playerData.getPersonaManager();
             if (personaManager.isPersonaActive(name)) {
-                TextUtils.sendChatMessage(player, String.format("Unable to delete active persona '%s'", name));
+                ChatUtils.sendMessage(player, "Unable to delete active persona '%s'", name);
             } else if (!personaManager.hasPersona(name)) {
-                TextUtils.sendChatMessage(player, String.format("Persona '%s' does not exist!", name));
+                ChatUtils.sendMessage(player, "Persona '%s' does not exist!", name);
             } else if (personaManager.deletePersona(name)) {
-                TextUtils.sendChatMessage(player, String.format("Deleted persona '%s'", name));
+                ChatUtils.sendMessage(player, "Deleted persona '%s'", name);
             } else {
-                TextUtils.sendChatMessage(player, String.format("Failed to delete persona '%s'", name));
+                ChatUtils.sendMessage(player, "Failed to delete persona '%s'", name);
             }
         });
 

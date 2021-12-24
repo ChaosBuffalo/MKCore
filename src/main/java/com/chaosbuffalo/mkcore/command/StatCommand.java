@@ -3,7 +3,7 @@ package com.chaosbuffalo.mkcore.command;
 import com.chaosbuffalo.mkcore.CoreCapabilities;
 import com.chaosbuffalo.mkcore.core.MKAttributes;
 import com.chaosbuffalo.mkcore.core.player.PlayerStatsModule;
-import com.chaosbuffalo.mkcore.utils.TextUtils;
+import com.chaosbuffalo.mkcore.utils.ChatUtils;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.FloatArgumentType;
@@ -87,7 +87,7 @@ public class StatCommand {
     static ArgumentBuilder<CommandSource, ?> createSimpleFloatStat(String name, Function<PlayerStatsModule, Float> getter, BiConsumer<PlayerStatsModule, Float> setter) {
         ToIntFunction<PlayerEntity> getAction = playerEntity -> {
             playerEntity.getCapability(CoreCapabilities.PLAYER_CAPABILITY).ifPresent(cap ->
-                    TextUtils.sendPlayerChatMessage(playerEntity, String.format("%s is %f", name, getter.apply(cap.getStats()))));
+                    ChatUtils.sendMessageWithBrackets(playerEntity, "%s is %f", name, getter.apply(cap.getStats())));
 
             return Command.SINGLE_SUCCESS;
         };
@@ -96,16 +96,16 @@ public class StatCommand {
         if (setter != null) {
             setAction = (playerEntity, value) -> {
                 playerEntity.getCapability(CoreCapabilities.PLAYER_CAPABILITY).ifPresent(cap -> {
-                    TextUtils.sendPlayerChatMessage(playerEntity, String.format("Setting %s to %f", name, value));
+                    ChatUtils.sendMessageWithBrackets(playerEntity, "Setting %s to %f", name, value);
                     setter.accept(cap.getStats(), value);
-                    TextUtils.sendPlayerChatMessage(playerEntity, String.format("%s is now %f",
-                            name, getter.apply(cap.getStats())));
+                    ChatUtils.sendMessageWithBrackets(playerEntity, "%s is now %f",
+                            name, getter.apply(cap.getStats()));
                 });
                 return Command.SINGLE_SUCCESS;
             };
         } else {
             setAction = (playerEntity, value) -> {
-                TextUtils.sendPlayerChatMessage(playerEntity, String.format("Setting %s is not supported", name));
+                ChatUtils.sendMessageWithBrackets(playerEntity, "Setting %s is not supported", name);
                 return Command.SINGLE_SUCCESS;
             };
         }
@@ -117,10 +117,9 @@ public class StatCommand {
         ToIntFunction<PlayerEntity> getAction = playerEntity -> {
             ModifiableAttributeInstance instance = playerEntity.getAttribute(attribute);
             if (instance != null) {
-                String value = String.format("%s is %f (%f base)", name, instance.getValue(), instance.getBaseValue());
-                TextUtils.sendPlayerChatMessage(playerEntity, value);
+                ChatUtils.sendMessageWithBrackets(playerEntity, "%s is %f (%f base)", name, instance.getValue(), instance.getBaseValue());
             } else {
-                TextUtils.sendPlayerChatMessage(playerEntity, String.format("Attribute %s not found", name));
+                ChatUtils.sendMessageWithBrackets(playerEntity, "Attribute %s not found", name);
             }
 
             return Command.SINGLE_SUCCESS;
@@ -130,10 +129,9 @@ public class StatCommand {
             ModifiableAttributeInstance instance = playerEntity.getAttribute(attribute);
             if (instance != null) {
                 instance.setBaseValue(value);
-                String output = String.format("%s is now %f (%f base)", name, instance.getValue(), instance.getBaseValue());
-                TextUtils.sendPlayerChatMessage(playerEntity, output);
+                ChatUtils.sendMessageWithBrackets(playerEntity, "%s is now %f (%f base)", name, instance.getValue(), instance.getBaseValue());
             } else {
-                TextUtils.sendPlayerChatMessage(playerEntity, String.format("Attribute %s not found", name));
+                ChatUtils.sendMessageWithBrackets(playerEntity, "Attribute %s not found", name);
             }
             return Command.SINGLE_SUCCESS;
         };
@@ -172,14 +170,13 @@ public class StatCommand {
         if (entity.getAttributeManager().hasAttributeInstance(attr)) {
             ModifiableAttributeInstance instance = entity.getAttribute(attr);
             if (instance == null) {
-                TextUtils.sendChatMessage(entity, "Unable to add modifier - player does not have attribute");
+                ChatUtils.sendMessage(entity, "Unable to add modifier - player does not have attribute");
                 return Command.SINGLE_SUCCESS;
             }
 
-            TextUtils.sendPlayerChatMessage(entity, String.format("%s modifiers", attr.getAttributeName()));
+            ChatUtils.sendMessageWithBrackets(entity, "%s modifiers", attr.getAttributeName());
             for (AttributeModifier mod : instance.getModifierListCopy()) {
-                String msg = String.format("%s: %f %s", mod.getName(), mod.getAmount(), mod.getID());
-                TextUtils.sendChatMessage(entity, msg);
+                ChatUtils.sendMessage(entity, "%s: %f %s", mod.getName(), mod.getAmount(), mod.getID());
             }
         }
         return Command.SINGLE_SUCCESS;
@@ -191,7 +188,7 @@ public class StatCommand {
         if (entity.getAttributeManager().hasAttributeInstance(attr)) {
             ModifiableAttributeInstance instance = entity.getAttribute(attr);
             if (instance == null) {
-                TextUtils.sendChatMessage(entity, "Unable to add modifier - player does not have attribute");
+                ChatUtils.sendMessage(entity, "Unable to add modifier - player does not have attribute");
                 return Command.SINGLE_SUCCESS;
             }
 
@@ -201,7 +198,7 @@ public class StatCommand {
             } else {
                 instance.applyPersistentModifier(mod);
             }
-            TextUtils.sendChatMessage(entity, String.format("Temp mod added with UUID %s", mod.getID()));
+            ChatUtils.sendMessage(entity, "Temp mod added with UUID %s", mod.getID());
         }
 
         return Command.SINGLE_SUCCESS;

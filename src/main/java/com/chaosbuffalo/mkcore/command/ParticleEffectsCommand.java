@@ -2,10 +2,9 @@ package com.chaosbuffalo.mkcore.command;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.command.arguments.BipedBoneArgument;
-import com.chaosbuffalo.mkcore.command.arguments.EffectInstanceTypeArgument;
 import com.chaosbuffalo.mkcore.command.arguments.ParticleAnimationArgument;
 import com.chaosbuffalo.mkcore.fx.particles.effect_instances.BoneEffectInstance;
-import com.chaosbuffalo.mkcore.utils.TextUtils;
+import com.chaosbuffalo.mkcore.utils.ChatUtils;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -41,7 +40,7 @@ public class ParticleEffectsCommand {
         BoneEffectInstance inst = new BoneEffectInstance(UUID.randomUUID(), bone, particleAnimation);
         MKCore.getPlayer(player).ifPresent(playerData -> {
             playerData.getAnimationModule().getEffectInstanceTracker().addParticleInstance(inst);
-            TextUtils.sendPlayerChatMessage(player, String.format("Added %s to effect to bone: %s", particleAnimation.toString(), bone));
+            ChatUtils.sendMessageWithBrackets(player, "Added %s to effect to bone: %s", particleAnimation.toString(), bone);
         });
 
         return Command.SINGLE_SUCCESS;
