@@ -43,7 +43,7 @@ public class PlayerHurtEntityTriggers extends SpellTriggers.TriggerCollectionBas
 
     @Override
     public boolean hasTriggers() {
-        return false;
+        return hasTriggers;
     }
 
     public void registerMelee(Trigger trigger) {
