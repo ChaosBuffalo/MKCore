@@ -54,6 +54,8 @@ public class SpellTriggers {
 
         public abstract boolean hasTriggers();
 
+        // true = trigger already active or not needed
+        // false = trigger started
         protected boolean startTrigger(Entity source, String tag) {
             if (!hasTriggers())
                 return true;
@@ -61,13 +63,13 @@ public class SpellTriggers {
             if (source instanceof PlayerEntity) {
                 return MKCore.getPlayer(source).map(cap -> {
                     if (cap.getCombatExtension().hasSpellTag(tag)) {
-                        return false;
+                        return true;
                     }
                     cap.getCombatExtension().addSpellTag(tag);
-                    return true;
+                    return false;
                 }).orElse(true);
             }
-            return false;
+            return true;
         }
 
         protected void endTrigger(Entity source, String tag) {
