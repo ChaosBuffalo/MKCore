@@ -14,7 +14,8 @@
     "maxShiftBy": 2
   },
   "client": [
-    "WorldRendererMixins"
+    "WorldRendererMixins",
+    "InGameGuiMixins"
   ],
   "minVersion": "0.8"
 }

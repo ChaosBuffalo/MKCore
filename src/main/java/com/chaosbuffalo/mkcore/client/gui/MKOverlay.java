@@ -32,6 +32,8 @@ public class MKOverlay {
         mc = Minecraft.getInstance();
     }
 
+
+
     private void drawMana(MatrixStack matrixStack, MKPlayerData data) {
         int height = mc.getMainWindow().getScaledHeight();
 

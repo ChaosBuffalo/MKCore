@@ -44,6 +44,7 @@ public class MKAreaEffectEntity extends AreaEffectCloudEntity implements IEntity
         final TargetingContext targetContext;
         SpellCast cast;
 
+
         EffectEntry(EffectInstance effect, TargetingContext targetContext) {
             this.effect = effect;
             this.targetContext = targetContext;

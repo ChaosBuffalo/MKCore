@@ -185,11 +185,34 @@ public class ClientEventHandler {
     }
 
     @SubscribeEvent
+    public static void onRender(TickEvent.RenderTickEvent event){
+        if (event.phase == TickEvent.Phase.START){
+            Minecraft inst = Minecraft.getInstance();
+            PlayerEntity player = inst.player;
+            if (player != null) {
+                RayTraceResult lookingAt = RayTraceUtils.getLookingAt(Entity.class,
+                        player, player.getAttribute(MKAttributes.ATTACK_REACH).getValue(),
+                        (e) -> true);
+                MKCore.getPlayer(player).ifPresent(x -> {
+                    if (lookingAt != null && lookingAt.getType() == RayTraceResult.Type.ENTITY) {
+                        EntityRayTraceResult traceResult = (EntityRayTraceResult) lookingAt;
+                        Entity entityHit = traceResult.getEntity();
+                        x.getCombatExtension().setPointedEntity(entityHit);
+                    } else {
+                        x.getCombatExtension().setPointedEntity(null);
+                    }
+                });
+            }
+        }
+    }
+
+    @SubscribeEvent
     public static void onTickEvent(TickEvent.ClientTickEvent event) {
         if (event.phase == TickEvent.Phase.START) {
             if (currentGCDTicks > 0) {
                 currentGCDTicks--;
             }
+
         }
     }
 
@@ -299,7 +322,8 @@ public class ClientEventHandler {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onAttackReplacement(InputEvent.ClickInputEvent event) {
         if (event.isAttack() && event.getHand() == Hand.MAIN_HAND) {
-            PlayerEntity player = Minecraft.getInstance().player;
+            Minecraft inst = Minecraft.getInstance();
+            PlayerEntity player = inst.player;
             if (player != null) {
                 RayTraceResult lookingAt = RayTraceUtils.getLookingAt(Entity.class,
                         player, player.getAttribute(MKAttributes.ATTACK_REACH).getValue(),
