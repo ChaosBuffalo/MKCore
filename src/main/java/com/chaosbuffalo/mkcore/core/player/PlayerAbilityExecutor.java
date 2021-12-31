@@ -110,19 +110,4 @@ public class PlayerAbilityExecutor extends AbilityExecutor {
             }
         }
     }
-
-    public void onSlotChanged(AbilityGroupId group, int index, ResourceLocation previous, ResourceLocation newAbility) {
-        MKCore.LOGGER.debug("PlayerAbilityExecutor.onSlotChanged({}, {}, {}, {})", group, index, previous, newAbility);
-
-        if (previous.equals(MKCoreRegistry.INVALID_ABILITY))
-            return;
-
-        AbilityGroup abilityGroup = getPlayerData().getLoadout().getAbilityGroup(group);
-        if (!abilityGroup.isAbilitySlotted(previous)) {
-            MKAbility ability = MKCoreRegistry.getAbility(previous);
-            if (ability instanceof MKToggleAbilityBase) {
-                ((MKToggleAbilityBase) ability).removeEffect(getPlayerData().getEntity(), getPlayerData());
-            }
-        }
-    }
 }

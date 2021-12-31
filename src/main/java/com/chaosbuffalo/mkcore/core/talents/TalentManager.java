@@ -87,14 +87,6 @@ public class TalentManager extends JsonReloadListener {
         return Collections.unmodifiableCollection(talentTreeMap.keySet());
     }
 
-    public static PassiveTalentAbility getPassiveTalentAbility(ResourceLocation abilityId) {
-        MKAbility ability = MKCoreRegistry.getAbility(abilityId);
-        if (ability instanceof PassiveTalentAbility) {
-            return (PassiveTalentAbility) ability;
-        }
-        return null;
-    }
-
 
     @SubscribeEvent
     public void onDataPackSync(OnDatapackSyncEvent event) {

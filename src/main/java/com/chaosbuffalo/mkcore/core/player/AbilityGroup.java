@@ -1,10 +1,10 @@
 package com.chaosbuffalo.mkcore.core.player;
 
-import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.abilities.MKAbilityInfo;
+import com.chaosbuffalo.mkcore.abilities.MKToggleAbilityBase;
 import com.chaosbuffalo.mkcore.core.AbilityGroupId;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.sync.ResourceListUpdater;
@@ -101,10 +101,10 @@ public class AbilityGroup implements IPlayerSyncComponentProvider {
 
     public int tryEquip(ResourceLocation abilityId) {
         int slot = getAbilitySlot(abilityId);
-        if (slot == GameConstants.ACTION_BAR_INVALID_SLOT) {
-            // Skill was just learned so let's try to put it on the bar
+        if (slot == -1) {
+            // Ability was just learned so let's try to put it on the bar
             slot = getFirstFreeAbilitySlot();
-            if (slot != GameConstants.ACTION_BAR_INVALID_SLOT && slot < getCurrentSlotCount()) {
+            if (slot != -1 && slot < getCurrentSlotCount()) {
                 setSlot(slot, abilityId);
             }
         }
@@ -113,57 +113,91 @@ public class AbilityGroup implements IPlayerSyncComponentProvider {
     }
 
     public int getAbilitySlot(ResourceLocation abilityId) {
-        int slot = getAbilities().indexOf(abilityId);
-        if (slot != -1)
-            return slot;
-        return GameConstants.ACTION_BAR_INVALID_SLOT;
-    }
-
-    public boolean isAbilitySlotted(ResourceLocation abilityId) {
-        return getAbilitySlot(abilityId) != GameConstants.ACTION_BAR_INVALID_SLOT;
+        return activeAbilities.indexOf(abilityId);
     }
 
     @Nonnull
     public ResourceLocation getSlot(int slot) {
-        List<ResourceLocation> list = getAbilities();
-        if (slot < list.size()) {
-            return list.get(slot);
+        if (slot < activeAbilities.size()) {
+            return activeAbilities.get(slot);
         }
         return MKCoreRegistry.INVALID_ABILITY;
     }
 
-    public void setSlot(int index, ResourceLocation abilityId) {
-        MKCore.LOGGER.debug("AbilityGroup.setAbilityInSlot({}, {}, {})", groupId, index, abilityId);
+    protected void onAbilityAdded(ResourceLocation abilityId) {
+        MKCore.LOGGER.debug("onAbilityAdded({})", abilityId);
+    }
 
-        if (abilityId.equals(MKCoreRegistry.INVALID_ABILITY)) {
-            setSlotInternal(index, MKCoreRegistry.INVALID_ABILITY);
+    protected void onAbilityRemoved(ResourceLocation abilityId) {
+        MKCore.LOGGER.debug("onAbilityRemoved({})", abilityId);
+        MKAbility ability = MKCoreRegistry.getAbility(abilityId);
+        if (ability instanceof MKToggleAbilityBase) {
+            ((MKToggleAbilityBase) ability).removeEffect(playerData.getEntity(), playerData);
+        }
+    }
+
+    private void setIndex(int index, ResourceLocation abilityId) {
+        activeAbilities.set(index, abilityId);
+        activeUpdater.setDirty(index);
+    }
+
+    public void setSlot(int index, ResourceLocation abilityId) {
+        MKCore.LOGGER.debug("AbilityGroup.setSlot({}, {}, {})", groupId, index, abilityId);
+
+        ResourceLocation currentAbilityId = activeAbilities.get(index);
+        // No need to do anything if it's already in the target slot
+        if (abilityId.equals(currentAbilityId))
             return;
+
+        // Clearing slot - no validity checks required
+        if (abilityId.equals(MKCoreRegistry.INVALID_ABILITY)) {
+//            MKCore.LOGGER.info("setSlot - clearing {} from {}", index, currentAbilityId);
+            setIndex(index, abilityId);
+            onAbilityRemoved(currentAbilityId);
+            return;
+        }
+
+        // Check if it's already present in another slot
+        int newExistingSlot = getAbilitySlot(abilityId);
+        if (newExistingSlot != -1) {
+            // Ability was already in another slot, and we know it's not already at 'index'
+//            MKCore.LOGGER.info("swapping {}:{} with {}:{}", newExistingSlot, abilityId, index, currentAbilityId);
+            setIndex(index, abilityId);
+            setIndex(newExistingSlot, currentAbilityId);
+            return;
+        }
+
+        // abilityId was not already slotted - run the validity checks
+        if (!validateAbilityForSlot(index, abilityId))
+            return;
+
+        // abilityId was not slotted and is being inserted into an empty slot
+        if (currentAbilityId.equals(MKCoreRegistry.INVALID_ABILITY)) {
+            setIndex(index, abilityId);
+            onAbilityAdded(abilityId);
+            return;
+        }
+
+        MKCore.LOGGER.error("setSlot error! unknown case {} {} {} {}", index, abilityId, newExistingSlot, currentAbilityId);
+    }
+
+    private boolean validateAbilityForSlot(int index, ResourceLocation abilityId) {
+        MKAbility ability = MKCoreRegistry.getAbility(abilityId);
+        if (ability == null) {
+            // not an ability
+            return false;
         }
 
         if (groupId.requiresAbilityKnown() && !playerData.getAbilities().knowsAbility(abilityId)) {
-            MKCore.LOGGER.error("setAbilityInSlot({}, {}, {}) - player does not know ability!", groupId, index, abilityId);
-            return;
-        }
-
-        MKAbility ability = MKCoreRegistry.getAbility(abilityId);
-        if (ability == null) {
-            return;
+            MKCore.LOGGER.error("setSlot({}, {}, {}) - player does not know ability!", groupId, index, abilityId);
+            return false;
         }
 
         if (!groupId.fitsAbilityType(ability.getType())) {
-            MKCore.LOGGER.error("setAbilityInSlot({}, {}, {}) - ability does not fit in group", groupId, index, abilityId);
-            return;
+            MKCore.LOGGER.error("setSlot({}, {}, {}) - ability does not fit in group", groupId, index, abilityId);
+            return false;
         }
-
-        if (index < activeAbilities.size()) {
-            for (int i = 0; i < activeAbilities.size(); i++) {
-                if (i != index && abilityId.equals(activeAbilities.get(i))) {
-                    // Ability is currently at i, but is moving to index
-                    internalSwapSlots(i, index);
-                }
-            }
-            setSlotInternal(index, abilityId);
-        }
+        return true;
     }
 
     public boolean isSlotUnlocked(int slot) {
@@ -171,14 +205,14 @@ public class AbilityGroup implements IPlayerSyncComponentProvider {
     }
 
     public void resetSlots() {
-        for (int i = 0; i < getAbilities().size(); i++) {
+        for (int i = 0; i < activeAbilities.size(); i++) {
             clearSlot(i);
         }
     }
 
     public void clearAbility(ResourceLocation abilityId) {
         int slot = getAbilitySlot(abilityId);
-        if (slot != GameConstants.ACTION_BAR_INVALID_SLOT) {
+        if (slot != -1) {
             clearSlot(slot);
         }
     }
@@ -195,24 +229,6 @@ public class AbilityGroup implements IPlayerSyncComponentProvider {
         setSlot(slot, MKCoreRegistry.INVALID_ABILITY);
     }
 
-    protected void setSlotInternal(int index, ResourceLocation abilityId) {
-        MKCore.LOGGER.debug("AbilityGroup.setSlotInternal({}, {}, {})", groupId, index, abilityId);
-        ResourceLocation previous = activeAbilities.set(index, abilityId);
-        activeUpdater.setDirty(index);
-        if (playerData.getEntity().isAddedToWorld()) {
-            onSlotChanged(index, previous, abilityId);
-        }
-    }
-
-    protected void internalSwapSlots(int oldSlot, int newSlot) {
-        ResourceLocation original = activeAbilities.get(oldSlot);
-        ResourceLocation previous = activeAbilities.get(newSlot);
-        activeAbilities.set(oldSlot, previous);
-        activeAbilities.set(newSlot, original);
-        activeUpdater.setDirty(oldSlot);
-        activeUpdater.setDirty(newSlot);
-    }
-
     public void onAbilityLearned(MKAbilityInfo info) {
         if (info.getSource().placeOnBarWhenLearned()) {
             tryEquip(info.getId());
@@ -221,10 +237,6 @@ public class AbilityGroup implements IPlayerSyncComponentProvider {
 
     public void onAbilityUnlearned(MKAbilityInfo info) {
         clearAbility(info.getId());
-    }
-
-    protected void onSlotChanged(int index, ResourceLocation previous, ResourceLocation newAbility) {
-        playerData.getAbilityExecutor().onSlotChanged(groupId, index, previous, newAbility);
     }
 
     private void ensureValidAbility(ResourceLocation abilityId) {
@@ -251,10 +263,10 @@ public class AbilityGroup implements IPlayerSyncComponentProvider {
     }
 
     protected void onPersonaSwitch() {
-        getAbilities().forEach(this::ensureValidAbility);
+        activeAbilities.forEach(this::ensureValidAbility);
     }
 
-    public <T> T serialize(DynamicOps<T> ops) {
+    protected <T> T serialize(DynamicOps<T> ops) {
         return ops.createMap(
                 ImmutableMap.of(
                         ops.createString("slots"),
@@ -265,9 +277,9 @@ public class AbilityGroup implements IPlayerSyncComponentProvider {
         );
     }
 
-    public <T> void deserialize(Dynamic<T> dynamic) {
+    protected <T> void deserialize(Dynamic<T> dynamic) {
         slots.set(dynamic.get("slots").asInt(getCurrentSlotCount()));
-        deserializeAbilityList(dynamic.get("abilities").orElseEmptyList(), this::setSlotInternal);
+        deserializeAbilityList(dynamic.get("abilities").orElseEmptyList(), this::setIndex);
     }
 
     public INBT serializeNBT() {
