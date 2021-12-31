@@ -6,15 +6,12 @@ import com.chaosbuffalo.mkcore.sync.UpdateEngine;
 
 public class SyncComponent {
 
-    private final SyncGroup publicUpdater = new SyncGroup();
-    private final SyncGroup privateUpdater = new SyncGroup();
-
-    public SyncComponent() {
-    }
+    private final SyncGroup publicUpdater;
+    private final SyncGroup privateUpdater;
 
     public SyncComponent(String name) {
-        publicUpdater.setNestingName(name);
-        privateUpdater.setNestingName(name);
+        publicUpdater = new SyncGroup(name);
+        privateUpdater = new SyncGroup(name);
     }
 
     public void attach(UpdateEngine engine) {

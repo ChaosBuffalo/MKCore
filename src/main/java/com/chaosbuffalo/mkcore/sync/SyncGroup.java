@@ -19,8 +19,12 @@ public class SyncGroup implements ISyncObject, ISyncNotifier {
 
     }
 
-    public void setNestingName(String name) {
+    public SyncGroup(String name) {
         nestedName = name;
+    }
+
+    public String getTagName() {
+        return nestedName;
     }
 
     public void add(ISyncObject sync) {
