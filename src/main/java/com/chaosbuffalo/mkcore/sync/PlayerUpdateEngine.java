@@ -33,9 +33,6 @@ public class PlayerUpdateEngine extends UpdateEngine {
     @Override
     public void removePrivate(ISyncObject syncObject) {
         privateUpdater.remove(syncObject);
-        if (syncObject instanceof SyncGroup) {
-            ((SyncGroup) syncObject).forceDirty();
-        }
     }
 
     @Override

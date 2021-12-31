@@ -16,9 +16,6 @@ public abstract class UpdateEngine {
 
     public void removePublic(ISyncObject syncObject) {
         publicUpdater.remove(syncObject);
-        if (syncObject instanceof SyncGroup) {
-            ((SyncGroup) syncObject).forceDirty();
-        }
     }
 
     public void addPrivate(ISyncObject syncObject) {

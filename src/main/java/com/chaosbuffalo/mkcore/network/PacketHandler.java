@@ -69,6 +69,8 @@ public class PacketHandler {
                 EntityDataSyncPacket::new, EntityDataSyncPacket::handle);
         networkChannel.registerMessage(id++, ForgetAbilitiesRequestPacket.class, ForgetAbilitiesRequestPacket::toBytes,
                 ForgetAbilitiesRequestPacket::new, ForgetAbilitiesRequestPacket::handle);
+        networkChannel.registerMessage(id++, EntityEffectPacket.class, EntityEffectPacket::toBytes,
+                EntityEffectPacket::new, EntityEffectPacket::handle);
     }
 
     public static <T> void sendMessageToServer(T msg) {

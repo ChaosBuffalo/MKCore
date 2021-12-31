@@ -1,8 +1,10 @@
 package com.chaosbuffalo.mkcore.core;
 
 import com.chaosbuffalo.mkcore.core.entity.EntityAbilityKnowledge;
+import com.chaosbuffalo.mkcore.core.entity.EntityEffectHandler;
 import com.chaosbuffalo.mkcore.core.entity.EntityStatsModule;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 
 import javax.annotation.Nonnull;
@@ -15,6 +17,7 @@ public class MKEntityData implements IMKEntityData {
     private final EntityStatsModule stats;
     private final EntityAbilityKnowledge knowledge;
     private final CombatExtensionModule combatExtensionModule;
+    private final EntityEffectHandler effectHandler;
 
     public MKEntityData(LivingEntity livingEntity) {
         entity = Objects.requireNonNull(livingEntity);
@@ -22,20 +25,7 @@ public class MKEntityData implements IMKEntityData {
         abilityExecutor = new AbilityExecutor(this);
         stats = new EntityStatsModule(this);
         combatExtensionModule = new CombatExtensionModule(this);
-    }
-
-    public void update() {
-        getEntity().getEntityWorld().getProfiler().startSection("MKEntityData.update");
-
-        getEntity().getEntityWorld().getProfiler().startSection("AbilityExecutor.tick");
-        getAbilityExecutor().tick();
-        getEntity().getEntityWorld().getProfiler().endStartSection("EntityStats.tick");
-        getStats().tick();
-        getEntity().getEntityWorld().getProfiler().endStartSection("EntityCombat.tick");
-        getCombatExtension().tick();
-        getEntity().getEntityWorld().getProfiler().endSection();
-
-        getEntity().getEntityWorld().getProfiler().endSection();
+        effectHandler = new EntityEffectHandler(this);
     }
 
     @Nonnull
@@ -65,14 +55,47 @@ public class MKEntityData implements IMKEntityData {
     }
 
     @Override
+    public EntityEffectHandler getEffects() {
+        return effectHandler;
+    }
+
+    @Override
+    public void onJoinWorld() {
+        getEffects().onJoinWorld();
+    }
+
+    public void update() {
+        getEntity().getEntityWorld().getProfiler().startSection("MKEntityData.update");
+
+        getEntity().getEntityWorld().getProfiler().startSection("EntityEffects.tick");
+        getEffects().tick();
+        getEntity().getEntityWorld().getProfiler().endStartSection("AbilityExecutor.tick");
+        getAbilityExecutor().tick();
+        getEntity().getEntityWorld().getProfiler().endStartSection("EntityStats.tick");
+        getStats().tick();
+        getEntity().getEntityWorld().getProfiler().endStartSection("EntityCombat.tick");
+        getCombatExtension().tick();
+        getEntity().getEntityWorld().getProfiler().endSection();
+
+        getEntity().getEntityWorld().getProfiler().endSection();
+    }
+
+    @Override
     public CompoundNBT serialize() {
         CompoundNBT tag = new CompoundNBT();
         tag.put("knowledge", getKnowledge().serialize());
+        tag.put("effects", effectHandler.serialize());
         return tag;
     }
 
     @Override
     public void deserialize(CompoundNBT tag) {
         getKnowledge().deserialize(tag.getCompound("knowledge"));
+        effectHandler.deserialize(tag.getCompound("effects"));
+    }
+
+    @Override
+    public void onPlayerStartTracking(ServerPlayerEntity playerEntity) {
+        getEffects().sendAllEffectsToPlayer(playerEntity);
     }
 }
