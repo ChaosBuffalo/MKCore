@@ -131,9 +131,7 @@ public class AbilityExecutor {
     private void startCast(AbilityContext context, MKAbilityInfo abilityInfo, int castTime) {
         MKCore.LOGGER.debug("startCast {} {}", abilityInfo.getId(), castTime);
         currentCast = createServerCastingState(context, abilityInfo, castTime);
-        if (startCastCallback != null) {
-            startCastCallback.accept(abilityInfo.getAbility());
-        }
+        currentCast.begin();
         PacketHandler.sendToTrackingAndSelf(EntityCastPacket.start(entityData, abilityInfo.getId(), castTime), entityData.getEntity());
     }
 
@@ -142,9 +140,7 @@ public class AbilityExecutor {
         MKAbility ability = MKCoreRegistry.getAbility(abilityId);
         if (ability != null) {
             currentCast = createClientCastingState(ability, castTicks);
-            if (startCastCallback != null) {
-                startCastCallback.accept(ability);
-            }
+            currentCast.begin();
             if (castTicks <= 0) {
                 currentCast.finish();
             }
@@ -164,10 +160,6 @@ public class AbilityExecutor {
             }
             clearCastingAbility();
         }
-    }
-
-    protected void onAbilityInterrupted(MKAbility ability, int ticks) {
-//        MKCore.LOGGER.info("onAbilityInterrupted {} {}", ability, ticks);
     }
 
     private void updateCurrentCast() {
@@ -221,7 +213,7 @@ public class AbilityExecutor {
         updateToggleAbility(ability);
     }
 
-    public ServerCastingState createServerCastingState(AbilityContext context, MKAbilityInfo abilityInfo, int castTime) {
+    protected ServerCastingState createServerCastingState(AbilityContext context, MKAbilityInfo abilityInfo, int castTime) {
         return new ServerCastingState(context, this, abilityInfo, castTime);
     }
 
@@ -236,7 +228,6 @@ public class AbilityExecutor {
     static abstract class EntityCastingState {
         protected final MKAbility ability;
         protected final AbilityExecutor executor;
-        protected boolean started = false;
         protected int castTicks;
 
         public EntityCastingState(AbilityExecutor executor, MKAbility ability, int castTicks) {
@@ -261,11 +252,6 @@ public class AbilityExecutor {
             if (castTicks <= 0)
                 return false;
 
-            if (!started) {
-                begin();
-                started = true;
-            }
-
             activeTick();
             castTicks--;
             boolean active = castTicks > 0;
@@ -276,7 +262,9 @@ public class AbilityExecutor {
         }
 
         void begin() {
-
+            if (executor.startCastCallback != null) {
+                executor.startCastCallback.accept(ability);
+            }
         }
 
         abstract void activeTick();
@@ -284,7 +272,6 @@ public class AbilityExecutor {
         public abstract void finish();
 
         void interrupt() {
-            executor.onAbilityInterrupted(ability, castTicks);
         }
     }
 
@@ -336,6 +323,7 @@ public class AbilityExecutor {
 
         @Override
         void begin() {
+            super.begin();
             SoundEvent event = ability.getCastingSoundEvent();
             if (event != null) {
                 sound = new MovingSoundCasting(executor.entityData.getEntity(), event, castTicks);
