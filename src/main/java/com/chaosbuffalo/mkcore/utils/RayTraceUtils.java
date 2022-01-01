@@ -15,7 +15,6 @@ public class RayTraceUtils {
 
     private static final Predicate<Entity> defaultFilter = e -> EntityPredicates.IS_ALIVE.test(e) && EntityPredicates.NOT_SPECTATING.test(e);
 
-
     public static Vector3d getPerpendicular(Vector3d vec) {
         Vector3d cVec;
         if (vec.y != 0 || vec.z != 0) {
@@ -24,17 +23,6 @@ public class RayTraceUtils {
             cVec = new Vector3d(0, 1, 0);
         }
         return vec.crossProduct(cVec);
-    }
-
-    public static <E extends Entity> List<E> getEntitiesInLine(Class<E> clazz, final Entity mainEntity,
-                                                               Vector3d from, Vector3d to, Vector3d expansion,
-                                                               float growth, final Predicate<E> filter) {
-        Predicate<E> predicate = e -> defaultFilter.test(e) && filter.test(e);
-        AxisAlignedBB bb = new AxisAlignedBB(new BlockPos(from), new BlockPos(to))
-                .expand(expansion.x, expansion.y, expansion.z)
-                .grow(growth);
-        List<E> entities = mainEntity.getEntityWorld().getEntitiesWithinAABB(clazz, bb, predicate);
-        return entities;
     }
 
     public static <E extends Entity> RayTraceResult getLookingAt(Class<E> clazz, final Entity mainEntity, double distance, final Predicate<E> entityPredicate) {

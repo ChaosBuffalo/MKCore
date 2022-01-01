@@ -11,7 +11,7 @@ import com.chaosbuffalo.mkcore.init.CoreSounds;
 import com.chaosbuffalo.mkcore.serialization.attributes.ISerializableAttribute;
 import com.chaosbuffalo.mkcore.serialization.attributes.ResourceLocationAttribute;
 import com.chaosbuffalo.mkcore.utils.EntityUtils;
-import com.chaosbuffalo.mkcore.utils.RayTraceUtils;
+import com.chaosbuffalo.mkcore.utils.TargetUtil;
 import com.chaosbuffalo.mkcore.utils.text.IconTextComponent;
 import com.chaosbuffalo.targeting_api.Targeting;
 import com.chaosbuffalo.targeting_api.TargetingContext;
@@ -19,7 +19,6 @@ import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.DynamicOps;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.Attribute;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
@@ -27,13 +26,10 @@ import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.EntityRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.*;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Consumer;
@@ -119,10 +115,10 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
     }
 
     public void buildDescription(IMKEntityData entityData, Consumer<ITextComponent> consumer) {
-        if (entityData instanceof MKPlayerData){
+        if (entityData instanceof MKPlayerData) {
             MKPlayerData playerData = (MKPlayerData) entityData;
             MKAbilityInfo info = playerData.getAbilities().getKnownAbility(getAbilityId());
-            if (info != null && info.getSource().usesAbilityPool()){
+            if (info != null && info.getSource().usesAbilityPool()) {
                 consumer.accept(new IconTextComponent(POOL_SLOT_ICON, "mkcore.ability.description.uses_pool").mergeStyle(TextFormatting.ITALIC));
             }
         }
@@ -363,46 +359,9 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
         return true;
     }
 
-    protected LivingEntity getSingleLivingTarget(LivingEntity caster, float distance) {
-        return getSingleLivingTarget(caster, distance, true);
-    }
-
-    protected List<LivingEntity> getTargetsInLine(LivingEntity caster, Vector3d from, Vector3d to, boolean checkValid, float growth) {
-        return RayTraceUtils.getEntitiesInLine(LivingEntity.class, caster, from, to, Vector3d.ZERO, growth,
-                e -> !checkValid || (e != null && isValidTarget(caster, e)));
-    }
-
-    protected LivingEntity getSingleLivingTarget(LivingEntity caster, float distance, boolean checkValid) {
-        return getSingleLivingTarget(LivingEntity.class, caster, distance, checkValid);
-    }
-
-    @SuppressWarnings("unchecked")
-    protected <E extends LivingEntity> E getSingleLivingTarget(Class<E> clazz, LivingEntity caster,
-                                                               float distance, boolean checkValid) {
-        RayTraceResult lookingAt = RayTraceUtils.getLookingAt(clazz, caster, distance,
-                e -> !checkValid || (e != null && isValidTarget(caster, e)));
-
-        if (lookingAt != null && lookingAt.getType() == RayTraceResult.Type.ENTITY) {
-
-            EntityRayTraceResult traceResult = (EntityRayTraceResult) lookingAt;
-            Entity entityHit = traceResult.getEntity();
-            if (entityHit instanceof LivingEntity) {
-
-                if (checkValid && !isValidTarget(caster, (LivingEntity) entityHit)) {
-                    return null;
-                }
-
-                return (E) entityHit;
-            }
-        }
-
-        return null;
-    }
-
-    @Nonnull
-    protected LivingEntity getSingleLivingTargetOrSelf(LivingEntity caster, float distance, boolean checkValid) {
-        LivingEntity target = getSingleLivingTarget(caster, distance, checkValid);
-        return target != null ? target : caster;
+    @Deprecated
+    public List<LivingEntity> getTargetsInLine(LivingEntity caster, Vector3d from, Vector3d to, boolean checkValid, float growth) {
+        return TargetUtil.getTargetsInLine(caster, from, to, growth, checkValid ? this::isValidTarget : null);
     }
 
     protected void shootProjectile(BaseProjectileEntity projectileEntity, float velocity, float accuracy,
