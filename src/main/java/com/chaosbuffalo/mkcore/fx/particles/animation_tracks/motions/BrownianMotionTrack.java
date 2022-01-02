@@ -54,14 +54,14 @@ public class BrownianMotionTrack extends ParticleMotionAnimationTrack {
 
     @Override
     public BrownianMotionTrack copy() {
-        BrownianMotionTrack copy = new BrownianMotionTrack(tickInterval.value(), magnitude.getValue()).withGravity(doGravity.getValue());
-        if (!doX.getValue()){
+        BrownianMotionTrack copy = new BrownianMotionTrack(tickInterval.value(), magnitude.getValue()).withGravity(doGravity.value());
+        if (!doX.value()){
             copy.disableX();
         }
-        if (!doY.getValue()){
+        if (!doY.value()){
             copy.disableY();
         }
-        if (!doZ.getValue()){
+        if (!doZ.value()){
             copy.disableZ();
         }
         return copy;
@@ -70,10 +70,10 @@ public class BrownianMotionTrack extends ParticleMotionAnimationTrack {
     @Override
     public void update(MKParticle particle, int tick, float time) {
         if (tick % tickInterval.value() == 0){
-            double motionX = doX.getValue() ? generateVariance(particle) * magnitude.getValue() : particle.getMotionX();
-            double motionY = doY.getValue() ? generateVariance(particle) * magnitude.getValue() : particle.getMotionY();
-            double motionZ = doZ.getValue() ? generateVariance(particle) * magnitude.getValue() : particle.getMotionZ();
-            if (doGravity.getValue()){
+            double motionX = doX.value() ? generateVariance(particle) * magnitude.getValue() : particle.getMotionX();
+            double motionY = doY.value() ? generateVariance(particle) * magnitude.getValue() : particle.getMotionY();
+            double motionZ = doZ.value() ? generateVariance(particle) * magnitude.getValue() : particle.getMotionZ();
+            if (doGravity.value()){
                 motionY += particle.getParticleGravity() * tickInterval.value();
             }
             particle.setTrackVector3dData(VARIANCE_VECTOR, new Vector3d(motionX, motionY, motionZ));
