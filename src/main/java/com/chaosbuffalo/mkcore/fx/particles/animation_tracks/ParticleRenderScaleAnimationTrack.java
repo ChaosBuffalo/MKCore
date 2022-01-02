@@ -31,11 +31,11 @@ public class ParticleRenderScaleAnimationTrack extends ParticleAnimationTrack {
 
     @Override
     public ParticleRenderScaleAnimationTrack copy() {
-        return new ParticleRenderScaleAnimationTrack(renderScale.getValue(), maxVariance.getValue());
+        return new ParticleRenderScaleAnimationTrack(renderScale.value(), maxVariance.value());
     }
 
     protected float getScaleWithVariance(MKParticle particle){
-        return renderScale.getValue() + (particle.getTrackFloatData(VARIANCE_KEY) * maxVariance.getValue());
+        return renderScale.value() + (particle.getTrackFloatData(VARIANCE_KEY) * maxVariance.value());
     }
 
     @Override

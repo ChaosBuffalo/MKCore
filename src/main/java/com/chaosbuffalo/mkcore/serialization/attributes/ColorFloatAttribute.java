@@ -15,7 +15,7 @@ public class ColorFloatAttribute extends FloatAttribute{
 
     @Override
     public String valueAsString() {
-        return Integer.toString(Math.round(getValue() * 255.0f));
+        return Integer.toString(Math.round(value() * 255.0f));
     }
 
     @Override

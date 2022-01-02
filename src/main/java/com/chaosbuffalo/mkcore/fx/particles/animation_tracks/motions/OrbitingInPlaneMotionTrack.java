@@ -34,7 +34,7 @@ public class OrbitingInPlaneMotionTrack extends BaseMotionTrack {
 
     @Override
     public OrbitingInPlaneMotionTrack copy() {
-        return new OrbitingInPlaneMotionTrack(rpm.getValue(), rpmVarianceMagnitude.getValue(), rampTime.getValue());
+        return new OrbitingInPlaneMotionTrack(rpm.getValue(), rpmVarianceMagnitude.getValue(), rampTime.value());
     }
 
     @Override
@@ -55,7 +55,7 @@ public class OrbitingInPlaneMotionTrack extends BaseMotionTrack {
     private void updateParticle(MKParticle particle, float time, int duration, float partialTicks){
         Vector3d motionData = particle.getTrackVector3dData(MOTION_VECTOR);
 
-        float rT = rampTime.getValue();
+        float rT = rampTime.value();
         float realTime;
         boolean usingRamp = false;
         if (rT <= 0){

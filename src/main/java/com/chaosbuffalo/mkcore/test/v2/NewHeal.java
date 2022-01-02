@@ -52,9 +52,9 @@ public class NewHeal extends MKAbility {
     @Override
     protected ITextComponent getAbilityDescription(IMKEntityData entityData) {
         int level = getSkillLevel(entityData.getEntity(), MKAttributes.RESTORATION);
-        ITextComponent valueStr = getHealDescription(entityData, base.getValue(),
-                scale.getValue(), level,
-                modifierScaling.getValue());
+        ITextComponent valueStr = getHealDescription(entityData, base.value(),
+                scale.value(), level,
+                modifierScaling.value());
         return new TranslationTextComponent(getDescriptionTranslationKey(), valueStr);
     }
 
@@ -90,7 +90,7 @@ public class NewHeal extends MKAbility {
         context.getMemory(MKAbilityMemories.ABILITY_TARGET).ifPresent(targetEntity -> {
             MKCore.getEntityData(targetEntity).ifPresent(targetData -> {
                 MKEffectInstance heal = NewHealEffect.INSTANCE.createInstance(this, caster)
-                        .configure(base.getValue(), scale.getValue())
+                        .configure(base.value(), scale.value())
                         .timed(200)
                         .periodic(40)
                         .amplify(level);

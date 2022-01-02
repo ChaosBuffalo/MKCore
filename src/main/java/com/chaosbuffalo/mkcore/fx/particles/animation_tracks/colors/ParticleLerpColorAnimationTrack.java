@@ -37,8 +37,8 @@ public class ParticleLerpColorAnimationTrack extends ParticleColorAnimationTrack
 
     @Override
     public ParticleLerpColorAnimationTrack copy() {
-        return new ParticleLerpColorAnimationTrack(red.getValue(), green.getValue(), blue.getValue(),
-                redVariance.getValue(), greenVariance.getValue(), blueVariance.getValue());
+        return new ParticleLerpColorAnimationTrack(red.value(), green.value(), blue.value(),
+                redVariance.value(), greenVariance.value(), blueVariance.value());
     }
 
     public ParticleLerpColorAnimationTrack(){
@@ -49,9 +49,9 @@ public class ParticleLerpColorAnimationTrack extends ParticleColorAnimationTrack
     @Override
     public void begin(MKParticle particle, int duration) {
         particle.setTrackVector3fData(COLOR, new Vector3f(
-                getColorWithVariance(red.getValue(), redVariance.getValue(), generateVariance(particle)),
-                getColorWithVariance(green.getValue(), greenVariance.getValue(), generateVariance(particle)),
-                getColorWithVariance(blue.getValue(), blueVariance.getValue(), generateVariance(particle))));
+                getColorWithVariance(red.value(), redVariance.value(), generateVariance(particle)),
+                getColorWithVariance(green.value(), greenVariance.value(), generateVariance(particle)),
+                getColorWithVariance(blue.value(), blueVariance.value(), generateVariance(particle))));
     }
 
 
