@@ -93,14 +93,17 @@ public abstract class InGameGuiMixins extends AbstractGui {
             return MKCore.getPlayer(mc.player).map(x -> {
                 Optional<Entity> target = x.getCombatExtension().getPointedEntity();
                 return target.map(ent -> {
-                    if (Targeting.isValidFriendly(mc.player, ent)){
-                        return new Vector3f(0.0f, 1.0f, 0.0f);
-                    } else if (Targeting.isValidEnemy(mc.player, ent)){
-                        return new Vector3f(1.0f, 0.0f, 0.0f);
-                    } else if (Targeting.isValidNeutral(mc.player, ent)){
-                        return new Vector3f(1.0f, 1.0f, 0.0f);
-                    } else {
-                        return new Vector3f(1.0f, 1.0f, 1.0f);
+                    Targeting.TargetRelation relation = Targeting.getTargetRelation(mc.player, ent);
+                    switch (relation){
+                        case FRIEND:
+                            return new Vector3f(0.0f, 1.0f, 0.0f);
+                        case ENEMY:
+                            return new Vector3f(1.0f, 0.0f, 0.0f);
+                        case NEUTRAL:
+                            return new Vector3f(1.0f, 1.0f, 0.0f);
+                        case UNHANDLED:
+                        default:
+                            return new Vector3f(1.0f, 1.0f, 1.0f);
                     }
                 }).orElse(new Vector3f(1.0f, 1.0f, 1.0f));
             }).orElse(new Vector3f(1.0f, 1.0f, 1.0f));
