@@ -15,7 +15,9 @@
   },
   "client": [
     "WorldRendererMixins",
-    "InGameGuiMixins"
+    "InGameGuiMixins",
+    "ClientPlayerEntityMixins",
+    "PotionSpriteUploaderMixins"
   ],
   "minVersion": "0.8"
 }

@@ -9,27 +9,33 @@ import javax.annotation.Nullable;
 
 public class MKHealSource {
 
+    @Nullable
     private final Entity immediateSource;
+    @Nullable
     private final Entity trueSource;
     private final ResourceLocation abilityId;
     private boolean damagesUndead;
     private MKDamageType damageType;
     private float modifierScaling;
 
-
-    public MKHealSource(ResourceLocation abilityId, Entity source, @Nullable Entity trueSourceIn,
+    public MKHealSource(ResourceLocation abilityId, @Nullable Entity immediateSource, @Nullable Entity trueSource,
                         MKDamageType damageType, float modifierScaling) {
-        this.trueSource = trueSourceIn;
-        this.immediateSource = source;
+        this.trueSource = trueSource;
+        this.immediateSource = immediateSource;
         this.abilityId = abilityId;
         this.damagesUndead = true;
         this.damageType = damageType;
         this.modifierScaling = modifierScaling;
     }
 
-    public static MKHealSource getHolyHeal(ResourceLocation abilityId, Entity source,
-                                           @Nullable Entity trueSourceIn, float modifierScaling) {
-        return new MKHealSource(abilityId, source, trueSourceIn, CoreDamageTypes.HolyDamage, modifierScaling);
+    public static MKHealSource getHolyHeal(ResourceLocation abilityId, @Nullable Entity trueSource,
+                                           float modifierScaling) {
+        return getHolyHeal(abilityId, trueSource, trueSource, modifierScaling);
+    }
+
+    public static MKHealSource getHolyHeal(ResourceLocation abilityId, @Nullable Entity immediateSource,
+                                           @Nullable Entity trueSource, float modifierScaling) {
+        return new MKHealSource(abilityId, immediateSource, trueSource, CoreDamageTypes.HolyDamage, modifierScaling);
     }
 
     public static MKHealSource getNatureHeal(ResourceLocation abilityId, Entity source,

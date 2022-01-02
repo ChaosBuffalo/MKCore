@@ -9,7 +9,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 
 import java.util.*;
-import java.util.function.BiConsumer;
+import java.util.function.ObjIntConsumer;
 
 public class AbilityTracker implements ISyncObject {
 
@@ -91,7 +91,7 @@ public class AbilityTracker implements ISyncObject {
         }
     }
 
-    public void iterateActive(BiConsumer<ResourceLocation, Integer> consumer) {
+    public void iterateActive(ObjIntConsumer<ResourceLocation> consumer) {
         for (ResourceLocation id : timers.keySet()) {
             int cd = getCooldownTicks(id);
             if (cd > 0) {

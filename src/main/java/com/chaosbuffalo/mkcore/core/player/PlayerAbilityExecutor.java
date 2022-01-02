@@ -83,8 +83,8 @@ public class PlayerAbilityExecutor extends AbilityExecutor {
         for (int i = 0; i < group.getMaximumSlotCount(); i++) {
             ResourceLocation abilityId = group.getSlot(i);
             MKAbility ability = MKCoreRegistry.getAbility(abilityId);
-            if (ability instanceof MKToggleAbility) {
-                MKToggleAbility toggle = (MKToggleAbility) ability;
+            if (ability instanceof MKToggleAbilityBase) {
+                MKToggleAbilityBase toggle = (MKToggleAbilityBase) ability;
                 toggle.removeEffect(entityData.getEntity(), entityData);
             }
         }
@@ -103,25 +103,10 @@ public class PlayerAbilityExecutor extends AbilityExecutor {
         for (int i = 0; i < group.getMaximumSlotCount(); i++) {
             ResourceLocation abilityId = group.getSlot(i);
             MKAbility ability = MKCoreRegistry.getAbility(abilityId);
-            if (ability instanceof MKToggleAbility) {
-                MKToggleAbility toggle = (MKToggleAbility) ability;
-                if (entityData.getEntity().isPotionActive(toggle.getToggleEffect()))
+            if (ability instanceof MKToggleAbilityBase) {
+                MKToggleAbilityBase toggle = (MKToggleAbilityBase) ability;
+                if (toggle.isEffectActive(entityData))
                     setToggleGroupAbility(toggle.getToggleGroupId(), toggle);
-            }
-        }
-    }
-
-    public void onSlotChanged(AbilityGroupId group, int index, ResourceLocation previous, ResourceLocation newAbility) {
-        MKCore.LOGGER.debug("PlayerAbilityExecutor.onSlotChanged({}, {}, {}, {})", group, index, previous, newAbility);
-
-        if (previous.equals(MKCoreRegistry.INVALID_ABILITY))
-            return;
-
-        AbilityGroup abilityGroup = getPlayerData().getLoadout().getAbilityGroup(group);
-        if (!abilityGroup.isAbilitySlotted(previous)) {
-            MKAbility ability = MKCoreRegistry.getAbility(previous);
-            if (ability instanceof MKToggleAbility) {
-                ((MKToggleAbility) ability).removeEffect(getPlayerData().getEntity(), getPlayerData());
             }
         }
     }

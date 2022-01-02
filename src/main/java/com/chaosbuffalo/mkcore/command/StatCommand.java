@@ -1,6 +1,6 @@
 package com.chaosbuffalo.mkcore.command;
 
-import com.chaosbuffalo.mkcore.CoreCapabilities;
+import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.MKAttributes;
 import com.chaosbuffalo.mkcore.core.player.PlayerStatsModule;
 import com.chaosbuffalo.mkcore.utils.ChatUtils;
@@ -9,6 +9,7 @@ import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.command.CommandSource;
@@ -21,6 +22,7 @@ import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
+import javax.annotation.Nonnull;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -84,18 +86,20 @@ public class StatCommand {
                 ;
     }
 
-    static ArgumentBuilder<CommandSource, ?> createSimpleFloatStat(String name, Function<PlayerStatsModule, Float> getter, BiConsumer<PlayerStatsModule, Float> setter) {
-        ToIntFunction<PlayerEntity> getAction = playerEntity -> {
-            playerEntity.getCapability(CoreCapabilities.PLAYER_CAPABILITY).ifPresent(cap ->
+    static ArgumentBuilder<CommandSource, ?> createSimpleFloatStat(String name,
+                                                                   Function<PlayerStatsModule, Float> getter,
+                                                                   BiConsumer<PlayerStatsModule, Float> setter) {
+        ToIntFunction<PlayerEntity> statGet = playerEntity -> {
+            MKCore.getPlayer(playerEntity).ifPresent(cap ->
                     ChatUtils.sendMessageWithBrackets(playerEntity, "%s is %f", name, getter.apply(cap.getStats())));
 
             return Command.SINGLE_SUCCESS;
         };
 
-        ToIntBiFunction<PlayerEntity, Float> setAction;
+        ToIntBiFunction<PlayerEntity, Float> statSet;
         if (setter != null) {
-            setAction = (playerEntity, value) -> {
-                playerEntity.getCapability(CoreCapabilities.PLAYER_CAPABILITY).ifPresent(cap -> {
+            statSet = (playerEntity, value) -> {
+                MKCore.getPlayer(playerEntity).ifPresent(cap -> {
                     ChatUtils.sendMessageWithBrackets(playerEntity, "Setting %s to %f", name, value);
                     setter.accept(cap.getStats(), value);
                     ChatUtils.sendMessageWithBrackets(playerEntity, "%s is now %f",
@@ -104,17 +108,17 @@ public class StatCommand {
                 return Command.SINGLE_SUCCESS;
             };
         } else {
-            setAction = (playerEntity, value) -> {
+            statSet = (playerEntity, value) -> {
                 ChatUtils.sendMessageWithBrackets(playerEntity, "Setting %s is not supported", name);
                 return Command.SINGLE_SUCCESS;
             };
         }
 
-        return createSimple(name, getAction, setAction);
+        return createSimpleGetSetIntCommand(name, statGet, statSet);
     }
 
     static ArgumentBuilder<CommandSource, ?> createAttributeStat(String name, Attribute attribute) {
-        ToIntFunction<PlayerEntity> getAction = playerEntity -> {
+        ToIntFunction<PlayerEntity> attrGet = playerEntity -> {
             ModifiableAttributeInstance instance = playerEntity.getAttribute(attribute);
             if (instance != null) {
                 ChatUtils.sendMessageWithBrackets(playerEntity, "%s is %f (%f base)", name, instance.getValue(), instance.getBaseValue());
@@ -125,7 +129,7 @@ public class StatCommand {
             return Command.SINGLE_SUCCESS;
         };
 
-        ToIntBiFunction<PlayerEntity, Float> setAction = (playerEntity, value) -> {
+        ToIntBiFunction<PlayerEntity, Float> attrSet = (playerEntity, value) -> {
             ModifiableAttributeInstance instance = playerEntity.getAttribute(attribute);
             if (instance != null) {
                 instance.setBaseValue(value);
@@ -136,32 +140,56 @@ public class StatCommand {
             return Command.SINGLE_SUCCESS;
         };
 
-        return createAttrCore(name, attribute, getAction, setAction);
+        return createAttrGetSetCommand(name, attribute, attrGet, attrSet);
     }
 
-    static ArgumentBuilder<CommandSource, ?> createSimple(String name, ToIntFunction<PlayerEntity> getterAction, ToIntBiFunction<PlayerEntity, Float> setterAction) {
+    static ArgumentBuilder<CommandSource, ?> createSimpleGetSetIntCommand(String name,
+                                                                          ToIntFunction<PlayerEntity> getterAction,
+                                                                          ToIntBiFunction<PlayerEntity, Float> setterAction) {
         return Commands.argument("player", EntityArgument.player())
                 .then(Commands.literal(name)
-                        .executes(ctx -> getterAction.applyAsInt(EntityArgument.getPlayer(ctx, "player")))
-                        .then(Commands.argument("amount", FloatArgumentType.floatArg())
-                                .requires(s -> s.hasPermissionLevel(ServerLifecycleHooks.getCurrentServer().getOpPermissionLevel()))
-                                .executes(ctx -> setterAction.applyAsInt(EntityArgument.getPlayer(ctx, "player"),
-                                        FloatArgumentType.getFloat(ctx, "amount")))));
+                        .executes(simpleGetAction(getterAction))
+                        .then(simpleSetAction(setterAction))
+                );
     }
 
-    static ArgumentBuilder<CommandSource, ?> createAttrCore(String name, Attribute attr, ToIntFunction<PlayerEntity> getterAction, ToIntBiFunction<PlayerEntity, Float> setterAction) {
+    static ArgumentBuilder<CommandSource, ?> createAttrGetSetCommand(String name, Attribute attr,
+                                                                     ToIntFunction<PlayerEntity> getterAction,
+                                                                     ToIntBiFunction<PlayerEntity, Float> setterAction) {
         return Commands.argument("player", EntityArgument.player())
                 .then(Commands.literal(name)
-                        .executes(ctx -> getterAction.applyAsInt(EntityArgument.getPlayer(ctx, "player")))
-                        .then(Commands.argument("amount", FloatArgumentType.floatArg())
-                                .requires(s -> s.hasPermissionLevel(ServerLifecycleHooks.getCurrentServer().getOpPermissionLevel()))
-                                .executes(ctx -> setterAction.applyAsInt(EntityArgument.getPlayer(ctx, "player"),
-                                        FloatArgumentType.getFloat(ctx, "amount"))))
-                        .then(Commands.literal("mod")
-                                .executes(ctx -> listModifiers(ctx, attr))
-                                .then(Commands.argument("value", FloatArgumentType.floatArg())
-                                        .then(Commands.argument("temp", BoolArgumentType.bool())
-                                                .executes(ctx -> addModifier(ctx, attr, FloatArgumentType.getFloat(ctx, "value"), BoolArgumentType.getBool(ctx, "temp")))))));
+                        .executes(simpleGetAction(getterAction))
+                        .then(simpleSetAction(setterAction))
+                        .then(createAttrModCommand(attr))
+                );
+    }
+
+    @Nonnull
+    private static Command<CommandSource> simpleGetAction(ToIntFunction<PlayerEntity> getterAction) {
+        return ctx -> getterAction.applyAsInt(EntityArgument.getPlayer(ctx, "player"));
+    }
+
+    private static RequiredArgumentBuilder<CommandSource, Float> simpleSetAction(ToIntBiFunction<PlayerEntity, Float> setterAction) {
+        return Commands.argument("amount", FloatArgumentType.floatArg())
+                .requires(StatCommand::hasOpPermission)
+                .executes(ctx -> setterAction.applyAsInt(EntityArgument.getPlayer(ctx, "player"),
+                        FloatArgumentType.getFloat(ctx, "amount")));
+    }
+
+    private static LiteralArgumentBuilder<CommandSource> createAttrModCommand(Attribute attr) {
+        return Commands.literal("mod")
+                .executes(ctx -> listModifiers(ctx, attr))
+                .then(Commands.argument("value", FloatArgumentType.floatArg())
+                        .then(Commands.argument("temp", BoolArgumentType.bool())
+                                .executes(ctx -> addModifier(ctx, attr,
+                                        FloatArgumentType.getFloat(ctx, "value"),
+                                        BoolArgumentType.getBool(ctx, "temp")))
+                        )
+                );
+    }
+
+    private static boolean hasOpPermission(CommandSource s) {
+        return s.hasPermissionLevel(ServerLifecycleHooks.getCurrentServer().getOpPermissionLevel());
     }
 
     static int listModifiers(CommandContext<CommandSource> ctx, Attribute attr) throws CommandSyntaxException {

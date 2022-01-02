@@ -104,7 +104,7 @@ public class HotBarCommand {
             PlayerAbilityKnowledge abilityKnowledge = playerData.getAbilities();
             if (abilityKnowledge.knowsAbility(abilityId)) {
                 int slot = playerData.getLoadout().getAbilityGroup(group).tryEquip(abilityId);
-                if (slot == GameConstants.ACTION_BAR_INVALID_SLOT) {
+                if (slot == -1) {
                     ChatUtils.sendMessage(player, "No room for ability");
                 }
             }

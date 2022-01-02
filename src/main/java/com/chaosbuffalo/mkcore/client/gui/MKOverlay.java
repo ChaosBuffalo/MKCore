@@ -195,7 +195,7 @@ public class MKOverlay {
                 AbstractGui.blit(matrixStack, slotX, slotY, 0, 0, ABILITY_ICON_SIZE, coolDownHeight, ABILITY_ICON_SIZE, coolDownHeight);
             }
 
-            ability.getRenderer().drawAbilityBarEffect(matrixStack, mc, slotX, slotY);
+            ability.getRenderer().drawAbilityBarEffect(data, matrixStack, mc, slotX, slotY);
         }
         RenderSystem.disableBlend();
         return startingSlot + slotCount;

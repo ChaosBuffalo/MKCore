@@ -16,10 +16,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
-import net.minecraft.util.Util;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;
@@ -120,7 +117,7 @@ public class PlayerStatsModule extends EntityStatsModule implements IPlayerSyncC
 
     public void onJoinWorld() {
 //        MKCore.LOGGER.info("PlayerStats.onJoinWorld");
-        if (getEntity().isServerWorld()) {
+        if (entityData.isServerSide()) {
             setupBaseStats();
         }
     }

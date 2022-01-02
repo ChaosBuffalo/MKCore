@@ -36,6 +36,7 @@ public class SyncGroup implements ISyncObject, ISyncNotifier {
 
     public void remove(ISyncObject syncObject) {
         components.remove(syncObject);
+        dirty.remove(syncObject);
         syncObject.setNotifier(ISyncNotifier.NONE);
     }
 

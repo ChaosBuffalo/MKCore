@@ -1,9 +1,8 @@
 package com.chaosbuffalo.mkcore.entities;
 
 import com.chaosbuffalo.mkcore.MKCore;
-import com.chaosbuffalo.mkcore.effects.SpellCast;
-import com.chaosbuffalo.mkcore.effects.SpellEffectBase;
-import com.chaosbuffalo.mkcore.effects.SpellManager;
+import com.chaosbuffalo.mkcore.core.IMKEntityData;
+import com.chaosbuffalo.mkcore.effects.*;
 import com.chaosbuffalo.targeting_api.Targeting;
 import com.chaosbuffalo.targeting_api.TargetingContext;
 import net.minecraft.entity.*;
@@ -21,6 +20,7 @@ import net.minecraftforge.fml.network.NetworkHooks;
 import net.minecraftforge.registries.ObjectHolder;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +28,7 @@ public class MKAreaEffectEntity extends AreaEffectCloudEntity implements IEntity
     @ObjectHolder(MKCore.MOD_ID + ":mk_area_effect")
     public static EntityType<MKAreaEffectEntity> TYPE;
     public boolean particlesDisabled;
+    private IMKEntityData ownerData;
 
     @Override
     public void writeSpawnData(PacketBuffer buffer) {
@@ -39,20 +40,102 @@ public class MKAreaEffectEntity extends AreaEffectCloudEntity implements IEntity
         particlesDisabled = additionalData.readBoolean();
     }
 
-    private static class EffectEntry {
-        final EffectInstance effect;
-        final TargetingContext targetContext;
-        SpellCast cast;
 
+    private abstract static class EffectEntry {
+        protected final TargetingContext targetContext;
 
-        EffectEntry(EffectInstance effect, TargetingContext targetContext) {
-            this.effect = effect;
-            this.targetContext = targetContext;
+        private EffectEntry(TargetingContext context) {
+            this.targetContext = context;
         }
 
-        EffectEntry(SpellCast cast, EffectInstance effect, TargetingContext targetContext) {
-            this(effect, targetContext);
+        abstract boolean apply(IMKEntityData entityData, IMKEntityData targetData);
+    }
+
+    class VanillaEffectEntry extends EffectEntry {
+        protected final EffectInstance effect;
+
+        VanillaEffectEntry(EffectInstance effect, TargetingContext targetContext) {
+            super(targetContext);
+            this.effect = effect;
+        }
+
+        @Override
+        boolean apply(IMKEntityData entityData, IMKEntityData targetData) {
+            LivingEntity target = targetData.getEntity();
+            boolean validTarget = Targeting.isValidTarget(targetContext, entityData.getEntity(), target);
+
+            if (!validTarget) {
+                return false;
+            }
+
+            if (effect.getPotion().isInstant()) {
+                effect.getPotion().affectEntity(MKAreaEffectEntity.this, entityData.getEntity(), target, effect.getAmplifier(), 0.5D);
+            } else {
+                target.addPotionEffect(new EffectInstance(effect));
+            }
+            return true;
+        }
+    }
+
+    class CastEffectEntry extends VanillaEffectEntry {
+        protected final SpellCast cast;
+
+        CastEffectEntry(SpellCast cast, EffectInstance effect, TargetingContext targetContext) {
+            super(effect, targetContext);
             this.cast = cast;
+        }
+
+        @Override
+        boolean apply(IMKEntityData entityData, IMKEntityData targetData) {
+
+            if (effect.getPotion() instanceof SpellEffectBase) {
+                LivingEntity target = targetData.getEntity();
+                SpellEffectBase spBase = (SpellEffectBase) effect.getPotion();
+                if (cast == null) {
+                    MKCore.LOGGER.warn("MKAreaEffect periodic cast was null! Spell: {}", spBase.getName());
+                    return false;
+                }
+                boolean validTarget = spBase.isValidTarget(targetContext, entityData.getEntity(), target);
+                if (!validTarget) {
+                    return false;
+                }
+
+                if (spBase.isInstant()) {
+
+                    // We can skip affectEntity and go directly to the effect because we
+                    // have already ensured the target is valid.
+                    spBase.doEffect(MKAreaEffectEntity.this, entityData.getEntity(), target, effect.getAmplifier(), cast);
+                } else {
+
+                    // The cast given to MKAreaEffect has no target, so we need to register
+                    SpellManager.registerTarget(cast, target);
+
+                    target.addPotionEffect(new EffectInstance(effect));
+                }
+            } else {
+                return super.apply(entityData, targetData);
+            }
+            return true;
+        }
+    }
+
+    static class MKEffectEntry extends EffectEntry {
+        protected final MKEffectInstance newEffect;
+
+        public MKEffectEntry(MKEffectInstance instance, TargetingContext targetingContext) {
+            super(targetingContext);
+            this.newEffect = instance;
+        }
+
+        @Override
+        boolean apply(IMKEntityData entityData, IMKEntityData targetData) {
+            boolean validTarget = newEffect.getEffect().isValidTarget(targetContext, entityData, targetData);
+            if (!validTarget) {
+                return false;
+            }
+
+            targetData.getEffects().addEffect(newEffect);
+            return false;
         }
     }
 
@@ -124,23 +207,27 @@ public class MKAreaEffectEntity extends AreaEffectCloudEntity implements IEntity
     }
 
     @Override
-    protected void writeAdditional(CompoundNBT compound) {
+    protected void writeAdditional(@Nonnull CompoundNBT compound) {
         super.writeAdditional(compound);
         compound.putBoolean("ParticlesDisabled", particlesDisabled);
     }
 
     @Override
-    protected void readAdditional(CompoundNBT compound) {
+    protected void readAdditional(@Nonnull CompoundNBT compound) {
         super.readAdditional(compound);
         particlesDisabled = compound.getBoolean("ParticlesDisabled");
     }
 
     public void addSpellCast(SpellCast cast, EffectInstance effect, TargetingContext targetContext) {
-        this.effects.add(new EffectEntry(cast, effect, targetContext));
+        this.effects.add(new CastEffectEntry(cast, effect, targetContext));
     }
 
     public void addEffect(EffectInstance effect, TargetingContext targetContext) {
-        this.effects.add(new EffectEntry(effect, targetContext));
+        this.effects.add(new VanillaEffectEntry(effect, targetContext));
+    }
+
+    public void addEffect(MKEffectInstance effect, TargetingContext targetContext) {
+        this.effects.add(new MKEffectEntry(effect, targetContext));
     }
 
     private boolean entityCheck(LivingEntity e) {
@@ -151,23 +238,22 @@ public class MKAreaEffectEntity extends AreaEffectCloudEntity implements IEntity
                 e.canBeHitWithPotion();
     }
 
-    private boolean checkTickModifiers() {
-        // TODO: see if there's anything we might want to do every tick (change shape, etc)
-        return false;
-    }
-
-    private boolean checkUseModifiers(LivingEntity target) {
-        // TODO: see if there's anything we might want to do every time we hit a target (change shape, etc)
-        return false;
+    @Nullable
+    private IMKEntityData getOwnerData() {
+        if (ownerData == null) {
+            ownerData = MKCore.getEntityDataOrNull(getOwner());
+        }
+        return ownerData;
     }
 
     private boolean serverUpdate() {
         if (ticksExisted >= waitTime + duration) {
             return true;
         }
-        if (getOwner() == null) {
+
+        IMKEntityData entityData = getOwnerData();
+        if (entityData == null)
             return true;
-        }
 
         boolean stillWaiting = ticksExisted < waitTime;
 
@@ -179,16 +265,12 @@ public class MKAreaEffectEntity extends AreaEffectCloudEntity implements IEntity
             return false;
         }
 
-        if (checkTickModifiers()) {
-            return true;
-        }
-
         // TODO: FUTURE: see if this can be made dynamic by inspecting the effects
         if (ticksExisted % 5 != 0) {
             return false;
         }
 
-        this.reapplicationDelayMap.entrySet().removeIf(entry -> ticksExisted >= entry.getValue());
+        reapplicationDelayMap.entrySet().removeIf(entry -> ticksExisted >= entry.getValue());
 
         if (effects.isEmpty()) {
             reapplicationDelayMap.clear();
@@ -197,13 +279,13 @@ public class MKAreaEffectEntity extends AreaEffectCloudEntity implements IEntity
 
         // Copy in case callbacks try to add more effects
         List<EffectEntry> targetEffects = new ArrayList<>(effects);
-        List<LivingEntity> potentialTargets = this.world.getEntitiesWithinAABB(LivingEntity.class,
-                this.getBoundingBox(), this::entityCheck);
+        List<LivingEntity> potentialTargets = this.world.getLoadedEntitiesWithinAABB(LivingEntity.class,
+                getBoundingBox(), this::entityCheck);
         if (potentialTargets.isEmpty()) {
             return false;
         }
 
-        float radius = this.getRadius();
+        float radius = getRadius();
         float maxRange = radius * radius;
         for (LivingEntity target : potentialTargets) {
 
@@ -215,70 +297,12 @@ public class MKAreaEffectEntity extends AreaEffectCloudEntity implements IEntity
                 continue;
             }
 
-            if (applyEffectsToTarget(targetEffects, target)) {
-                // We applied at least 1 effect to this target, so check the use callbacks
-                if (checkUseModifiers(target)) {
-                    return true;
-                }
-            }
+            reapplicationDelayMap.put(target, ticksExisted + reapplicationDelay);
+            MKCore.getEntityData(target).ifPresent(targetData -> {
+                targetEffects.forEach(entry -> entry.apply(entityData, targetData));
+            });
         }
         return false;
-    }
-
-    private boolean applyEffectsToTarget(List<EffectEntry> potions, LivingEntity target) {
-        reapplicationDelayMap.put(target, ticksExisted + reapplicationDelay);
-        boolean wasHit = false;
-
-        for (EffectEntry spellEffect : potions) {
-
-            EffectInstance instance = spellEffect.effect;
-
-            boolean validTarget;
-            SpellEffectBase spBase = instance.getPotion() instanceof SpellEffectBase ? (SpellEffectBase) instance.getPotion() : null;
-            if (spBase != null) {
-                validTarget = spBase.isValidTarget(spellEffect.targetContext, getOwner(), target);
-            } else {
-                validTarget = Targeting.isValidTarget(spellEffect.targetContext, getOwner(), target);
-            }
-
-            if (!validTarget) {
-                continue;
-            }
-
-            if (instance.getPotion().isInstant()) {
-
-                if (spBase != null) {
-
-                    SpellCast cast = spellEffect.cast;
-                    if (cast == null) {
-                        MKCore.LOGGER.warn("MKAreaEffect instant cast was null! Spell: {}", spellEffect.effect.getPotion().getName());
-                        continue;
-                    }
-
-                    // We can skip affectEntity and go directly to the effect because we
-                    // have already ensured the target is valid.
-                    spBase.doEffect(this, getOwner(), target, instance.getAmplifier(), cast);
-                } else {
-                    instance.getPotion().affectEntity(this, this.getOwner(), target, instance.getAmplifier(), 0.5D);
-                }
-            } else {
-                if (spBase != null) {
-                    SpellCast cast = spellEffect.cast;
-                    if (cast == null) {
-                        MKCore.LOGGER.warn("MKAreaEffect periodic cast was null! Spell: {}", spellEffect.effect.getPotion().getName());
-                        continue;
-                    }
-
-                    // The cast given to MKAreaEffect has no target, so we need to register
-                    SpellManager.registerTarget(cast, target);
-                }
-
-                target.addPotionEffect(new EffectInstance(instance));
-            }
-            wasHit = true;
-        }
-
-        return wasHit;
     }
 
     private void clientUpdate() {

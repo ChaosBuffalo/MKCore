@@ -14,7 +14,7 @@ import net.minecraft.util.text.TranslationTextComponent;
 
 import java.util.function.Consumer;
 
-public abstract class PassiveTalentAbility extends MKAbility {
+public abstract class PassiveTalentAbility extends MKAbility implements IMKPassiveAbility {
     public PassiveTalentAbility(ResourceLocation abilityId) {
         super(abilityId);
     }

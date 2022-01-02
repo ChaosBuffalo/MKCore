@@ -11,8 +11,6 @@ public class GameConstants {
     public static final int MAX_ITEM_ABILITIES = 1;
 
     public static final int ACTION_BAR_SIZE = MAX_BASIC_ABILITIES + MAX_ULTIMATE_ABILITIES;
-    public static final int ACTION_BAR_INVALID_COOLDOWN = -1;
-    public static final int ACTION_BAR_INVALID_SLOT = -1;
 
     public static final int TICKS_PER_SECOND = 20;
 

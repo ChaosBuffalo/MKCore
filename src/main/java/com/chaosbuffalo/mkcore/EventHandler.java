@@ -1,9 +1,11 @@
 package com.chaosbuffalo.mkcore;
 
+import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.core.MKEntityData;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.effects.PassiveTalentEffect;
 import com.chaosbuffalo.mkcore.effects.status.StunEffect;
+import com.chaosbuffalo.mkcore.effects.status.StunEffectV2;
 import com.chaosbuffalo.mkcore.entities.IUpdateEngineProvider;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -32,13 +34,11 @@ public class EventHandler {
 
     @SubscribeEvent
     public static void onEntityJoinWorld(EntityJoinWorldEvent event) {
-    }
+        if (event.getEntity().getEntityWorld().isRemote())
+            return;
 
-
-    @SubscribeEvent
-    public static void onPlayerJoinWorld(PlayerEvent.PlayerLoggedInEvent event) {
-        if (event.getEntity() instanceof PlayerEntity) {
-            MKCore.getPlayer(event.getEntity()).ifPresent(MKPlayerData::onJoinWorld);
+        if (event.getEntity() instanceof LivingEntity) {
+            MKCore.getEntityData(event.getEntity()).ifPresent(IMKEntityData::onJoinWorld);
         }
     }
 
@@ -47,20 +47,6 @@ public class EventHandler {
         MKCore.getPlayer(event.getPlayer()).ifPresent(data -> {
             data.getTalents().addTalentXp(event.getAmount());
         });
-    }
-
-    @SubscribeEvent
-    public static void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent event) {
-        if (event.getEntity() instanceof PlayerEntity) {
-            MKCore.getPlayer(event.getEntity()).ifPresent(MKPlayerData::onJoinWorld);
-        }
-    }
-
-    @SubscribeEvent
-    public static void onPlayerChangeDimension(PlayerEvent.PlayerChangedDimensionEvent event) {
-        if (event.getEntity() instanceof PlayerEntity) {
-            MKCore.getPlayer(event.getEntity()).ifPresent(MKPlayerData::onJoinWorld);
-        }
     }
 
     @SubscribeEvent
@@ -76,12 +62,13 @@ public class EventHandler {
     @SubscribeEvent
     public static void onStartTracking(PlayerEvent.StartTracking event) {
 //        MKCore.LOGGER.info("StartTracking {} {}", event.getTarget(), event.getTarget().getEntityId());
-        if (event.getTarget() instanceof ServerPlayerEntity) {
-            ServerPlayerEntity target = (ServerPlayerEntity) event.getTarget();
+        if (event.getPlayer() instanceof ServerPlayerEntity) {
+            ServerPlayerEntity playerEntity = (ServerPlayerEntity) event.getPlayer();
 
-            MKCore.getPlayer(event.getPlayer()).ifPresent(cap -> cap.fullSyncTo(target));
-        } else if (event.getTarget() instanceof IUpdateEngineProvider && event.getPlayer() instanceof ServerPlayerEntity) {
-            ((IUpdateEngineProvider) event.getTarget()).getUpdateEngine().sendAll((ServerPlayerEntity) event.getPlayer());
+            MKCore.getEntityData(event.getTarget()).ifPresent(targetData -> targetData.onPlayerStartTracking(playerEntity));
+            if (event.getTarget() instanceof IUpdateEngineProvider) {
+                ((IUpdateEngineProvider) event.getTarget()).getUpdateEngine().sendAll(playerEntity);
+            }
         }
     }
 
@@ -101,10 +88,12 @@ public class EventHandler {
 
     @SubscribeEvent
     public static void onEntityJump(LivingEvent.LivingJumpEvent event) {
-        MKCore.getEntityData(event.getEntity()).ifPresent(entityData ->
-                entityData.getAbilityExecutor().interruptCast());
-        if (event.getEntityLiving().isPotionActive(StunEffect.INSTANCE)) {
-            event.getEntity().setMotion(0, 0, 0);
-        }
+        MKCore.getEntityData(event.getEntity()).ifPresent(entityData -> {
+            entityData.getAbilityExecutor().interruptCast();
+            if (entityData.getEntity().isPotionActive(StunEffect.INSTANCE) ||
+                    entityData.getEffects().isEffectActive(StunEffectV2.INSTANCE)) {
+                event.getEntity().setMotion(0, 0, 0);
+            }
+        });
     }
 }

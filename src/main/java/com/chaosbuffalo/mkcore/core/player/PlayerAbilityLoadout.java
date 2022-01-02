@@ -9,14 +9,14 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nonnull;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 
 public class PlayerAbilityLoadout implements IPlayerSyncComponentProvider {
 
     private final SyncComponent sync = new SyncComponent("loadout");
 
-    private final Map<AbilityGroupId, AbilityGroup> abilityGroups = new HashMap<>();
+    private final Map<AbilityGroupId, AbilityGroup> abilityGroups = new EnumMap<>(AbilityGroupId.class);
     private final PassiveAbilityGroup passiveAbilityGroup;
     private final UltimateAbilityGroup ultimateAbilityGroup;
     private final BasicAbilityGroup basicAbilityGroup;

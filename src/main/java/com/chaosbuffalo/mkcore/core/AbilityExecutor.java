@@ -2,10 +2,7 @@ package com.chaosbuffalo.mkcore.core;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
-import com.chaosbuffalo.mkcore.abilities.AbilityContext;
-import com.chaosbuffalo.mkcore.abilities.MKAbility;
-import com.chaosbuffalo.mkcore.abilities.MKAbilityInfo;
-import com.chaosbuffalo.mkcore.abilities.MKToggleAbility;
+import com.chaosbuffalo.mkcore.abilities.*;
 import com.chaosbuffalo.mkcore.client.sound.MovingSoundCasting;
 import com.chaosbuffalo.mkcore.effects.PassiveEffect;
 import com.chaosbuffalo.mkcore.effects.SpellCast;
@@ -25,7 +22,7 @@ import java.util.function.Consumer;
 public class AbilityExecutor {
     protected final IMKEntityData entityData;
     private EntityCastingState currentCast;
-    private final Map<ResourceLocation, MKToggleAbility> activeToggleMap = new HashMap<>();
+    private final Map<ResourceLocation, MKToggleAbilityBase> activeToggleMap = new HashMap<>();
     private Consumer<MKAbility> startCastCallback;
     private Consumer<MKAbility> completeAbilityCallback;
     private Consumer<MKAbility> interruptCastCallback;
@@ -97,7 +94,7 @@ public class AbilityExecutor {
     }
 
     public void onJoinWorld() {
-        if (!entityData.getEntity().getEntityWorld().isRemote) {
+        if (entityData.isServerSide()) {
             checkPassiveEffects();
         }
     }
@@ -134,9 +131,7 @@ public class AbilityExecutor {
     private void startCast(AbilityContext context, MKAbilityInfo abilityInfo, int castTime) {
         MKCore.LOGGER.debug("startCast {} {}", abilityInfo.getId(), castTime);
         currentCast = createServerCastingState(context, abilityInfo, castTime);
-        if (startCastCallback != null) {
-            startCastCallback.accept(abilityInfo.getAbility());
-        }
+        currentCast.begin();
         PacketHandler.sendToTrackingAndSelf(EntityCastPacket.start(entityData, abilityInfo.getId(), castTime), entityData.getEntity());
     }
 
@@ -145,9 +140,7 @@ public class AbilityExecutor {
         MKAbility ability = MKCoreRegistry.getAbility(abilityId);
         if (ability != null) {
             currentCast = createClientCastingState(ability, castTicks);
-            if (startCastCallback != null) {
-                startCastCallback.accept(ability);
-            }
+            currentCast.begin();
             if (castTicks <= 0) {
                 currentCast.finish();
             }
@@ -167,10 +160,6 @@ public class AbilityExecutor {
             }
             clearCastingAbility();
         }
-    }
-
-    protected void onAbilityInterrupted(MKAbility ability, int ticks) {
-//        MKCore.LOGGER.info("onAbilityInterrupted {} {}", ability, ticks);
     }
 
     private void updateCurrentCast() {
@@ -224,7 +213,7 @@ public class AbilityExecutor {
         updateToggleAbility(ability);
     }
 
-    public ServerCastingState createServerCastingState(AbilityContext context, MKAbilityInfo abilityInfo, int castTime) {
+    protected ServerCastingState createServerCastingState(AbilityContext context, MKAbilityInfo abilityInfo, int castTime) {
         return new ServerCastingState(context, this, abilityInfo, castTime);
     }
 
@@ -239,7 +228,6 @@ public class AbilityExecutor {
     static abstract class EntityCastingState {
         protected final MKAbility ability;
         protected final AbilityExecutor executor;
-        protected boolean started = false;
         protected int castTicks;
 
         public EntityCastingState(AbilityExecutor executor, MKAbility ability, int castTicks) {
@@ -264,11 +252,6 @@ public class AbilityExecutor {
             if (castTicks <= 0)
                 return false;
 
-            if (!started) {
-                begin();
-                started = true;
-            }
-
             activeTick();
             castTicks--;
             boolean active = castTicks > 0;
@@ -279,7 +262,9 @@ public class AbilityExecutor {
         }
 
         void begin() {
-
+            if (executor.startCastCallback != null) {
+                executor.startCastCallback.accept(ability);
+            }
         }
 
         abstract void activeTick();
@@ -287,7 +272,6 @@ public class AbilityExecutor {
         public abstract void finish();
 
         void interrupt() {
-            executor.onAbilityInterrupted(ability, castTicks);
         }
     }
 
@@ -339,6 +323,7 @@ public class AbilityExecutor {
 
         @Override
         void begin() {
+            super.begin();
             SoundEvent event = ability.getCastingSoundEvent();
             if (event != null) {
                 sound = new MovingSoundCasting(executor.entityData.getEntity(), event, castTicks);
@@ -368,16 +353,16 @@ public class AbilityExecutor {
     }
 
     private void updateToggleAbility(MKAbility ability) {
-        if (!(ability instanceof MKToggleAbility)) {
+        if (!(ability instanceof MKToggleAbilityBase)) {
             return;
         }
-        MKToggleAbility toggle = (MKToggleAbility) ability;
+        MKToggleAbilityBase toggle = (MKToggleAbilityBase) ability;
 
         LivingEntity entity = entityData.getEntity();
         MKAbilityInfo info = entityData.getKnowledge().getAbilityKnowledge().getKnownAbility(ability.getAbilityId());
         if (info != null) {
             // If this is a toggle ability we must re-apply the effect to make sure it's working at the proper rank
-            if (entity.isPotionActive(toggle.getToggleEffect())) {
+            if (toggle.isEffectActive(entityData)) {
                 toggle.removeEffect(entity, entityData);
                 toggle.applyEffect(entity, entityData);
             }
@@ -391,8 +376,8 @@ public class AbilityExecutor {
         activeToggleMap.remove(groupId);
     }
 
-    public void setToggleGroupAbility(ResourceLocation groupId, MKToggleAbility ability) {
-        MKToggleAbility current = activeToggleMap.get(ability.getToggleGroupId());
+    public void setToggleGroupAbility(ResourceLocation groupId, MKToggleAbilityBase ability) {
+        MKToggleAbilityBase current = activeToggleMap.get(ability.getToggleGroupId());
         // This can also be called when rebuilding the activeToggleMap after transferring dimensions and in that case
         // ability will be the same as current
         if (current != null && current != ability) {

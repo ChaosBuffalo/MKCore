@@ -1,4 +1,4 @@
-package com.chaosbuffalo.mkcore.core.stats;
+package com.chaosbuffalo.mkcore.utils;
 
 import java.util.ArrayList;
 import java.util.Collections;

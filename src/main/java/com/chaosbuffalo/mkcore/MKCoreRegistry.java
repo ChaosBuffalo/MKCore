@@ -4,6 +4,7 @@ import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.core.damage.MKDamageType;
 import com.chaosbuffalo.mkcore.core.entitlements.MKEntitlement;
 import com.chaosbuffalo.mkcore.core.talents.MKTalent;
+import com.chaosbuffalo.mkcore.effects.MKEffect;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -20,6 +21,7 @@ public class MKCoreRegistry {
     public static final ResourceLocation INVALID_ENTITLEMENT = new ResourceLocation(MKCore.MOD_ID, "entitlement.invalid");
     public static IForgeRegistry<MKAbility> ABILITIES = null;
     public static IForgeRegistry<MKDamageType> DAMAGE_TYPES = null;
+    public static IForgeRegistry<MKEffect> EFFECTS = null;
     public static IForgeRegistry<MKTalent> TALENTS = null;
     public static IForgeRegistry<MKEntitlement> ENTITLEMENTS = null;
 
@@ -43,12 +45,14 @@ public class MKCoreRegistry {
         ABILITIES = new RegistryBuilder<MKAbility>()
                 .setName(MKCore.makeRL("abilities"))
                 .setType(MKAbility.class)
-                .setIDRange(0, Integer.MAX_VALUE - 1)
                 .create();
         DAMAGE_TYPES = new RegistryBuilder<MKDamageType>()
                 .setName(MKCore.makeRL("aaa_damage_types"))
                 .setType(MKDamageType.class)
-                .setIDRange(0, Integer.MAX_VALUE - 1)
+                .create();
+        EFFECTS = new RegistryBuilder<MKEffect>()
+                .setName(MKCore.makeRL("effects"))
+                .setType(MKEffect.class)
                 .create();
         TALENTS = new RegistryBuilder<MKTalent>()
                 .setName(MKCore.makeRL("talents"))

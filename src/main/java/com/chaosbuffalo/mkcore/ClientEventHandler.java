@@ -6,8 +6,10 @@ import com.chaosbuffalo.mkcore.client.gui.IPlayerDataAwareScreen;
 import com.chaosbuffalo.mkcore.client.gui.ParticleEditorScreen;
 import com.chaosbuffalo.mkcore.core.AbilityGroupId;
 import com.chaosbuffalo.mkcore.core.MKAttributes;
+import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.MKRangedAttribute;
 import com.chaosbuffalo.mkcore.effects.status.StunEffect;
+import com.chaosbuffalo.mkcore.effects.status.StunEffectV2;
 import com.chaosbuffalo.mkcore.events.PlayerDataEvent;
 import com.chaosbuffalo.mkcore.events.PostAttackEvent;
 import com.chaosbuffalo.mkcore.item.ArmorClass;
@@ -126,35 +128,41 @@ public class ClientEventHandler {
     @SubscribeEvent
     public static void onRawMouseEvent(InputEvent.RawMouseEvent event) {
         Minecraft minecraft = Minecraft.getInstance();
-        if (minecraft.player != null &&
-                minecraft.player.isPotionActive(StunEffect.INSTANCE) &&
-                minecraft.currentScreen == null) {
-            event.setCanceled(true);
-        }
-    }
-
-    static void handleAbilityBarPressed(PlayerEntity player, AbilityGroupId group, int slot) {
-        if (isOnGlobalCooldown() || player.isPotionActive(StunEffect.INSTANCE))
-            return;
-
-        MKCore.getPlayer(player).ifPresent(pData -> {
-            ResourceLocation abilityId = pData.getLoadout().getAbilityInSlot(group, slot);
-            if (abilityId.equals(MKCoreRegistry.INVALID_ABILITY))
-                return;
-
-            MKAbility ability = MKCoreRegistry.getAbility(abilityId);
-
-            if (ability != null && pData.getAbilityExecutor().clientSimulateAbility(ability, group)) {
-                MKCore.LOGGER.info("sending execute ability {} {}", group, slot);
-                PacketHandler.sendMessageToServer(new ExecuteActiveAbilityPacket(group, slot));
-                startGlobalCooldown();
+        MKCore.getEntityData(minecraft.player).ifPresent(playerData -> {
+            if ((playerData.getEntity().isPotionActive(StunEffect.INSTANCE) ||
+                    playerData.getEffects().isEffectActive(StunEffectV2.INSTANCE)) &&
+                    minecraft.currentScreen == null) {
+                event.setCanceled(true);
             }
         });
+    }
+
+    static void handleAbilityBarPressed(MKPlayerData player, AbilityGroupId group, int slot) {
+        if (isOnGlobalCooldown() ||
+                player.getEntity().isPotionActive(StunEffect.INSTANCE) ||
+                player.getEffects().isEffectActive(StunEffectV2.INSTANCE))
+            return;
+
+        ResourceLocation abilityId = player.getLoadout().getAbilityInSlot(group, slot);
+        if (abilityId.equals(MKCoreRegistry.INVALID_ABILITY))
+            return;
+
+        MKAbility ability = MKCoreRegistry.getAbility(abilityId);
+
+        if (ability != null && player.getAbilityExecutor().clientSimulateAbility(ability, group)) {
+            MKCore.LOGGER.debug("sending execute ability {} {}", group, slot);
+            PacketHandler.sendMessageToServer(new ExecuteActiveAbilityPacket(group, slot));
+            startGlobalCooldown();
+        }
     }
 
     public static void handleInputEvent() {
         PlayerEntity player = Minecraft.getInstance().player;
         if (player == null)
+            return;
+
+        MKPlayerData playerData = MKCore.getPlayerOrNull(player);
+        if (playerData == null)
             return;
 
         while (playerMenuBind.isPressed()) {
@@ -168,19 +176,19 @@ public class ClientEventHandler {
         for (int i = 0; i < activeAbilityBinds.length; i++) {
             KeyBinding bind = activeAbilityBinds[i];
             while (bind.isPressed()) {
-                handleAbilityBarPressed(player, AbilityGroupId.Basic, i);
+                handleAbilityBarPressed(playerData, AbilityGroupId.Basic, i);
             }
         }
 
         for (int i = 0; i < ultimateAbilityBinds.length; i++) {
             KeyBinding bind = ultimateAbilityBinds[i];
             while (bind.isPressed()) {
-                handleAbilityBarPressed(player, AbilityGroupId.Ultimate, i);
+                handleAbilityBarPressed(playerData, AbilityGroupId.Ultimate, i);
             }
         }
 
         while (itemAbilityBind.isPressed()) {
-            handleAbilityBarPressed(player, AbilityGroupId.Item, 0);
+            handleAbilityBarPressed(playerData, AbilityGroupId.Item, 0);
         }
     }
 
@@ -263,12 +271,10 @@ public class ClientEventHandler {
             if (MKConfig.CLIENT.showArmorClassEffectsOnTooltip.get()) {
                 List<ITextComponent> tooltip = event.getToolTip();
                 if (Screen.hasShiftDown()) {
-                    armorClass.getPositiveModifierMap(armorItem.getEquipmentSlot()).forEach(((attribute, modifier) -> {
-                        addAttributeToTooltip(tooltip, attribute, modifier, TextFormatting.GREEN);
-                    }));
-                    armorClass.getNegativeModifierMap(armorItem.getEquipmentSlot()).forEach(((attribute, modifier) -> {
-                        addAttributeToTooltip(tooltip, attribute, modifier, TextFormatting.RED);
-                    }));
+                    armorClass.getPositiveModifierMap(armorItem.getEquipmentSlot())
+                            .forEach(((attribute, modifier) -> addAttributeToTooltip(tooltip, attribute, modifier, TextFormatting.GREEN)));
+                    armorClass.getNegativeModifierMap(armorItem.getEquipmentSlot())
+                            .forEach(((attribute, modifier) -> addAttributeToTooltip(tooltip, attribute, modifier, TextFormatting.RED)));
                 } else {
                     tooltip.add(new TranslationTextComponent("mkcore.gui.item.armor_class.effect_prompt"));
                 }
