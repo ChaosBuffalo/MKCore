@@ -1,5 +1,6 @@
 package com.chaosbuffalo.mkcore.effects;
 
+import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.google.common.reflect.TypeToken;
 import com.mojang.blaze3d.matrix.MatrixStack;
@@ -153,6 +154,10 @@ public class MKActiveEffect {
 
         MKActiveEffect active = effect.createInstance(sourceId);
         active.deserializeState(tag);
+        if (!active.getState().validateOnLoad(active)) {
+            MKCore.LOGGER.warn("Effect {} failed load validation", active);
+            return null;
+        }
         return active;
     }
 

@@ -41,6 +41,13 @@ public abstract class MKEffectState {
         return findEntity(entity, entityId, targetData.getEntity().getEntityWorld());
     }
 
+    public boolean validateOnApply(IMKEntityData targetData, MKActiveEffect activeEffect) {
+        return true;
+    }
+
+    public boolean validateOnLoad(MKActiveEffect activeEffect) {
+        return true;
+    }
 
     public void serializeStorage(CompoundNBT stateTag) {
 

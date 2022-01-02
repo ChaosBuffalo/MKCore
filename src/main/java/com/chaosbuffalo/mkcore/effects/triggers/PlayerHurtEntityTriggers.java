@@ -110,26 +110,12 @@ public class PlayerHurtEntityTriggers extends SpellTriggers.TriggerCollectionBas
             newDamage = source.getMKDamageType().applyCritDamage(playerSource, livingTarget, immediate, event.getAmount());
             switch (source.getOrigination()) {
                 case MK_ABILITY:
-                    MKAbility ability = MKCoreRegistry.getAbility(source.getAbilityId());
-                    ResourceLocation abilityName;
-                    if (ability != null) {
-                        abilityName = ability.getRegistryName();
-                    } else {
-                        abilityName = MKCoreRegistry.INVALID_ABILITY;
-                    }
-                    sendCritPacket(livingTarget, playerSource,
-                            new CritMessagePacket(livingTarget.getEntityId(), playerSource.getUniqueID(), newDamage,
-                                    abilityName, source.getMKDamageType()));
+                    sendAbilityCrit(livingTarget, playerSource, source, newDamage);
                     break;
                 case DAMAGE_TYPE:
-                    sendCritPacket(livingTarget, playerSource,
-                            new CritMessagePacket(livingTarget.getEntityId(), playerSource.getUniqueID(), newDamage,
-                                    source.getMKDamageType(), source.getDamageTypeName()));
+                    sendEffectCrit(livingTarget, playerSource, source, newDamage);
                     break;
-
             }
-
-
         }
         event.setAmount(newDamage);
 
@@ -137,6 +123,33 @@ public class PlayerHurtEntityTriggers extends SpellTriggers.TriggerCollectionBas
             return;
         playerHurtTriggers.forEach(f -> f.apply(event, source, livingTarget, playerSource, sourceData));
         endTrigger(playerSource, typeTag);
+    }
+
+    private void sendEffectCrit(LivingEntity livingTarget, ServerPlayerEntity playerSource, MKDamageSource source,
+                                float newDamage) {
+        if (source instanceof MKDamageSource.EffectDamage) {
+            MKDamageSource.EffectDamage effectDamage = (MKDamageSource.EffectDamage) source;
+            sendCritPacket(livingTarget, playerSource,
+                    new CritMessagePacket(livingTarget.getEntityId(), playerSource.getUniqueID(), newDamage,
+                            source.getMKDamageType(), effectDamage.getDamageTypeName()));
+        }
+    }
+
+    private void sendAbilityCrit(LivingEntity livingTarget, ServerPlayerEntity playerSource, MKDamageSource source,
+                                 float newDamage) {
+        if (source instanceof MKDamageSource.AbilityDamage) {
+            MKDamageSource.AbilityDamage abilityDamage = (MKDamageSource.AbilityDamage) source;
+            MKAbility ability = MKCoreRegistry.getAbility(abilityDamage.getAbilityId());
+            ResourceLocation abilityName;
+            if (ability != null) {
+                abilityName = ability.getRegistryName();
+            } else {
+                abilityName = MKCoreRegistry.INVALID_ABILITY;
+            }
+            sendCritPacket(livingTarget, playerSource,
+                    new CritMessagePacket(livingTarget.getEntityId(), playerSource.getUniqueID(), newDamage,
+                            abilityName, source.getMKDamageType()));
+        }
     }
 
     private void handleProjectile(LivingHurtEvent event, DamageSource source, LivingEntity livingTarget,

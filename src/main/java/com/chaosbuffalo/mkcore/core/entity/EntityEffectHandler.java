@@ -71,6 +71,10 @@ public class EntityEffectHandler {
         }
 
         public void addEffect(MKActiveEffect activeEffect) {
+            if (!activeEffect.getState().validateOnApply(entityData, activeEffect)) {
+                MKCore.LOGGER.warn("Effect {} failed apply validation", activeEffect);
+                return;
+            }
             if (activeEffect.getBehaviour().isTimed()) {
                 MKCore.LOGGER.debug("EntityEffectHandler.addEffect timed {} to {}", activeEffect, entityData.getEntity());
                 MKActiveEffect existing = activeEffectMap.get(activeEffect.getEffect());
