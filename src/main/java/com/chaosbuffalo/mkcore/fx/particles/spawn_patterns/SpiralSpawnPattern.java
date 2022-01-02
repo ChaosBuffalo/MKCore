@@ -40,21 +40,21 @@ public class SpiralSpawnPattern extends ParticleSpawnPattern {
 
     @Override
     public ParticleSpawnPattern copy() {
-        return new SpiralSpawnPattern(count.getValue(),
+        return new SpiralSpawnPattern(count.value(),
                 new Vector3d(xRadius.getValue(), yRadius.getValue(), zRadius.getValue()),
-                speed.getValue(), layers.getValue(), layerHeight.getValue(), fullRotations.getValue());
+                speed.getValue(), layers.value(), layerHeight.getValue(), fullRotations.value());
     }
 
     @Override
     public Tuple<Vector3d, Vector3d> getParticleStart(Vector3d position, int particleNumber, @Nullable List<Vector3d> additionalLocs, World world) {
-        int perLayer = count.getValue() / layers.getValue();
+        int perLayer = count.value() / layers.value();
         int currentLayer = particleNumber / perLayer;
         int inLayer = particleNumber % perLayer;
-        int rots = fullRotations.getValue();
+        int rots = fullRotations.value();
         if (rots == 0){
             rots = 1;
         }
-        int inRot = count.getValue() / rots;
+        int inRot = count.value() / rots;
         float heightRatio = (float)(inLayer) / perLayer;
         double height = currentLayer * layerHeight.getValue() + (heightRatio * layerHeight.getValue());
         double degrees = (360.0 / inRot) * particleNumber;

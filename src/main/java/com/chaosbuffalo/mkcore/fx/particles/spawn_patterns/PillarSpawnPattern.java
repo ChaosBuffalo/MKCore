@@ -38,14 +38,14 @@ public class PillarSpawnPattern extends ParticleSpawnPattern {
 
     @Override
     public ParticleSpawnPattern copy() {
-        return new PillarSpawnPattern(count.getValue(),
+        return new PillarSpawnPattern(count.value(),
                 new Vector3d(xRadius.getValue(), yRadius.getValue(), zRadius.getValue()),
-                speed.getValue(), layers.getValue(), layerHeight.getValue());
+                speed.getValue(), layers.value(), layerHeight.getValue());
     }
 
     @Override
     public Tuple<Vector3d, Vector3d> getParticleStart(Vector3d position, int particleNumber, @Nullable List<Vector3d> additionalLocs, World world) {
-        int perLayer = count.getValue() / layers.getValue();
+        int perLayer = count.value() / layers.value();
         int currentLayer = particleNumber / perLayer;
         int inLayer = particleNumber % perLayer;
         double height = currentLayer * layerHeight.getValue();

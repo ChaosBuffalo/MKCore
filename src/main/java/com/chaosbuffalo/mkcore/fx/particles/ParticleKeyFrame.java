@@ -45,11 +45,11 @@ public class ParticleKeyFrame implements ISerializableAttributeContainer {
         tickStart.setValueSetCallback(this::onSetStartOrDuration);
         duration.setValueSetCallback(this::onSetStartOrDuration);
         addAttributes(tickStart, duration);
-        tickEnd = tickStart.getValue() + duration.getValue();
+        tickEnd = tickStart.value() + duration.value();
     }
 
     private void onSetStartOrDuration(ISerializableAttribute<Integer> attribute) {
-        tickEnd = tickStart.getValue() + duration.getValue();
+        tickEnd = tickStart.value() + duration.value();
     }
 
     public ParticleKeyFrame withColor(float red, float green, float blue){
@@ -81,7 +81,7 @@ public class ParticleKeyFrame implements ISerializableAttributeContainer {
     }
 
     public ParticleKeyFrame copy(){
-        ParticleKeyFrame copy = new ParticleKeyFrame(tickStart.getValue(), duration.getValue());
+        ParticleKeyFrame copy = new ParticleKeyFrame(tickStart.value(), duration.value());
         if (hasColorTrack()){
             copy.setColorTrack(colorTrack.copy());
         }
@@ -161,7 +161,7 @@ public class ParticleKeyFrame implements ISerializableAttributeContainer {
     }
 
     public int getTickStart() {
-        return tickStart.getValue();
+        return tickStart.value();
     }
 
     public ParticleRenderScaleAnimationTrack getScaleTrack() {
@@ -173,11 +173,11 @@ public class ParticleKeyFrame implements ISerializableAttributeContainer {
     }
 
     public int getDuration() {
-        return duration.getValue();
+        return duration.value();
     }
 
     public float getInterpolationTime(int currentTick, float partialTicks){
-        return MathUtils.clamp(((float) (currentTick - tickStart.getValue()) + partialTicks) / getDuration(), 0.0f, 1.0f);
+        return MathUtils.clamp(((float) (currentTick - tickStart.value()) + partialTicks) / getDuration(), 0.0f, 1.0f);
     }
 
     public void setColorTrack(ParticleColorAnimationTrack color){
@@ -248,35 +248,35 @@ public class ParticleKeyFrame implements ISerializableAttributeContainer {
     public void animate(MKParticle particle, int currentTick, float partialTicks){
         float t = getInterpolationTime(currentTick, partialTicks);
         if (hasColorTrack()){
-            getColorTrack().animate(particle, t, currentTick - tickStart.getValue(), getDuration(), partialTicks);
+            getColorTrack().animate(particle, t, currentTick - tickStart.value(), getDuration(), partialTicks);
         }
         if (hasScaleTrack()){
-            getScaleTrack().animate(particle, t, currentTick - tickStart.getValue(), getDuration(), partialTicks);
+            getScaleTrack().animate(particle, t, currentTick - tickStart.value(), getDuration(), partialTicks);
         }
         if (hasMotionTrack()){
-            getMotionTrack().animate(particle, t, currentTick - tickStart.getValue(), getDuration(), partialTicks);
+            getMotionTrack().animate(particle, t, currentTick - tickStart.value(), getDuration(), partialTicks);
         }
     }
 
     public void update(MKParticle particle, int currentTick){
         float time = getInterpolationTime(currentTick, 0.0f);
         if (hasMotionTrack()){
-            getMotionTrack().update(particle, currentTick - tickStart.getValue(), time);
+            getMotionTrack().update(particle, currentTick - tickStart.value(), time);
         }
         if (hasColorTrack()){
-            getColorTrack().update(particle, currentTick - tickStart.getValue(), time);
+            getColorTrack().update(particle, currentTick - tickStart.value(), time);
         }
         if (hasScaleTrack()){
-            getScaleTrack().update(particle, currentTick - tickStart.getValue(), time);
+            getScaleTrack().update(particle, currentTick - tickStart.value(), time);
         }
     }
 
     @Override
     public String toString() {
         return "ParticleKeyFrame{" +
-                "tickStart=" + tickStart.getValue() +
+                "tickStart=" + tickStart.valueAsString() +
                 ", tickEnd=" + tickEnd +
-                ", duration=" + duration.getValue() +
+                ", duration=" + duration.valueAsString() +
                 '}';
     }
 

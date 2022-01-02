@@ -37,19 +37,19 @@ public class SphereSpawnPattern extends ParticleSpawnPattern {
 
     @Override
     public ParticleSpawnPattern copy() {
-        return new SphereSpawnPattern(count.getValue(),
+        return new SphereSpawnPattern(count.value(),
                 new Vector3d(xRadius.getValue(), yRadius.getValue(), zRadius.getValue()),
                 speed.getValue(),
-                layers.getValue());
+                layers.value());
     }
 
     @Override
     public Tuple<Vector3d, Vector3d> getParticleStart(Vector3d position, int particleNumber, @Nullable List<Vector3d> additionalLocs, World world) {
-        int perLayer = count.getValue() / layers.getValue();
-        particleNumber = particleNumber % (perLayer * layers.getValue());
+        int perLayer = count.value() / layers.value();
+        particleNumber = particleNumber % (perLayer * layers.value());
         int currentLayer = particleNumber / perLayer;
         int realNum = particleNumber % perLayer;
-        double ratio = (double) (currentLayer + 1) / (double) (layers.getValue() + 2);
+        double ratio = (double) (currentLayer + 1) / (double) (layers.value() + 2);
         double scaledRatio = 2.0 * (ratio - 0.5);
         double realDegrees = (360.0 / perLayer) * realNum;
         double inverseScale = 1.0 - Math.pow(scaledRatio, 2.0);

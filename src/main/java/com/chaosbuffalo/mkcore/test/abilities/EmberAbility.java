@@ -49,7 +49,7 @@ public class EmberAbility extends MKAbility {
     @Override
     protected ITextComponent getAbilityDescription(IMKEntityData entityData) {
         ITextComponent damageStr = getDamageDescription(entityData, CoreDamageTypes.FireDamage, damage.getValue(), 0.0f, 0, 1.0f);
-        ITextComponent burn = new StringTextComponent(burnTime.getValue().toString()).mergeStyle(TextFormatting.UNDERLINE);
+        ITextComponent burn = new StringTextComponent(burnTime.valueAsString()).mergeStyle(TextFormatting.UNDERLINE);
         return new TranslationTextComponent(getDescriptionTranslationKey(), damageStr, burn);
     }
 
@@ -77,7 +77,7 @@ public class EmberAbility extends MKAbility {
     public void endCast(LivingEntity entity, IMKEntityData data, AbilityContext context) {
         super.endCast(entity, data, context);
         context.getMemory(MKAbilityMemories.ABILITY_TARGET).ifPresent(targetEntity -> {
-            int burnDuration = burnTime.getValue();
+            int burnDuration = burnTime.value();
             float amount = damage.getValue();
             MKCore.LOGGER.info("Ember damage {} burnTime {}", amount, burnDuration);
             targetEntity.setFire(burnDuration);

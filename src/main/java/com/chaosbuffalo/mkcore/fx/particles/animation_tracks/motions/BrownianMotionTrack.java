@@ -2,7 +2,6 @@ package com.chaosbuffalo.mkcore.fx.particles.animation_tracks.motions;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.fx.particles.MKParticle;
-import com.chaosbuffalo.mkcore.fx.particles.animation_tracks.ParticleAnimationTrack;
 import com.chaosbuffalo.mkcore.fx.particles.animation_tracks.ParticleMotionAnimationTrack;
 import com.chaosbuffalo.mkcore.serialization.attributes.BooleanAttribute;
 import com.chaosbuffalo.mkcore.serialization.attributes.FloatAttribute;
@@ -55,7 +54,7 @@ public class BrownianMotionTrack extends ParticleMotionAnimationTrack {
 
     @Override
     public BrownianMotionTrack copy() {
-        BrownianMotionTrack copy = new BrownianMotionTrack(tickInterval.getValue(), magnitude.getValue()).withGravity(doGravity.getValue());
+        BrownianMotionTrack copy = new BrownianMotionTrack(tickInterval.value(), magnitude.getValue()).withGravity(doGravity.getValue());
         if (!doX.getValue()){
             copy.disableX();
         }
@@ -70,16 +69,16 @@ public class BrownianMotionTrack extends ParticleMotionAnimationTrack {
 
     @Override
     public void update(MKParticle particle, int tick, float time) {
-        if (tick % tickInterval.getValue() == 0){
+        if (tick % tickInterval.value() == 0){
             double motionX = doX.getValue() ? generateVariance(particle) * magnitude.getValue() : particle.getMotionX();
             double motionY = doY.getValue() ? generateVariance(particle) * magnitude.getValue() : particle.getMotionY();
             double motionZ = doZ.getValue() ? generateVariance(particle) * magnitude.getValue() : particle.getMotionZ();
             if (doGravity.getValue()){
-                motionY += particle.getParticleGravity() * tickInterval.getValue();
+                motionY += particle.getParticleGravity() * tickInterval.value();
             }
             particle.setTrackVector3dData(VARIANCE_VECTOR, new Vector3d(motionX, motionY, motionZ));
         }
-        float tickTime = Math.min(1.0f, ((tick % tickInterval.getValue()) + 1.0f) / tickInterval.getValue());
+        float tickTime = Math.min(1.0f, ((tick % tickInterval.value()) + 1.0f) / tickInterval.value());
         Vector3d goalVec = particle.getTrackVector3dData(VARIANCE_VECTOR);
         particle.setMotion(
                 MathUtils.lerpDouble(particle.getMotionX(), goalVec.x, tickTime),

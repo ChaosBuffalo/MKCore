@@ -90,7 +90,7 @@ public abstract class ParticleSpawnPattern implements ISerializableAttributeCont
     public void spawn(ParticleType<MKParticleData> particleType,
                       Vector3d position, World world, ParticleAnimation anim, @Nullable List<Vector3d> additionalLocs){
         MKParticleData particleData = new MKParticleData(particleType, position, anim);
-        for (int i = 0; i < count.getValue(); i++) {
+        for (int i = 0; i < count.value(); i++) {
             Tuple<Vector3d, Vector3d> posAndMotion = getParticleStart(position, i, additionalLocs, world);
             Vector3d pos = posAndMotion.getA();
             Vector3d mot = posAndMotion.getB();
@@ -104,7 +104,7 @@ public abstract class ParticleSpawnPattern implements ISerializableAttributeCont
                                       ParticleAnimation anim, Entity entity, List<Vector3d> additionalLocs){
         MKParticleData particleData = new MKParticleData(particleType, offset, anim, entity.getEntityId());
         Vector3d position = offset.add(entity.getPositionVec());
-        for (int i = 0; i < count.getValue(); i++) {
+        for (int i = 0; i < count.value(); i++) {
             Tuple<Vector3d, Vector3d> posAndMotion = getParticleStart(position, i, additionalLocs, world);
             Vector3d pos = posAndMotion.getA();
             Vector3d mot = posAndMotion.getB();

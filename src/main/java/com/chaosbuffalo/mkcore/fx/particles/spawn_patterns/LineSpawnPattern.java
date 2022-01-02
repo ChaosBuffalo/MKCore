@@ -71,7 +71,7 @@ public class LineSpawnPattern extends ParticleSpawnPattern{
         Vector3d endPoint = getEndpoint(position, additionalLocs);
         double distance = endPoint.distanceTo(position);
         Vector3d direction = endPoint.subtract(position).normalize();
-        long particleCount = Math.round(distance * count.getValue());
+        long particleCount = Math.round(distance * count.value());
         Vector3d lineData = new Vector3d(distance, distance / particleCount, 0);
         spawnData.add(direction);
         spawnData.add(lineData);
@@ -82,7 +82,7 @@ public class LineSpawnPattern extends ParticleSpawnPattern{
     public void spawn(ParticleType<MKParticleData> particleType, Vector3d position, World world, ParticleAnimation anim, @Nullable List<Vector3d> additionalLocs) {
         Tuple<List<Vector3d>, Double> spawnData = getSpawnData(position, additionalLocs);
 
-        long particleCount = Math.round(spawnData.getB() * count.getValue());
+        long particleCount = Math.round(spawnData.getB() * count.value());
         MKParticleData particleData = new MKParticleData(particleType, position, anim);
         for (int i = 0; i < particleCount; i++) {
             Tuple<Vector3d, Vector3d> posAndMotion = getParticleStart(position, i, spawnData.getA(), world);
@@ -100,7 +100,7 @@ public class LineSpawnPattern extends ParticleSpawnPattern{
         MKParticleData particleData = new MKParticleData(particleType, offset, anim, entity.getEntityId());
         Vector3d position = offset.add(entity.getPositionVec());
         Tuple<List<Vector3d>, Double> spawnData = getSpawnData(position, additionalLocs);
-        long particleCount = Math.round(spawnData.getB() * count.getValue());
+        long particleCount = Math.round(spawnData.getB() * count.value());
         for (int i = 0; i < particleCount; i++) {
             Tuple<Vector3d, Vector3d> posAndMotion = getParticleStart(position, i, spawnData.getA(), world);
             Vector3d pos = posAndMotion.getA();
