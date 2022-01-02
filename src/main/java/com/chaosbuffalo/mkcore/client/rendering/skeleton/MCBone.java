@@ -114,7 +114,9 @@ public abstract class MCBone {
 //                bonePos = bonePos.add(boneOffset);
             }
 
-            return Optional.of(new Vector3d(entX, entY, entZ).add(renderOffset).add(bonePos.rotateYaw(-yaw)));
+
+            return Optional.of(new Vector3d(entX, entY, entZ).add(renderOffset).add(bonePos.rotateYaw(-yaw)
+                    .scale(entityIn.getRenderScale())));
         } else {
             return Optional.empty();
         }

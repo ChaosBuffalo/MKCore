@@ -14,9 +14,10 @@
     "maxShiftBy": 2
   },
   "client": [
+    "WorldRendererMixins",
+    "InGameGuiMixins",
     "ClientPlayerEntityMixins",
-    "PotionSpriteUploaderMixins",
-    "WorldRendererMixins"
+    "PotionSpriteUploaderMixins"
   ],
   "minVersion": "0.8"
 }
