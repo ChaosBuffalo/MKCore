@@ -37,13 +37,13 @@ public class LineSpawnPattern extends ParticleSpawnPattern{
 
     @Override
     public ParticleSpawnPattern copy() {
-        return new LineSpawnPattern(xRadius.getValue(), yRadius.getValue(), zRadius.getValue());
+        return new LineSpawnPattern(xRadius.value(), yRadius.value(), zRadius.value());
     }
 
     private Vector3d getRandomOffset(World world){
-        double x = (2.0 * xRadius.getValue()) * world.getRandom().nextDouble() - xRadius.getValue();
-        double y = (2.0 * yRadius.getValue()) * world.getRandom().nextDouble() - yRadius.getValue();
-        double z = (2.0 * zRadius.getValue()) * world.getRandom().nextDouble() - zRadius.getValue();
+        double x = (2.0 * xRadius.value()) * world.getRandom().nextDouble() - xRadius.value();
+        double y = (2.0 * yRadius.value()) * world.getRandom().nextDouble() - yRadius.value();
+        double z = (2.0 * zRadius.value()) * world.getRandom().nextDouble() - zRadius.value();
         return new Vector3d(x, y, z);
     }
 

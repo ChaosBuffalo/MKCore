@@ -33,17 +33,17 @@ public class CircleSpawnPattern extends ParticleSpawnPattern {
 
     @Override
     public ParticleSpawnPattern copy() {
-        return new CircleSpawnPattern(count.value(), new Vector3d(xRadius.getValue(), yRadius.getValue(), zRadius.getValue()),
-                speed.getValue());
+        return new CircleSpawnPattern(count.value(), new Vector3d(xRadius.value(), yRadius.value(), zRadius.value()),
+                speed.value());
     }
 
     @Override
     public Tuple<Vector3d, Vector3d> getParticleStart(Vector3d position, int particleNumber,
                                                       @Nullable List<Vector3d> additionalLocs, World world) {
         double degrees = (360.0 / count.value()) * particleNumber;
-        Vector3d posVec = new Vector3d(position.x + xRadius.getValue() * Math.cos(Math.toRadians(degrees)),
-                position.y + yRadius.getValue(), position.z + zRadius.getValue() * Math.sin(Math.toRadians(degrees)));
+        Vector3d posVec = new Vector3d(position.x + xRadius.value() * Math.cos(Math.toRadians(degrees)),
+                position.y + yRadius.value(), position.z + zRadius.value() * Math.sin(Math.toRadians(degrees)));
         Vector3d diffVec = posVec.subtract(position).normalize();
-        return new Tuple<>(posVec, diffVec.scale(speed.getValue()));
+        return new Tuple<>(posVec, diffVec.scale(speed.value()));
     }
 }

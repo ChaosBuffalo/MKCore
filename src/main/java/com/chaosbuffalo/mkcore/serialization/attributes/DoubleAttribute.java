@@ -3,22 +3,87 @@ package com.chaosbuffalo.mkcore.serialization.attributes;
 import com.chaosbuffalo.mkcore.utils.MathUtils;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.DynamicOps;
-import org.apache.commons.lang3.math.NumberUtils;
 
-public class DoubleAttribute extends SimpleAttribute<Double> {
+public class DoubleAttribute implements ISerializableAttribute<Double> {
+    private final String name;
+    private double currentValue;
+    private double defaultValue;
 
     public DoubleAttribute(String name, double defaultValue) {
-        super(name, defaultValue);
+        this.name = name;
+        this.defaultValue = defaultValue;
+        reset();
+    }
+
+    /**
+     * @deprecated Use value() instead
+     */
+    @Deprecated
+    @Override
+    public Double getValue() {
+        return currentValue;
+    }
+
+    public double value() {
+        return currentValue;
+    }
+
+    @Override
+    public void setValue(Double newValue) {
+        setValue(newValue.doubleValue());
+    }
+
+    public void setValue(double newValue) {
+        currentValue = newValue;
+    }
+
+    /**
+     * @deprecated Use defaultValue() instead
+     */
+    @Deprecated
+    @Override
+    public Double getDefaultValue() {
+        return defaultValue;
+    }
+
+    public double defaultValue() {
+        return defaultValue;
+    }
+
+    @Override
+    public void setDefaultValue(Double newValue) {
+        setDefaultValue(newValue.doubleValue());
+
+    }
+
+    public void setDefaultValue(double newValue) {
+        defaultValue = newValue;
+        reset();
+    }
+
+    @Override
+    public void reset() {
+        currentValue = defaultValue;
+    }
+
+    @Override
+    public boolean isDefaultValue() {
+        return currentValue == defaultValue;
+    }
+
+    @Override
+    public String getName() {
+        return name;
     }
 
     @Override
     public <D> D serialize(DynamicOps<D> ops) {
-        return ops.createDouble(getValue());
+        return ops.createDouble(currentValue);
     }
 
     @Override
     public <D> void deserialize(Dynamic<D> dynamic) {
-        setValue(dynamic.asDouble(getDefaultValue()));
+        setValue(dynamic.asDouble(defaultValue));
     }
 
     @Override
@@ -38,6 +103,6 @@ public class DoubleAttribute extends SimpleAttribute<Double> {
 
     @Override
     public String valueAsString() {
-        return Double.toString(getValue());
+        return Double.toString(currentValue);
     }
 }

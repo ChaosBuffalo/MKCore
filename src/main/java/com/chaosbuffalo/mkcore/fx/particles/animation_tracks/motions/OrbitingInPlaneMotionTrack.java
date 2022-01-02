@@ -34,7 +34,7 @@ public class OrbitingInPlaneMotionTrack extends BaseMotionTrack {
 
     @Override
     public OrbitingInPlaneMotionTrack copy() {
-        return new OrbitingInPlaneMotionTrack(rpm.getValue(), rpmVarianceMagnitude.getValue(), rampTime.value());
+        return new OrbitingInPlaneMotionTrack(rpm.value(), rpmVarianceMagnitude.value(), rampTime.value());
     }
 
     @Override
@@ -46,7 +46,7 @@ public class OrbitingInPlaneMotionTrack extends BaseMotionTrack {
         Vector3d diff = pos.subtract(originVertical);
         double realRadius = pos.distanceTo(originVertical);
         double angle = MathUtils.getAngleAroundYAxis(diff.getZ(), diff.getX());
-        double w = (Math.PI * 2) / GameConstants.TICKS_PER_SECOND * ((rpm.getValue() + particle.getTrackFloatData(VARIANCE_SCALAR) * rpmVarianceMagnitude.getValue()) / 60);
+        double w = (Math.PI * 2) / GameConstants.TICKS_PER_SECOND * ((rpm.value() + particle.getTrackFloatData(VARIANCE_SCALAR) * rpmVarianceMagnitude.value()) / 60);
         particle.setTrackVector3dData(MOTION_VECTOR, new Vector3d(angle, w, realRadius));
         particle.setMotion(0, 0, 0);
         updateParticle(particle, 0, duration, 0);

@@ -38,8 +38,8 @@ public class SphereSpawnPattern extends ParticleSpawnPattern {
     @Override
     public ParticleSpawnPattern copy() {
         return new SphereSpawnPattern(count.value(),
-                new Vector3d(xRadius.getValue(), yRadius.getValue(), zRadius.getValue()),
-                speed.getValue(),
+                new Vector3d(xRadius.value(), yRadius.value(), zRadius.value()),
+                speed.value(),
                 layers.value());
     }
 
@@ -54,10 +54,10 @@ public class SphereSpawnPattern extends ParticleSpawnPattern {
         double realDegrees = (360.0 / perLayer) * realNum;
         double inverseScale = 1.0 - Math.pow(scaledRatio, 2.0);
         Vector3d posVec = new Vector3d(
-                position.x + (xRadius.getValue() * inverseScale * Math.cos(Math.toRadians(realDegrees))),
-                scaledRatio * yRadius.getValue() + position.y,
-                position.z + (zRadius.getValue() * inverseScale * Math.sin(Math.toRadians(realDegrees))));
+                position.x + (xRadius.value() * inverseScale * Math.cos(Math.toRadians(realDegrees))),
+                scaledRatio * yRadius.value() + position.y,
+                position.z + (zRadius.value() * inverseScale * Math.sin(Math.toRadians(realDegrees))));
         Vector3d diffVec = posVec.subtract(position).normalize();
-        return new Tuple<>(posVec, diffVec.scale(speed.getValue()));
+        return new Tuple<>(posVec, diffVec.scale(speed.value()));
     }
 }

@@ -39,8 +39,8 @@ public class PillarSpawnPattern extends ParticleSpawnPattern {
     @Override
     public ParticleSpawnPattern copy() {
         return new PillarSpawnPattern(count.value(),
-                new Vector3d(xRadius.getValue(), yRadius.getValue(), zRadius.getValue()),
-                speed.getValue(), layers.value(), layerHeight.getValue());
+                new Vector3d(xRadius.value(), yRadius.value(), zRadius.value()),
+                speed.value(), layers.value(), layerHeight.value());
     }
 
     @Override
@@ -48,12 +48,12 @@ public class PillarSpawnPattern extends ParticleSpawnPattern {
         int perLayer = count.value() / layers.value();
         int currentLayer = particleNumber / perLayer;
         int inLayer = particleNumber % perLayer;
-        double height = currentLayer * layerHeight.getValue();
+        double height = currentLayer * layerHeight.value();
         double degrees = (360.0 / perLayer) * inLayer;
-        Vector3d posVec = new Vector3d(position.x + xRadius.getValue() * Math.cos(Math.toRadians(degrees)),
-                position.y + yRadius.getValue() + height, position.z + zRadius.getValue() * Math.sin(Math.toRadians(degrees)));
+        Vector3d posVec = new Vector3d(position.x + xRadius.value() * Math.cos(Math.toRadians(degrees)),
+                position.y + yRadius.value() + height, position.z + zRadius.value() * Math.sin(Math.toRadians(degrees)));
         Vector3d diffVec = posVec.subtract(position).normalize();
-        return new Tuple<>(posVec, diffVec.scale(speed.getValue()));
+        return new Tuple<>(posVec, diffVec.scale(speed.value()));
     }
 
 }
