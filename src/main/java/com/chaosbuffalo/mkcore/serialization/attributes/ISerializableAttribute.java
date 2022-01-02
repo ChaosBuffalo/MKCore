@@ -17,6 +17,10 @@ public interface ISerializableAttribute<T> {
         setValue(getDefaultValue());
     }
 
+    default boolean isDefaultValue() {
+        return getValue().equals(getDefaultValue());
+    }
+
     String getName();
 
     <D> D serialize(DynamicOps<D> ops);
@@ -30,5 +34,4 @@ public interface ISerializableAttribute<T> {
     boolean isEmptyStringInput(String string);
 
     String valueAsString();
-
 }

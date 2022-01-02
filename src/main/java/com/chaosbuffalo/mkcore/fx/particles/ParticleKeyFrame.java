@@ -7,7 +7,6 @@ import com.chaosbuffalo.mkcore.fx.particles.animation_tracks.motions.InheritMoti
 import com.chaosbuffalo.mkcore.serialization.ISerializableAttributeContainer;
 import com.chaosbuffalo.mkcore.serialization.attributes.ISerializableAttribute;
 import com.chaosbuffalo.mkcore.serialization.attributes.IntAttribute;
-import com.chaosbuffalo.mkcore.serialization.attributes.SimpleAttribute;
 import com.chaosbuffalo.mkcore.utils.MathUtils;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.util.Pair;
@@ -43,13 +42,13 @@ public class ParticleKeyFrame implements ISerializableAttributeContainer {
 
     public ParticleKeyFrame(){
         attributes = new ArrayList<>();
-        tickStart.setOnSetCallback(this::onSetStartOrDuration);
-        duration.setOnSetCallback(this::onSetStartOrDuration);
+        tickStart.setValueSetCallback(this::onSetStartOrDuration);
+        duration.setValueSetCallback(this::onSetStartOrDuration);
         addAttributes(tickStart, duration);
         tickEnd = tickStart.getValue() + duration.getValue();
     }
 
-    private void onSetStartOrDuration(SimpleAttribute<Integer> attribute){
+    private void onSetStartOrDuration(ISerializableAttribute<Integer> attribute) {
         tickEnd = tickStart.getValue() + duration.getValue();
     }
 
