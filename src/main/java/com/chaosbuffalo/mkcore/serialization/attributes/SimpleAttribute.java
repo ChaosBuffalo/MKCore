@@ -7,13 +7,13 @@ public abstract class SimpleAttribute<T> implements ISerializableAttribute<T> {
     private T defaultValue;
     private T currentValue;
     private final String name;
-    private Consumer<ISerializableAttribute<T>> onSetCallback;
+    private Consumer<ISerializableAttribute<T>> valueChanged;
 
     public SimpleAttribute(String name, T defaultValue) {
-        this.defaultValue = defaultValue;
-        currentValue = defaultValue;
         this.name = name;
-        onSetCallback = null;
+        this.defaultValue = defaultValue;
+        reset();
+        valueChanged = null;
     }
 
     @Override
@@ -22,8 +22,8 @@ public abstract class SimpleAttribute<T> implements ISerializableAttribute<T> {
         currentValue = defaultValue;
     }
 
-    public void setOnSetCallback(Consumer<ISerializableAttribute<T>> onSetCallback) {
-        this.onSetCallback = onSetCallback;
+    public void setValueSetCallback(Consumer<ISerializableAttribute<T>> onSetCallback) {
+        this.valueChanged = onSetCallback;
     }
 
     @Override
@@ -44,8 +44,8 @@ public abstract class SimpleAttribute<T> implements ISerializableAttribute<T> {
     @Override
     public void setValue(T newValue) {
         this.currentValue = newValue;
-        if (onSetCallback != null) {
-            onSetCallback.accept(this);
+        if (valueChanged != null) {
+            valueChanged.accept(this);
         }
     }
 }
