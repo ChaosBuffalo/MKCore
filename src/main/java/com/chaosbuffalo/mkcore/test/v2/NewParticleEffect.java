@@ -4,8 +4,8 @@ import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.effects.MKActiveEffect;
 import com.chaosbuffalo.mkcore.effects.MKEffect;
-import com.chaosbuffalo.mkcore.effects.MKEffectBehaviour;
-import com.chaosbuffalo.mkcore.effects.MKEffectInstance;
+import com.chaosbuffalo.mkcore.effects.MKEffectBuilder;
+import com.chaosbuffalo.mkcore.effects.MKEffectState;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.ParticleEffectSpawnPacket;
 import net.minecraft.entity.Entity;
@@ -29,12 +29,13 @@ public class NewParticleEffect extends MKEffect {
         event.getRegistry().register(INSTANCE);
     }
 
-    public static Instance Create(Entity source, IParticleData particleId, int motionType, boolean includeSelf,
-                                  Vector3d radius, Vector3d offsets, int particleCount, int particleData,
-                                  double particleSpeed) {
-        Instance effect = INSTANCE.createInstance(source.getUniqueID());
-        effect.setup(source, particleId, motionType, includeSelf, radius, offsets, particleCount, particleData, particleSpeed);
-        return effect;
+    public static MKEffectBuilder<State> Create(Entity source, IParticleData particleId, int motionType, boolean includeSelf,
+                                                Vector3d radius, Vector3d offsets, int particleCount, int particleData,
+                                                double particleSpeed) {
+        MKEffectBuilder<State> builder = INSTANCE.builder(source.getUniqueID());
+        builder.state(s ->
+                s.setup(source, particleId, motionType, includeSelf, radius, offsets, particleCount, particleData, particleSpeed));
+        return builder;
     }
 
     protected NewParticleEffect() {
@@ -43,11 +44,16 @@ public class NewParticleEffect extends MKEffect {
     }
 
     @Override
-    public Instance createInstance(UUID sourceId) {
-        return new Instance(this, sourceId);
+    public MKEffectBuilder<State> builder(UUID sourceId) {
+        return new MKEffectBuilder<>(this, sourceId, this::makeState);
     }
 
-    public static class Instance extends MKEffectInstance {
+    @Override
+    public State makeState() {
+        return new State();
+    }
+
+    public static class State extends MKEffectState {
         private Entity source;
         private IParticleData particleId;
         private int motionType;
@@ -57,10 +63,6 @@ public class NewParticleEffect extends MKEffect {
         private int particleData;
         private double particleSpeed;
         private boolean includeSelf;
-
-        public Instance(MKEffect effect, UUID sourceId) {
-            super(effect, sourceId);
-        }
 
         public void setup(Entity source, IParticleData particleId, int motionType, boolean includeSelf,
                           Vector3d radius, Vector3d offsets, int particleCount, int particleData,
@@ -93,7 +95,7 @@ public class NewParticleEffect extends MKEffect {
         public boolean performEffect(IMKEntityData targetData, MKActiveEffect instance) {
             LivingEntity target = targetData.getEntity();
             MKCore.LOGGER.info("NewParticleEffect.Instance.performEffect {}", target);
-            if (!includeSelf && target.getUniqueID().equals(sourceId)) {
+            if (!includeSelf && target.getUniqueID().equals(instance.getSourceId())) {
                 return false;
             }
             PacketHandler.sendToTrackingAndSelf(createPacket(target), target);

@@ -4,7 +4,7 @@ import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.effects.MKActiveEffect;
 import com.chaosbuffalo.mkcore.effects.MKEffect;
-import com.chaosbuffalo.mkcore.effects.MKEffectInstance;
+import com.chaosbuffalo.mkcore.effects.MKEffectBuilder;
 import com.chaosbuffalo.mkcore.effects.MKEffectTickAction;
 import com.chaosbuffalo.mkcore.network.EntityEffectPacket;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
@@ -15,6 +15,7 @@ import net.minecraft.nbt.ListNBT;
 import net.minecraftforge.common.util.Constants;
 
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -26,7 +27,7 @@ public class EntityEffectHandler {
         this.entityData = entityData;
     }
 
-    class EffectSource {
+    private class EffectSource {
         private final UUID sourceId;
         protected final Map<MKEffect, MKActiveEffect> activeEffectMap = new HashMap<>();
         private final List<MKActiveEffect> removeQueue = new ArrayList<>();
@@ -70,20 +71,20 @@ public class EntityEffectHandler {
         }
 
         public void addEffect(MKActiveEffect activeEffect) {
-            if (activeEffect.hasDuration()) {
+            if (activeEffect.getBehaviour().isTimed()) {
                 MKCore.LOGGER.debug("EntityEffectHandler.addEffect timed {} to {}", activeEffect, entityData.getEntity());
                 MKActiveEffect existing = activeEffectMap.get(activeEffect.getEffect());
                 if (existing == null) {
                     activeEffectMap.put(activeEffect.getEffect(), activeEffect);
                     onNewEffect(activeEffect);
                 } else {
-                    existing.getInstance().combine(existing, activeEffect);
+                    existing.getState().combine(existing, activeEffect);
                     onEffectUpdated(existing);
                 }
             } else {
                 MKCore.LOGGER.debug("EntityEffectHandler.addEffect instant {} to {}", activeEffect, entityData.getEntity());
                 if (entityData.isServerSide()) {
-                    activeEffect.getInstance().performEffect(entityData, activeEffect);
+                    activeEffect.getState().performEffect(entityData, activeEffect);
                 }
             }
         }
@@ -124,7 +125,7 @@ public class EntityEffectHandler {
             MKCore.LOGGER.debug("EntityEffectHandler.onEffectRemoved {}", activeEffect);
             if (entityData.isServerSide()) {
                 activeEffect.getEffect().onInstanceRemoved(entityData, activeEffect);
-                if (!activeEffect.isExpired()) {
+                if (!activeEffect.getBehaviour().isExpired()) {
                     // If it was removed early we need to tell the client
                     sendEffectRemove(activeEffect);
                 }
@@ -189,7 +190,7 @@ public class EntityEffectHandler {
         public INBT serializeStorage() {
             ListNBT list = new ListNBT();
             activeEffectMap.forEach(((effect, activeEffect) -> {
-                if (!activeEffect.getInstance().isTemporary()) {
+                if (!activeEffect.getBehaviour().isTemporary()) {
                     list.add(activeEffect.serializeStorage());
                 }
             }));
@@ -294,16 +295,19 @@ public class EntityEffectHandler {
         }
     }
 
-    public void addEffect(MKEffectInstance effectInstance) {
-        addEffect(effectInstance.getSourceId(), effectInstance.createApplication());
-    }
-
-    public void addEffect(UUID sourceId, MKEffectInstance effectInstance) {
-        addEffect(sourceId, effectInstance.createApplication());
+    public void addEffect(MKEffectBuilder<?> builder) {
+        addEffect(builder.getSourceId(), builder.createApplication());
     }
 
     public void addEffect(UUID sourceId, MKActiveEffect effectInstance) {
         getOrCreateSource(sourceId).addEffect(effectInstance);
+    }
+
+    public Collection<MKActiveEffect> effects(MKEffect effect) {
+        return sources.values().stream()
+                .flatMap(EffectSource::effectsStream)
+                .filter(activeEffect -> activeEffect.getEffect() == effect)
+                .collect(Collectors.toList());
     }
 
     public Collection<MKActiveEffect> effects() {

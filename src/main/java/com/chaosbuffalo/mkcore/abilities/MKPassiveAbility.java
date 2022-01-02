@@ -4,7 +4,7 @@ import com.chaosbuffalo.mkcore.abilities.description.AbilityDescriptions;
 import com.chaosbuffalo.mkcore.core.AbilityType;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.effects.MKEffect;
-import com.chaosbuffalo.mkcore.effects.MKEffectInstance;
+import com.chaosbuffalo.mkcore.effects.MKEffectBuilder;
 import com.chaosbuffalo.targeting_api.TargetingContext;
 import com.chaosbuffalo.targeting_api.TargetingContexts;
 import net.minecraft.util.ResourceLocation;
@@ -42,9 +42,10 @@ public abstract class MKPassiveAbility extends MKAbility implements IMKPassiveAb
     public void executeWithContext(IMKEntityData entityData, AbilityContext context, MKAbilityInfo abilityInfo) {
         // TODO: see if this isEffectActive is needed in practice
         if (!entityData.getEffects().isEffectActive(getPassiveEffect())) {
-            MKEffectInstance effect = getPassiveEffect().createInstance(entityData.getEntity().getUniqueID());
-            effect.temporary(); // Abilities slotted to the passive group are re-executed when joining the world
-            entityData.getEffects().addEffect(effect.infinite());
+            MKEffectBuilder<?> effect = getPassiveEffect().builder(entityData.getEntity().getUniqueID())
+                    .temporary() // Abilities slotted to the passive group are re-executed when joining the world
+                    .infinite();
+            entityData.getEffects().addEffect(effect);
         }
     }
 }

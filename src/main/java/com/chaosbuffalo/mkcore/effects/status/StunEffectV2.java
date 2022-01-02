@@ -66,8 +66,8 @@ public class StunEffectV2 extends MKEffect {
     }
 
     @Override
-    public MKEffectInstance createInstance(UUID sourceId) {
-        return new MKSimplePassiveEffect(this, sourceId);
+    public MKEffectState makeState() {
+        return MKSimplePassiveState.INSTANCE;
     }
 }
 

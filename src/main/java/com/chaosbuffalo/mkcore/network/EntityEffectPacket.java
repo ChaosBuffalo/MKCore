@@ -30,11 +30,11 @@ public class EntityEffectPacket {
     }
 
     // Server
-    public EntityEffectPacket(IMKEntityData entityData, MKActiveEffect effectInstance, Action action) {
+    public EntityEffectPacket(IMKEntityData entityData, MKActiveEffect activeEffect, Action action) {
         this.entityId = entityData.getEntity().getEntityId();
         this.action = action;
-        sourceId = effectInstance.getInstance().getSourceId();
-        effects.add(effectInstance);
+        sourceId = activeEffect.getSourceId();
+        effects.add(activeEffect);
     }
 
     // Server
@@ -109,7 +109,6 @@ public class EntityEffectPacket {
                         break;
                     }
                 }
-
             });
         }
     }

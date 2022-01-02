@@ -60,7 +60,7 @@ public class AreaEffectBuilder {
         return this;
     }
 
-    public AreaEffectBuilder effect(MKEffectInstance effect, TargetingContext targetContext) {
+    public AreaEffectBuilder effect(MKEffectBuilder<?> effect, TargetingContext targetContext) {
         areaEffectCloud.addEffect(effect, targetContext);
         return this;
     }

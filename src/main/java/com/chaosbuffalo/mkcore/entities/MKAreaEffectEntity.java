@@ -120,9 +120,9 @@ public class MKAreaEffectEntity extends AreaEffectCloudEntity implements IEntity
     }
 
     static class MKEffectEntry extends EffectEntry {
-        protected final MKEffectInstance newEffect;
+        protected final MKEffectBuilder<?> newEffect;
 
-        public MKEffectEntry(MKEffectInstance instance, TargetingContext targetingContext) {
+        public MKEffectEntry(MKEffectBuilder<?> instance, TargetingContext targetingContext) {
             super(targetingContext);
             this.newEffect = instance;
         }
@@ -226,7 +226,7 @@ public class MKAreaEffectEntity extends AreaEffectCloudEntity implements IEntity
         this.effects.add(new VanillaEffectEntry(effect, targetContext));
     }
 
-    public void addEffect(MKEffectInstance effect, TargetingContext targetContext) {
+    public void addEffect(MKEffectBuilder<?> effect, TargetingContext targetContext) {
         this.effects.add(new MKEffectEntry(effect, targetContext));
     }
 

@@ -91,7 +91,15 @@ public abstract class MKEffect extends ForgeRegistryEntry<MKEffect> {
         MKCore.LOGGER.debug("MKEffect.onInstanceReady {}", activeInstance);
     }
 
-    public abstract MKEffectInstance createInstance(UUID sourceId);
+    public MKEffectBuilder<?> builder(UUID sourceId) {
+        return new MKEffectBuilder<>(this, sourceId, this::makeState);
+    }
+
+    public abstract MKEffectState makeState();
+
+    public MKActiveEffect createInstance(UUID source) {
+        return new MKActiveEffect(this, source);
+    }
 
     public Map<Attribute, AttributeModifier> getAttributeModifierMap() {
         return attributeModifierMap;
