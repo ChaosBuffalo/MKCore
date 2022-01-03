@@ -1,5 +1,6 @@
 package com.chaosbuffalo.mkcore.effects.instant;
 
+import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.effects.*;
 import com.chaosbuffalo.mkcore.utils.SoundUtils;
@@ -9,10 +10,12 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.UUID;
 
+@Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class SoundEffectNew extends MKEffect {
     public static final SoundEffectNew INSTANCE = new SoundEffectNew();
 
@@ -23,6 +26,7 @@ public class SoundEffectNew extends MKEffect {
 
     public SoundEffectNew() {
         super(EffectType.NEUTRAL);
+        setRegistryName(MKCore.makeRL("effect.v2.sound_effect"));
     }
 
     @Override
