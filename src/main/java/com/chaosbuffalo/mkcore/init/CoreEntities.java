@@ -16,7 +16,7 @@ public class CoreEntities {
         evt.getRegistry().register(EntityType.Builder.<MKAreaEffectEntity>create(MKAreaEffectEntity::new, EntityClassification.MISC)
                 .immuneToFire()
                 .size(0, 0)
-                .setTrackingRange(64)
+                .setTrackingRange(10)
                 .setUpdateInterval(10)
                 .setShouldReceiveVelocityUpdates(true)
                 .disableSummoning()
