@@ -91,7 +91,7 @@ public class NewHeal extends MKAbility {
             MKCore.getEntityData(targetEntity).ifPresent(targetData -> {
                 MKEffectBuilder<?> heal = NewHealEffect.INSTANCE.builder(castingEntity.getUniqueID())
                         .ability(this)
-                        .state(s -> s.configure(base.value(), scale.value()))
+                        .state(s -> s.setScalingParameters(base.value(), scale.value()))
                         .timed(200)
                         .periodic(40)
                         .amplify(level);

@@ -6,11 +6,10 @@ import com.chaosbuffalo.mkcore.core.healing.MKHealSource;
 import com.chaosbuffalo.mkcore.core.healing.MKHealing;
 import com.chaosbuffalo.mkcore.effects.MKActiveEffect;
 import com.chaosbuffalo.mkcore.effects.MKEffect;
-import com.chaosbuffalo.mkcore.effects.MKEffectState;
 import com.chaosbuffalo.mkcore.effects.MKEffectBuilder;
+import com.chaosbuffalo.mkcore.effects.ScalingValueEffectState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.potion.EffectType;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -52,15 +51,8 @@ public class NewHealEffect extends MKEffect {
         return new State();
     }
 
-    static class State extends MKEffectState {
-        private float base = 0.0f;
-        private float scale = 1.0f;
+    public static class State extends ScalingValueEffectState {
         private Entity source;
-
-        public void configure(float base, float scale) {
-            this.base = base;
-            this.scale = scale;
-        }
 
         @Override
         public boolean performEffect(IMKEntityData targetData, MKActiveEffect instance) {
@@ -68,23 +60,11 @@ public class NewHealEffect extends MKEffect {
 //            MKCore.LOGGER.info("NewHealEffect.performEffect trying to recover source {} = {}", sourceId, source);
 
             LivingEntity target = targetData.getEntity();
-            float value = base + (scale * instance.getStackCount());
+            float value = getScaledValue(instance.getStackCount());
             MKCore.LOGGER.info("NewHealEffect.performEffect {} on {} from {} {}", value, target, source, instance);
-            MKHealSource heal = MKHealSource.getHolyHeal(instance.getAbilityId(), source, 1.0f);
+            MKHealSource heal = MKHealSource.getHolyHeal(instance.getAbilityId(), source, getModifierScale());
             MKHealing.healEntityFrom(target, value, heal);
             return true;
-        }
-
-        @Override
-        public void serializeStorage(CompoundNBT stateTag) {
-            stateTag.putFloat("base", base);
-            stateTag.putFloat("scale", scale);
-        }
-
-        @Override
-        public void deserializeStorage(CompoundNBT stateTag) {
-            base = stateTag.getFloat("base");
-            scale = stateTag.getFloat("scale");
         }
     }
 }
