@@ -27,6 +27,10 @@ public abstract class MKEffectState {
 
     public abstract boolean performEffect(IMKEntityData entityData, MKActiveEffect instance);
 
+    protected boolean isEffectSource(Entity entity, MKActiveEffect activeEffect) {
+        return entity.getUniqueID().equals(activeEffect.getSourceId());
+    }
+
     @Nullable
     protected Entity findEntity(Entity entity, UUID entityId, World world) {
         if (entity != null)

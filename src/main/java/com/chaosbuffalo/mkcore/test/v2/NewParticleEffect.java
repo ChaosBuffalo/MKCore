@@ -95,7 +95,7 @@ public class NewParticleEffect extends MKEffect {
         public boolean performEffect(IMKEntityData targetData, MKActiveEffect instance) {
             LivingEntity target = targetData.getEntity();
             MKCore.LOGGER.info("NewParticleEffect.Instance.performEffect {}", target);
-            if (!includeSelf && target.getUniqueID().equals(instance.getSourceId())) {
+            if (!includeSelf && isEffectSource(target, instance)) {
                 return false;
             }
             PacketHandler.sendToTrackingAndSelf(createPacket(target), target);
