@@ -100,7 +100,10 @@ public abstract class MKDamageSource extends DamageSource {
         @Nullable
         private final ResourceLocation abilityId;
 
-        private AbilityDamage(MKDamageType damageType, @Nullable Entity immediateSource, @Nullable Entity trueSource, @Nullable ResourceLocation abilityId) {
+        private AbilityDamage(MKDamageType damageType,
+                              @Nullable Entity immediateSource,
+                              @Nullable Entity trueSource,
+                              @Nullable ResourceLocation abilityId) {
             super(damageType, immediateSource, trueSource);
             this.abilityId = abilityId;
         }
@@ -184,26 +187,33 @@ public abstract class MKDamageSource extends DamageSource {
                 .setModifierScaling(modifierScaling);
     }
 
-    public static MKDamageSource causeEffectDamage(MKDamageType damageType, String effectType, Entity source,
-                                                   @Nullable Entity indirectEntityIn) {
-        return (MKDamageSource) new EffectDamage(damageType, source, indirectEntityIn, effectType)
+    public static MKDamageSource causeEffectDamage(MKDamageType damageType, String effectType,
+                                                   @Nullable Entity immediateSource,
+                                                   @Nullable Entity trueSource) {
+        return (MKDamageSource) new EffectDamage(damageType, immediateSource, trueSource, effectType)
                 .setDamageBypassesArmor();
     }
 
-    public static MKDamageSource causeEffectDamage(MKDamageType damageType, String effectType, Entity source,
-                                                   @Nullable Entity indirectEntityIn, float modifierScaling) {
-        return causeEffectDamage(damageType, effectType, source, indirectEntityIn)
+    public static MKDamageSource causeEffectDamage(MKDamageType damageType, String effectType,
+                                                   @Nullable Entity immediateSource,
+                                                   @Nullable Entity trueSource,
+                                                   float modifierScaling) {
+        return causeEffectDamage(damageType, effectType, immediateSource, trueSource)
                 .setModifierScaling(modifierScaling);
     }
 
 
-    public static MKDamageSource causeMeleeDamage(ResourceLocation abilityId, Entity source,
-                                                  @Nullable Entity indirectEntityIn) {
-        return new AbilityDamage(CoreDamageTypes.MeleeDamage, source, indirectEntityIn, abilityId);
+    public static MKDamageSource causeMeleeDamage(ResourceLocation abilityId,
+                                                  @Nullable Entity immediateSource,
+                                                  @Nullable Entity trueSource) {
+        return new AbilityDamage(CoreDamageTypes.MeleeDamage, immediateSource, trueSource, abilityId);
     }
 
-    public static MKDamageSource causeMeleeDamage(ResourceLocation abilityId, Entity source,
-                                                  @Nullable Entity indirectEntityIn, float modifierScaling) {
-        return causeMeleeDamage(abilityId, source, indirectEntityIn).setModifierScaling(modifierScaling);
+    public static MKDamageSource causeMeleeDamage(ResourceLocation abilityId,
+                                                  @Nullable Entity immediateSource,
+                                                  @Nullable Entity trueSource,
+                                                  float modifierScaling) {
+        return causeMeleeDamage(abilityId, immediateSource, trueSource)
+                .setModifierScaling(modifierScaling);
     }
 }
