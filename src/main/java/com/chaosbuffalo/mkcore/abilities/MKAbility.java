@@ -73,9 +73,9 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
         return casting_particles.getValue();
     }
 
-    public ITextComponent getDamageDescription(IMKEntityData entityData, MKDamageType damageType, float damage,
+    public ITextComponent getDamageDescription(IMKEntityData casterData, MKDamageType damageType, float damage,
                                                float scale, int level, float modifierScaling) {
-        float bonus = entityData.getStats().getDamageTypeBonus(damageType) * modifierScaling;
+        float bonus = casterData.getStats().getDamageTypeBonus(damageType) * modifierScaling;
         float abilityDamage = damage + (scale * level) + bonus;
         IFormattableTextComponent damageStr = StringTextComponent.EMPTY.deepCopy();
         damageStr.appendSibling(new StringTextComponent(String.format("%.1f", abilityDamage)).mergeStyle(TextFormatting.BOLD));
@@ -97,48 +97,48 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
         return damageStr;
     }
 
-    public ITextComponent getHealDescription(IMKEntityData entityData, float value,
+    public ITextComponent getHealDescription(IMKEntityData casterData, float value,
                                              float scale, int level, float modifierScaling) {
-        float bonus = entityData.getStats().getHealBonus();
+        float bonus = casterData.getStats().getHealBonus();
         return formatEffectValue(value, scale, level, bonus, modifierScaling).mergeStyle(TextFormatting.GREEN);
     }
 
-    protected ITextComponent formatManaValue(IMKEntityData entityData, float value, float scale, int level,
+    protected ITextComponent formatManaValue(IMKEntityData casterData, float value, float scale, int level,
                                              float bonus, float modifierScaling) {
         return formatEffectValue(value, scale, level, bonus, modifierScaling).mergeStyle(TextFormatting.BLUE);
     }
 
-    protected ITextComponent getSkillDescription(IMKEntityData entityData) {
+    protected ITextComponent getSkillDescription(IMKEntityData casterData) {
         ITextComponent skillList = TextComponentUtils.func_240649_b_(getSkillAttributes(),
                 attr -> new TranslationTextComponent(attr.getAttributeName()));
         return new TranslationTextComponent("mkcore.ability.description.skill", skillList);
     }
 
-    public void buildDescription(IMKEntityData entityData, Consumer<ITextComponent> consumer) {
-        if (entityData instanceof MKPlayerData) {
-            MKPlayerData playerData = (MKPlayerData) entityData;
+    public void buildDescription(IMKEntityData casterData, Consumer<ITextComponent> consumer) {
+        if (casterData instanceof MKPlayerData) {
+            MKPlayerData playerData = (MKPlayerData) casterData;
             MKAbilityInfo info = playerData.getAbilities().getKnownAbility(getAbilityId());
             if (info != null && info.getSource().usesAbilityPool()) {
                 consumer.accept(new IconTextComponent(POOL_SLOT_ICON, "mkcore.ability.description.uses_pool").mergeStyle(TextFormatting.ITALIC));
             }
         }
         if (!skillAttributes.isEmpty()) {
-            consumer.accept(getSkillDescription(entityData));
+            consumer.accept(getSkillDescription(casterData));
         }
-        consumer.accept(getManaCostDescription(entityData));
-        consumer.accept(getCooldownDescription(entityData));
-        consumer.accept(getCastTimeDescription(entityData));
-        getTargetSelector().buildDescription(this, entityData, consumer);
-        consumer.accept(getAbilityDescription(entityData));
+        consumer.accept(getManaCostDescription(casterData));
+        consumer.accept(getCooldownDescription(casterData));
+        consumer.accept(getCastTimeDescription(casterData));
+        getTargetSelector().buildDescription(this, casterData, consumer);
+        consumer.accept(getAbilityDescription(casterData));
     }
 
-    protected ITextComponent getCooldownDescription(IMKEntityData entityData) {
-        float seconds = (float) entityData.getStats().getAbilityCooldown(this) / GameConstants.TICKS_PER_SECOND;
+    protected ITextComponent getCooldownDescription(IMKEntityData casterData) {
+        float seconds = (float) casterData.getStats().getAbilityCooldown(this) / GameConstants.TICKS_PER_SECOND;
         return new TranslationTextComponent("mkcore.ability.description.cooldown", seconds);
     }
 
-    protected ITextComponent getCastTimeDescription(IMKEntityData entityData) {
-        int castTicks = entityData.getStats().getAbilityCastTime(this);
+    protected ITextComponent getCastTimeDescription(IMKEntityData casterData) {
+        int castTicks = casterData.getStats().getAbilityCastTime(this);
         float seconds = (float) castTicks / GameConstants.TICKS_PER_SECOND;
         ITextComponent time = castTicks > 0 ?
                 new TranslationTextComponent("mkcore.ability.description.seconds", seconds) :
@@ -146,11 +146,11 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
         return new TranslationTextComponent("mkcore.ability.description.cast_time", time);
     }
 
-    protected ITextComponent getManaCostDescription(IMKEntityData entityData) {
-        return new TranslationTextComponent("mkcore.ability.description.mana_cost", getManaCost(entityData));
+    protected ITextComponent getManaCostDescription(IMKEntityData casterData) {
+        return new TranslationTextComponent("mkcore.ability.description.mana_cost", getManaCost(casterData));
     }
 
-    protected ITextComponent getAbilityDescription(IMKEntityData entityData) {
+    protected ITextComponent getAbilityDescription(IMKEntityData casterData) {
         return new TranslationTextComponent(getDescriptionTranslationKey());
     }
 
@@ -212,7 +212,7 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
         return castTime;
     }
 
-    public int getCastTime(IMKEntityData entityData) {
+    public int getCastTime(IMKEntityData casterData) {
         return getBaseCastTime();
     }
 
@@ -244,7 +244,7 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
         return cooldown;
     }
 
-    public int getCooldown(IMKEntityData entityData) {
+    public int getCooldown(IMKEntityData casterData) {
         return getBaseCooldown();
     }
 
@@ -262,14 +262,14 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
         return manaCost;
     }
 
-    public float getManaCost(IMKEntityData entityData) {
-        return getBaseManaCost() + getManaCostModifierForSkills(entityData);
+    public float getManaCost(IMKEntityData casterData) {
+        return getBaseManaCost() + getManaCostModifierForSkills(casterData);
     }
 
-    protected float getManaCostModifierForSkills(IMKEntityData entityData) {
+    protected float getManaCostModifierForSkills(IMKEntityData casterData) {
         float total = 0.0f;
         for (Attribute attribute : getSkillAttributes()) {
-            ModifiableAttributeInstance attr = entityData.getEntity().getAttribute(attribute);
+            ModifiableAttributeInstance attr = casterData.getEntity().getAttribute(attribute);
             if (attr != null) {
                 total += attr.getValue();
             }
@@ -281,9 +281,9 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
         manaCost = cost;
     }
 
-    public boolean meetsRequirements(IMKEntityData entityData) {
-        return entityData.getAbilityExecutor().canActivateAbility(this) &&
-                entityData.getStats().canActivateAbility(this);
+    public boolean meetsRequirements(IMKEntityData casterData) {
+        return casterData.getAbilityExecutor().canActivateAbility(this) &&
+                casterData.getStats().canActivateAbility(this);
     }
 
     public <T> T serializeDynamic(DynamicOps<T> ops) {
@@ -325,8 +325,8 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
         return CoreSounds.spell_cast_default;
     }
 
-    public void executeWithContext(IMKEntityData entityData, AbilityContext context, MKAbilityInfo abilityInfo) {
-        entityData.getAbilityExecutor().startAbility(context, abilityInfo);
+    public void executeWithContext(IMKEntityData casterData, AbilityContext context, MKAbilityInfo abilityInfo) {
+        casterData.getAbilityExecutor().startAbility(context, abilityInfo);
     }
 
     public ITextComponent getTargetContextLocalization() {
@@ -346,13 +346,13 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
         return getRequiredMemories().stream().allMatch(context::hasMemory);
     }
 
-    public void continueCast(LivingEntity entity, IMKEntityData data, int castTimeLeft, AbilityContext context) {
+    public void continueCast(LivingEntity castingEntity, IMKEntityData casterData, int castTimeLeft, AbilityContext context) {
     }
 
-    public void continueCastClient(LivingEntity entity, IMKEntityData data, int castTimeLeft) {
+    public void continueCastClient(LivingEntity castingEntity, IMKEntityData casterData, int castTimeLeft) {
     }
 
-    public void endCast(LivingEntity entity, IMKEntityData data, AbilityContext context) {
+    public void endCast(LivingEntity castingEntity, IMKEntityData casterData, AbilityContext context) {
     }
 
     public boolean isInterruptible() {
@@ -377,11 +377,11 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
         }
     }
 
-    public static int getSkillLevel(LivingEntity entity, Attribute skillAttribute) {
+    public static int getSkillLevel(LivingEntity castingEntity, Attribute skillAttribute) {
         if (skillAttribute == null) {
             return 0;
         }
-        ModifiableAttributeInstance skill = entity.getAttribute(skillAttribute);
+        ModifiableAttributeInstance skill = castingEntity.getAttribute(skillAttribute);
         return skill != null ? (int) Math.round(skill.getValue()) : 0;
     }
 
@@ -394,8 +394,8 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
         return Collections.unmodifiableSet(skillAttributes);
     }
 
-    protected int getBuffDuration(IMKEntityData entityData, int level, int base, int scale) {
+    protected int getBuffDuration(IMKEntityData casterData, int level, int base, int scale) {
         int duration = (base + scale * level) * GameConstants.TICKS_PER_SECOND;
-        return MKCombatFormulas.applyBuffDurationModifier(entityData, duration);
+        return MKCombatFormulas.applyBuffDurationModifier(casterData, duration);
     }
 }

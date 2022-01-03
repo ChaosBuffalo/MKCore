@@ -71,21 +71,21 @@ public class HealingRain extends MKAbility {
     }
 
     @Override
-    public void continueCast(LivingEntity entity, IMKEntityData data, int castTimeLeft, AbilityContext context) {
-        super.continueCast(entity, data, castTimeLeft, context);
+    public void continueCast(LivingEntity castingEntity, IMKEntityData casterData, int castTimeLeft, AbilityContext context) {
+        super.continueCast(castingEntity, casterData, castTimeLeft, context);
         int tickSpeed = 5;
         if (castTimeLeft % tickSpeed == 0) {
             int level = 0;
-            SpellCast heal = ClericHealEffect.Create(entity, BASE_AMOUNT, AMOUNT_SCALE);
-            SpellCast particlePotion = ParticleEffect.Create(entity,
+            SpellCast heal = ClericHealEffect.Create(castingEntity, BASE_AMOUNT, AMOUNT_SCALE);
+            SpellCast particlePotion = ParticleEffect.Create(castingEntity,
                     ParticleTypes.BUBBLE,
                     ParticleEffects.CIRCLE_MOTION, false,
                     new Vector3d(1.0, 1.0, 1.0),
                     new Vector3d(0.0, 1.0, 0.0),
                     10, 0, 1.0);
 
-            float dist = getDistance(entity);
-            AreaEffectBuilder.createOnCaster(entity)
+            float dist = getDistance(castingEntity);
+            AreaEffectBuilder.createOnCaster(castingEntity)
                     .spellCast(heal, level, getTargetContext())
                     .spellCast(particlePotion, level, getTargetContext())
                     .instant()
@@ -96,9 +96,9 @@ public class HealingRain extends MKAbility {
             PacketHandler.sendToTrackingAndSelf(new ParticleEffectSpawnPacket(
                                 ParticleTypes.BUBBLE,
                                 ParticleEffects.RAIN_EFFECT, 30, 4,
-                                entity.getPosX(), entity.getPosY() + 3.0,
-                                entity.getPosZ(), dist, 0.5, dist, 1.0,
-                                entity.getLookVec()), entity);
+                                castingEntity.getPosX(), castingEntity.getPosY() + 3.0,
+                                castingEntity.getPosZ(), dist, 0.5, dist, 1.0,
+                                castingEntity.getLookVec()), castingEntity);
         }
     }
 }

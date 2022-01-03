@@ -59,19 +59,19 @@ public class SkinLikeWoodAbility extends MKToggleAbility {
     }
 
     @Override
-    public void applyEffect(LivingEntity entity, IMKEntityData entityData) {
-        super.applyEffect(entity, entityData);
+    public void applyEffect(LivingEntity castingEntity, IMKEntityData casterData) {
+        super.applyEffect(castingEntity, casterData);
         int amplifier = 0;
 //        SoundUtils.playSoundAtEntity(entity, ModSounds.spell_earth_7);
         // What to do for each target hit
-        entity.addPotionEffect(getToggleEffect().createSelfCastEffectInstance(entity, amplifier));
+        castingEntity.addPotionEffect(getToggleEffect().createSelfCastEffectInstance(castingEntity, amplifier));
 
         PacketHandler.sendToTrackingAndSelf(
                 new ParticleEffectSpawnPacket(
                         ParticleTypes.ITEM_SLIME,
                         ParticleEffects.CIRCLE_MOTION, 30, 0,
-                        entity.getPosX(), entity.getPosY() + .5,
-                        entity.getPosZ(), 1.0, 1.0, 1.0, 1.0f,
-                        entity.getLookVec()), entity);
+                        castingEntity.getPosX(), castingEntity.getPosY() + .5,
+                        castingEntity.getPosZ(), 1.0, 1.0, 1.0, 1.0f,
+                        castingEntity.getLookVec()), castingEntity);
     }
 }

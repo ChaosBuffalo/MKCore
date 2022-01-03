@@ -28,16 +28,16 @@ public abstract class MKSongPulseEffect extends MKEffect {
     public static class SongPulseState extends MKSongStateBase {
 
         @Override
-        public boolean performEffect(IMKEntityData entityData, MKActiveEffect instance) {
+        public boolean performEffect(IMKEntityData targetData, MKActiveEffect instance) {
             MKCore.LOGGER.info("MKSongPulseEffect.performEffect {} {}", instance, getSongAbility());
 
-            AreaEffectBuilder area = AreaEffectBuilder.createOnCaster(entityData.getEntity());
-            getSongAbility().addPulseAreaEffects(entityData, area);
+            AreaEffectBuilder area = AreaEffectBuilder.createOnCaster(targetData.getEntity());
+            getSongAbility().addPulseAreaEffects(targetData, area);
 
             area.instant()
                     .particle(getSongAbility().getSongPulseParticle())
                     .color(16762905)
-                    .radius(getSongAbility().getSongDistance(entityData, instance), true)
+                    .radius(getSongAbility().getSongDistance(targetData, instance), true)
                     .spawn();
 
             return true;

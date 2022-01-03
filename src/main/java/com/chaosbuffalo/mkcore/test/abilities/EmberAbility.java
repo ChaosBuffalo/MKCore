@@ -47,8 +47,8 @@ public class EmberAbility extends MKAbility {
     }
 
     @Override
-    protected ITextComponent getAbilityDescription(IMKEntityData entityData) {
-        ITextComponent damageStr = getDamageDescription(entityData, CoreDamageTypes.FireDamage, damage.value(), 0.0f, 0, 1.0f);
+    protected ITextComponent getAbilityDescription(IMKEntityData casterData) {
+        ITextComponent damageStr = getDamageDescription(casterData, CoreDamageTypes.FireDamage, damage.value(), 0.0f, 0, 1.0f);
         ITextComponent burn = new StringTextComponent(burnTime.valueAsString()).mergeStyle(TextFormatting.UNDERLINE);
         return new TranslationTextComponent(getDescriptionTranslationKey(), damageStr, burn);
     }
@@ -65,31 +65,31 @@ public class EmberAbility extends MKAbility {
 
 
     @Override
-    public void continueCastClient(LivingEntity entity, IMKEntityData data, int castTimeLeft) {
-        super.continueCastClient(entity, data, castTimeLeft);
-        Random rand = entity.getRNG();
-        entity.getEntityWorld().addParticle(ParticleTypes.LAVA,
-                entity.getPosX(), entity.getPosY() + 0.5F, entity.getPosZ(),
+    public void continueCastClient(LivingEntity castingEntity, IMKEntityData casterData, int castTimeLeft) {
+        super.continueCastClient(castingEntity, casterData, castTimeLeft);
+        Random rand = castingEntity.getRNG();
+        castingEntity.getEntityWorld().addParticle(ParticleTypes.LAVA,
+                castingEntity.getPosX(), castingEntity.getPosY() + 0.5F, castingEntity.getPosZ(),
                 rand.nextFloat() / 2.0F, 5.0E-5D, rand.nextFloat() / 2.0F);
     }
 
     @Override
-    public void endCast(LivingEntity entity, IMKEntityData data, AbilityContext context) {
-        super.endCast(entity, data, context);
+    public void endCast(LivingEntity castingEntity, IMKEntityData casterData, AbilityContext context) {
+        super.endCast(castingEntity, casterData, context);
         context.getMemory(MKAbilityMemories.ABILITY_TARGET).ifPresent(targetEntity -> {
             int burnDuration = burnTime.value();
             float amount = damage.value();
             MKCore.LOGGER.info("Ember damage {} burnTime {}", amount, burnDuration);
             targetEntity.setFire(burnDuration);
             targetEntity.attackEntityFrom(MKDamageSource.causeAbilityDamage(CoreDamageTypes.FireDamage,
-                    getAbilityId(), entity, entity), amount);
+                    getAbilityId(), castingEntity, castingEntity), amount);
 //            SoundUtils.playSoundAtEntity(targetEntity, ModSounds.spell_fire_6);
             PacketHandler.sendToTrackingAndSelf(new ParticleEffectSpawnPacket(
                                 ParticleTypes.FLAME,
                                 ParticleEffects.CIRCLE_PILLAR_MOTION, 60, 10,
                                 targetEntity.getPosX(), targetEntity.getPosY() + 1.0,
                                 targetEntity.getPosZ(), 1.0, 1.0, 1.0, .25,
-                                entity.getLookVec()), targetEntity);
+                                castingEntity.getLookVec()), targetEntity);
         });
     }
 

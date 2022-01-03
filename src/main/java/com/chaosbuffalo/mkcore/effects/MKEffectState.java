@@ -12,7 +12,7 @@ import java.util.UUID;
 
 public abstract class MKEffectState {
 
-    public boolean isReady(IMKEntityData entityData, MKActiveEffect instance) {
+    public boolean isReady(IMKEntityData targetData, MKActiveEffect instance) {
         return instance.getBehaviour().isReady();
     }
 
@@ -25,7 +25,7 @@ public abstract class MKEffectState {
         MKCore.LOGGER.debug("MKEffectState.combine result {}", existing);
     }
 
-    public abstract boolean performEffect(IMKEntityData entityData, MKActiveEffect instance);
+    public abstract boolean performEffect(IMKEntityData targetData, MKActiveEffect instance);
 
     protected boolean isEffectSource(Entity entity, MKActiveEffect activeEffect) {
         return entity.getUniqueID().equals(activeEffect.getSourceId());

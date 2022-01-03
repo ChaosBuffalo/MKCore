@@ -66,34 +66,34 @@ public class PhoenixAspectAbility extends MKAbility {
     }
 
     @Override
-    public void endCast(LivingEntity entity, IMKEntityData data, AbilityContext context) {
-        super.endCast(entity, data, context);
+    public void endCast(LivingEntity castingEntity, IMKEntityData casterData, AbilityContext context) {
+        super.endCast(castingEntity, casterData, context);
         int level = 1;
 
         // What to do for each target hit
         int duration = (BASE_DURATION + DURATION_SCALE * level) * GameConstants.TICKS_PER_SECOND;
 //        duration = PlayerFormulas.applyBuffDurationBonus(data, duration);
-        SpellCast flying = PhoenixAspectEffect.INSTANCE.newSpellCast(entity);
-        SpellCast feather = FeatherFallEffect.INSTANCE.newSpellCast(entity);
-        SpellCast particlePotion = ParticleEffect.Create(entity,
+        SpellCast flying = PhoenixAspectEffect.INSTANCE.newSpellCast(castingEntity);
+        SpellCast feather = FeatherFallEffect.INSTANCE.newSpellCast(castingEntity);
+        SpellCast particlePotion = ParticleEffect.Create(castingEntity,
                 ParticleTypes.FIREWORK,
                 ParticleEffects.DIRECTED_SPOUT, false, new Vector3d(1.0, 1.5, 1.0),
                 new Vector3d(0.0, 1.0, 0.0), 40, 5, 1.0);
 
-        AreaEffectBuilder.createOnCaster(entity)
+        AreaEffectBuilder.createOnCaster(castingEntity)
                 .spellCast(flying, duration, level, getTargetContext())
                 .spellCast(feather, duration + 10 * GameConstants.TICKS_PER_SECOND, level, getTargetContext())
                 .spellCast(particlePotion, level, getTargetContext())
                 .instant()
                 .particle(ParticleTypes.FIREWORK)
-                .color(65480).radius(getDistance(entity), true)
+                .color(65480).radius(getDistance(castingEntity), true)
                 .spawn();
 
         PacketHandler.sendToTrackingAndSelf(new ParticleEffectSpawnPacket(
                 ParticleTypes.FIREWORK,
                 ParticleEffects.CIRCLE_MOTION, 50, 0,
-                entity.getPosX(), entity.getPosY() + 1.5,
-                entity.getPosZ(), 1.0, 1.0, 1.0, 1.0f,
-                entity.getLookVec()), entity);
+                castingEntity.getPosX(), castingEntity.getPosY() + 1.5,
+                castingEntity.getPosZ(), 1.0, 1.0, 1.0, 1.0f,
+                castingEntity.getLookVec()), castingEntity);
     }
 }

@@ -17,11 +17,11 @@ import java.util.Map;
 
 public class AbilityDescriptions {
 
-    public static ITextComponent getRangeDescription(MKAbility ability, IMKEntityData entityData) {
-        return new TranslationTextComponent("mkcore.ability.description.range", ability.getDistance(entityData.getEntity()));
+    public static ITextComponent getRangeDescription(MKAbility ability, IMKEntityData casterData) {
+        return new TranslationTextComponent("mkcore.ability.description.range", ability.getDistance(casterData.getEntity()));
     }
 
-    public static List<ITextComponent> getEffectModifiers(Effect effect, IMKEntityData entityData, boolean showName) {
+    public static List<ITextComponent> getEffectModifiers(Effect effect, IMKEntityData casterData, boolean showName) {
         if (effect.getAttributeModifierMap().isEmpty()) {
             return Collections.emptyList();
         }
@@ -40,7 +40,7 @@ public class AbilityDescriptions {
         return desc;
     }
 
-    public static List<ITextComponent> getEffectModifiers(MKEffect effect, IMKEntityData entityData, boolean showName) {
+    public static List<ITextComponent> getEffectModifiers(MKEffect effect, IMKEntityData casterData, boolean showName) {
         if (effect.getAttributeModifierMap().isEmpty()) {
             return Collections.emptyList();
         }

@@ -56,9 +56,9 @@ public class HealAbility extends MKAbility {
     }
 
     @Override
-    protected ITextComponent getAbilityDescription(IMKEntityData entityData) {
-        int level = getSkillLevel(entityData.getEntity(), MKAttributes.RESTORATION);
-        ITextComponent valueStr = getHealDescription(entityData, base.value(),
+    protected ITextComponent getAbilityDescription(IMKEntityData casterData) {
+        int level = getSkillLevel(casterData.getEntity(), MKAttributes.RESTORATION);
+        ITextComponent valueStr = getHealDescription(casterData, base.value(),
                 scale.value(), level,
                 modifierScaling.value());
         return new TranslationTextComponent(getDescriptionTranslationKey(), valueStr);
@@ -105,11 +105,11 @@ public class HealAbility extends MKAbility {
     }
 
     @Override
-    public void endCast(LivingEntity entity, IMKEntityData data, AbilityContext context) {
-        super.endCast(entity, data, context);
-        int level = getSkillLevel(entity, MKAttributes.RESTORATION);
+    public void endCast(LivingEntity castingEntity, IMKEntityData casterData, AbilityContext context) {
+        super.endCast(castingEntity, casterData, context);
+        int level = getSkillLevel(castingEntity, MKAttributes.RESTORATION);
         context.getMemory(MKAbilityMemories.ABILITY_TARGET).ifPresent(targetEntity -> {
-            MKEffectBuilder<?> heal = NewHealEffect.INSTANCE.builder(entity.getUniqueID())
+            MKEffectBuilder<?> heal = NewHealEffect.INSTANCE.builder(castingEntity.getUniqueID())
                     .ability(this)
                     .state(s -> s.configure(base.value(), scale.value()));
 //            SpellCast heal = ClericHealEffect.Create(entity, targetEntity,

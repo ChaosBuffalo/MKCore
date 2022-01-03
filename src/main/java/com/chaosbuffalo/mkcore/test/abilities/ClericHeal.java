@@ -65,12 +65,12 @@ public class ClericHeal extends MKAbility {
 //    }
 
     @Override
-    public void endCast(LivingEntity entity, IMKEntityData data, AbilityContext context) {
-        super.endCast(entity, data, context);
+    public void endCast(LivingEntity castingEntity, IMKEntityData casterData, AbilityContext context) {
+        super.endCast(castingEntity, casterData, context);
 
         context.getMemory(MKAbilityMemories.ABILITY_TARGET).ifPresent(target -> {
             int level = 1;
-            SpellCast heal = ClericHealEffect.Create(entity, BASE_VALUE, VALUE_SCALE).setTarget(target);
+            SpellCast heal = ClericHealEffect.Create(castingEntity, BASE_VALUE, VALUE_SCALE).setTarget(target);
             target.addPotionEffect(heal.toPotionEffect(level));
 //            SoundUtils.playSoundAtEntity(target, CoreSounds.spell_heal_3);
             PacketHandler.sendToTrackingAndSelf(new MKParticleEffectSpawnPacket(

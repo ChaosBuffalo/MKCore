@@ -22,21 +22,21 @@ public abstract class MKToggleAbilityNew extends MKToggleAbilityBase {
     public abstract MKEffect getToggleEffect();
 
     @Override
-    public boolean isEffectActive(IMKEntityData entityData) {
-        return entityData.getEffects().isEffectActive(getToggleEffect());
+    public boolean isEffectActive(IMKEntityData targetData) {
+        return targetData.getEffects().isEffectActive(getToggleEffect());
     }
 
     @Override
-    public void buildDescription(IMKEntityData entityData, Consumer<ITextComponent> consumer) {
-        super.buildDescription(entityData, consumer);
-        AbilityDescriptions.getEffectModifiers(getToggleEffect(), entityData, false).forEach(consumer);
+    public void buildDescription(IMKEntityData casterData, Consumer<ITextComponent> consumer) {
+        super.buildDescription(casterData, consumer);
+        AbilityDescriptions.getEffectModifiers(getToggleEffect(), casterData, false).forEach(consumer);
     }
 
     @Override
-    public void removeEffect(LivingEntity entity, IMKEntityData entityData) {
-        entityData.getAbilityExecutor().clearToggleGroupAbility(getToggleGroupId());
-        if (isEffectActive(entityData)) {
-            entityData.getEffects().removeEffect(getToggleEffect());
+    public void removeEffect(LivingEntity castingEntity, IMKEntityData casterData) {
+        casterData.getAbilityExecutor().clearToggleGroupAbility(getToggleGroupId());
+        if (isEffectActive(casterData)) {
+            casterData.getEffects().removeEffect(getToggleEffect());
         }
     }
 }

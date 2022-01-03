@@ -73,24 +73,24 @@ public class FireArmor extends MKAbility {
     }
 
     @Override
-    public void endCast(LivingEntity entity, IMKEntityData data, AbilityContext context) {
-        super.endCast(entity, data, context);
+    public void endCast(LivingEntity castingEntity, IMKEntityData casterData, AbilityContext context) {
+        super.endCast(castingEntity, casterData, context);
         int level = 1;
 
-        int duration = getDuration(data, level);
+        int duration = getDuration(casterData, level);
 
         EffectInstance absorbEffect = new EffectInstance(Effects.ABSORPTION, duration, level + 1, false, true);
 
         EffectInstance fireResistanceEffect = new EffectInstance(Effects.FIRE_RESISTANCE, duration, level, false, true);
 
-        SpellCast particlePotion = ParticleEffect.Create(entity,
+        SpellCast particlePotion = ParticleEffect.Create(castingEntity,
                 ParticleTypes.FLAME,
                 ParticleEffects.CIRCLE_PILLAR_MOTION, false,
                 new Vector3d(1.0, 1.0, 1.0),
                 new Vector3d(0.0, 1.0, 0.0),
                 40, 5, .1f);
 
-        AreaEffectBuilder.createOnCaster(entity)
+        AreaEffectBuilder.createOnCaster(castingEntity)
                 .effect(absorbEffect, getTargetContext())
                 .effect(fireResistanceEffect, getTargetContext())
                 .spellCast(particlePotion, level, getTargetContext())
@@ -98,14 +98,14 @@ public class FireArmor extends MKAbility {
 //                        1, getTargetType())
                 .instant()
                 .particle(ParticleTypes.DRIPPING_LAVA)
-                .color(16762905).radius(getDistance(entity), true)
+                .color(16762905).radius(getDistance(castingEntity), true)
                 .spawn();
 
         PacketHandler.sendToTrackingAndSelf(new ParticleEffectSpawnPacket(
                         ParticleTypes.FLAME,
                         ParticleEffects.CIRCLE_MOTION, 50, 0,
-                        entity.getPosX(), entity.getPosY() + 1.0,
-                        entity.getPosZ(), 1.0, 1.0, 1.0, .1f,
-                        entity.getLookVec()), entity);
+                        castingEntity.getPosX(), castingEntity.getPosY() + 1.0,
+                        castingEntity.getPosZ(), 1.0, 1.0, 1.0, .1f,
+                        castingEntity.getLookVec()), castingEntity);
     }
 }

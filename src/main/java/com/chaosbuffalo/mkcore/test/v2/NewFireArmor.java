@@ -60,48 +60,48 @@ public class NewFireArmor extends MKAbility {
         return 12f;
     }
 
-    private int getDuration(IMKEntityData entityData, int level) {
+    private int getDuration(IMKEntityData casterData, int level) {
         int duration = (BASE_DURATION + DURATION_SCALE * level) * GameConstants.TICKS_PER_SECOND;
-        return MKCombatFormulas.applyBuffDurationModifier(entityData, duration);
+        return MKCombatFormulas.applyBuffDurationModifier(casterData, duration);
     }
 
     @Override
-    public void endCast(LivingEntity entity, IMKEntityData data, AbilityContext context) {
-        super.endCast(entity, data, context);
+    public void endCast(LivingEntity castingEntity, IMKEntityData casterData, AbilityContext context) {
+        super.endCast(castingEntity, casterData, context);
         int level = 1;
 
-        int duration = getDuration(data, level);
+        int duration = getDuration(casterData, level);
 
         EffectInstance absorbEffect = new EffectInstance(Effects.ABSORPTION, duration, level + 1, false, true);
 
         EffectInstance fireResistanceEffect = new EffectInstance(Effects.FIRE_RESISTANCE, duration, level, false, true);
 
-        MKEffectBuilder<?> newFireEffect = NewFireArmorEffect.INSTANCE.builder(entity.getUniqueID())
+        MKEffectBuilder<?> newFireEffect = NewFireArmorEffect.INSTANCE.builder(castingEntity.getUniqueID())
                 .ability(this)
                 .timed(duration)
                 .amplify(level);
 
-        MKEffectBuilder<?> particleEffect = NewParticleEffect.INSTANCE.builder(entity.getUniqueID())
+        MKEffectBuilder<?> particleEffect = NewParticleEffect.INSTANCE.builder(castingEntity.getUniqueID())
                 .ability(this)
-                .state(s -> s.setup(entity, ParticleTypes.FLAME, ParticleEffects.CIRCLE_PILLAR_MOTION, false,
+                .state(s -> s.setup(castingEntity, ParticleTypes.FLAME, ParticleEffects.CIRCLE_PILLAR_MOTION, false,
                         new Vector3d(1.0, 1.0, 1.0), new Vector3d(0.0, 1.0, 0.0), 40, 5, .1f))
                 .amplify(level);
 
-        AreaEffectBuilder.createOnCaster(entity)
+        AreaEffectBuilder.createOnCaster(castingEntity)
                 .effect(absorbEffect, getTargetContext())
                 .effect(fireResistanceEffect, getTargetContext())
                 .effect(newFireEffect, getTargetContext())
                 .effect(particleEffect, getTargetContext())
                 .instant()
                 .particle(ParticleTypes.DRIPPING_LAVA)
-                .color(16762905).radius(getDistance(entity), true)
+                .color(16762905).radius(getDistance(castingEntity), true)
                 .spawn();
 
         PacketHandler.sendToTrackingAndSelf(new ParticleEffectSpawnPacket(
                 ParticleTypes.FLAME,
                 ParticleEffects.CIRCLE_MOTION, 50, 0,
-                entity.getPosX(), entity.getPosY() + 1.0,
-                entity.getPosZ(), 1.0, 1.0, 1.0, .1f,
-                entity.getLookVec()), entity);
+                castingEntity.getPosX(), castingEntity.getPosY() + 1.0,
+                castingEntity.getPosZ(), 1.0, 1.0, 1.0, .1f,
+                castingEntity.getLookVec()), castingEntity);
     }
 }

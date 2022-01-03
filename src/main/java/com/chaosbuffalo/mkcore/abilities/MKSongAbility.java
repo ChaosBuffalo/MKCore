@@ -26,7 +26,7 @@ public abstract class MKSongAbility extends MKToggleAbility {
     }
 
     @Override
-    public float getManaCost(IMKEntityData entityData) {
+    public float getManaCost(IMKEntityData casterData) {
         // Songs cost nothing to activate, but the CasterEffect will try to drain getCasterEffectSustainCost() on the first tick
         return 0;
     }

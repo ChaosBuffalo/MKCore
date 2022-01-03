@@ -31,21 +31,21 @@ public abstract class MKPassiveAbility extends MKAbility implements IMKPassiveAb
     public abstract MKEffect getPassiveEffect();
 
     @Override
-    public void buildDescription(IMKEntityData entityData, Consumer<ITextComponent> consumer) {
+    public void buildDescription(IMKEntityData casterData, Consumer<ITextComponent> consumer) {
         consumer.accept(new TranslationTextComponent("mkcore.ability.description.passive"));
         consumer.accept(getTargetContextLocalization());
-        consumer.accept(getAbilityDescription(entityData));
-        AbilityDescriptions.getEffectModifiers(getPassiveEffect(), entityData, false).forEach(consumer);
+        consumer.accept(getAbilityDescription(casterData));
+        AbilityDescriptions.getEffectModifiers(getPassiveEffect(), casterData, false).forEach(consumer);
     }
 
     @Override
-    public void executeWithContext(IMKEntityData entityData, AbilityContext context, MKAbilityInfo abilityInfo) {
+    public void executeWithContext(IMKEntityData casterData, AbilityContext context, MKAbilityInfo abilityInfo) {
         // TODO: see if this isEffectActive is needed in practice
-        if (!entityData.getEffects().isEffectActive(getPassiveEffect())) {
-            MKEffectBuilder<?> effect = getPassiveEffect().builder(entityData.getEntity().getUniqueID())
+        if (!casterData.getEffects().isEffectActive(getPassiveEffect())) {
+            MKEffectBuilder<?> effect = getPassiveEffect().builder(casterData.getEntity().getUniqueID())
                     .temporary() // Abilities slotted to the passive group are re-executed when joining the world
                     .infinite();
-            entityData.getEffects().addEffect(effect);
+            casterData.getEffects().addEffect(effect);
         }
     }
 }

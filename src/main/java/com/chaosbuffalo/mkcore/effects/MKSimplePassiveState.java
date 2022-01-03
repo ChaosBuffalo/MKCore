@@ -6,12 +6,12 @@ public class MKSimplePassiveState extends MKEffectState {
     public static MKSimplePassiveState INSTANCE = new MKSimplePassiveState();
 
     @Override
-    public boolean performEffect(IMKEntityData entityData, MKActiveEffect instance) {
+    public boolean performEffect(IMKEntityData targetData, MKActiveEffect instance) {
         return true;
     }
 
     @Override
-    public boolean isReady(IMKEntityData entityData, MKActiveEffect instance) {
+    public boolean isReady(IMKEntityData targetData, MKActiveEffect instance) {
         // This is a simple passive meant to provide attributes and does not need to tick
         return false;
     }

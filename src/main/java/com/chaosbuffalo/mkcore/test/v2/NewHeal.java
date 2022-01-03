@@ -50,9 +50,9 @@ public class NewHeal extends MKAbility {
     }
 
     @Override
-    protected ITextComponent getAbilityDescription(IMKEntityData entityData) {
-        int level = getSkillLevel(entityData.getEntity(), MKAttributes.RESTORATION);
-        ITextComponent valueStr = getHealDescription(entityData, base.value(),
+    protected ITextComponent getAbilityDescription(IMKEntityData casterData) {
+        int level = getSkillLevel(casterData.getEntity(), MKAttributes.RESTORATION);
+        ITextComponent valueStr = getHealDescription(casterData, base.value(),
                 scale.value(), level,
                 modifierScaling.value());
         return new TranslationTextComponent(getDescriptionTranslationKey(), valueStr);
@@ -84,12 +84,12 @@ public class NewHeal extends MKAbility {
     }
 
     @Override
-    public void endCast(LivingEntity caster, IMKEntityData casterData, AbilityContext context) {
-        super.endCast(caster, casterData, context);
-        int level = getSkillLevel(caster, MKAttributes.RESTORATION);
+    public void endCast(LivingEntity castingEntity, IMKEntityData casterData, AbilityContext context) {
+        super.endCast(castingEntity, casterData, context);
+        int level = getSkillLevel(castingEntity, MKAttributes.RESTORATION);
         context.getMemory(MKAbilityMemories.ABILITY_TARGET).ifPresent(targetEntity -> {
             MKCore.getEntityData(targetEntity).ifPresent(targetData -> {
-                MKEffectBuilder<?> heal = NewHealEffect.INSTANCE.builder(caster.getUniqueID())
+                MKEffectBuilder<?> heal = NewHealEffect.INSTANCE.builder(castingEntity.getUniqueID())
                         .ability(this)
                         .state(s -> s.configure(base.value(), scale.value()))
                         .timed(200)
@@ -99,7 +99,7 @@ public class NewHeal extends MKAbility {
             });
 
             //            SoundUtils.playSoundAtEntity(targetEntity, ModSounds.spell_heal_3);
-            Vector3d lookVec = caster.getLookVec();
+            Vector3d lookVec = castingEntity.getLookVec();
             PacketHandler.sendToTrackingAndSelf(
                     new ParticleEffectSpawnPacket(
                             ParticleTypes.HAPPY_VILLAGER,

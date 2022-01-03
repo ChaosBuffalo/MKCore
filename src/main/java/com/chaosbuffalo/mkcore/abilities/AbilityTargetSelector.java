@@ -47,9 +47,9 @@ public class AbilityTargetSelector {
         return showTargetType;
     }
 
-    public void buildDescription(MKAbility ability, IMKEntityData entityData, Consumer<ITextComponent> consumer) {
+    public void buildDescription(MKAbility ability, IMKEntityData casterData, Consumer<ITextComponent> consumer) {
         consumer.accept(getDescriptionWithHeading(ability));
-        additionalDescriptors.forEach(func -> consumer.accept(func.apply(ability, entityData)));
+        additionalDescriptors.forEach(func -> consumer.accept(func.apply(ability, casterData)));
     }
 
     private IFormattableTextComponent getDescriptionWithHeading(MKAbility ability) {
@@ -82,11 +82,11 @@ public class AbilityTargetSelector {
         return selector;
     }
 
-    public AbilityContext createContext(IMKEntityData entityData, MKAbility ability) {
-        return selector.apply(entityData, ability);
+    public AbilityContext createContext(IMKEntityData casterData, MKAbility ability) {
+        return selector.apply(casterData, ability);
     }
 
-    public boolean validateContext(IMKEntityData entityData, AbilityContext context) {
+    public boolean validateContext(IMKEntityData casterData, AbilityContext context) {
         return requiredMemories == null || requiredMemories.stream().allMatch(context::hasMemory);
     }
 }

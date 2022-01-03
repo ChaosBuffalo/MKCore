@@ -58,8 +58,8 @@ public class MKParticleEffectNew extends MKEffect {
         }
 
         @Override
-        public boolean performEffect(IMKEntityData entityData, MKActiveEffect instance) {
-            PacketHandler.sendToTrackingAndSelf(createPacket(entityData.getEntity()), entityData.getEntity());
+        public boolean performEffect(IMKEntityData targetData, MKActiveEffect instance) {
+            PacketHandler.sendToTrackingAndSelf(createPacket(targetData.getEntity()), targetData.getEntity());
             return true;
         }
 

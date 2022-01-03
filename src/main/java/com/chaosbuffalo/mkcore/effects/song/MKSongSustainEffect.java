@@ -34,7 +34,7 @@ public abstract class MKSongSustainEffect extends MKEffect {
     public static class SongSustainState extends MKSongStateBase {
 
         @Override
-        public boolean performEffect(IMKEntityData entityData, MKActiveEffect instance) {
+        public boolean performEffect(IMKEntityData targetData, MKActiveEffect instance) {
             MKCore.LOGGER.info("MKSongSustainEffect.performEffect {} {}", instance, getSongAbility());
 
 //            if (entityData.getAbilityExecutor().isCasting() ||
@@ -43,18 +43,18 @@ public abstract class MKSongSustainEffect extends MKEffect {
 //                return;
 //            }
 
-            if (entityData instanceof MKPlayerData) {
-                MKPlayerData playerData = (MKPlayerData) entityData;
+            if (targetData instanceof MKPlayerData) {
+                MKPlayerData playerData = (MKPlayerData) targetData;
                 if (!playerData.getStats().consumeMana(getSongAbility().getSustainEffectManaCost(playerData, instance))) {
                     // Remove the effect if you can't pay the upkeep
                     return false;
                 }
             }
 
-            MKActiveEffect pulse = getSongAbility().createPulseEffect(entityData);
-            entityData.getEffects().addEffect(pulse);
+            MKActiveEffect pulse = getSongAbility().createPulseEffect(targetData);
+            targetData.getEffects().addEffect(pulse);
 
-            LivingEntity target = entityData.getEntity();
+            LivingEntity target = targetData.getEntity();
             PacketHandler.sendToTrackingAndSelf(new ParticleEffectSpawnPacket(
                     ParticleTypes.NOTE,
                     ParticleEffects.CIRCLE_MOTION, 12, 4,

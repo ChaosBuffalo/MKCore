@@ -53,7 +53,7 @@ public class AbilityContext {
         return new AbilityContext().withMemory(MKAbilityMemories.ABILITY_TARGET, Optional.ofNullable(target));
     }
 
-    public static AbilityContext selfTarget(IMKEntityData entityData) {
-        return singleTarget(entityData.getEntity());
+    public static AbilityContext selfTarget(IMKEntityData targetData) {
+        return singleTarget(targetData.getEntity());
     }
 }

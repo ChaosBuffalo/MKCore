@@ -90,18 +90,18 @@ public class WhirlwindBlades extends MKAbility {
     }
 
     @Override
-    public void continueCast(LivingEntity entity, IMKEntityData data, int castTimeLeft, AbilityContext context) {
-        super.continueCast(entity, data, castTimeLeft, context);
+    public void continueCast(LivingEntity castingEntity, IMKEntityData casterData, int castTimeLeft, AbilityContext context) {
+        super.continueCast(castingEntity, casterData, castTimeLeft, context);
         int tickSpeed = 6;
         if (castTimeLeft % tickSpeed == 0) {
             int level = 1;
-            int totalDuration = getCastTime(data);
+            int totalDuration = getCastTime(casterData);
             int count = (totalDuration - castTimeLeft) / tickSpeed;
             float baseAmount = 0.15f;
             float scaling = count * baseAmount;
             // What to do for each target hit
-            SpellCast damage = AbilityMagicDamageEffect.Create(entity, BASE_DAMAGE, DAMAGE_SCALE, scaling);
-            SpellCast particlePotion = ParticleEffect.Create(entity,
+            SpellCast damage = AbilityMagicDamageEffect.Create(castingEntity, BASE_DAMAGE, DAMAGE_SCALE, scaling);
+            SpellCast particlePotion = ParticleEffect.Create(castingEntity,
                     ParticleTypes.SWEEP_ATTACK,
                     ParticleEffects.CIRCLE_MOTION, false,
                     new Vector3d(1.0, 1.0, 1.0),
@@ -109,22 +109,22 @@ public class WhirlwindBlades extends MKAbility {
                     4, 0, 1.0);
 
 
-            AreaEffectBuilder.createOnCaster(entity)
+            AreaEffectBuilder.createOnCaster(castingEntity)
                     .spellCast(damage, level, getTargetContext())
                     .spellCast(particlePotion, level, getTargetContext())
 //                    .spellCast(SoundPotion.Create(entity, ModSounds.spell_shadow_2, SoundCategory.PLAYERS),
 //                            1, getTargetType())
                     .instant()
-                    .color(16409620).radius(getDistance(entity), true)
+                    .color(16409620).radius(getDistance(castingEntity), true)
                     .particle(ParticleTypes.CRIT)
                     .spawn();
 
             PacketHandler.sendToTrackingAndSelf(new ParticleEffectSpawnPacket(
                                 ParticleTypes.SWEEP_ATTACK,
                                 ParticleEffects.SPHERE_MOTION, 16, 4,
-                                entity.getPosX(), entity.getPosY() + 1.0,
-                                entity.getPosZ(), 1.0, 1.0, 1.0, 1.5,
-                                entity.getLookVec()), entity);
+                                castingEntity.getPosX(), castingEntity.getPosY() + 1.0,
+                                castingEntity.getPosZ(), 1.0, 1.0, 1.0, 1.5,
+                                castingEntity.getLookVec()), castingEntity);
         }
     }
 }

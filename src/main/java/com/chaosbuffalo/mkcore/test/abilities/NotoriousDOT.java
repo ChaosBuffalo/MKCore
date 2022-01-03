@@ -75,16 +75,16 @@ public class NotoriousDOT extends MKSongAbility {
     }
 
     @Override
-    public void applyEffect(LivingEntity entity, IMKEntityData entityData) {
-        super.applyEffect(entity, entityData);
+    public void applyEffect(LivingEntity castingEntity, IMKEntityData casterData) {
+        super.applyEffect(castingEntity, casterData);
         int level = 1;
-        entity.addPotionEffect(NotoriousDOTCasterEffect.INSTANCE.createSelfCastEffectInstance(entity, level));
+        castingEntity.addPotionEffect(NotoriousDOTCasterEffect.INSTANCE.createSelfCastEffectInstance(castingEntity, level));
 //        SoundUtils.playSoundAtEntity(entity, ModSounds.spell_shadow_9);
         PacketHandler.sendToTrackingAndSelf(new ParticleEffectSpawnPacket(
                         ParticleTypes.NOTE,
                         ParticleEffects.SPHERE_MOTION, 50, 5,
-                        entity.getPosX(), entity.getPosY() + 1.0,
-                        entity.getPosZ(), 1.0, 1.0, 1.0, 1.0f,
-                        entity.getLookVec()), entity);
+                        castingEntity.getPosX(), castingEntity.getPosY() + 1.0,
+                        castingEntity.getPosZ(), 1.0, 1.0, 1.0, 1.0f,
+                        castingEntity.getLookVec()), castingEntity);
     }
 }

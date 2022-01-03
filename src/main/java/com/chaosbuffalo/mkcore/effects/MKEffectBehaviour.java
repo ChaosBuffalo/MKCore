@@ -69,12 +69,12 @@ public class MKEffectBehaviour {
         return period;
     }
 
-    public MKEffectTickAction behaviourTick(IMKEntityData entityData, MKActiveEffect activeEffect) {
+    public MKEffectTickAction behaviourTick(IMKEntityData targetData, MKActiveEffect activeEffect) {
         MKEffectTickAction action;
         if (isInfinite()) {
-            action = infiniteTick(entityData, activeEffect);
+            action = infiniteTick(targetData, activeEffect);
         } else {
-            action = timedTick(entityData, activeEffect);
+            action = timedTick(targetData, activeEffect);
         }
 
         return action;
@@ -90,10 +90,10 @@ public class MKEffectBehaviour {
         }
     }
 
-    private MKEffectTickAction timedTick(IMKEntityData entityData, MKActiveEffect instance) {
+    private MKEffectTickAction timedTick(IMKEntityData targetData, MKActiveEffect instance) {
         boolean keepTicking = false;
         if (getDuration() > 0) {
-            keepTicking = tryPerformEffect(entityData, instance);
+            keepTicking = tryPerformEffect(targetData, instance);
 
             duration--;
         }
@@ -104,9 +104,9 @@ public class MKEffectBehaviour {
         return MKEffectTickAction.NoUpdate;
     }
 
-    private MKEffectTickAction infiniteTick(IMKEntityData entityData, MKActiveEffect instance) {
+    private MKEffectTickAction infiniteTick(IMKEntityData targetData, MKActiveEffect instance) {
 
-        boolean keepTicking = tryPerformEffect(entityData, instance);
+        boolean keepTicking = tryPerformEffect(targetData, instance);
         if (!keepTicking) {
             return MKEffectTickAction.Remove;
         }
@@ -116,10 +116,10 @@ public class MKEffectBehaviour {
         return MKEffectTickAction.NoUpdate;
     }
 
-    private boolean tryPerformEffect(IMKEntityData entityData, MKActiveEffect instance) {
-        if (entityData.isServerSide()) {
-            if (instance.getState().isReady(entityData, instance)) {
-                return instance.getState().performEffect(entityData, instance);
+    private boolean tryPerformEffect(IMKEntityData targetData, MKActiveEffect instance) {
+        if (targetData.isServerSide()) {
+            if (instance.getState().isReady(targetData, instance)) {
+                return instance.getState().performEffect(targetData, instance);
             }
         }
         return true;

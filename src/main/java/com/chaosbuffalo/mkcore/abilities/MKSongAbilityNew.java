@@ -40,9 +40,9 @@ public abstract class MKSongAbilityNew extends MKToggleAbilityNew {
     public abstract int getPulseEffectTicks();
 
     @Override
-    public void applyEffect(LivingEntity entity, IMKEntityData entityData) {
-        super.applyEffect(entity, entityData);
-        applySustainEffect(entityData);
+    public void applyEffect(LivingEntity castingEntity, IMKEntityData casterData) {
+        super.applyEffect(castingEntity, casterData);
+        applySustainEffect(casterData);
     }
 
     public MKActiveEffect createSustainEffect(IMKEntityData casterData) {
@@ -61,7 +61,7 @@ public abstract class MKSongAbilityNew extends MKToggleAbilityNew {
                 .createApplication();
     }
 
-    public float getSongDistance(IMKEntityData entityData, MKActiveEffect instance) {
+    public float getSongDistance(IMKEntityData casterData, MKActiveEffect instance) {
         return 10f;
     }
 
@@ -88,12 +88,12 @@ public abstract class MKSongAbilityNew extends MKToggleAbilityNew {
 
     }
 
-    public int getSustainEffectManaCost(IMKEntityData entityData, MKActiveEffect activeEffect) {
+    public int getSustainEffectManaCost(IMKEntityData casterData, MKActiveEffect activeEffect) {
         return 1;
     }
 
     @Override
-    public float getManaCost(IMKEntityData entityData) {
+    public float getManaCost(IMKEntityData casterData) {
         // Songs cost nothing to activate, but the CasterEffect will try to drain getSustainEffectManaCost() on the first tick
         return 0;
     }

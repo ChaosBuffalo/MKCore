@@ -31,16 +31,16 @@ public abstract class PassiveTalentAbility extends MKAbility implements IMKPassi
 
     public abstract PassiveTalentEffect getPassiveEffect();
 
-    public void buildDescription(IMKEntityData entityData, Consumer<ITextComponent> consumer) {
+    public void buildDescription(IMKEntityData casterData, Consumer<ITextComponent> consumer) {
         consumer.accept(new TranslationTextComponent("mkcore.ability.description.passive"));
         consumer.accept(getTargetContextLocalization());
-        consumer.accept(getAbilityDescription(entityData));
-        AbilityDescriptions.getEffectModifiers(getPassiveEffect(), entityData, false).forEach(consumer);
+        consumer.accept(getAbilityDescription(casterData));
+        AbilityDescriptions.getEffectModifiers(getPassiveEffect(), casterData, false).forEach(consumer);
     }
 
     @Override
-    public void executeWithContext(IMKEntityData entityData, AbilityContext context, MKAbilityInfo abilityInfo) {
-        LivingEntity entity = entityData.getEntity();
+    public void executeWithContext(IMKEntityData casterData, AbilityContext context, MKAbilityInfo abilityInfo) {
+        LivingEntity entity = casterData.getEntity();
         if (entity instanceof PlayerEntity) {
             if (entity.getActivePotionEffect(getPassiveEffect()) == null) {
                 entity.addPotionEffect(getPassiveEffect().createSelfCastEffectInstance(entity, 0));

@@ -38,38 +38,38 @@ public abstract class MKToggleAbilityBase extends MKAbility {
     }
 
     @Override
-    public float getManaCost(IMKEntityData entityData) {
-        if (isEffectActive(entityData)) {
+    public float getManaCost(IMKEntityData casterData) {
+        if (isEffectActive(casterData)) {
             return 0f;
         }
-        return super.getManaCost(entityData);
+        return super.getManaCost(casterData);
     }
 
     @Override
-    public int getCastTime(IMKEntityData entityData) {
+    public int getCastTime(IMKEntityData casterData) {
         // Active effects can be disabled instantly
-        if (isEffectActive(entityData)) {
+        if (isEffectActive(casterData)) {
             return 0;
         }
-        return super.getCastTime(entityData);
+        return super.getCastTime(casterData);
     }
 
     @Override
-    public void endCast(LivingEntity entity, IMKEntityData entityData, AbilityContext context) {
-        if (isEffectActive(entityData)) {
-            removeEffect(entity, entityData);
+    public void endCast(LivingEntity castingEntity, IMKEntityData casterData, AbilityContext context) {
+        if (isEffectActive(casterData)) {
+            removeEffect(castingEntity, casterData);
         } else {
-            applyEffect(entity, entityData);
+            applyEffect(castingEntity, casterData);
         }
     }
 
-    public abstract boolean isEffectActive(IMKEntityData entityData);
+    public abstract boolean isEffectActive(IMKEntityData targetData);
 
-    public void applyEffect(LivingEntity entity, IMKEntityData entityData) {
-        entityData.getAbilityExecutor().setToggleGroupAbility(getToggleGroupId(), this);
+    public void applyEffect(LivingEntity castingEntity, IMKEntityData casterData) {
+        casterData.getAbilityExecutor().setToggleGroupAbility(getToggleGroupId(), this);
     }
 
-    public abstract void removeEffect(LivingEntity entity, IMKEntityData entityData);
+    public abstract void removeEffect(LivingEntity castingEntity, IMKEntityData casterData);
 
     @Override
     public AbilityRenderer getRenderer() {

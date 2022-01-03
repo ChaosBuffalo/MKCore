@@ -61,7 +61,7 @@ public class StunEffectV2 extends MKEffect {
             MobEntity mob = (MobEntity) target;
             mob.setNoAI(true);
         }
-        MKCore.getEntityData(target).ifPresent(entityData -> entityData.getAbilityExecutor().interruptCast());
+        targetData.getAbilityExecutor().interruptCast();
         SoundUtils.serverPlaySoundAtEntity(target, CoreSounds.stun_sound, target.getSoundCategory());
     }
 

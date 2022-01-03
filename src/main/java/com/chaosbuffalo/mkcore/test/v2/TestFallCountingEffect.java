@@ -63,18 +63,18 @@ public class TestFallCountingEffect extends MKEffect {
         private final int max = 5;
 
         @Override
-        public boolean isReady(IMKEntityData entityData, MKActiveEffect instance) {
+        public boolean isReady(IMKEntityData targetData, MKActiveEffect instance) {
             return counter > lastCounter;
         }
 
         @Override
-        public boolean performEffect(IMKEntityData entityData, MKActiveEffect instance) {
+        public boolean performEffect(IMKEntityData targetData, MKActiveEffect instance) {
             lastCounter = counter;
-            if (!(entityData instanceof MKPlayerData)) {
+            if (!(targetData instanceof MKPlayerData)) {
                 return false;
             }
 
-            MKPlayerData playerData = (MKPlayerData) entityData;
+            MKPlayerData playerData = (MKPlayerData) targetData;
             ChatUtils.sendMessage(playerData.getEntity(), "Fall counter %d", counter);
 
             instance.modifyStackCount(1);
