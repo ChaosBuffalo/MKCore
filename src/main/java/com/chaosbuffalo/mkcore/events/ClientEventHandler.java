@@ -1,5 +1,9 @@
-package com.chaosbuffalo.mkcore;
+package com.chaosbuffalo.mkcore.events;
 
+import com.chaosbuffalo.mkcore.GameConstants;
+import com.chaosbuffalo.mkcore.MKConfig;
+import com.chaosbuffalo.mkcore.MKCore;
+import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.client.gui.CharacterScreen;
 import com.chaosbuffalo.mkcore.client.gui.IPlayerDataAwareScreen;
