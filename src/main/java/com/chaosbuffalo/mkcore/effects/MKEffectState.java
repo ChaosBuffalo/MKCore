@@ -17,11 +17,12 @@ public abstract class MKEffectState {
     }
 
     public void combine(MKActiveEffect existing, MKActiveEffect otherInstance) {
-        MKCore.LOGGER.info("MKEffectHandler.combine {} + {}", this, otherInstance);
+        MKCore.LOGGER.debug("MKEffectState.combine {} + {}", existing, otherInstance);
         if (otherInstance.getDuration() > existing.getDuration()) {
             existing.setDuration(otherInstance.getDuration());
         }
         existing.modifyStackCount(otherInstance.getStackCount());
+        MKCore.LOGGER.debug("MKEffectState.combine result {}", existing);
     }
 
     public abstract boolean performEffect(IMKEntityData entityData, MKActiveEffect instance);

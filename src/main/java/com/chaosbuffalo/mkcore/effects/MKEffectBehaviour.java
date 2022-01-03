@@ -9,7 +9,6 @@ public class MKEffectBehaviour {
     private int period;
     private boolean infinite;
     private boolean temporary;
-    private boolean needsClientUpdate;
 
     public MKEffectBehaviour() {
 
@@ -31,7 +30,7 @@ public class MKEffectBehaviour {
     }
 
     public boolean isTimed() {
-        return duration > 0;
+        return isInfinite() || duration > 0;
     }
 
     public void modifyDuration(int delta) {
@@ -39,7 +38,11 @@ public class MKEffectBehaviour {
     }
 
     public boolean isExpired() {
-        return duration <= 0;
+        return canExpire() && duration <= 0;
+    }
+
+    private boolean canExpire() {
+        return !isInfinite();
     }
 
     public void setTemporary() {
@@ -68,23 +71,20 @@ public class MKEffectBehaviour {
 
     public MKEffectTickAction behaviourTick(IMKEntityData entityData, MKActiveEffect activeEffect) {
         MKEffectTickAction action;
-        if (infinite) {
+        if (isInfinite()) {
             action = infiniteTick(entityData, activeEffect);
         } else {
             action = timedTick(entityData, activeEffect);
         }
 
-        if (action == MKEffectTickAction.NoUpdate && needsClientUpdate)
-            action = MKEffectTickAction.Update;
-        needsClientUpdate = false;
         return action;
     }
 
     public boolean isReady() {
         if (isExpired())
             return false;
-        if (period > 0) {
-            return getDuration() % period == 0;
+        if (getPeriod() > 0) {
+            return getDuration() % getPeriod() == 0;
         } else {
             return true;
         }

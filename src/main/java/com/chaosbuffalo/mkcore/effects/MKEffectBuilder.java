@@ -73,9 +73,13 @@ public class MKEffectBuilder<T extends MKEffectState> {
     }
 
     public MKEffectBuilder<T> infinite() {
-        // Give it a duration so MKActiveEffect.hasDuration returns true for infinite effects
-        timed(1);
         behaviour.setInfinite(true);
+        return this;
+    }
+
+    public MKEffectBuilder<T> instant() {
+        behaviour.setDuration(0);
+        behaviour.setInfinite(false);
         return this;
     }
 
