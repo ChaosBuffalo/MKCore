@@ -6,7 +6,7 @@ import com.chaosbuffalo.mkcore.abilities.*;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.core.MKAttributes;
 import com.chaosbuffalo.mkcore.core.healing.MKHealing;
-import com.chaosbuffalo.mkcore.effects.MKEffectInstance;
+import com.chaosbuffalo.mkcore.effects.MKEffectBuilder;
 import com.chaosbuffalo.mkcore.fx.ParticleEffects;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.ParticleEffectSpawnPacket;
@@ -89,8 +89,9 @@ public class NewHeal extends MKAbility {
         int level = getSkillLevel(caster, MKAttributes.RESTORATION);
         context.getMemory(MKAbilityMemories.ABILITY_TARGET).ifPresent(targetEntity -> {
             MKCore.getEntityData(targetEntity).ifPresent(targetData -> {
-                MKEffectInstance heal = NewHealEffect.INSTANCE.createInstance(this, caster)
-                        .configure(base.value(), scale.value())
+                MKEffectBuilder<?> heal = NewHealEffect.INSTANCE.builder(caster.getUniqueID())
+                        .ability(this)
+                        .state(s -> s.configure(base.value(), scale.value()))
                         .timed(200)
                         .periodic(40)
                         .amplify(level);

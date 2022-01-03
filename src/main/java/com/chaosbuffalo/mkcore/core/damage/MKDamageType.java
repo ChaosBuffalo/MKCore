@@ -13,6 +13,8 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
+import javax.annotation.Nonnull;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 
@@ -41,6 +43,11 @@ public class MKDamageType extends ForgeRegistryEntry<MKDamageType> {
                 name.getPath().substring(7)));
     }
 
+    @Nonnull
+    public ResourceLocation getId() {
+        return Objects.requireNonNull(getRegistryName());
+    }
+
     public MKDamageType setCritMultiplier(float value) {
         this.critMultiplier = value;
         return this;
@@ -60,8 +67,8 @@ public class MKDamageType extends ForgeRegistryEntry<MKDamageType> {
     }
 
     public IFormattableTextComponent getDisplayName() {
-        return new TranslationTextComponent(String.format("%s.%s.name", getRegistryName().getNamespace(),
-                getRegistryName().getPath()));
+        ResourceLocation name = getId();
+        return new TranslationTextComponent(String.format("%s.%s.name", name.getNamespace(), name.getPath()));
     }
 
     public ResourceLocation getIcon() {

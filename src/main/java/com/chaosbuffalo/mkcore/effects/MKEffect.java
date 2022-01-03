@@ -81,7 +81,7 @@ public abstract class MKEffect extends ForgeRegistryEntry<MKEffect> {
         }
     }
 
-    // Entity not yet in world when this is called early
+    // Entity not yet in world when this is called. Called during deserialization from NBT
     public void onInstanceLoaded(IMKEntityData targetData, MKActiveEffect activeInstance) {
         MKCore.LOGGER.debug("MKEffect.onInstanceLoaded {}", activeInstance);
     }
@@ -91,7 +91,15 @@ public abstract class MKEffect extends ForgeRegistryEntry<MKEffect> {
         MKCore.LOGGER.debug("MKEffect.onInstanceReady {}", activeInstance);
     }
 
-    public abstract MKEffectInstance createInstance(UUID sourceId);
+    public MKEffectBuilder<?> builder(UUID sourceId) {
+        return new MKEffectBuilder<>(this, sourceId, this::makeState);
+    }
+
+    public abstract MKEffectState makeState();
+
+    public MKActiveEffect createInstance(UUID sourceId) {
+        return new MKActiveEffect(this, sourceId);
+    }
 
     public Map<Attribute, AttributeModifier> getAttributeModifierMap() {
         return attributeModifierMap;

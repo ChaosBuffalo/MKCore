@@ -34,7 +34,7 @@ public abstract class PotionSpriteUploaderMixins extends SpriteUploader {
 
     /**
      * @author ralekdev
-     * @reason Allow texture lookup for MKEffectInstance-based effects
+     * @reason Allow texture lookup for MKActiveEffect-based effects
      */
     @Overwrite
     public TextureAtlasSprite getSprite(Effect effectIn) {

@@ -2,14 +2,12 @@ package com.chaosbuffalo.mkcore.test.v2;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.effects.MKEffect;
-import com.chaosbuffalo.mkcore.effects.MKEffectInstance;
-import com.chaosbuffalo.mkcore.effects.MKSimplePassiveEffect;
+import com.chaosbuffalo.mkcore.effects.MKEffectState;
+import com.chaosbuffalo.mkcore.effects.MKSimplePassiveState;
 import net.minecraft.potion.EffectType;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-
-import java.util.UUID;
 
 @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class NewFireArmorEffect extends MKEffect {
@@ -27,8 +25,7 @@ public class NewFireArmorEffect extends MKEffect {
     }
 
     @Override
-    public MKEffectInstance createInstance(UUID sourceId) {
-        return new MKSimplePassiveEffect(this, sourceId);
+    public MKEffectState makeState() {
+        return MKSimplePassiveState.INSTANCE;
     }
-
 }

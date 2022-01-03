@@ -5,8 +5,7 @@ import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.abilities.MKToggleAbilityNew;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.effects.MKEffect;
-import com.chaosbuffalo.mkcore.effects.MKEffectBehaviour;
-import com.chaosbuffalo.mkcore.effects.MKEffectInstance;
+import com.chaosbuffalo.mkcore.effects.MKEffectBuilder;
 import com.chaosbuffalo.targeting_api.TargetingContext;
 import com.chaosbuffalo.targeting_api.TargetingContexts;
 import net.minecraft.entity.LivingEntity;
@@ -43,7 +42,7 @@ public class SkinLikeWoodAbilityV2 extends MKToggleAbilityNew {
     public void applyEffect(LivingEntity entity, IMKEntityData entityData) {
         super.applyEffect(entity, entityData);
 
-        MKEffectInstance instance = getToggleEffect().createInstance(entity.getUniqueID())
+        MKEffectBuilder<?> instance = getToggleEffect().builder(entity.getUniqueID())
                 .amplify(2)
                 .infinite();
         entityData.getEffects().addEffect(instance);

@@ -1,5 +1,8 @@
 package com.chaosbuffalo.mkcore.effects;
 
+import com.chaosbuffalo.mkcore.MKCore;
+import com.chaosbuffalo.mkcore.MKCoreRegistry;
+import com.google.common.reflect.TypeToken;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.nbt.CompoundNBT;
@@ -8,30 +11,58 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.util.Lazy;
 
 import javax.annotation.Nullable;
-import java.util.Objects;
 import java.util.UUID;
 
 public class MKActiveEffect {
 
-    protected final MKEffectInstance effect;
-    protected final Lazy<EffectInstance> displayEffectInstance = Lazy.of(() -> createDisplayEffectInstance(this));
-    protected int duration;
-    protected int stackCount;
-    protected MKEffectBehaviour behaviour;
+    private final UUID sourceId;
+    private final MKEffect effect;
+    private final Lazy<EffectInstance> displayEffectInstance = Lazy.of(() -> createDisplayEffectInstance(this));
+    private final MKEffectState state;
+    private final MKEffectBehaviour behaviour;
+    private int stackCount;
+    @Nullable
+    private ResourceLocation abilityId;
 
-    protected MKActiveEffect(MKEffectInstance effectInstance, MKEffectBehaviour behaviour) {
-        effect = Objects.requireNonNull(effectInstance);
-        this.behaviour = Objects.requireNonNull(behaviour);
-        duration = effectInstance.getInitialDuration();
-        stackCount = effectInstance.getInitialStackCount();
+    // Builder
+    public MKActiveEffect(MKEffectBuilder<?> builder, MKEffectState state) {
+        sourceId = builder.getSourceId();
+        effect = builder.getEffect();
+        this.behaviour = new MKEffectBehaviour(builder.getBehaviour());
+        stackCount = builder.getInitialStackCount();
+        this.state = state;
+        abilityId = builder.getAbilityId();
     }
 
-    public MKEffectInstance getInstance() {
-        return effect;
+    // Deserialize
+    public MKActiveEffect(MKEffect effect, UUID sourceId) {
+        this.sourceId = sourceId;
+        this.effect = effect;
+        this.behaviour = new MKEffectBehaviour();
+        stackCount = 1;
+        this.state = effect.makeState();
+    }
+
+    public UUID getSourceId() {
+        return sourceId;
+    }
+
+    public MKEffectState getState() {
+        return state;
+    }
+
+    public <T extends MKEffectState> T getState(TypeToken<T> typeBound) {
+        return (T) getState();
+    }
+
+    public ResourceLocation getAbilityId() {
+        if (abilityId == null)
+            return MKCoreRegistry.INVALID_ABILITY;
+        return abilityId;
     }
 
     public MKEffect getEffect() {
-        return effect.getEffect();
+        return effect;
     }
 
     public MKEffectBehaviour getBehaviour() {
@@ -39,19 +70,15 @@ public class MKActiveEffect {
     }
 
     public int getDuration() {
-        return duration;
+        return behaviour.getDuration();
     }
 
     public void setDuration(int duration) {
-        this.duration = duration;
+        behaviour.setDuration(duration);
     }
 
     public void modifyDuration(int delta) {
-        duration += delta;
-    }
-
-    public boolean hasDuration() {
-        return duration > 0;
+        behaviour.modifyDuration(delta);
     }
 
     public int getStackCount() {
@@ -66,23 +93,19 @@ public class MKActiveEffect {
         stackCount += delta;
     }
 
-    public boolean isExpired() {
-        return duration <= 0;
-    }
-
     public CompoundNBT serializeClient() {
         CompoundNBT stateTag = new CompoundNBT();
-        stateTag.put("effect", effect.serializeClient());
         stateTag.put("state", serializeState());
         return stateTag;
     }
 
     public static MKActiveEffect deserializeClient(ResourceLocation effectId, UUID sourceId, CompoundNBT tag) {
-        MKEffectInstance instance = MKEffectInstance.deserializeClient(effectId, sourceId, tag.getCompound("effect"));
-        if (instance == null)
+        MKEffect effect = MKCoreRegistry.EFFECTS.getValue(effectId);
+        if (effect == null) {
             return null;
+        }
 
-        MKActiveEffect active = instance.createApplication();
+        MKActiveEffect active = effect.createInstance(sourceId);
         active.deserializeState(tag.getCompound("state"));
         return active;
     }
@@ -90,23 +113,32 @@ public class MKActiveEffect {
     public CompoundNBT serializeState() {
         CompoundNBT stateTag = new CompoundNBT();
         stateTag.put("behaviour", behaviour.serialize());
-        stateTag.putInt("duration", getDuration());
-        stateTag.putInt("amplifier", getStackCount());
+        stateTag.putInt("stacks", getStackCount());
+        if (abilityId != null) {
+            stateTag.putString("abilityId", abilityId.toString());
+        }
         return stateTag;
     }
 
     public void deserializeState(CompoundNBT stateTag) {
-        duration = stateTag.getInt("duration");
-        stackCount = stateTag.getInt("amplifier");
-        behaviour = MKEffectBehaviour.deserialize(stateTag.getCompound("behaviour"));
+        stackCount = stateTag.getInt("stacks");
+        behaviour.deserializeState(stateTag.getCompound("behaviour"));
+        if (stateTag.contains("abilityId")) {
+            abilityId = ResourceLocation.tryCreate(stateTag.getString("abilityId"));
+        }
+        if (stateTag.contains("state")) {
+            state.deserializeStorage(stateTag.getCompound("state"));
+        }
     }
 
-
     public CompoundNBT serializeStorage() {
-        CompoundNBT tag = new CompoundNBT();
+        CompoundNBT tag = serializeState();
         serializeId(tag);
-        tag.put("effect", effect.serializeStorage());
-        tag.put("state", serializeState());
+        CompoundNBT stateTag = new CompoundNBT();
+        state.serializeStorage(stateTag);
+        if (!stateTag.isEmpty()) {
+            tag.put("state", stateTag);
+        }
         return tag;
     }
 
@@ -115,17 +147,22 @@ public class MKActiveEffect {
         if (effectId == null)
             return null;
 
-        MKEffectInstance instance = MKEffectInstance.deserializeStorage(effectId, sourceId, tag.getCompound("effect"));
-        if (instance == null)
+        MKEffect effect = MKCoreRegistry.EFFECTS.getValue(effectId);
+        if (effect == null) {
             return null;
+        }
 
-        MKActiveEffect active = instance.createApplication();
-        active.deserializeState(tag.getCompound("state"));
+        MKActiveEffect active = effect.createInstance(sourceId);
+        active.deserializeState(tag);
+        if (!active.getState().validateOnLoad(active)) {
+            MKCore.LOGGER.warn("Effect {} failed load validation", active);
+            return null;
+        }
         return active;
     }
 
     private void serializeId(CompoundNBT nbt) {
-        nbt.putString("effectId", effect.getEffect().getId().toString());
+        nbt.putString("effectId", effect.getId().toString());
     }
 
     @Nullable
@@ -136,10 +173,11 @@ public class MKActiveEffect {
     @Override
     public String toString() {
         return "MKActiveEffect{" +
-                "effect=" + effect +
-                ", duration=" + duration +
-                ", stackCount=" + stackCount +
+                "sourceId=" + sourceId +
+                ", effect=" + effect +
                 ", behaviour=" + behaviour +
+                ", stackCount=" + stackCount +
+                ", abilityId=" + getAbilityId() +
                 '}';
     }
 
@@ -162,7 +200,7 @@ public class MKActiveEffect {
                 // in-game GUI doesn't flash continuously
                 if (getIsPotionDurationMax())
                     return Integer.MAX_VALUE;
-                return effectInstance.getDuration();
+                return effectInstance.getBehaviour().getDuration();
             }
 
             @Override

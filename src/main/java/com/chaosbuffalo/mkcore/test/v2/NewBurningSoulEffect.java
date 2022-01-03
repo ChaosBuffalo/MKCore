@@ -3,8 +3,8 @@ package com.chaosbuffalo.mkcore.test.v2;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.MKAttributes;
 import com.chaosbuffalo.mkcore.effects.MKEffect;
-import com.chaosbuffalo.mkcore.effects.MKEffectInstance;
-import com.chaosbuffalo.mkcore.effects.MKSimplePassiveEffect;
+import com.chaosbuffalo.mkcore.effects.MKEffectState;
+import com.chaosbuffalo.mkcore.effects.MKSimplePassiveState;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.potion.EffectType;
 import net.minecraftforge.event.RegistryEvent;
@@ -33,8 +33,7 @@ public class NewBurningSoulEffect extends MKEffect {
     }
 
     @Override
-    public MKEffectInstance createInstance(UUID sourceId) {
-        return new MKSimplePassiveEffect(this, sourceId);
+    public MKEffectState makeState() {
+        return MKSimplePassiveState.INSTANCE;
     }
-
 }

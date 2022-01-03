@@ -10,7 +10,7 @@ import com.chaosbuffalo.mkcore.abilities.ai.conditions.NeedsBuffCondition;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.core.MKCombatFormulas;
 import com.chaosbuffalo.mkcore.effects.AreaEffectBuilder;
-import com.chaosbuffalo.mkcore.effects.MKEffectInstance;
+import com.chaosbuffalo.mkcore.effects.MKEffectBuilder;
 import com.chaosbuffalo.mkcore.fx.ParticleEffects;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.ParticleEffectSpawnPacket;
@@ -76,14 +76,16 @@ public class NewFireArmor extends MKAbility {
 
         EffectInstance fireResistanceEffect = new EffectInstance(Effects.FIRE_RESISTANCE, duration, level, false, true);
 
-        MKEffectInstance newFireEffect = NewFireArmorEffect.INSTANCE.createInstance(entity.getUniqueID())
+        MKEffectBuilder<?> newFireEffect = NewFireArmorEffect.INSTANCE.builder(entity.getUniqueID())
+                .ability(this)
                 .timed(duration)
                 .amplify(level);
 
-        NewParticleEffect.Instance particleEffect = NewParticleEffect.INSTANCE.createInstance(entity.getUniqueID());
-        particleEffect.setup(entity, ParticleTypes.FLAME, ParticleEffects.CIRCLE_PILLAR_MOTION,
-                false, new Vector3d(1.0, 1.0, 1.0), new Vector3d(0.0, 1.0, 0.0), 40, 5, .1f);
-        particleEffect.amplify(level);
+        MKEffectBuilder<?> particleEffect = NewParticleEffect.INSTANCE.builder(entity.getUniqueID())
+                .ability(this)
+                .state(s -> s.setup(entity, ParticleTypes.FLAME, ParticleEffects.CIRCLE_PILLAR_MOTION, false,
+                        new Vector3d(1.0, 1.0, 1.0), new Vector3d(0.0, 1.0, 0.0), 40, 5, .1f))
+                .amplify(level);
 
         AreaEffectBuilder.createOnCaster(entity)
                 .effect(absorbEffect, getTargetContext())

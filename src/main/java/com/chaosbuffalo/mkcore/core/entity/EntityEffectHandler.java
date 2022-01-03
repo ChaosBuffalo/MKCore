@@ -4,10 +4,11 @@ import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.effects.MKActiveEffect;
 import com.chaosbuffalo.mkcore.effects.MKEffect;
-import com.chaosbuffalo.mkcore.effects.MKEffectInstance;
+import com.chaosbuffalo.mkcore.effects.MKEffectBuilder;
 import com.chaosbuffalo.mkcore.effects.MKEffectTickAction;
 import com.chaosbuffalo.mkcore.network.EntityEffectPacket;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
+import com.google.common.collect.ImmutableList;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
@@ -26,10 +27,9 @@ public class EntityEffectHandler {
         this.entityData = entityData;
     }
 
-    class EffectSource {
+    private class EffectSource {
         private final UUID sourceId;
         protected final Map<MKEffect, MKActiveEffect> activeEffectMap = new HashMap<>();
-        private final List<MKActiveEffect> removeQueue = new ArrayList<>();
 
         public EffectSource(UUID sourceId) {
             this.sourceId = sourceId;
@@ -39,19 +39,15 @@ public class EntityEffectHandler {
             if (isEmpty() || !entityData.getEntity().isAlive())
                 return;
 
-            activeEffectMap.forEach((effect, active) -> {
+            List<MKActiveEffect> activeEffects = ImmutableList.copyOf(activeEffectMap.values());
+            activeEffects.forEach(active -> {
                 MKEffectTickAction action = active.getBehaviour().behaviourTick(entityData, active);
                 if (action == MKEffectTickAction.Update) {
                     onEffectUpdated(active);
                 } else if (action == MKEffectTickAction.Remove) {
-                    removeQueue.add(active);
+                    removeEffectInstance(active);
                 }
             });
-
-            if (removeQueue.size() > 0) {
-                removeQueue.forEach(this::removeEffectInstance);
-                removeQueue.clear();
-            }
         }
 
         private void removeEffectInstance(MKActiveEffect expiredInstance) {
@@ -62,7 +58,7 @@ public class EntityEffectHandler {
         }
 
         public void removeEffect(MKEffect effect) {
-            MKCore.LOGGER.debug("EntityEffectHandler.removeEffect {} from {}", effect, entityData.getEntity());
+//            MKCore.LOGGER.debug("EntityEffectHandler.removeEffect {} from {}", effect, entityData.getEntity());
             MKActiveEffect expiredInstance = activeEffectMap.get(effect);
             if (expiredInstance != null) {
                 removeEffectInstance(expiredInstance);
@@ -70,40 +66,44 @@ public class EntityEffectHandler {
         }
 
         public void addEffect(MKActiveEffect activeEffect) {
-            if (activeEffect.hasDuration()) {
+            if (!activeEffect.getState().validateOnApply(entityData, activeEffect)) {
+                MKCore.LOGGER.warn("Effect {} failed apply validation", activeEffect);
+                return;
+            }
+            if (activeEffect.getBehaviour().isTimed()) {
                 MKCore.LOGGER.debug("EntityEffectHandler.addEffect timed {} to {}", activeEffect, entityData.getEntity());
                 MKActiveEffect existing = activeEffectMap.get(activeEffect.getEffect());
                 if (existing == null) {
                     activeEffectMap.put(activeEffect.getEffect(), activeEffect);
                     onNewEffect(activeEffect);
                 } else {
-                    existing.getInstance().combine(existing, activeEffect);
+                    existing.getState().combine(existing, activeEffect);
                     onEffectUpdated(existing);
                 }
             } else {
                 MKCore.LOGGER.debug("EntityEffectHandler.addEffect instant {} to {}", activeEffect, entityData.getEntity());
                 if (entityData.isServerSide()) {
-                    activeEffect.getInstance().performEffect(entityData, activeEffect);
+                    activeEffect.getState().performEffect(entityData, activeEffect);
                 }
             }
         }
 
         // Server-side only
         private void loadEffect(MKActiveEffect activeEffect) {
-            MKCore.LOGGER.debug("EntityEffectHandler.EffectSource.loadEffect {}", activeEffect);
+//            MKCore.LOGGER.debug("EntityEffectHandler.EffectSource.loadEffect {}", activeEffect);
             activeEffect.getEffect().onInstanceLoaded(entityData, activeEffect);
             activeEffectMap.put(activeEffect.getEffect(), activeEffect);
         }
 
         // Server-side only
         private void onWorldReady(MKActiveEffect activeEffect) {
-            MKCore.LOGGER.debug("EntityEffectHandler.onWorldReady {}", activeEffect);
+//            MKCore.LOGGER.debug("EntityEffectHandler.onWorldReady {}", activeEffect);
             activeEffect.getEffect().onInstanceReady(entityData, activeEffect);
         }
 
         // Called on both sides
         protected void onNewEffect(MKActiveEffect activeEffect) {
-            MKCore.LOGGER.debug("EntityEffectHandler.onNewEffect {}", activeEffect);
+//            MKCore.LOGGER.debug("EntityEffectHandler.onNewEffect {}", activeEffect);
             if (entityData.isServerSide()) {
                 activeEffect.getEffect().onInstanceAdded(entityData, activeEffect);
                 sendEffectSet(activeEffect);
@@ -112,7 +112,7 @@ public class EntityEffectHandler {
 
         // Called on both sides
         protected void onEffectUpdated(MKActiveEffect activeEffect) {
-            MKCore.LOGGER.debug("EntityEffectHandler.onEffectUpdated {}", activeEffect);
+//            MKCore.LOGGER.debug("EntityEffectHandler.onEffectUpdated {}", activeEffect);
             if (entityData.isServerSide()) {
                 activeEffect.getEffect().onInstanceUpdated(entityData, activeEffect);
                 sendEffectSet(activeEffect);
@@ -121,10 +121,10 @@ public class EntityEffectHandler {
 
         // Called on both sides
         protected void onEffectRemoved(MKActiveEffect activeEffect) {
-            MKCore.LOGGER.debug("EntityEffectHandler.onEffectRemoved {}", activeEffect);
+//            MKCore.LOGGER.debug("EntityEffectHandler.onEffectRemoved {}", activeEffect);
             if (entityData.isServerSide()) {
                 activeEffect.getEffect().onInstanceRemoved(entityData, activeEffect);
-                if (!activeEffect.isExpired()) {
+                if (!activeEffect.getBehaviour().isExpired()) {
                     // If it was removed early we need to tell the client
                     sendEffectRemove(activeEffect);
                 }
@@ -189,7 +189,7 @@ public class EntityEffectHandler {
         public INBT serializeStorage() {
             ListNBT list = new ListNBT();
             activeEffectMap.forEach(((effect, activeEffect) -> {
-                if (!activeEffect.getInstance().isTemporary()) {
+                if (!activeEffect.getBehaviour().isTemporary()) {
                     list.add(activeEffect.serializeStorage());
                 }
             }));
@@ -294,16 +294,23 @@ public class EntityEffectHandler {
         }
     }
 
-    public void addEffect(MKEffectInstance effectInstance) {
-        addEffect(effectInstance.getSourceId(), effectInstance.createApplication());
+    public void addEffect(MKEffectBuilder<?> builder) {
+        addEffect(builder.getSourceId(), builder.createApplication());
     }
 
-    public void addEffect(UUID sourceId, MKEffectInstance effectInstance) {
-        addEffect(sourceId, effectInstance.createApplication());
+    public void addEffect(MKActiveEffect activeEffect) {
+        addEffect(activeEffect.getSourceId(), activeEffect);
     }
 
     public void addEffect(UUID sourceId, MKActiveEffect effectInstance) {
         getOrCreateSource(sourceId).addEffect(effectInstance);
+    }
+
+    public Collection<MKActiveEffect> effects(MKEffect effect) {
+        return sources.values().stream()
+                .flatMap(EffectSource::effectsStream)
+                .filter(activeEffect -> activeEffect.getEffect() == effect)
+                .collect(Collectors.toList());
     }
 
     public Collection<MKActiveEffect> effects() {
