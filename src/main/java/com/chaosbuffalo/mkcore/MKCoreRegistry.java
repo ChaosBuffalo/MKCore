@@ -47,7 +47,7 @@ public class MKCoreRegistry {
                 .setType(MKAbility.class)
                 .create();
         DAMAGE_TYPES = new RegistryBuilder<MKDamageType>()
-                .setName(MKCore.makeRL("aaa_damage_types"))
+                .setName(MKCore.makeRL("damage_types"))
                 .setType(MKDamageType.class)
                 .create();
         EFFECTS = new RegistryBuilder<MKEffect>()
