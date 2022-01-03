@@ -2,6 +2,7 @@ package com.chaosbuffalo.mkcore.effects;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
+import com.chaosbuffalo.mkcore.utils.MKNBTUtil;
 import com.google.common.reflect.TypeToken;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.gui.AbstractGui;
@@ -10,6 +11,7 @@ import net.minecraft.potion.EffectInstance;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.util.Lazy;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.UUID;
 
@@ -51,7 +53,7 @@ public class MKActiveEffect {
         return state;
     }
 
-    public <T extends MKEffectState> T getState(TypeToken<T> typeBound) {
+    public <T extends MKEffectState> T getState(@SuppressWarnings("unused") TypeToken<T> typeBound) {
         return (T) getState();
     }
 
@@ -144,8 +146,6 @@ public class MKActiveEffect {
 
     public static MKActiveEffect deserializeStorage(UUID sourceId, CompoundNBT tag) {
         ResourceLocation effectId = deserializeId(tag);
-        if (effectId == null)
-            return null;
 
         MKEffect effect = MKCoreRegistry.EFFECTS.getValue(effectId);
         if (effect == null) {
@@ -162,12 +162,11 @@ public class MKActiveEffect {
     }
 
     private void serializeId(CompoundNBT nbt) {
-        nbt.putString("effectId", effect.getId().toString());
+        MKNBTUtil.writeResourceLocation(nbt, "effectId", effect.getId());
     }
 
-    @Nullable
     private static ResourceLocation deserializeId(CompoundNBT tag) {
-        return ResourceLocation.tryCreate(tag.getString("effectId"));
+        return MKNBTUtil.readResourceLocation(tag, "effectId");
     }
 
     @Override
@@ -212,6 +211,21 @@ public class MKActiveEffect {
             @Override
             public void renderHUDEffect(AbstractGui gui, MatrixStack mStack, int x, int y, float z, float alpha) {
                 super.renderHUDEffect(gui, mStack, x, y, z, alpha);
+            }
+
+            @Override
+            public boolean shouldRender() {
+                return effectInstance.getEffect().shouldRender(effectInstance);
+            }
+
+            @Override
+            public boolean shouldRenderHUD() {
+                return effectInstance.getEffect().shouldRenderHUD(effectInstance);
+            }
+
+            @Override
+            public boolean shouldRenderInvText() {
+                return effectInstance.getEffect().shouldRenderInvText(effectInstance);
             }
         };
     }

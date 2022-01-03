@@ -147,6 +147,27 @@ public abstract class MKEffect extends ForgeRegistryEntry<MKEffect> {
         return modifier.getAmount() * activeEffect.getStackCount();
     }
 
+    /**
+     * If the effect should be displayed in the players inventory
+     * @param effect the active MKEffect
+     * @return true to display it (default), false to hide it.
+     */
+    public boolean shouldRender(MKActiveEffect effect) { return true; }
+
+    /**
+     * If the standard text (name and duration) should be drawn when this potion is active.
+     * @param effect the active MKEffect
+     * @return true to draw the standard text
+     */
+    public boolean shouldRenderInvText(MKActiveEffect effect) { return true; }
+
+    /**
+     * If the effect should be displayed in the player's ingame HUD
+     * @param effect the active MKEffect
+     * @return true to display it (default), false to hide it.
+     */
+    public boolean shouldRenderHUD(MKActiveEffect effect) { return true; }
+
     @Override
     public String toString() {
         return "MKEffect{" + getId() + "}";
