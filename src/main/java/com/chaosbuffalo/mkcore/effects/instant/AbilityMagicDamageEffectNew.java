@@ -63,12 +63,14 @@ public class AbilityMagicDamageEffectNew extends MKEffect {
 
         @Override
         public void serializeStorage(CompoundNBT stateTag) {
+            super.serializeStorage(stateTag);
             stateTag.putFloat("base", base);
             stateTag.putFloat("scale", scale);
         }
 
         @Override
         public void deserializeStorage(CompoundNBT stateTag) {
+            super.deserializeStorage(stateTag);
             base = stateTag.getFloat("base");
             scale = stateTag.getFloat("scale");
         }

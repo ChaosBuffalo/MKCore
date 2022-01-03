@@ -11,17 +11,26 @@ import javax.annotation.Nullable;
 import java.util.UUID;
 
 public abstract class MKEffectState {
+    protected int maxStacks = -1;
 
     public boolean isReady(IMKEntityData targetData, MKActiveEffect instance) {
         return instance.getBehaviour().isReady();
     }
+
+    protected int clampMaxStacks(int newValue) {
+        if (maxStacks == -1)
+            return newValue;
+        return Math.min(maxStacks, newValue);
+    }
+
 
     public void combine(MKActiveEffect existing, MKActiveEffect otherInstance) {
         MKCore.LOGGER.debug("MKEffectState.combine {} + {}", existing, otherInstance);
         if (otherInstance.getDuration() > existing.getDuration()) {
             existing.setDuration(otherInstance.getDuration());
         }
-        existing.modifyStackCount(otherInstance.getStackCount());
+        int newStacks = clampMaxStacks(existing.getStackCount() + otherInstance.getStackCount());
+        existing.setStackCount(newStacks);
         MKCore.LOGGER.debug("MKEffectState.combine result {}", existing);
     }
 
@@ -29,6 +38,10 @@ public abstract class MKEffectState {
 
     protected boolean isEffectSource(Entity entity, MKActiveEffect activeEffect) {
         return entity.getUniqueID().equals(activeEffect.getSourceId());
+    }
+
+    public void setMaxStacks(int max) {
+        this.maxStacks = max;
     }
 
     @Nullable
@@ -55,10 +68,14 @@ public abstract class MKEffectState {
     }
 
     public void serializeStorage(CompoundNBT stateTag) {
-
+        if (maxStacks != -1) {
+            stateTag.putInt("maxStacks", maxStacks);
+        }
     }
 
     public void deserializeStorage(CompoundNBT tag) {
-
+        if (tag.contains("maxStacks")) {
+            maxStacks = tag.getInt("maxStacks");
+        }
     }
 }

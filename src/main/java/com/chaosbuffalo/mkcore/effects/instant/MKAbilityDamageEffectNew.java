@@ -94,6 +94,7 @@ public class MKAbilityDamageEffectNew extends MKEffect {
 
         @Override
         public void serializeStorage(CompoundNBT stateTag) {
+            super.serializeStorage(stateTag);
             stateTag.putFloat("base", base);
             stateTag.putFloat("scale", scale);
             stateTag.putFloat("modScale", modifierScaling);
@@ -102,6 +103,7 @@ public class MKAbilityDamageEffectNew extends MKEffect {
 
         @Override
         public void deserializeStorage(CompoundNBT stateTag) {
+            super.deserializeStorage(stateTag);
             base = stateTag.getFloat("base");
             scale = stateTag.getFloat("scale");
             modifierScaling = stateTag.getFloat("modScale");
