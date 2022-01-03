@@ -50,6 +50,12 @@ public abstract class MKDamageSource extends DamageSource {
         this.damageType = damageType;
     }
 
+    @Override
+    public boolean isDifficultyScaled() {
+        // We apply our own scaling
+        return false;
+    }
+
     public static class EffectDamage extends MKDamageSource {
 
         @Nullable
