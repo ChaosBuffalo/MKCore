@@ -5,7 +5,6 @@ import com.chaosbuffalo.mkcore.core.MKAttributes;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.Attribute;
 import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.ai.attributes.RangedAttribute;
 import net.minecraft.util.CombatRules;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
@@ -17,9 +16,9 @@ import java.util.function.Consumer;
 public class MeleeDamageType extends MKDamageType {
 
     public MeleeDamageType(ResourceLocation name) {
-        super(name, (RangedAttribute) Attributes.ATTACK_DAMAGE,
-                (RangedAttribute) Attributes.ARMOR_TOUGHNESS, MKAttributes.MELEE_CRIT,
-                MKAttributes.MELEE_CRIT_MULTIPLIER, TextFormatting.WHITE);
+        super(name, Attributes.ATTACK_DAMAGE, Attributes.ARMOR_TOUGHNESS,
+                MKAttributes.MELEE_CRIT, MKAttributes.MELEE_CRIT_MULTIPLIER,
+                TextFormatting.WHITE);
     }
 
     @Override

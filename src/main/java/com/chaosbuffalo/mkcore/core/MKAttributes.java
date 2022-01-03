@@ -2,7 +2,6 @@ package com.chaosbuffalo.mkcore.core;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import net.minecraft.entity.ai.attributes.Attribute;
-import net.minecraft.entity.ai.attributes.RangedAttribute;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -14,225 +13,208 @@ import java.util.function.Consumer;
 public class MKAttributes {
 
     // Players Only Attributes
-    public static final RangedAttribute MAX_MANA = (RangedAttribute) new RangedAttribute("attribute.name.mk.max_mana", 0, 0, 1024)
+    public static final Attribute MAX_MANA = new MKRangedAttribute("attribute.name.mk.max_mana", 0, 0, 1024)
             .setRegistryName(MKCore.makeRL("max_mana"))
             .setShouldWatch(true);
 
-    public static final RangedAttribute MANA_REGEN = (RangedAttribute) new RangedAttribute("attribute.name.mk.mana_regen", 0, 0, 1024)
+    public static final Attribute MANA_REGEN = new MKRangedAttribute("attribute.name.mk.mana_regen", 0, 0, 1024)
             .setRegistryName(MKCore.makeRL("mana_regen"))
             .setShouldWatch(true);
 
-    public static final RangedAttribute MELEE_CRIT = (RangedAttribute) new MKRangedAttribute("attribute.name.mk.melee_crit_chance", 0.00, 0.0, 1.0)
+    public static final Attribute MELEE_CRIT = new MKRangedAttribute("attribute.name.mk.melee_crit_chance", 0.00, 0.0, 1.0)
             .setAdditionIsPercentage(true)
             .setRegistryName(MKCore.makeRL("melee_crit_chance"))
             .setShouldWatch(true);
 
-    public static final RangedAttribute MELEE_CRIT_MULTIPLIER = (RangedAttribute) new RangedAttribute("attribute.name.mk.melee_crit_multiplier", 0.0, 0.0, 10.0)
+    public static final Attribute MELEE_CRIT_MULTIPLIER = new MKRangedAttribute("attribute.name.mk.melee_crit_multiplier", 0.0, 0.0, 10.0)
             .setRegistryName(MKCore.makeRL("melee_crit_multiplier"))
             .setShouldWatch(true);
 
-    public static final RangedAttribute SPELL_CRIT = (RangedAttribute) new MKRangedAttribute("attribute.name.mk.spell_crit_chance", 0.1, 0.0, 1.0)
+    public static final Attribute SPELL_CRIT = new MKRangedAttribute("attribute.name.mk.spell_crit_chance", 0.1, 0.0, 1.0)
             .setAdditionIsPercentage(true)
             .setRegistryName(MKCore.makeRL("spell_crit_chance"))
             .setShouldWatch(true);
 
-    public static final RangedAttribute SPELL_CRIT_MULTIPLIER = (RangedAttribute) new RangedAttribute("attribute.name.mk.spell_crit_multiplier", 1.5, 0.0, 10.0)
+    public static final Attribute SPELL_CRIT_MULTIPLIER = new MKRangedAttribute("attribute.name.mk.spell_crit_multiplier", 1.5, 0.0, 10.0)
             .setRegistryName(MKCore.makeRL("spell_crit_multiplier"))
             .setShouldWatch(true);
 
-    public static final RangedAttribute RANGED_CRIT = (RangedAttribute) new MKRangedAttribute("attribute.name.mk.ranged_crit_chance", 0.00, 0.0, 1.0)
+    public static final Attribute RANGED_CRIT = new MKRangedAttribute("attribute.name.mk.ranged_crit_chance", 0.00, 0.0, 1.0)
             .setAdditionIsPercentage(true)
             .setRegistryName(MKCore.makeRL("ranged_crit_chance"))
             .setShouldWatch(true);
 
-    public static final RangedAttribute RANGED_CRIT_MULTIPLIER = (RangedAttribute) new RangedAttribute("attribute.name.mk.ranged_crit_multiplier", 0.0, 0.0, 10.0)
+    public static final Attribute RANGED_CRIT_MULTIPLIER = new MKRangedAttribute("attribute.name.mk.ranged_crit_multiplier", 0.0, 0.0, 10.0)
             .setRegistryName(MKCore.makeRL("ranged_crit_multiplier"))
             .setShouldWatch(true);
 
-    // Everyone Attributes
 
-    public static final RangedAttribute RANGED_DAMAGE = (RangedAttribute) new RangedAttribute("attribute.name.mk.ranged_damage", 0.0, 0.0, 2048)
+    // Everyone Attributes
+    public static final Attribute RANGED_DAMAGE = new MKRangedAttribute("attribute.name.mk.ranged_damage", 0.0, 0.0, 2048)
             .setRegistryName(MKCore.makeRL("ranged_damage"))
             .setShouldWatch(true);
 
-    public static final RangedAttribute RANGED_RESISTANCE = (RangedAttribute) new RangedAttribute("attribute.name.mk.ranged_resistance", 0, -1.0, 1.0)
+    public static final Attribute RANGED_RESISTANCE = new MKRangedAttribute("attribute.name.mk.ranged_resistance", 0, -1.0, 1.0)
             .setRegistryName(MKCore.makeRL("ranged_resistance"))
             .setShouldWatch(true);
 
     // This is slightly confusing.
     // 1.5 max means the cooldown will progress at most 50% faster than the normal rate. This translates into a 50% reduction in the observed cooldown.
     // 0.25 minimum means that a cooldown can be increased up to 175% of the normal value. This translates into a 75% increase in the observed cooldown
-    public static final RangedAttribute COOLDOWN = (RangedAttribute) new RangedAttribute("attribute.name.mk.cooldown_rate", 1, 0.25, 1.5)
+    public static final Attribute COOLDOWN = new MKRangedAttribute("attribute.name.mk.cooldown_rate", 1, 0.25, 1.5)
             .setRegistryName(MKCore.makeRL("cooldown_rate"))
             .setShouldWatch(true);
 
-    public static final RangedAttribute HEAL_BONUS = (RangedAttribute) new RangedAttribute("attribute.name.mk.heal_bonus", 1.0, 0.0, 2.0)
+    public static final Attribute HEAL_BONUS = new MKRangedAttribute("attribute.name.mk.heal_bonus", 1.0, 0.0, 2.0)
             .setRegistryName(MKCore.makeRL("heal_bonus"))
             .setShouldWatch(true);
 
-    public static final RangedAttribute CASTING_SPEED = (RangedAttribute) new RangedAttribute("attribute.name.mk.casting_speed", 1, 0.25, 1.5)
+    public static final Attribute CASTING_SPEED = new MKRangedAttribute("attribute.name.mk.casting_speed", 1, 0.25, 1.5)
             .setRegistryName(MKCore.makeRL("casting_speed"))
             .setShouldWatch(true);
 
-    public static final RangedAttribute BUFF_DURATION = (RangedAttribute) new RangedAttribute("attribute.name.mk.buff_duration", 1.0, 0.0, 5.0)
+    public static final Attribute BUFF_DURATION = new MKRangedAttribute("attribute.name.mk.buff_duration", 1.0, 0.0, 5.0)
             .setRegistryName(MKCore.makeRL("buff_duration"))
             .setShouldWatch(true);
 
-    public static final RangedAttribute ARCANE_RESISTANCE = (RangedAttribute) new RangedAttribute("attribute.name.mk.arcane_resistance", 0, -1.0, 1.0)
+    public static final Attribute ARCANE_RESISTANCE = new MKRangedAttribute("attribute.name.mk.arcane_resistance", 0, -1.0, 1.0)
             .setRegistryName(MKCore.makeRL("arcane_resistance"))
             .setShouldWatch(true);
 
-    public static final RangedAttribute ARCANE_DAMAGE = (RangedAttribute) new RangedAttribute("attribute.name.mk.arcane_damage", 0, 0, 2048)
+    public static final Attribute ARCANE_DAMAGE = new MKRangedAttribute("attribute.name.mk.arcane_damage", 0, 0, 2048)
             .setRegistryName(MKCore.makeRL("arcane_damage"))
             .setShouldWatch(true);
 
-    public static final RangedAttribute FIRE_RESISTANCE = (RangedAttribute) new RangedAttribute("attribute.name.mk.fire_resistance", 0, -1.0, 1.0)
+    public static final Attribute FIRE_RESISTANCE = new MKRangedAttribute("attribute.name.mk.fire_resistance", 0, -1.0, 1.0)
             .setRegistryName(MKCore.makeRL("fire_resistance"))
             .setShouldWatch(true);
 
-    public static final RangedAttribute FIRE_DAMAGE = (RangedAttribute) new RangedAttribute("attribute.name.mk.fire_damage", 0, 0, 2048)
+    public static final Attribute FIRE_DAMAGE = new MKRangedAttribute("attribute.name.mk.fire_damage", 0, 0, 2048)
             .setRegistryName(MKCore.makeRL("fire_damage"))
             .setShouldWatch(true);
 
-    public static final RangedAttribute FROST_RESISTANCE = (RangedAttribute) new RangedAttribute("attribute.name.mk.frost_resistance", 0, -1.0, 1.0)
+    public static final Attribute FROST_RESISTANCE = new MKRangedAttribute("attribute.name.mk.frost_resistance", 0, -1.0, 1.0)
             .setRegistryName(MKCore.makeRL("frost_resistance"))
             .setShouldWatch(true);
 
-    public static final RangedAttribute FROST_DAMAGE = (RangedAttribute) new RangedAttribute("attribute.name.mk.frost_damage", 0, 0, 2048)
+    public static final Attribute FROST_DAMAGE = new MKRangedAttribute("attribute.name.mk.frost_damage", 0, 0, 2048)
             .setRegistryName(MKCore.makeRL("frost_damage"))
             .setShouldWatch(true);
 
-    public static final RangedAttribute SHADOW_RESISTANCE = (RangedAttribute) new RangedAttribute("attribute.name.mk.shadow_resistance", 0, -1.0, 1.0)
+    public static final Attribute SHADOW_RESISTANCE = new MKRangedAttribute("attribute.name.mk.shadow_resistance", 0, -1.0, 1.0)
             .setRegistryName(MKCore.makeRL("shadow_resistance"))
             .setShouldWatch(true);
 
-    public static final RangedAttribute SHADOW_DAMAGE = (RangedAttribute) new RangedAttribute("attribute.name.mk.shadow_damage", 0, 0, 2048)
+    public static final Attribute SHADOW_DAMAGE = new MKRangedAttribute("attribute.name.mk.shadow_damage", 0, 0, 2048)
             .setRegistryName(MKCore.makeRL("shadow_damage"))
             .setShouldWatch(true);
 
-    public static final RangedAttribute HOLY_RESISTANCE = (RangedAttribute) new RangedAttribute("attribute.name.mk.holy_resistance", 0, -1.0, 1.0)
+    public static final Attribute HOLY_RESISTANCE = new MKRangedAttribute("attribute.name.mk.holy_resistance", 0, -1.0, 1.0)
             .setRegistryName(MKCore.makeRL("holy_resistance"))
             .setShouldWatch(true);
 
-    public static final RangedAttribute HOLY_DAMAGE = (RangedAttribute) new RangedAttribute("attribute.name.mk.holy_damage", 0, 0, 2048)
+    public static final Attribute HOLY_DAMAGE = new MKRangedAttribute("attribute.name.mk.holy_damage", 0, 0, 2048)
             .setRegistryName(MKCore.makeRL("holy_damage"))
             .setShouldWatch(true);
 
-    public static final RangedAttribute NATURE_RESISTANCE = (RangedAttribute) new RangedAttribute("attribute.name.mk.nature_resistance", 0, -1.0, 1.0)
+    public static final Attribute NATURE_RESISTANCE = new MKRangedAttribute("attribute.name.mk.nature_resistance", 0, -1.0, 1.0)
             .setRegistryName(MKCore.makeRL("nature_resistance"))
             .setShouldWatch(true);
 
-    public static final RangedAttribute NATURE_DAMAGE = (RangedAttribute) new RangedAttribute("attribute.name.mk.nature_damage", 0, 0, 2048)
+    public static final Attribute NATURE_DAMAGE = new MKRangedAttribute("attribute.name.mk.nature_damage", 0, 0, 2048)
             .setRegistryName(MKCore.makeRL("nature_damage"))
             .setShouldWatch(true);
 
-    public static final RangedAttribute POISON_RESISTANCE = (RangedAttribute) new RangedAttribute("attribute.name.mk.poison_resistance", 0, -1.0, 1.0)
+    public static final Attribute POISON_RESISTANCE = new MKRangedAttribute("attribute.name.mk.poison_resistance", 0, -1.0, 1.0)
             .setRegistryName(MKCore.makeRL("poison_resistance"))
             .setShouldWatch(true);
 
-    public static final RangedAttribute POISON_DAMAGE = (RangedAttribute) new RangedAttribute("attribute.name.mk.poison_damage", 0, 0, 2048)
+    public static final Attribute POISON_DAMAGE = new MKRangedAttribute("attribute.name.mk.poison_damage", 0, 0, 2048)
             .setRegistryName(MKCore.makeRL("poison_damage"))
             .setShouldWatch(true);
 
-    public static final RangedAttribute BLEED_RESISTANCE = (RangedAttribute) new RangedAttribute("attribute.name.mk.bleed_resistance", 0, -1.0, 1.0)
+    public static final Attribute BLEED_RESISTANCE = new MKRangedAttribute("attribute.name.mk.bleed_resistance", 0, -1.0, 1.0)
             .setRegistryName(MKCore.makeRL("bleed_resistance"))
             .setShouldWatch(true);
 
-    public static final RangedAttribute BLEED_DAMAGE = (RangedAttribute) new RangedAttribute("attribute.name.mk.bleed_damage", 0, 0, 2048)
+    public static final Attribute BLEED_DAMAGE = new MKRangedAttribute("attribute.name.mk.bleed_damage", 0, 0, 2048)
             .setRegistryName(MKCore.makeRL("bleed_damage"))
             .setShouldWatch(true);
 
-    public static final RangedAttribute ATTACK_REACH = (RangedAttribute) new RangedAttribute("attribute.name.mk.attack_reach", 3.0, 0.0, 128)
+    public static final Attribute ATTACK_REACH = new MKRangedAttribute("attribute.name.mk.attack_reach", 3.0, 0.0, 128)
             .setRegistryName(MKCore.makeRL("attack_reach"))
             .setShouldWatch(true);
 
-    public static final RangedAttribute ABJURATION = (RangedAttribute) new RangedAttribute(
-            "attribute.name.mk.abjuration", 0, 0, 20)
+    public static final Attribute ABJURATION = new MKRangedAttribute("attribute.name.mk.abjuration", 0, 0, 20)
             .setRegistryName(MKCore.makeRL("abjuration"))
             .setShouldWatch(true);
 
-    public static final RangedAttribute ALTERATON = (RangedAttribute) new RangedAttribute(
-            "attribute.name.mk.alteration", 0, 0, 20)
+    public static final Attribute ALTERATON = new MKRangedAttribute("attribute.name.mk.alteration", 0, 0, 20)
             .setRegistryName(MKCore.makeRL("alteration"))
             .setShouldWatch(true);
 
-    public static final RangedAttribute CONJURATION = (RangedAttribute) new RangedAttribute(
-            "attribute.name.mk.conjuration", 0, 0, 20)
+    public static final Attribute CONJURATION = new MKRangedAttribute("attribute.name.mk.conjuration", 0, 0, 20)
             .setRegistryName(MKCore.makeRL("conjuration"))
             .setShouldWatch(true);
 
-    public static final RangedAttribute DIVINATION = (RangedAttribute) new RangedAttribute(
-            "attribute.name.mk.divination", 0, 0, 20)
+    public static final Attribute DIVINATION = new MKRangedAttribute("attribute.name.mk.divination", 0, 0, 20)
             .setRegistryName(MKCore.makeRL("divination"))
             .setShouldWatch(true);
 
-    public static final RangedAttribute ENCHANTMENT = (RangedAttribute) new RangedAttribute(
-            "attribute.name.mk.enchantment", 0, 0, 20)
+    public static final Attribute ENCHANTMENT = new MKRangedAttribute("attribute.name.mk.enchantment", 0, 0, 20)
             .setRegistryName(MKCore.makeRL("enchantment"))
             .setShouldWatch(true);
 
-    public static final RangedAttribute PHANTASM = (RangedAttribute) new RangedAttribute(
-            "attribute.name.mk.phantasm", 0, 0, 20)
+    public static final Attribute PHANTASM = new MKRangedAttribute("attribute.name.mk.phantasm", 0, 0, 20)
             .setRegistryName(MKCore.makeRL("phantasm"))
             .setShouldWatch(true);
 
-    public static final RangedAttribute NECROMANCY = (RangedAttribute) new RangedAttribute(
-            "attribute.name.mk.necromancy", 0, 0, 20)
+    public static final Attribute NECROMANCY = new MKRangedAttribute("attribute.name.mk.necromancy", 0, 0, 20)
             .setRegistryName(MKCore.makeRL("necromancy"))
             .setShouldWatch(true);
 
-    public static final RangedAttribute RESTORATION = (RangedAttribute) new RangedAttribute(
-            "attribute.name.mk.restoration", 0, 0, 20)
+    public static final Attribute RESTORATION = new MKRangedAttribute("attribute.name.mk.restoration", 0, 0, 20)
             .setRegistryName(MKCore.makeRL("restoration"))
             .setShouldWatch(true);
 
-    public static final RangedAttribute ARETE = (RangedAttribute) new RangedAttribute(
-            "attribute.name.mk.arete", 0, 0, 20)
+    public static final Attribute ARETE = new MKRangedAttribute("attribute.name.mk.arete", 0, 0, 20)
             .setRegistryName(MKCore.makeRL("arete"))
             .setShouldWatch(true);
 
-    public static final RangedAttribute PNEUMA = (RangedAttribute) new RangedAttribute(
-            "attribute.name.mk.pneuma", 0, 0, 20)
+    public static final Attribute PNEUMA = new MKRangedAttribute("attribute.name.mk.pneuma", 0, 0, 20)
             .setRegistryName(MKCore.makeRL("pneuma"))
             .setShouldWatch(true);
 
-    public static final RangedAttribute PANKRATION = (RangedAttribute) new RangedAttribute(
-            "attribute.name.mk.pankration", 0, 0, 20)
+    public static final Attribute PANKRATION = new MKRangedAttribute("attribute.name.mk.pankration", 0, 0, 20)
             .setRegistryName(MKCore.makeRL("pankration"))
             .setShouldWatch(true);
 
-    public static final RangedAttribute EVOCATION = (RangedAttribute) new RangedAttribute(
-            "attribute.name.mk.evocation", 0, 0, 20)
+    public static final Attribute EVOCATION = new MKRangedAttribute("attribute.name.mk.evocation", 0, 0, 20)
             .setRegistryName(MKCore.makeRL("evocation"))
             .setShouldWatch(true);
 
-    public static final RangedAttribute MARKSMANSHIP = (RangedAttribute) new RangedAttribute(
-            "attribute.name.mk.marksmanship", 0, 0, 20)
+    public static final Attribute MARKSMANSHIP = new MKRangedAttribute("attribute.name.mk.marksmanship", 0, 0, 20)
             .setRegistryName(MKCore.makeRL("marksmanship"))
             .setShouldWatch(true);
 
-    public static final RangedAttribute MAX_POISE = (RangedAttribute) new RangedAttribute(
-            "attribute.name.mk.max_poise", 0, 0, 2048)
+    public static final Attribute MAX_POISE = new MKRangedAttribute("attribute.name.mk.max_poise", 0, 0, 2048)
             .setRegistryName(MKCore.makeRL("max_poise"))
             .setShouldWatch(true);
 
-    public static final RangedAttribute POISE_REGEN = (RangedAttribute) new RangedAttribute(
-            "attribute.name.mk.poise_regen", 2, 0, 2048)
+    public static final Attribute POISE_REGEN = new MKRangedAttribute("attribute.name.mk.poise_regen", 2, 0, 2048)
             .setRegistryName(MKCore.makeRL("poise_regen"))
             .setShouldWatch(true);
 
-    public static final RangedAttribute POISE_BREAK_CD = (RangedAttribute) new RangedAttribute(
-            "attribute.name.mk.poise_break_cd", 20.0, 0, 2048)
+    public static final Attribute POISE_BREAK_CD = new MKRangedAttribute("attribute.name.mk.poise_break_cd", 20.0, 0, 2048)
             .setRegistryName(MKCore.makeRL("poise_break_cd"))
             .setShouldWatch(true);
 
-    public static final RangedAttribute BLOCK_EFFICIENCY = (RangedAttribute) new RangedAttribute(
-            "attribute.name.mk.block_efficiency", 0, 0, 1.0)
+    public static final Attribute BLOCK_EFFICIENCY = new MKRangedAttribute("attribute.name.mk.block_efficiency", 0, 0, 1.0)
             .setRegistryName(MKCore.makeRL("block_efficiency"))
             .setShouldWatch(true);
 
-    public static final List<RangedAttribute> SPELL_SKILLS = new ArrayList<>();
-    public static final List<RangedAttribute> COMBAT_SKILLS = new ArrayList<>();
+    public static final List<Attribute> SPELL_SKILLS = new ArrayList<>();
+    public static final List<Attribute> COMBAT_SKILLS = new ArrayList<>();
 
     static {
         SPELL_SKILLS.add(EVOCATION);

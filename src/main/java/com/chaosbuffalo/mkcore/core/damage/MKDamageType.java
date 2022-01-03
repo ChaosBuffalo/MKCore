@@ -5,7 +5,6 @@ import com.chaosbuffalo.mkcore.core.MKCombatFormulas;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.Attribute;
-import net.minecraft.entity.ai.attributes.RangedAttribute;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.ITextComponent;
@@ -19,18 +18,18 @@ import java.util.function.Consumer;
 
 
 public class MKDamageType extends ForgeRegistryEntry<MKDamageType> {
-    private final RangedAttribute damageAttribute;
-    private final RangedAttribute resistanceAttribute;
-    private final RangedAttribute critAttribute;
-    private final RangedAttribute critMultiplierAttribute;
+    private final Attribute damageAttribute;
+    private final Attribute resistanceAttribute;
+    private final Attribute critAttribute;
+    private final Attribute critMultiplierAttribute;
     private final ResourceLocation iconLoc;
     private float critMultiplier;
     private boolean shouldDisplay;
     private final TextFormatting formatting;
 
-    public MKDamageType(ResourceLocation name, RangedAttribute damageAttribute,
-                        RangedAttribute resistanceAttribute, RangedAttribute critAttribute,
-                        RangedAttribute critMultiplierAttribute, TextFormatting formatting) {
+    public MKDamageType(ResourceLocation name, Attribute damageAttribute,
+                        Attribute resistanceAttribute, Attribute critAttribute,
+                        Attribute critMultiplierAttribute, TextFormatting formatting) {
         setRegistryName(name);
         this.damageAttribute = damageAttribute;
         this.resistanceAttribute = resistanceAttribute;
@@ -75,19 +74,19 @@ public class MKDamageType extends ForgeRegistryEntry<MKDamageType> {
         return iconLoc;
     }
 
-    public RangedAttribute getDamageAttribute() {
+    public Attribute getDamageAttribute() {
         return damageAttribute;
     }
 
-    public RangedAttribute getCritChanceAttribute() {
+    public Attribute getCritChanceAttribute() {
         return critAttribute;
     }
 
-    public RangedAttribute getCritMultiplierAttribute() {
+    public Attribute getCritMultiplierAttribute() {
         return critMultiplierAttribute;
     }
 
-    public RangedAttribute getResistanceAttribute() {
+    public Attribute getResistanceAttribute() {
         return resistanceAttribute;
     }
 
