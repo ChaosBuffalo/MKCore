@@ -89,8 +89,7 @@ public class EffectCommand {
 //            }).periodic(40);
             newInstance = MKAbilityDamageEffectNew.INSTANCE.builder(source).state(s -> {
                 s.damageType = CoreDamageTypes.FireDamage;
-                s.base = 1;
-                s.scale = 1;
+                s.setScalingParameters(1, 1);
             }).periodic(20);
             newInstance.timed(200);
 //            newInstance.infinite();

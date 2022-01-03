@@ -5,10 +5,8 @@ import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.core.damage.MKDamageSource;
 import com.chaosbuffalo.mkcore.core.damage.MKDamageType;
-import com.chaosbuffalo.mkcore.effects.MKActiveEffect;
-import com.chaosbuffalo.mkcore.effects.MKEffect;
-import com.chaosbuffalo.mkcore.effects.MKEffectBuilder;
-import com.chaosbuffalo.mkcore.effects.MKEffectState;
+import com.chaosbuffalo.mkcore.effects.*;
+import com.chaosbuffalo.mkcore.utils.MKNBTUtil;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.potion.EffectType;
@@ -45,13 +43,9 @@ public class MKAbilityDamageEffectNew extends MKEffect {
         return new MKEffectBuilder<>(this, sourceId, this::makeState);
     }
 
-    public static class State extends MKEffectState {
+    public static class State extends ScalingValueEffectState {
         // Serialized
-        public float base;
-        public float scale;
         public MKDamageType damageType;
-        public float modifierScaling = 1.0f;
-
 
         // Non-serialized
         public Entity source;
@@ -73,21 +67,20 @@ public class MKAbilityDamageEffectNew extends MKEffect {
 
         @Override
         public boolean performEffect(IMKEntityData targetData, MKActiveEffect instance) {
-            DamageSource damage;
-            float value = base + (scale * instance.getStackCount());
-
-
             source = findEntity(source, instance.getSourceId(), targetData);
+
+            DamageSource damage;
             if (source != null) {
                 MKCore.LOGGER.info("MKAbilityDamageEffectNew has source");
                 damage = MKDamageSource.causeAbilityDamage(damageType, instance.getAbilityId(), source, source)
-                        .setModifierScaling(modifierScaling);
+                        .setModifierScaling(getModifierScale());
             } else {
                 MKCore.LOGGER.info("MKAbilityDamageEffectNew no source");
                 damage = MKDamageSource.causeAbilityDamage(damageType, instance.getAbilityId(), null, null)
-                        .setModifierScaling(modifierScaling);
+                        .setModifierScaling(getModifierScale());
             }
 
+            float value = getScaledValue(instance.getStackCount());
             targetData.getEntity().attackEntityFrom(damage, value);
             return true;
         }
@@ -95,19 +88,13 @@ public class MKAbilityDamageEffectNew extends MKEffect {
         @Override
         public void serializeStorage(CompoundNBT stateTag) {
             super.serializeStorage(stateTag);
-            stateTag.putFloat("base", base);
-            stateTag.putFloat("scale", scale);
-            stateTag.putFloat("modScale", modifierScaling);
-            stateTag.putString("damageType", damageType.getId().toString());
+            MKNBTUtil.writeResourceLocation(stateTag, "damageType", damageType.getId());
         }
 
         @Override
         public void deserializeStorage(CompoundNBT stateTag) {
             super.deserializeStorage(stateTag);
-            base = stateTag.getFloat("base");
-            scale = stateTag.getFloat("scale");
-            modifierScaling = stateTag.getFloat("modScale");
-            damageType = MKCoreRegistry.getDamageType(ResourceLocation.tryCreate(stateTag.getString("damageType")));
+            damageType = MKCoreRegistry.getDamageType(MKNBTUtil.readResourceLocation(stateTag, "damageType"));
         }
     }
 }

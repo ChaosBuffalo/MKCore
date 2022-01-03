@@ -2,12 +2,8 @@ package com.chaosbuffalo.mkcore.effects.instant;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
-import com.chaosbuffalo.mkcore.effects.MKActiveEffect;
-import com.chaosbuffalo.mkcore.effects.MKEffect;
-import com.chaosbuffalo.mkcore.effects.MKEffectBuilder;
-import com.chaosbuffalo.mkcore.effects.MKEffectState;
+import com.chaosbuffalo.mkcore.effects.*;
 import net.minecraft.entity.Entity;
-import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.potion.EffectType;
 import net.minecraft.util.DamageSource;
 import net.minecraftforge.event.RegistryEvent;
@@ -41,38 +37,23 @@ public class AbilityMagicDamageEffectNew extends MKEffect {
         return new MKEffectBuilder<>(this, sourceId, this::makeState);
     }
 
-    public static class State extends MKEffectState {
-        public float base;
-        public float scale;
-        public Entity source;
+    public static class State extends ScalingValueEffectState {
+        private Entity source;
 
         @Override
         public boolean performEffect(IMKEntityData targetData, MKActiveEffect instance) {
+            source = findEntity(source, instance.getSourceId(), targetData);
+
             DamageSource damage;
-            float value = base + (scale * instance.getStackCount());
-            Entity source = findEntity(this.source, instance.getSourceId(), targetData);
             if (source != null) {
                 damage = DamageSource.causeIndirectMagicDamage(source, source);
             } else {
                 damage = DamageSource.MAGIC;
             }
 
+            float value = getScaledValue(instance.getStackCount());
             targetData.getEntity().attackEntityFrom(damage, value);
             return true;
-        }
-
-        @Override
-        public void serializeStorage(CompoundNBT stateTag) {
-            super.serializeStorage(stateTag);
-            stateTag.putFloat("base", base);
-            stateTag.putFloat("scale", scale);
-        }
-
-        @Override
-        public void deserializeStorage(CompoundNBT stateTag) {
-            super.deserializeStorage(stateTag);
-            base = stateTag.getFloat("base");
-            scale = stateTag.getFloat("scale");
         }
     }
 }
