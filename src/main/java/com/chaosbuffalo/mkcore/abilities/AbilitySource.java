@@ -1,70 +1,164 @@
 package com.chaosbuffalo.mkcore.abilities;
 
-import com.mojang.serialization.Codec;
-import net.minecraft.util.IStringSerializable;
+import com.chaosbuffalo.mkcore.core.talents.MKTalent;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.StringNBT;
+import net.minecraft.util.ResourceLocation;
 
-import javax.annotation.Nonnull;
-import java.util.EnumSet;
+import java.util.Objects;
 
-public enum AbilitySource implements IStringSerializable {
-    ITEM(1, SourceFlags.HasComplexAcquisition),
-    TRAINED(2, SourceFlags.PlaceOnBarWhenLearned, SourceFlags.UseAbilityPool),
-    GRANTED(4, SourceFlags.PlaceOnBarWhenLearned),
-    // Talents are stored separately and this source is granted to the entity upon talent record deserialization.
-    // This is mostly to support the case where the talent tree version changes and no longer provides an ability it used to.
-    // In that case there would be no way to know that the ability should be forgotten by the player
-    TALENT(8, SourceFlags.HasComplexAcquisition),
-    ADMIN(16);
+public class AbilitySource {
+    private static final String SEP_CHAR = "|";
+    private static final String SEP_REGEX = "\\|";
 
-    public static final AbilitySource[] VALUES = values();
-    public static final Codec<AbilitySource> CODEC = IStringSerializable.createEnumCodec(AbilitySource::values, AbilitySource::valueOf);
+    public static AbilitySource TRAINED = new AbilitySource(AbilitySourceType.TRAINED);
+    public static AbilitySource GRANTED = new AbilitySource(AbilitySourceType.GRANTED);
+    public static AbilitySource ADMIN = new AbilitySource(AbilitySourceType.ADMIN);
 
-    private enum SourceFlags {
-        PlaceOnBarWhenLearned(1),
-        UseAbilityPool(2),
-        HasComplexAcquisition(4);
-
-        private final int flag;
-
-        SourceFlags(int v) {
-            this.flag = v;
-        }
-
-        public int flag() {
-            return flag;
-        }
+    public static AbilitySource forItem(ItemStack item) {
+        return new ItemAbilitySource(item.getItem().getRegistryName());
     }
 
-    private final int mask;
-    private final EnumSet<SourceFlags> flags;
+    public static AbilitySource forTalent(MKTalent talent) {
+        return new TalentSource(talent.getTalentId());
+    }
 
-    AbilitySource(int mask, SourceFlags... options) {
-        this.mask = mask;
-        this.flags = options.length > 0 ?
-                EnumSet.of(options[0], options) :
-                EnumSet.noneOf(SourceFlags.class);
+    protected final AbilitySourceType sourceType;
+
+    protected AbilitySource(AbilitySourceType type) {
+        this.sourceType = type;
+    }
+
+    public AbilitySourceType getSourceType() {
+        return sourceType;
     }
 
     public boolean placeOnBarWhenLearned() {
-        return flags.contains(SourceFlags.PlaceOnBarWhenLearned);
+        return sourceType.placeOnBarWhenLearned();
     }
 
     public boolean usesAbilityPool() {
-        return flags.contains(SourceFlags.UseAbilityPool);
+        return sourceType.usesAbilityPool();
     }
 
-    // Whether the Ability can be forgotten without prerequisites, such as being granted by a talent or item
-    public boolean isSimple() {
-        return !flags.contains(SourceFlags.HasComplexAcquisition);
+    public String encode() {
+        return sourceType.name();
     }
 
-    public int mask() {
-        return mask;
+    public static AbilitySource decode(AbilitySourceType type, String encoded) {
+        return new AbilitySource(type);
     }
 
-    @Nonnull
+    public StringNBT serialize() {
+        return StringNBT.valueOf(encode());
+    }
+
+    public static AbilitySource deserialize(String encoded) {
+        String[] parts = encoded.split(SEP_REGEX, 2);
+
+        if (parts.length > 0) {
+            AbilitySourceType type = AbilitySourceType.valueOf(parts[0]);
+            String remainder = parts.length > 1 ? parts[1] : "";
+            return type.getFactory().apply(type, remainder);
+        }
+
+        return null;
+    }
+
     @Override
-    public String getString() {
-        return name();
+    public String toString() {
+        return "AbilitySource{" + encode() + '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AbilitySource that = (AbilitySource) o;
+        return sourceType == that.sourceType;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(sourceType);
+    }
+
+    public static class ItemAbilitySource extends AbilitySource {
+
+        private final ResourceLocation itemId;
+
+        public ItemAbilitySource(ResourceLocation itemId) {
+            super(AbilitySourceType.ITEM);
+            this.itemId = itemId;
+        }
+
+        public String encode() {
+            return super.encode() + SEP_CHAR + itemId.toString();
+        }
+
+        public static ItemAbilitySource decode(AbilitySourceType type, String typeSpecificData) {
+            if (type != AbilitySourceType.ITEM) {
+                return null;
+            }
+
+            ResourceLocation sourceId = ResourceLocation.tryCreate(typeSpecificData);
+            if (sourceId != null) {
+                return new ItemAbilitySource(sourceId);
+            }
+            return null;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            if (!super.equals(o)) return false;
+            ItemAbilitySource that = (ItemAbilitySource) o;
+            return itemId.equals(that.itemId);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(super.hashCode(), itemId);
+        }
+    }
+
+    public static class TalentSource extends AbilitySource {
+        private final ResourceLocation talentId;
+
+        public TalentSource(ResourceLocation talentId) {
+            super(AbilitySourceType.TALENT);
+            this.talentId = talentId;
+        }
+
+        public String encode() {
+            return super.encode() + SEP_CHAR + talentId.toString();
+        }
+
+        public static TalentSource decode(AbilitySourceType type, String typeSpecificData) {
+            if (type != AbilitySourceType.TALENT) {
+                return null;
+            }
+
+            ResourceLocation sourceId = ResourceLocation.tryCreate(typeSpecificData);
+            if (sourceId != null) {
+                return new TalentSource(sourceId);
+            }
+            return null;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            if (!super.equals(o)) return false;
+            TalentSource that = (TalentSource) o;
+            return talentId.equals(that.talentId);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(super.hashCode(), talentId);
+        }
     }
 }

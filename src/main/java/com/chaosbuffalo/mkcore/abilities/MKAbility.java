@@ -30,6 +30,7 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.*;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Consumer;
@@ -118,7 +119,7 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
         if (casterData instanceof MKPlayerData) {
             MKPlayerData playerData = (MKPlayerData) casterData;
             MKAbilityInfo info = playerData.getAbilities().getKnownAbility(getAbilityId());
-            if (info != null && info.getSource().usesAbilityPool()) {
+            if (info != null && info.usesAbilityPool()) {
                 consumer.accept(new IconTextComponent(POOL_SLOT_ICON, "mkcore.ability.description.uses_pool").mergeStyle(TextFormatting.ITALIC));
             }
         }
@@ -181,8 +182,9 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
         return getRegistryName();
     }
 
-    public MKAbilityInfo createAbilityInfo(AbilitySource source) {
-        return new MKAbilityInfo(this, source);
+    @Nonnull
+    public MKAbilityInfo createAbilityInfo() {
+        return new MKAbilityInfo(this);
     }
 
     public ITextComponent getAbilityName() {

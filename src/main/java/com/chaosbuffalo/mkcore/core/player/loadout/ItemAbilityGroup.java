@@ -33,7 +33,8 @@ public class ItemAbilityGroup extends AbilityGroup {
             // If not, create a temporary info struct
             MKAbility ability = MKCoreRegistry.getAbility(abilityId);
             if (ability != null) {
-                info = ability.createAbilityInfo(AbilitySource.ITEM);
+                info = ability.createAbilityInfo();
+                info.addSource(AbilitySource.forItem(playerData.getEntity().getHeldItemMainhand()));
             }
         }
 

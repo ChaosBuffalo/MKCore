@@ -22,7 +22,9 @@ import net.minecraft.command.ISuggestionProvider;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.ResourceLocation;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 
@@ -55,7 +57,7 @@ public class AbilityCommand {
         return ISuggestionProvider.suggest(MKCore.getPlayer(player)
                         .map(playerData -> playerData.getAbilities()
                                 .getKnownStream()
-                                .filter(MKAbilityInfo::canUnlearnByCommand)
+                                .filter(info -> info.getSources().stream().anyMatch(s -> s.getSourceType().isSimple()))
                                 .map(MKAbilityInfo::getId)
                                 .map(ResourceLocation::toString))
                         .orElse(Stream.empty()),
@@ -121,11 +123,17 @@ public class AbilityCommand {
         ServerPlayerEntity player = ctx.getSource().asPlayer();
         ResourceLocation abilityId = ctx.getArgument("ability", ResourceLocation.class);
 
-        for (AbilitySource source : AbilitySource.values()) {
-            if (source.isSimple()) {
-                MKCore.getPlayer(player).ifPresent(cap -> cap.getAbilities().unlearnAbility(abilityId, source));
-            }
-        }
+        MKCore.getPlayer(player).ifPresent(playerData -> {
+            MKAbilityInfo info = playerData.getAbilities().getKnownAbility(abilityId);
+            if (info == null)
+                return;
+            List<AbilitySource> sources = new ArrayList<>(info.getSources());
+            sources.forEach(s -> {
+                if (s.getSourceType().isSimple()) {
+                    playerData.getAbilities().unlearnAbility(abilityId, s);
+                }
+            });
+        });
 
         return Command.SINGLE_SUCCESS;
     }
@@ -139,10 +147,9 @@ public class AbilityCommand {
             if (abilities.size() > 0) {
                 ChatUtils.sendMessageWithBrackets(player, "Known Abilities");
                 abilities.forEach(info -> {
+                    ChatUtils.sendMessageWithBrackets(player, "%s: %b", info.getId(), info.isCurrentlyKnown());
                     if (info.isCurrentlyKnown()) {
-                        ChatUtils.sendMessageWithBrackets(player, "%s: %b - %s", info.getId(), info.isCurrentlyKnown(), info.getSource());
-                    } else {
-                        ChatUtils.sendMessageWithBrackets(player, "%s: %b", info.getId(), info.isCurrentlyKnown());
+                        info.getSources().forEach(s -> ChatUtils.sendMessage(player, "- %s", s.encode()));
                     }
                 });
             } else {

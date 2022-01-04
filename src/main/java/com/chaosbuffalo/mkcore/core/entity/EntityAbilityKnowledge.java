@@ -44,25 +44,27 @@ public class EntityAbilityKnowledge implements IMKEntityKnowledge, IMKAbilityKno
         return priorityOrder;
     }
 
-    private boolean learnAbilityInternal(MKAbility ability) {
+    private boolean learnAbilityInternal(MKAbility ability, AbilitySource source) {
         MKAbilityInfo info = abilityInfoMap.get(ability.getAbilityId());
-        if (info == null) {
-            info = ability.createAbilityInfo(AbilitySource.TRAINED);
-        } else if (info.isCurrentlyKnown()) {
+        if (info != null && info.isCurrentlyKnown()) {
+            if (info.hasSource(source)) {
+                // Already knows this ability from this source
+                return true;
+            }
+            MKCore.LOGGER.warn("Entity {} updated known ability {} with new source {}", entityData.getEntity(), info, source);
+            info.addSource(source);
             return true;
         }
 
-        if (info == null) {
-            MKCore.LOGGER.error("Failed to create AbilityInfo for ability {} for player {}",
-                    ability.getAbilityId(), entityData.getEntity());
-            return false;
-        }
+        info = ability.createAbilityInfo();
+        info.addSource(source);
+
         abilityInfoMap.put(ability.getAbilityId(), info);
         return true;
     }
 
     public boolean learnAbility(MKAbility ability, int priority) {
-        boolean ret = learnAbilityInternal(ability);
+        boolean ret = learnAbilityInternal(ability, AbilitySource.TRAINED);
         if (ret) {
             abilityPriorities.put(ability.getAbilityId(), priority);
             updatePriorityOrder();
@@ -118,7 +120,7 @@ public class EntityAbilityKnowledge implements IMKEntityKnowledge, IMKAbilityKno
         if (ability == null)
             return null;
 
-        return ability.createAbilityInfo(AbilitySource.TRAINED);
+        return ability.createAbilityInfo();
     }
 
     @Override

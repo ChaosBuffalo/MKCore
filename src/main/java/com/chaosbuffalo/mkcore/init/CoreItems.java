@@ -6,6 +6,7 @@ import com.chaosbuffalo.mkcore.core.IMKAbilityProvider;
 import com.chaosbuffalo.mkcore.test.abilities.BurningSoul;
 import com.chaosbuffalo.mkcore.test.abilities.EmberAbility;
 import com.chaosbuffalo.mkcore.test.abilities.WhirlwindBlades;
+import com.chaosbuffalo.mkcore.test.v2.NewBurningSoul;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.*;
 import net.minecraft.util.ResourceLocation;
@@ -27,7 +28,7 @@ public class CoreItems {
     @SubscribeEvent
     public static void registerItems(RegistryEvent.Register<Item> event) {
         event.getRegistry().register(
-                new AbilityArmor(ArmorMaterial.IRON, EquipmentSlotType.CHEST, new Item.Properties(), BurningSoul.INSTANCE)
+                new AbilityArmor(ArmorMaterial.IRON, EquipmentSlotType.CHEST, new Item.Properties(), NewBurningSoul.INSTANCE)
                         .setRegistryName(MKCore.makeRL("ability_chest")));
         event.getRegistry().register(new AbilitySword().setRegistryName(MKCore.makeRL("ability_sword")));
         event.getRegistry().register(

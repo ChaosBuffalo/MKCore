@@ -66,7 +66,7 @@ public class PlayerAbilityKnowledge implements IMKAbilityKnowledge, IPlayerSyncC
     private Stream<ResourceLocation> getPoolAbilityStream() {
         // This can be cached easily if it ever becomes a problem
         return getKnownStream()
-                .filter(info -> info.getSource().usesAbilityPool())
+                .filter(MKAbilityInfo::usesAbilityPool)
                 .map(MKAbilityInfo::getId);
     }
 
@@ -121,11 +121,15 @@ public class PlayerAbilityKnowledge implements IMKAbilityKnowledge, IPlayerSyncC
             return false;
         }
 
-        info = abilityInfoMap.computeIfAbsent(ability.getAbilityId(), id -> ability.createAbilityInfo(source));
+        info = abilityInfoMap.computeIfAbsent(ability.getAbilityId(), id -> ability.createAbilityInfo());
         info.addSource(source);
         markDirty(info);
 
-        getAbilityGroup(ability).onAbilityLearned(info);
+        AbilityGroup group = getAbilityGroup(ability);
+        group.onAbilityLearned(info);
+        if (source.placeOnBarWhenLearned()) {
+            group.tryEquip(ability.getAbilityId());
+        }
         return true;
     }
 
@@ -144,6 +148,7 @@ public class PlayerAbilityKnowledge implements IMKAbilityKnowledge, IPlayerSyncC
             MKAbility ability = info.getAbility();
             playerData.getAbilityExecutor().onAbilityUnlearned(ability);
             getAbilityGroup(ability).onAbilityUnlearned(info);
+            abilityInfoMap.remove(abilityId);
         }
         return true;
     }
@@ -187,6 +192,6 @@ public class PlayerAbilityKnowledge implements IMKAbilityKnowledge, IPlayerSyncC
         if (ability == null)
             return null;
 
-        return ability.createAbilityInfo(AbilitySource.TRAINED);
+        return ability.createAbilityInfo();
     }
 }

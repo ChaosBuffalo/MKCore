@@ -230,9 +230,7 @@ public class AbilityGroup implements IPlayerSyncComponentProvider {
     }
 
     public void onAbilityLearned(MKAbilityInfo info) {
-        if (info.getSource().placeOnBarWhenLearned()) {
-            tryEquip(info.getId());
-        }
+
     }
 
     public void onAbilityUnlearned(MKAbilityInfo info) {
