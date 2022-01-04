@@ -85,6 +85,11 @@ public class EntityStatsModule implements IMKEntityStats {
     }
 
     @Override
+    public float getTimerPercent(ResourceLocation timerId, float partialTick) {
+        return abilityTracker.getCooldownPercent(timerId, partialTick);
+    }
+
+    @Override
     public void resetAllTimers() {
         abilityTracker.removeAll();
     }

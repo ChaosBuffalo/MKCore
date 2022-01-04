@@ -1,5 +1,6 @@
 package com.chaosbuffalo.mkcore.core;
 
+import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.abilities.*;
@@ -20,6 +21,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 public class AbilityExecutor {
+    public static final ResourceLocation GCD_TIMER = MKCore.makeRL("timer.gcd");
     protected final IMKEntityData entityData;
     private EntityCastingState currentCast;
     private final Map<ResourceLocation, MKToggleAbilityBase> activeToggleMap = new HashMap<>();
@@ -84,6 +86,9 @@ public class AbilityExecutor {
 
     public boolean canActivateAbility(MKAbility ability) {
         if (isCasting() || entityData.getEntity().isActiveItemStackBlocking())
+            return false;
+
+        if (isOnGlobalCooldown())
             return false;
 
         return getCurrentAbilityCooldown(ability.getAbilityId()) <= 0;
@@ -171,6 +176,18 @@ public class AbilityExecutor {
         }
     }
 
+    public void startGlobalCooldown() {
+        entityData.getStats().setTimer(GCD_TIMER, GameConstants.GLOBAL_COOLDOWN_TICKS);
+    }
+
+    public boolean isOnGlobalCooldown() {
+        return entityData.getStats().getTimer(GCD_TIMER) > 0;
+    }
+
+    public float getGlobalCooldownPercent(float partialTick) {
+        return entityData.getStats().getTimerPercent(GCD_TIMER, partialTick);
+    }
+
     public boolean startAbility(AbilityContext context, MKAbilityInfo info) {
         MKAbility ability = info.getAbility();
         if (isCasting()) {
@@ -183,6 +200,7 @@ public class AbilityExecutor {
             return false;
         }
 
+        startGlobalCooldown();
         int castTime = entityData.getStats().getAbilityCastTime(ability);
         startCast(context, info, castTime);
         if (castTime > 0) {

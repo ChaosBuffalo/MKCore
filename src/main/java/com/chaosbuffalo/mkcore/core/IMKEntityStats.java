@@ -29,6 +29,8 @@ public interface IMKEntityStats {
 
     int getTimer(ResourceLocation id);
 
+    float getTimerPercent(ResourceLocation id, float partialTick);
+
     void resetAllTimers();
 
     CompoundNBT serialize();

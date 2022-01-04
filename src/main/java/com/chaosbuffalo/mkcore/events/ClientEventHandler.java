@@ -14,8 +14,6 @@ import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.MKRangedAttribute;
 import com.chaosbuffalo.mkcore.effects.status.StunEffect;
 import com.chaosbuffalo.mkcore.effects.status.StunEffectV2;
-import com.chaosbuffalo.mkcore.events.PlayerDataEvent;
-import com.chaosbuffalo.mkcore.events.PostAttackEvent;
 import com.chaosbuffalo.mkcore.item.ArmorClass;
 import com.chaosbuffalo.mkcore.item.IImplementsBlocking;
 import com.chaosbuffalo.mkcore.network.ExecuteActiveAbilityPacket;
@@ -65,8 +63,6 @@ public class ClientEventHandler {
     private static KeyBinding[] ultimateAbilityBinds;
     private static KeyBinding itemAbilityBind;
 
-    private static int currentGCDTicks;
-
     public static void initKeybindings() {
         playerMenuBind = new KeyBinding("key.hud.playermenu", GLFW.GLFW_KEY_J, "key.mkcore.category");
         ClientRegistry.registerKeyBinding(playerMenuBind);
@@ -103,20 +99,8 @@ public class ClientEventHandler {
         ClientRegistry.registerKeyBinding(itemAbilityBind);
     }
 
-    public static float getGlobalCooldown() {
-        return (float) currentGCDTicks / GameConstants.TICKS_PER_SECOND;
-    }
-
     public static float getTotalGlobalCooldown() {
         return (float) GameConstants.GLOBAL_COOLDOWN_TICKS / GameConstants.TICKS_PER_SECOND;
-    }
-
-    static boolean isOnGlobalCooldown() {
-        return currentGCDTicks > 0;
-    }
-
-    static void startGlobalCooldown() {
-        currentGCDTicks = GameConstants.GLOBAL_COOLDOWN_TICKS;
     }
 
     @SubscribeEvent
@@ -142,7 +126,7 @@ public class ClientEventHandler {
     }
 
     static void handleAbilityBarPressed(MKPlayerData player, AbilityGroupId group, int slot) {
-        if (isOnGlobalCooldown() ||
+        if (player.getAbilityExecutor().isOnGlobalCooldown() ||
                 player.getEntity().isPotionActive(StunEffect.INSTANCE) ||
                 player.getEffects().isEffectActive(StunEffectV2.INSTANCE))
             return;
@@ -156,7 +140,7 @@ public class ClientEventHandler {
         if (ability != null && player.getAbilityExecutor().clientSimulateAbility(ability, group)) {
             MKCore.LOGGER.debug("sending execute ability {} {}", group, slot);
             PacketHandler.sendMessageToServer(new ExecuteActiveAbilityPacket(group, slot));
-            startGlobalCooldown();
+            player.getAbilityExecutor().startGlobalCooldown();
         }
     }
 
@@ -215,16 +199,6 @@ public class ClientEventHandler {
                     }
                 });
             }
-        }
-    }
-
-    @SubscribeEvent
-    public static void onTickEvent(TickEvent.ClientTickEvent event) {
-        if (event.phase == TickEvent.Phase.START) {
-            if (currentGCDTicks > 0) {
-                currentGCDTicks--;
-            }
-
         }
     }
 

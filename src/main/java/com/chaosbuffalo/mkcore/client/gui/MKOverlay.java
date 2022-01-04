@@ -155,8 +155,8 @@ public class MKOverlay {
         int slotCount = abilityGroup.getCurrentSlotCount();
         drawBarSlots(matrixStack, group, startingSlot, slotCount, totalSlots);
 
-        float globalCooldown = ClientEventHandler.getGlobalCooldown();
         PlayerAbilityExecutor executor = data.getAbilityExecutor();
+        float globalCooldown = executor.getGlobalCooldownPercent(partialTicks);
 
         for (int i = 0; i < slotCount; i++) {
             ResourceLocation abilityId = abilityGroup.getSlot(i);

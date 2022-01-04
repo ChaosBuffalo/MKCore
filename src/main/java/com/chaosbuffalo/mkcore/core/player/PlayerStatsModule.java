@@ -148,7 +148,7 @@ public class PlayerStatsModule extends EntityStatsModule implements IPlayerSyncC
     }
 
     public float getPoiseBreakPercent(float partialTick) {
-        return abilityTracker.getCooldownPercent(POISE_BREAK_TIMER, partialTick);
+        return getTimerPercent(POISE_BREAK_TIMER, partialTick);
     }
 
     public void breakPoise() {
@@ -253,10 +253,6 @@ public class PlayerStatsModule extends EntityStatsModule implements IPlayerSyncC
     @Override
     public boolean canActivateAbility(MKAbility ability) {
         return getMana() >= getAbilityManaCost(ability);
-    }
-
-    public float getTimerPercent(ResourceLocation abilityId, float partialTicks) {
-        return abilityTracker.getCooldownPercent(abilityId, partialTicks);
     }
 
     public void printActiveCooldowns() {
