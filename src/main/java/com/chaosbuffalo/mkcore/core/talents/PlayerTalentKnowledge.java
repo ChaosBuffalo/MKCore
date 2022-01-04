@@ -4,8 +4,6 @@ import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.player.IPlayerSyncComponentProvider;
 import com.chaosbuffalo.mkcore.core.player.SyncComponent;
-import com.chaosbuffalo.mkcore.core.records.IRecordType;
-import com.chaosbuffalo.mkcore.core.records.IRecordTypeHandler;
 import com.chaosbuffalo.mkcore.core.records.PlayerRecordDispatcher;
 import com.chaosbuffalo.mkcore.init.CoreSounds;
 import com.chaosbuffalo.mkcore.sync.DynamicSyncGroup;
@@ -172,12 +170,13 @@ public class PlayerTalentKnowledge implements IPlayerSyncComponentProvider {
     }
 
     public boolean removeTalentPoints(int amount) {
-        if (amount >= 0 && amount <= talentPoints.get()) {
+        if (amount > 0 && amount <= talentPoints.get() && amount <= totalTalentPoints.get()) {
             talentPoints.add(-amount);
+            totalTalentPoints.add(-amount);
             return true;
         }
 
-        return true;
+        return false;
     }
 
     public boolean spendTalentPoint(ResourceLocation treeId, String line, int index) {
@@ -304,10 +303,6 @@ public class PlayerTalentKnowledge implements IPlayerSyncComponentProvider {
         public void serializeFull(CompoundNBT tag) {
             throw new IllegalStateException("ClientTreeSyncGroup should never call serializeFull!");
         }
-    }
-
-    public <T extends IRecordTypeHandler<?>> T getTypeHandler(IRecordType<T> type) {
-        return dispatcher.getTypeHandler(type);
     }
 
     public void onPersonaActivated() {
