@@ -36,13 +36,18 @@ public abstract class WorldRendererMixins {
                                  ActiveRenderInfo activeRenderInfoIn, GameRenderer gameRendererIn, LightTexture lightmapIn, Matrix4f projectionIn, CallbackInfo ci){
 
         //draw clouds early before particles
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.gameSettings.cloudOption == CloudOption.OFF){
+            savedOption = mc.gameSettings.getCloudOption();
+            return;
+        }
         Vector3d vector3d = activeRenderInfoIn.getProjectedView();
         double d0 = vector3d.getX();
         double d1 = vector3d.getY();
         double d2 = vector3d.getZ();
         RenderSystem.pushMatrix();
         RenderSystem.multMatrix(matrixStackIn.getLast().getMatrix());
-        Minecraft mc = Minecraft.getInstance();
+
         savedOption = mc.gameSettings.getCloudOption();
         if (this.field_239227_K_ != null){
             this.cloudFrameBuffer.framebufferClear(Minecraft.IS_RUNNING_ON_MAC);
