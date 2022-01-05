@@ -17,11 +17,11 @@ import java.util.Objects;
 public class MKPlayerData implements IMKEntityData {
     private final PlayerEntity player;
     private final PlayerAbilityExecutor abilityExecutor;
-    private final PlayerStatsModule stats;
+    private final PlayerStats stats;
     private final PersonaManager personaManager;
     private final PlayerUpdateEngine updateEngine;
     private final PlayerAnimationModule animationModule;
-    private final PlayerEquipmentModule equipmentModule;
+    private final PlayerEquipment equipment;
     private final PlayerCombatExtensionModule combatExtensionModule;
     private final PlayerEditorModule editorModule;
     private final PlayerEffectHandler effectHandler;
@@ -33,7 +33,7 @@ public class MKPlayerData implements IMKEntityData {
         abilityExecutor = new PlayerAbilityExecutor(this);
         combatExtensionModule = new PlayerCombatExtensionModule(this);
         combatExtensionModule.getSyncComponent().attach(updateEngine);
-        stats = new PlayerStatsModule(this);
+        stats = new PlayerStats(this);
         stats.getSyncComponent().attach(updateEngine);
 
         animationModule = new PlayerAnimationModule(this);
@@ -42,7 +42,7 @@ public class MKPlayerData implements IMKEntityData {
         abilityExecutor.setInterruptCastCallback(animationModule::interruptCast);
         animationModule.getSyncComponent().attach(updateEngine);
 
-        equipmentModule = new PlayerEquipmentModule(this);
+        equipment = new PlayerEquipment(this);
         editorModule = new PlayerEditorModule(this);
         editorModule.getSyncComponent().attach(updateEngine);
 
@@ -50,7 +50,7 @@ public class MKPlayerData implements IMKEntityData {
     }
 
     @Override
-    public PlayerStatsModule getStats() {
+    public PlayerStats getStats() {
         return stats;
     }
 
@@ -93,8 +93,8 @@ public class MKPlayerData implements IMKEntityData {
         return getKnowledge().getEntitlementsKnowledge();
     }
 
-    public PlayerEquipmentModule getEquipment() {
-        return equipmentModule;
+    public PlayerEquipment getEquipment() {
+        return equipment;
     }
 
     @Nonnull

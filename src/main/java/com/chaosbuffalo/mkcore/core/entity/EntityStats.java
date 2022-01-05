@@ -7,12 +7,12 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 
-public class EntityStatsModule implements IMKEntityStats {
+public class EntityStats implements IMKEntityStats {
 
     protected final IMKEntityData entityData;
     protected final AbilityTracker abilityTracker;
 
-    public EntityStatsModule(IMKEntityData data) {
+    public EntityStats(IMKEntityData data) {
         entityData = data;
         abilityTracker = AbilityTracker.getTracker(data.getEntity());
     }

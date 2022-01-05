@@ -2,7 +2,7 @@ package com.chaosbuffalo.mkcore.core;
 
 import com.chaosbuffalo.mkcore.core.entity.EntityAbilityKnowledge;
 import com.chaosbuffalo.mkcore.core.entity.EntityEffectHandler;
-import com.chaosbuffalo.mkcore.core.entity.EntityStatsModule;
+import com.chaosbuffalo.mkcore.core.entity.EntityStats;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
@@ -14,7 +14,7 @@ public class MKEntityData implements IMKEntityData {
 
     private final LivingEntity entity;
     private final AbilityExecutor abilityExecutor;
-    private final EntityStatsModule stats;
+    private final EntityStats stats;
     private final EntityAbilityKnowledge knowledge;
     private final CombatExtensionModule combatExtensionModule;
     private final EntityEffectHandler effectHandler;
@@ -23,7 +23,7 @@ public class MKEntityData implements IMKEntityData {
         entity = Objects.requireNonNull(livingEntity);
         knowledge = new EntityAbilityKnowledge(this);
         abilityExecutor = new AbilityExecutor(this);
-        stats = new EntityStatsModule(this);
+        stats = new EntityStats(this);
         combatExtensionModule = new CombatExtensionModule(this);
         effectHandler = new EntityEffectHandler(this);
     }
@@ -45,7 +45,7 @@ public class MKEntityData implements IMKEntityData {
     }
 
     @Override
-    public EntityStatsModule getStats() {
+    public EntityStats getStats() {
         return stats;
     }
 

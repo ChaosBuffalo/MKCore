@@ -2,7 +2,7 @@ package com.chaosbuffalo.mkcore.command;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.MKAttributes;
-import com.chaosbuffalo.mkcore.core.player.PlayerStatsModule;
+import com.chaosbuffalo.mkcore.core.player.PlayerStats;
 import com.chaosbuffalo.mkcore.utils.ChatUtils;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.BoolArgumentType;
@@ -33,8 +33,8 @@ public class StatCommand {
 
     public static LiteralArgumentBuilder<CommandSource> register() {
         return Commands.literal("stat")
-                .then(createSimpleFloatStat("mana", PlayerStatsModule::getMana, PlayerStatsModule::setMana))
-                .then(createSimpleFloatStat("health", PlayerStatsModule::getHealth, PlayerStatsModule::setHealth))
+                .then(createSimpleFloatStat("mana", PlayerStats::getMana, PlayerStats::setMana))
+                .then(createSimpleFloatStat("health", PlayerStats::getHealth, PlayerStats::setHealth))
                 .then(createAttributeStat("max_health", Attributes.MAX_HEALTH))
                 .then(createAttributeStat("armor", Attributes.ARMOR))
                 .then(createAttributeStat("armor_toughness", Attributes.ARMOR_TOUGHNESS))
@@ -87,8 +87,8 @@ public class StatCommand {
     }
 
     static ArgumentBuilder<CommandSource, ?> createSimpleFloatStat(String name,
-                                                                   Function<PlayerStatsModule, Float> getter,
-                                                                   BiConsumer<PlayerStatsModule, Float> setter) {
+                                                                   Function<PlayerStats, Float> getter,
+                                                                   BiConsumer<PlayerStats, Float> setter) {
         ToIntFunction<PlayerEntity> statGet = playerEntity -> {
             MKCore.getPlayer(playerEntity).ifPresent(cap ->
                     ChatUtils.sendMessageWithBrackets(playerEntity, "%s is %f", name, getter.apply(cap.getStats())));

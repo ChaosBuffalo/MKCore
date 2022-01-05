@@ -6,7 +6,7 @@ import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.core.MKAttributes;
 import com.chaosbuffalo.mkcore.core.MKCombatFormulas;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
-import com.chaosbuffalo.mkcore.core.entity.EntityStatsModule;
+import com.chaosbuffalo.mkcore.core.entity.EntityStats;
 import com.chaosbuffalo.mkcore.sync.SyncFloat;
 import com.chaosbuffalo.mkcore.utils.ChatUtils;
 import net.minecraft.entity.LivingEntity;
@@ -22,14 +22,14 @@ import javax.annotation.Nonnull;
 import java.util.Objects;
 
 
-public class PlayerStatsModule extends EntityStatsModule implements IPlayerSyncComponentProvider {
+public class PlayerStats extends EntityStats implements IPlayerSyncComponentProvider {
     private final SyncComponent sync = new SyncComponent("stats");
     private float manaRegenTimer;
     private final SyncFloat mana = new SyncFloat("mana", 0f);
     private final SyncFloat poise = new SyncFloat("poise", 0f);
     public static final ResourceLocation POISE_BREAK_TIMER = new ResourceLocation(MKCore.MOD_ID, "timer.poise_break");
 
-    public PlayerStatsModule(MKPlayerData playerData) {
+    public PlayerStats(MKPlayerData playerData) {
         super(playerData);
         manaRegenTimer = 0f;
         addSyncPublic(mana);

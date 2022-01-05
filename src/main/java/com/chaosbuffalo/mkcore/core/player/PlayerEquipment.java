@@ -14,7 +14,7 @@ import net.minecraft.item.ItemStack;
 
 import java.util.UUID;
 
-public class PlayerEquipmentModule {
+public class PlayerEquipment {
     private static final UUID[] ARMOR_CLASS_UUID_BY_SLOT = new UUID[]{
             UUID.fromString("536049db-3699-4cff-831c-52fe99b24269"),
             UUID.fromString("75a8a55f-13de-400f-a823-444e71729fd5"),
@@ -27,7 +27,7 @@ public class PlayerEquipmentModule {
     private final MKPlayerData playerData;
     private MKAbility currentMainAbility = null;
 
-    public PlayerEquipmentModule(MKPlayerData playerData) {
+    public PlayerEquipment(MKPlayerData playerData) {
         this.playerData = playerData;
     }
 
