@@ -33,7 +33,7 @@ public class PlayerEquipment {
 
     public void onEquipmentChange(EquipmentSlotType slot, ItemStack from, ItemStack to) {
         // Currently, we only care about swapping items so modifications like durability are ignored
-        if (ItemStack.areItemStacksEqual(from, to))
+        if (ItemStack.areItemsEqualIgnoreDurability(from, to))
             return;
 
 //        MKCore.LOGGER.info("Equipment[{}] {} -> {}", slot, from, to);
