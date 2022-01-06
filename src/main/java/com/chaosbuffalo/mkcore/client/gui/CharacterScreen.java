@@ -39,7 +39,7 @@ import net.minecraft.util.text.TranslationTextComponent;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class CharacterScreen extends AbilityPanelScreen {
+public class CharacterScreen extends AbilityPanelScreen implements ITalentScreen {
     private TalentTreeWidget talentTreeWidget;
     private TalentTreeRecord currentTree;
     private ScrollingListPanelLayout talentScrollPanel;
@@ -113,15 +113,15 @@ public class CharacterScreen extends AbilityPanelScreen {
         STAT_PANEL_ATTRIBUTES.add(MKAttributes.POISE_BREAK_CD);
     }
 
-    public CharacterScreen() {
-        super(new TranslationTextComponent("mk_character_screen.title"));
+    public CharacterScreen(MKPlayerData playerData) {
+        super(playerData, new TranslationTextComponent("mk_character_screen.title"));
         abilitySlots = new HashMap<>();
         states.addAll(Arrays.asList("stats", "abilities", "talents", "damages"));
         shortDataBoxScreens.add("abilities");
         setDoAbilityDrag(true);
     }
 
-    private MKLayout createPoolManagementFooter(MKPlayerData playerData){
+    private MKLayout createPoolManagementFooter(MKPlayerData playerData) {
         int xPos = width / 2 - PANEL_WIDTH / 2;
         int yPos = height / 2 - PANEL_HEIGHT / 2;
         int xOffset = GuiTextures.CORE_TEXTURES.getCenterXOffset(
@@ -147,8 +147,8 @@ public class CharacterScreen extends AbilityPanelScreen {
         poolText.setTooltip(I18n.format("mkcore.gui.memory_pool_tooltip"));
         poolText.manualRecompute();
         int margins = 100 - poolText.getWidth();
-        poolText.setMarginLeft(margins/2);
-        poolText.setMarginRight(margins/2);
+        poolText.setMarginLeft(margins / 2);
+        poolText.setMarginRight(margins / 2);
         poolText.getText().setColor(0xff000000);
         layout.addWidget(poolText);
         layout.addConstraintToWidget(new OffsetConstraint(0, 2, false, true), poolText);
@@ -218,7 +218,7 @@ public class CharacterScreen extends AbilityPanelScreen {
             talentScrollPanel = panel;
             TalentTreeWidget treeWidget = new TalentTreeWidget(0, 0,
                     panel.getContentScrollView().getWidth(),
-                    panel.getContentScrollView().getHeight(), pData, font);
+                    panel.getContentScrollView().getHeight(), font);
             talentTreeWidget = treeWidget;
             panel.setContent(treeWidget);
             MKStackLayoutVertical stackLayout = new MKStackLayoutVertical(0, 0,
@@ -247,55 +247,54 @@ public class CharacterScreen extends AbilityPanelScreen {
         int xPos = width / 2 - PANEL_WIDTH / 2;
         int yPos = height / 2 - PANEL_HEIGHT / 2;
         TextureRegion dataBoxRegion = GuiTextures.CORE_TEXTURES.getRegion(GuiTextures.DATA_BOX_SHORT);
-        if (minecraft == null || minecraft.player == null || dataBoxRegion == null) {
+        if (dataBoxRegion == null) {
             return new MKLayout(xPos, yPos, PANEL_WIDTH, PANEL_HEIGHT);
         }
-        int xOffset = GuiTextures.CORE_TEXTURES.getCenterXOffset(
-                GuiTextures.DATA_BOX, GuiTextures.BACKGROUND_320_240);
+        int xOffset = GuiTextures.CORE_TEXTURES.getCenterXOffset(GuiTextures.DATA_BOX, GuiTextures.BACKGROUND_320_240);
         MKLayout root = getRootLayout(xPos, yPos, xOffset, dataBoxRegion.width, true);
-        minecraft.player.getCapability(CoreCapabilities.PLAYER_CAPABILITY).ifPresent((pData) -> {
-            // Stat Panel
-            int slotsY = yPos + DATA_BOX_OFFSET - 28;
-            int slotsX = xPos + xOffset + 4;
-            MKText activesLabel = new MKText(font, new TranslationTextComponent("mkcore.gui.actives"));
-            activesLabel.setX(slotsX);
-            activesLabel.setY(slotsY - 12);
-            root.addWidget(activesLabel);
-            MKLayout regularSlots = createAbilityGroupLayout(slotsX, slotsY, AbilityGroupId.Basic);
-            root.addWidget(regularSlots);
-            regularSlots.manualRecompute();
-            int ultSlotsX = regularSlots.getX() + regularSlots.getWidth() + 30;
-            MKLayout ultSlots = createAbilityGroupLayout(ultSlotsX, slotsY, AbilityGroupId.Ultimate);
-            root.addWidget(ultSlots);
-            ultSlots.manualRecompute();
-            MKText ultLabel = new MKText(font, new TranslationTextComponent("mkcore.gui.ultimates"));
-            ultLabel.setX(ultSlotsX);
-            ultLabel.setY(slotsY - 12);
-            root.addWidget(ultLabel);
-            int passiveSlotX = ultSlots.getX() + ultSlots.getWidth() + 30;
-            MKLayout passiveSlots = createAbilityGroupLayout(passiveSlotX, slotsY, AbilityGroupId.Passive);
-            MKText passivesLabel = new MKText(font, new TranslationTextComponent("mkcore.gui.passives"));
-            passivesLabel.setX(passiveSlotX);
-            passivesLabel.setY(slotsY - 12);
-            root.addWidget(passivesLabel);
-            root.addWidget(passiveSlots);
-            int contentX = xPos + xOffset;
-            int contentY = yPos + DATA_BOX_OFFSET;
-            int contentWidth = dataBoxRegion.width;
-            int contentHeight = dataBoxRegion.height;
-            List<MKAbility> abilities = pData.getAbilities()
-                    .getKnownStream()
-                    .map(MKAbilityInfo::getAbility)
-                    .collect(Collectors.toList());
-            ScrollingListPanelLayout panel = getAbilityScrollPanel(contentX, contentY,
-                    contentWidth, contentHeight, pData, abilities);
-            currentScrollingPanel = panel;
-            abilitiesScrollPanel = panel;
-            root.addWidget(panel);
-            MKLayout footer = createPoolManagementFooter(pData);
-            root.addWidget(footer);
 
-        });
+        // Stat Panel
+        int slotsY = yPos + DATA_BOX_OFFSET - 28;
+        int slotsX = xPos + xOffset + 4;
+        MKText activesLabel = new MKText(font, new TranslationTextComponent("mkcore.gui.actives"));
+        activesLabel.setX(slotsX);
+        activesLabel.setY(slotsY - 12);
+        root.addWidget(activesLabel);
+        MKLayout regularSlots = createAbilityGroupLayout(slotsX, slotsY, AbilityGroupId.Basic);
+        root.addWidget(regularSlots);
+        regularSlots.manualRecompute();
+
+        int ultSlotsX = regularSlots.getX() + regularSlots.getWidth() + 30;
+        MKLayout ultSlots = createAbilityGroupLayout(ultSlotsX, slotsY, AbilityGroupId.Ultimate);
+        root.addWidget(ultSlots);
+        ultSlots.manualRecompute();
+        MKText ultLabel = new MKText(font, new TranslationTextComponent("mkcore.gui.ultimates"));
+        ultLabel.setX(ultSlotsX);
+        ultLabel.setY(slotsY - 12);
+        root.addWidget(ultLabel);
+
+        int passiveSlotX = ultSlots.getX() + ultSlots.getWidth() + 30;
+        MKLayout passiveSlots = createAbilityGroupLayout(passiveSlotX, slotsY, AbilityGroupId.Passive);
+        MKText passivesLabel = new MKText(font, new TranslationTextComponent("mkcore.gui.passives"));
+        passivesLabel.setX(passiveSlotX);
+        passivesLabel.setY(slotsY - 12);
+        root.addWidget(passivesLabel);
+        root.addWidget(passiveSlots);
+        int contentX = xPos + xOffset;
+        int contentY = yPos + DATA_BOX_OFFSET;
+        int contentWidth = dataBoxRegion.width;
+        int contentHeight = dataBoxRegion.height;
+        List<MKAbility> abilities = playerData.getAbilities()
+                .getKnownStream()
+                .map(MKAbilityInfo::getAbility)
+                .collect(Collectors.toList());
+        ScrollingListPanelLayout panel = getAbilityScrollPanel(contentX, contentY,
+                contentWidth, contentHeight, playerData, abilities);
+        currentScrollingPanel = panel;
+        abilitiesScrollPanel = panel;
+        root.addWidget(panel);
+        MKLayout footer = createPoolManagementFooter(playerData);
+        root.addWidget(footer);
         return root;
     }
 
@@ -476,7 +475,7 @@ public class CharacterScreen extends AbilityPanelScreen {
                 this::setupDamageHeader));
         addState("abilities", this::createAbilitiesPage);
         addState("talents", this::createTalentsPage);
-        pushState("stats");
+        pushState("abilities");
     }
 
     @Override

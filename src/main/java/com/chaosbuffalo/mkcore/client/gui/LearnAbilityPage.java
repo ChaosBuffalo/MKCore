@@ -1,12 +1,10 @@
 package com.chaosbuffalo.mkcore.client.gui;
 
-import com.chaosbuffalo.mkcore.CoreCapabilities;
+import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.abilities.training.AbilityTrainingEvaluation;
-import com.chaosbuffalo.mkcore.client.gui.widgets.ForgetAbilityModal;
 import com.chaosbuffalo.mkcore.client.gui.widgets.IconText;
 import com.chaosbuffalo.mkcore.client.gui.widgets.LearnAbilityTray;
-import com.chaosbuffalo.mkcore.client.gui.widgets.ScrollingListPanelLayout;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.PlayerLearnAbilityRequestPacket;
@@ -16,31 +14,52 @@ import com.chaosbuffalo.mkwidgets.client.gui.layouts.MKLayout;
 import com.chaosbuffalo.mkwidgets.client.gui.layouts.MKStackLayoutHorizontal;
 import com.chaosbuffalo.mkwidgets.client.gui.math.Vec2i;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKButton;
-import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKText;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKWidget;
 import com.chaosbuffalo.mkwidgets.utils.TextureRegion;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Map;
 
-public class LearnAbilitiesScreen extends AbilityPanelScreen {
+public class LearnAbilityPage extends AbilityPageBase {
     private final Map<MKAbility, AbilityTrainingEvaluation> abilities;
     private final int entityId;
     private LearnAbilityTray abilityTray;
     private MKLayout footer;
     private MKLayout root;
 
-    public LearnAbilitiesScreen(MKPlayerData playerData, Map<MKAbility, AbilityTrainingEvaluation> abilities, int entityId) {
+    public LearnAbilityPage(MKPlayerData playerData, Map<MKAbility, AbilityTrainingEvaluation> abilities, int entityId) {
         super(playerData, new StringTextComponent("Learn Abilities"));
         this.abilities = abilities;
         this.entityId = entityId;
-        states.add("choose_ability");
-        shortDataBoxScreens.add("choose_ability");
+    }
+
+    @Override
+    public ResourceLocation getPageId() {
+        return MKCore.makeRL("learn_ability");
+    }
+
+    @Override
+    public void setupScreen() {
+        super.setupScreen();
+        addWidget(createAbilitiesPage());
+    }
+
+    @Override
+    protected void persistState(boolean wasResized) {
+        super.persistState(wasResized);
+        final MKAbility abilityInf = getAbility();
+        addPostSetupCallback(() -> {
+            if (infoWidget != null && abilities.containsKey(abilityInf)) {
+                infoWidget.setAbility(abilityInf);
+                abilityTray.setAbility(abilityInf, abilities.get(abilityInf));
+                resetFooter();
+            }
+        });
     }
 
     @Override
@@ -52,27 +71,30 @@ public class LearnAbilitiesScreen extends AbilityPanelScreen {
         }
     }
 
-    private MKLayout createPoolManagementFooter(MKPlayerData playerData){
+    private MKLayout createPoolManagementFooter(MKPlayerData playerData) {
         int xPos = width / 2 - PANEL_WIDTH / 2;
         int yPos = height / 2 - PANEL_HEIGHT / 2;
-        int xOffset = GuiTextures.CORE_TEXTURES.getCenterXOffset(
-                GuiTextures.DATA_BOX, GuiTextures.BACKGROUND_320_240);
+        int xOffset = GuiTextures.CORE_TEXTURES.getCenterXOffset(getDataBoxTexture(), GuiTextures.BACKGROUND_320_240);
         int yStart = yPos + DATA_BOX_OFFSET + 136;
         MKStackLayoutHorizontal layout = new MKStackLayoutHorizontal(xPos + xOffset, yStart, 20);
         layout.setPaddingLeft(16);
         layout.setPaddingRight(16);
         layout.setMarginLeft(24);
-        TranslationTextComponent manageText = new TranslationTextComponent("mkcore.gui.manage_memory");
-        MKButton manage = new MKButton(0, 0, manageText);
-        manage.setWidth(60);
+        MKButton manage = createManageButton();
 
-        manage.setPressedCallback((but, click) -> {
-            ForgetAbilityModal modal = getChoosePoolSlotWidget(playerData, null, -1);
-            addModal(modal);
-            return true;
-        });
+        MKButton learnButton = createLearnButton(playerData);
+        layout.addWidget(learnButton);
 
+        IconText poolText = createPoolUsageText(playerData);
+        layout.addWidget(poolText, new OffsetConstraint(0, 2, false, true));
+        layout.addWidget(manage);
+        this.footer = layout;
+        return layout;
 
+    }
+
+    @Nonnull
+    private MKButton createLearnButton(MKPlayerData playerData) {
         String learnButtonText = I18n.format("mkcore.gui.character.learn");
         MKButton learnButton = new MKButton(0, 0, learnButtonText) {
 
@@ -104,27 +126,11 @@ public class LearnAbilitiesScreen extends AbilityPanelScreen {
             }
             return true;
         });
-        layout.addWidget(learnButton);
-
-        TranslationTextComponent poolUsageText = new TranslationTextComponent("mkcore.gui.memory_pool",
-                playerData.getAbilities().getCurrentPoolCount(), playerData.getAbilities().getAbilityPoolSize());
-        IconText poolText = new IconText(0, 0, 16, poolUsageText, MKAbility.POOL_SLOT_ICON, font, 16, 2);
-        poolText.setTooltip(I18n.format("mkcore.gui.memory_pool_tooltip"));
-        poolText.manualRecompute();
-        int margins = 100 - poolText.getWidth();
-        poolText.setMarginLeft(margins/2);
-        poolText.setMarginRight(margins/2);
-        poolText.getText().setColor(0xff000000);
-        layout.addWidget(poolText);
-        layout.addConstraintToWidget(new OffsetConstraint(0, 2, false, true), poolText);
-        layout.addWidget(manage);
-        this.footer = layout;
-        return layout;
-
+        return learnButton;
     }
 
-    private boolean canLearnCurrentAbility(MKPlayerData playerData){
-        if (abilityTray.getAbility() != null && abilityTray.getEvaluation() != null){
+    private boolean canLearnCurrentAbility(MKPlayerData playerData) {
+        if (abilityTray.getAbility() != null && abilityTray.getEvaluation() != null) {
             boolean isKnown = playerData.getAbilities().knowsAbility(abilityTray.getAbility().getAbilityId());
             boolean canLearn = abilityTray.getEvaluation().canLearn();
             return !isKnown && canLearn;
@@ -140,64 +146,30 @@ public class LearnAbilitiesScreen extends AbilityPanelScreen {
         if (minecraft == null || minecraft.player == null || dataBoxRegion == null) {
             return new MKLayout(xPos, yPos, PANEL_WIDTH, PANEL_HEIGHT);
         }
-        int xOffset = GuiTextures.CORE_TEXTURES.getCenterXOffset(
-                GuiTextures.DATA_BOX, GuiTextures.BACKGROUND_320_240);
+        int xOffset = GuiTextures.CORE_TEXTURES.getCenterXOffset(GuiTextures.DATA_BOX, GuiTextures.BACKGROUND_320_240);
         MKLayout root = getRootLayout(xPos, yPos, xOffset, dataBoxRegion.width, false);
-        minecraft.player.getCapability(CoreCapabilities.PLAYER_CAPABILITY).ifPresent((pData) -> {
-            int contentX = xPos + xOffset;
-            int contentY = yPos + DATA_BOX_OFFSET;
-            int contentWidth = dataBoxRegion.width;
-            int contentHeight = dataBoxRegion.height;
-            LearnAbilityTray tray = new LearnAbilityTray(contentX, yPos + 3, contentWidth, pData, font, entityId);
-            abilityTray = tray;
-            root.addWidget(tray);
-            ScrollingListPanelLayout panel = getAbilityScrollPanel(contentX, contentY,
-                    contentWidth, contentHeight, pData, new ArrayList<>(abilities.keySet()));
-            currentScrollingPanel = panel;
-            abilitiesScrollPanel = panel;
+        int contentX = xPos + xOffset;
+        int contentY = yPos + DATA_BOX_OFFSET;
+        int contentWidth = dataBoxRegion.width;
+        int contentHeight = dataBoxRegion.height;
+        LearnAbilityTray tray = new LearnAbilityTray(contentX, yPos + 3, contentWidth, playerData, font, entityId);
+        abilityTray = tray;
+        root.addWidget(tray);
+        abilitiesScrollPanel = getAbilityScrollPanel(contentX, contentY,
+                contentWidth, contentHeight, new ArrayList<>(abilities.keySet()));
 
-            MKLayout footer = createPoolManagementFooter(pData);
-            root.addWidget(panel);
-            root.addWidget(footer);
+        MKLayout footer = createPoolManagementFooter(playerData);
+        root.addWidget(abilitiesScrollPanel);
+        root.addWidget(footer);
 
-        });
         this.root = root;
         return root;
     }
 
-    public void resetFooter(){
-        if (minecraft != null && minecraft.player != null && root != null && footer != null){
+    public void resetFooter() {
+        if (minecraft != null && minecraft.player != null && root != null && footer != null) {
             this.root.removeWidget(footer);
-            minecraft.player.getCapability(CoreCapabilities.PLAYER_CAPABILITY).ifPresent(
-                    (pData) -> root.addWidget(createPoolManagementFooter(pData)));
-        }
-
-
-    }
-
-    @Override
-    public void setupScreen() {
-        super.setupScreen();
-        infoWidget = null;
-        currentScrollingPanel = null;
-        abilityTray = null;
-        addState("choose_ability", this::createAbilitiesPage);
-        pushState("choose_ability");
-    }
-
-    @Override
-    public void addRestoreStateCallbacks() {
-        String state = getState();
-        super.addRestoreStateCallbacks();
-        if (state.equals("choose_ability")) {
-            final MKAbility abilityInf = getAbility();
-            addPostSetupCallback(() -> {
-                if (infoWidget != null && abilities.containsKey(abilityInf)) {
-                    infoWidget.setAbility(abilityInf);
-                    abilityTray.setAbility(abilityInf, abilities.get(abilityInf));
-                    resetFooter();
-                }
-            });
+            root.addWidget(createPoolManagementFooter(playerData));
         }
     }
 }

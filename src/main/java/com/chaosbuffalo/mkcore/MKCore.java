@@ -1,6 +1,7 @@
 package com.chaosbuffalo.mkcore;
 
 import com.chaosbuffalo.mkcore.abilities.AbilityManager;
+import com.chaosbuffalo.mkcore.client.gui.PlayerPageRegistry;
 import com.chaosbuffalo.mkcore.client.gui.MKOverlay;
 import com.chaosbuffalo.mkcore.client.rendering.MKRenderers;
 import com.chaosbuffalo.mkcore.command.MKCommand;
@@ -22,6 +23,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.AddReloadListenerEvent;
@@ -29,6 +31,7 @@ import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -54,6 +57,7 @@ public class MKCore {
     private final ParticleAnimationManager particleAnimationManager;
     public static final String CORE_EXTENSION = "mk_core_extension";
     public static final String PERSONA_EXTENSION = "register_persona_extension";
+    public static final String REGISTER_PLAYER_PAGE = "register_player_page";
 
     public static MKCore INSTANCE;
 
@@ -110,6 +114,7 @@ public class MKCore {
     private void doClientStuff(final FMLClientSetupEvent event) {
         MinecraftForge.EVENT_BUS.register(new MKOverlay());
         ClientEventHandler.initKeybindings();
+        PlayerPageRegistry.init();
         MKRenderers.registerPlayerRenderers();
         CoreItems.registerItemProperties();
     }
@@ -136,6 +141,7 @@ public class MKCore {
     private void processIMC(final InterModProcessEvent event) {
         MKCore.LOGGER.debug("MKCore.processIMC");
         internalIMCStageSetup();
+        DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> PlayerPageRegistry::checkClientIMC);
         event.getIMCStream().forEach(m -> {
             if (m.getMethod().equals(PERSONA_EXTENSION)) {
                 MKCore.LOGGER.debug("IMC register persona extension from mod {} {}", m.getSenderModId(), m.getMethod());

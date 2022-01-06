@@ -27,7 +27,7 @@ import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 
-public abstract class AbilityPanelScreen extends MKScreen implements IPlayerDataAwareScreen {
+public abstract class AbilityPanelScreen extends MKScreen implements IPlayerDataAwareScreen, IAbilityScreen {
 
     protected static final int NEGATIVE_COLOR = 13111115;
     protected static final int POSITIVE_COLOR = 3334475;
@@ -48,13 +48,20 @@ public abstract class AbilityPanelScreen extends MKScreen implements IPlayerData
     private boolean doAbilityDrag;
     protected final Set<String> shortDataBoxScreens;
 
-    public AbilityPanelScreen(ITextComponent title) {
+    protected MKPlayerData playerData;
+
+    public AbilityPanelScreen(MKPlayerData playerData, ITextComponent title) {
         super(title);
+        this.playerData = playerData;
         wasResized = false;
         isDraggingAbility = false;
         dragging = null;
         this.shortDataBoxScreens = new HashSet<>();
         setDoAbilityDrag(false);
+    }
+
+    public MKPlayerData getPlayerData() {
+        return playerData;
     }
 
     public boolean shouldAbilityDrag() {

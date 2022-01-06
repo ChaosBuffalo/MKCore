@@ -1,6 +1,5 @@
 package com.chaosbuffalo.mkcore.client.gui.widgets;
 
-import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.talents.TalentLineDefinition;
 import com.chaosbuffalo.mkcore.core.talents.TalentRecord;
 import com.chaosbuffalo.mkcore.core.talents.TalentTreeRecord;
@@ -19,20 +18,18 @@ import java.util.Arrays;
 import java.util.Map;
 
 public class TalentTreeWidget extends MKLayout {
-    private final MKPlayerData playerData;
     private TalentTreeRecord treeRecord;
     private final FontRenderer fontRenderer;
     private final int originalWidth;
-    private final int oringalHeight;
+    private final int originalHeight;
 
     public TalentTreeWidget(int x, int y, int width, int height,
-                            MKPlayerData data, FontRenderer fontRenderer) {
+                            FontRenderer fontRenderer) {
         super(x, y, width, height);
-        this.playerData = data;
         this.treeRecord = null;
         this.fontRenderer = fontRenderer;
         this.originalWidth = width;
-        this.oringalHeight = height;
+        this.originalHeight = height;
         setMargins(6, 6, 6, 6);
         setup();
     }
@@ -46,15 +43,14 @@ public class TalentTreeWidget extends MKLayout {
             noSelectPrompt.setColor(0xffffffff);
             addWidget(noSelectPrompt);
             setWidth(originalWidth);
-            setHeight(oringalHeight);
+            setHeight(originalHeight);
         } else {
             int treeRenderingMarginX = getMarginRight() + getMarginLeft();
             int treeRenderingPaddingX = 5;
             int talentButtonHeight = TalentButton.HEIGHT;
             int talentButtonWidth = TalentButton.WIDTH;
             int talentButtonYMargin = getMarginTop();
-            Map<String, TalentLineDefinition> lineDefs = treeRecord
-                    .getTreeDefinition().getTalentLines();
+            Map<String, TalentLineDefinition> lineDefs = treeRecord.getTreeDefinition().getTalentLines();
             int count = lineDefs.size();
             int talentWidth = talentButtonWidth * count + treeRenderingMarginX + (count - 1) * treeRenderingPaddingX;
             int spacePerColumn = talentWidth / count;
@@ -100,25 +96,23 @@ public class TalentTreeWidget extends MKLayout {
             }
             setWidth(talentWidth);
             setWidth(Math.max(talentWidth, originalWidth));
-            setHeight(Math.max((largestIndex + 1) * talentButtonHeight + talentButtonYMargin, oringalHeight));
+            setHeight(Math.max((largestIndex + 1) * talentButtonHeight + talentButtonYMargin, originalHeight));
         }
     }
 
-    public Boolean pressTalentButton(MKButton button, Integer mouseButton) {
+    public boolean pressTalentButton(MKButton button, int mouseButton) {
         TalentButton talentButton = (TalentButton) button;
-        if (playerData != null) {
-            if (mouseButton == UIConstants.MOUSE_BUTTON_RIGHT) {
-                PacketHandler.sendMessageToServer(new TalentPointActionPacket(
-                        treeRecord.getTreeDefinition().getTreeId(),
-                        talentButton.line, talentButton.index,
-                        TalentPointActionPacket.Action.REFUND));
+        if (mouseButton == UIConstants.MOUSE_BUTTON_RIGHT) {
+            PacketHandler.sendMessageToServer(new TalentPointActionPacket(
+                    treeRecord.getTreeDefinition().getTreeId(),
+                    talentButton.line, talentButton.index,
+                    TalentPointActionPacket.Action.REFUND));
 
-            } else if (mouseButton == UIConstants.MOUSE_BUTTON_LEFT) {
-                PacketHandler.sendMessageToServer(new TalentPointActionPacket(
-                        treeRecord.getTreeDefinition().getTreeId(),
-                        talentButton.line, talentButton.index,
-                        TalentPointActionPacket.Action.SPEND));
-            }
+        } else if (mouseButton == UIConstants.MOUSE_BUTTON_LEFT) {
+            PacketHandler.sendMessageToServer(new TalentPointActionPacket(
+                    treeRecord.getTreeDefinition().getTreeId(),
+                    talentButton.line, talentButton.index,
+                    TalentPointActionPacket.Action.SPEND));
         }
         return true;
     }

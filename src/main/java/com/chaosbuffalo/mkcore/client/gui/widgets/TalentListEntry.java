@@ -1,6 +1,6 @@
 package com.chaosbuffalo.mkcore.client.gui.widgets;
 
-import com.chaosbuffalo.mkcore.client.gui.CharacterScreen;
+import com.chaosbuffalo.mkcore.client.gui.ITalentScreen;
 import com.chaosbuffalo.mkcore.core.talents.TalentTreeRecord;
 import com.chaosbuffalo.mkwidgets.client.gui.constraints.CenterYWithOffsetConstraint;
 import com.chaosbuffalo.mkwidgets.client.gui.layouts.MKStackLayoutHorizontal;
@@ -14,10 +14,10 @@ public class TalentListEntry extends MKStackLayoutHorizontal {
     private final TalentTreeWidget treeWidget;
     private final TalentTreeRecord record;
     private final FontRenderer font;
-    private final CharacterScreen screen;
+    private final ITalentScreen screen;
 
     public TalentListEntry(int x, int y, int height, TalentTreeRecord record,
-                           TalentTreeWidget treeWidget, FontRenderer font, CharacterScreen screen) {
+                           TalentTreeWidget treeWidget, FontRenderer font, ITalentScreen screen) {
         super(x, y, height);
         this.treeWidget = treeWidget;
         this.record = record;

@@ -5,6 +5,7 @@ import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.client.gui.CharacterScreen;
 import com.chaosbuffalo.mkcore.client.gui.GuiTextures;
+import com.chaosbuffalo.mkcore.client.gui.IAbilityScreen;
 import com.chaosbuffalo.mkcore.core.AbilityGroupId;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.player.AbilityGroup;
@@ -29,12 +30,12 @@ public class AbilitySlotWidget extends MKLayout {
     private final AbilityGroupId slotGroup;
     private boolean unlocked;
     private final int slotIndex;
-    private final CharacterScreen screen;
+    private final IAbilityScreen screen;
     private ResourceLocation abilityId;
     private MKImage background;
     private MKImage icon;
 
-    public AbilitySlotWidget(int x, int y, AbilityGroupId group, int slotIndex, CharacterScreen screen) {
+    public AbilitySlotWidget(int x, int y, AbilityGroupId group, int slotIndex, IAbilityScreen screen) {
         super(x, y, 20, 20);
         this.slotGroup = group;
         this.screen = screen;
