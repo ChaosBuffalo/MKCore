@@ -1,7 +1,7 @@
 package com.chaosbuffalo.mkcore.client.gui.widgets;
 
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
-import com.chaosbuffalo.mkcore.client.gui.AbilityPanelScreen;
+import com.chaosbuffalo.mkcore.client.gui.IAbilityScreen;
 import com.chaosbuffalo.mkwidgets.client.gui.actions.WidgetHoldingDragState;
 import com.chaosbuffalo.mkwidgets.client.gui.constraints.CenterYWithOffsetConstraint;
 import com.chaosbuffalo.mkwidgets.client.gui.layouts.MKStackLayoutHorizontal;
@@ -14,12 +14,12 @@ import net.minecraft.client.gui.FontRenderer;
 public class AbilityListEntry extends MKStackLayoutHorizontal {
     private final MKAbility ability;
     private final AbilityInfoWidget infoWidget;
-    private final AbilityPanelScreen screen;
+    private final IAbilityScreen screen;
     private final MKImage icon;
 
 
     public AbilityListEntry(int x, int y, int height, MKAbility ability, AbilityInfoWidget infoWidget,
-                            FontRenderer font, AbilityPanelScreen screen) {
+                            FontRenderer font, IAbilityScreen screen) {
         super(x, y, height);
         this.ability = ability;
         this.infoWidget = infoWidget;

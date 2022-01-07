@@ -1,14 +1,15 @@
 package com.chaosbuffalo.mkcore.network;
 
+import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.abilities.training.AbilityTrainingEvaluation;
 import com.chaosbuffalo.mkcore.abilities.training.IAbilityTrainer;
 import com.chaosbuffalo.mkcore.client.gui.LearnAbilitiesScreen;
+import com.chaosbuffalo.mkcore.client.gui.LearnAbilityPage;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import net.minecraft.client.Minecraft;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.HashMap;
@@ -54,8 +55,13 @@ public class OpenLearnAbilitiesGuiPacket {
 
     static class ClientHandler {
         public static void handleClient(OpenLearnAbilitiesGuiPacket packet) {
-            ITextComponent text = new StringTextComponent("Learn Abilities");
-            Minecraft.getInstance().displayGuiScreen(new LearnAbilitiesScreen(text, packet.abilityOffers, packet.entityId));
+            PlayerEntity player = Minecraft.getInstance().player;
+            if (player == null)
+                return;
+            MKCore.getPlayer(player).ifPresent(playerData -> {
+                Minecraft.getInstance().displayGuiScreen(new LearnAbilityPage(playerData, packet.abilityOffers, packet.entityId));
+            });
+
         }
     }
 }

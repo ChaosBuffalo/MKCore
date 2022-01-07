@@ -5,9 +5,7 @@ import com.chaosbuffalo.mkcore.MKConfig;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
-import com.chaosbuffalo.mkcore.client.gui.CharacterScreen;
-import com.chaosbuffalo.mkcore.client.gui.IPlayerDataAwareScreen;
-import com.chaosbuffalo.mkcore.client.gui.ParticleEditorScreen;
+import com.chaosbuffalo.mkcore.client.gui.*;
 import com.chaosbuffalo.mkcore.core.AbilityGroupId;
 import com.chaosbuffalo.mkcore.core.MKAttributes;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
@@ -154,7 +152,7 @@ public class ClientEventHandler {
             return;
 
         while (playerMenuBind.isPressed()) {
-            Minecraft.getInstance().displayGuiScreen(new CharacterScreen());
+            PlayerPageRegistry.openDefaultPlayerScreen(playerData);
         }
 
         while (particleEditorBind.isPressed()) {
