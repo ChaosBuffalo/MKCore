@@ -2,7 +2,7 @@ package com.chaosbuffalo.mkcore.test.v2;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
-import com.chaosbuffalo.mkcore.abilities.MKToggleAbilityNew;
+import com.chaosbuffalo.mkcore.abilities.MKToggleAbility;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.effects.MKEffect;
 import com.chaosbuffalo.mkcore.effects.MKEffectBuilder;
@@ -14,15 +14,15 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
-public class SkinLikeWoodAbilityV2 extends MKToggleAbilityNew {
-    public static SkinLikeWoodAbilityV2 INSTANCE = new SkinLikeWoodAbilityV2();
+public class SkinLikeWoodAbility extends MKToggleAbility {
+    public static SkinLikeWoodAbility INSTANCE = new SkinLikeWoodAbility();
 
     @SubscribeEvent
     public static void register(RegistryEvent.Register<MKAbility> event) {
         event.getRegistry().register(INSTANCE);
     }
 
-    public SkinLikeWoodAbilityV2() {
+    public SkinLikeWoodAbility() {
         super(MKCore.MOD_ID, "ability.v2.skin_like_wood");
         setCooldownSeconds(6);
         setManaCost(4);
@@ -35,7 +35,7 @@ public class SkinLikeWoodAbilityV2 extends MKToggleAbilityNew {
 
     @Override
     public MKEffect getToggleEffect() {
-        return SkinLikeWoodEffectV2.INSTANCE;
+        return SkinLikeWoodEffect.INSTANCE;
     }
 
     @Override

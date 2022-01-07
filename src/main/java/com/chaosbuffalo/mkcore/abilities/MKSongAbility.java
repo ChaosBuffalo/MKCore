@@ -1,33 +1,100 @@
 package com.chaosbuffalo.mkcore.abilities;
 
+import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
-import com.chaosbuffalo.mkcore.effects.SongCasterEffect;
-import net.minecraft.potion.Effect;
+import com.chaosbuffalo.mkcore.effects.AreaEffectBuilder;
+import com.chaosbuffalo.mkcore.effects.MKActiveEffect;
+import com.chaosbuffalo.mkcore.effects.song.MKSongPulseEffect;
+import com.chaosbuffalo.mkcore.effects.song.MKSongSustainEffect;
+import com.chaosbuffalo.mkcore.fx.ParticleEffects;
+import com.chaosbuffalo.mkcore.network.PacketHandler;
+import com.chaosbuffalo.mkcore.network.ParticleEffectSpawnPacket;
+import com.chaosbuffalo.targeting_api.TargetingContext;
+import com.chaosbuffalo.targeting_api.TargetingContexts;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.particles.IParticleData;
+import net.minecraft.particles.ParticleTypes;
 import net.minecraft.util.ResourceLocation;
 
-import java.util.IdentityHashMap;
-import java.util.Map;
-
 public abstract class MKSongAbility extends MKToggleAbility {
-
-    private static final Map<Effect, MKSongAbility> toggleAbilityMap = new IdentityHashMap<>();
-
     public MKSongAbility(ResourceLocation abilityId) {
         super(abilityId);
-        toggleAbilityMap.put(getToggleEffect(), this);
     }
 
-    public static MKSongAbility getAbilityForCasterEffect(SongCasterEffect potion) {
-        return toggleAbilityMap.get(potion);
+    @Override
+    public TargetingContext getTargetContext() {
+        return TargetingContexts.SELF;
     }
 
-    public int getCasterEffectSustainCost(IMKEntityData entityData) {
+    @Override
+    public final MKSongSustainEffect getToggleEffect() {
+        return getSustainEffect();
+    }
+
+    public abstract MKSongSustainEffect getSustainEffect();
+
+    public abstract int getSustainEffectTicks();
+
+    public abstract MKSongPulseEffect getPulseEffect();
+
+    public abstract int getPulseEffectTicks();
+
+    @Override
+    public void applyEffect(LivingEntity castingEntity, IMKEntityData casterData) {
+        super.applyEffect(castingEntity, casterData);
+        applySustainEffect(casterData);
+    }
+
+    public MKActiveEffect createSustainEffect(IMKEntityData casterData) {
+        return getSustainEffect().builder(casterData.getEntity().getUniqueID())
+                .ability(this)
+                .periodic(getSustainEffectTicks())
+                .infinite()
+                .createApplication();
+    }
+
+    public MKActiveEffect createPulseEffect(IMKEntityData casterData) {
+        return getPulseEffect().builder(casterData.getEntity().getUniqueID())
+                .ability(this)
+                .periodic(getPulseEffectTicks())
+                .timed(getSustainEffectTicks())
+                .createApplication();
+    }
+
+    public float getSongDistance(IMKEntityData casterData, MKActiveEffect instance) {
+        return 10f;
+    }
+
+    public IParticleData getSongPulseParticle() {
+        return ParticleTypes.NOTE;
+    }
+
+    protected void applySustainEffect(IMKEntityData casterData) {
+        MKCore.LOGGER.info("MKSongAbilityNew.applySustainEffect");
+
+        MKActiveEffect sustain = createSustainEffect(casterData);
+        casterData.getEffects().addEffect(sustain);
+
+        LivingEntity entity = casterData.getEntity();
+        PacketHandler.sendToTrackingAndSelf(new ParticleEffectSpawnPacket(
+                ParticleTypes.NOTE,
+                ParticleEffects.SPHERE_MOTION, 50, 5,
+                entity.getPosX(), entity.getPosY() + 1.0,
+                entity.getPosZ(), 1.0, 1.0, 1.0, 1.0f,
+                entity.getLookVec()), entity);
+    }
+
+    public void addPulseAreaEffects(IMKEntityData casterData, AreaEffectBuilder addEffect) {
+
+    }
+
+    public int getSustainEffectManaCost(IMKEntityData casterData, MKActiveEffect activeEffect) {
         return 1;
     }
 
     @Override
     public float getManaCost(IMKEntityData casterData) {
-        // Songs cost nothing to activate, but the CasterEffect will try to drain getCasterEffectSustainCost() on the first tick
+        // Songs cost nothing to activate, but the CasterEffect will try to drain getSustainEffectManaCost() on the first tick
         return 0;
     }
 }

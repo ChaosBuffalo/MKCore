@@ -8,7 +8,6 @@ import com.chaosbuffalo.mkcore.core.talents.MKTalent;
 import com.chaosbuffalo.mkcore.core.talents.talent_types.PassiveTalent;
 import com.chaosbuffalo.mkcore.core.talents.talent_types.EntitlementGrantTalent;
 import com.chaosbuffalo.mkcore.core.talents.talent_types.UltimateTalent;
-import com.chaosbuffalo.mkcore.test.abilities.BurningSoul;
 import com.chaosbuffalo.mkcore.test.abilities.HealingRain;
 import com.chaosbuffalo.mkcore.test.v2.NewBurningSoul;
 import net.minecraft.entity.ai.attributes.AttributeModifier;

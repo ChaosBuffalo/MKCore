@@ -7,7 +7,6 @@ import com.chaosbuffalo.mkcore.core.MKEntityData;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.effects.PassiveTalentEffect;
 import com.chaosbuffalo.mkcore.effects.status.StunEffect;
-import com.chaosbuffalo.mkcore.effects.status.StunEffectV2;
 import com.chaosbuffalo.mkcore.entities.IUpdateEngineProvider;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -92,8 +91,7 @@ public class EntityEventHandler {
     public static void onEntityJump(LivingEvent.LivingJumpEvent event) {
         MKCore.getEntityData(event.getEntity()).ifPresent(entityData -> {
             entityData.getAbilityExecutor().interruptCast();
-            if (entityData.getEntity().isPotionActive(StunEffect.INSTANCE) ||
-                    entityData.getEffects().isEffectActive(StunEffectV2.INSTANCE)) {
+            if (entityData.getEffects().isEffectActive(StunEffect.INSTANCE)) {
                 event.getEntity().setMotion(0, 0, 0);
             }
         });

@@ -34,7 +34,7 @@ public class NewHealEffect extends MKEffect {
     @Override
     public void onInstanceAdded(IMKEntityData targetData, MKActiveEffect newInstance) {
         super.onInstanceAdded(targetData, newInstance);
-        if (targetData.getEffects().isEffectActive(SkinLikeWoodEffectV2.INSTANCE)) {
+        if (targetData.getEffects().isEffectActive(SkinLikeWoodEffect.INSTANCE)) {
             MKCore.LOGGER.info("NewHealEffect.onInstanceAdded found SkinLikeWoodEffectV2 so adding an extra stack");
             newInstance.modifyDuration(300);
             newInstance.modifyStackCount(1);

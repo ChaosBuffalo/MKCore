@@ -3,7 +3,7 @@ package com.chaosbuffalo.mkcore.test.v2;
 import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
-import com.chaosbuffalo.mkcore.abilities.MKSongAbilityNew;
+import com.chaosbuffalo.mkcore.abilities.MKSongAbility;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.effects.AreaEffectBuilder;
 import com.chaosbuffalo.mkcore.effects.MKEffect;
@@ -16,7 +16,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
-public class NewHealSong extends MKSongAbilityNew {
+public class NewHealSong extends MKSongAbility {
     public static final NewHealSong INSTANCE = new NewHealSong();
 
     @SubscribeEvent

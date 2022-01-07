@@ -9,12 +9,12 @@ import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.core.AbilityType;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.effects.AreaEffectBuilder;
-import com.chaosbuffalo.mkcore.effects.ParticleEffect;
-import com.chaosbuffalo.mkcore.effects.SpellCast;
+import com.chaosbuffalo.mkcore.effects.MKEffectBuilder;
+import com.chaosbuffalo.mkcore.effects.utility.MKOldParticleEffect;
 import com.chaosbuffalo.mkcore.fx.ParticleEffects;
-import com.chaosbuffalo.mkcore.test.effects.ClericHealEffect;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.ParticleEffectSpawnPacket;
+import com.chaosbuffalo.mkcore.test.v2.NewHealEffect;
 import com.chaosbuffalo.targeting_api.TargetingContext;
 import com.chaosbuffalo.targeting_api.TargetingContexts;
 import net.minecraft.entity.LivingEntity;
@@ -76,18 +76,22 @@ public class HealingRain extends MKAbility {
         int tickSpeed = 5;
         if (castTimeLeft % tickSpeed == 0) {
             int level = 0;
-            SpellCast heal = ClericHealEffect.Create(castingEntity, BASE_AMOUNT, AMOUNT_SCALE);
-            SpellCast particlePotion = ParticleEffect.Create(castingEntity,
+            MKEffectBuilder<?> heal = NewHealEffect.INSTANCE.builder(castingEntity.getUniqueID())
+                    .state(s -> s.setScalingParameters(BASE_AMOUNT, AMOUNT_SCALE))
+                    .ability(this)
+                    .amplify(level);
+            MKEffectBuilder<?> particlePotion = MKOldParticleEffect.Create(castingEntity,
                     ParticleTypes.BUBBLE,
                     ParticleEffects.CIRCLE_MOTION, false,
                     new Vector3d(1.0, 1.0, 1.0),
                     new Vector3d(0.0, 1.0, 0.0),
-                    10, 0, 1.0);
+                    10, 0, 1.0)
+                    .ability(this);
 
             float dist = getDistance(castingEntity);
             AreaEffectBuilder.createOnCaster(castingEntity)
-                    .spellCast(heal, level, getTargetContext())
-                    .spellCast(particlePotion, level, getTargetContext())
+                    .effect(heal, getTargetContext())
+                    .effect(particlePotion, getTargetContext())
                     .instant()
                     .color(16409620).radius(dist, true)
                     .disableParticle()

@@ -3,7 +3,6 @@ package com.chaosbuffalo.mkcore.init;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.core.IMKAbilityProvider;
-import com.chaosbuffalo.mkcore.test.abilities.BurningSoul;
 import com.chaosbuffalo.mkcore.test.abilities.EmberAbility;
 import com.chaosbuffalo.mkcore.test.abilities.WhirlwindBlades;
 import com.chaosbuffalo.mkcore.test.v2.NewBurningSoul;

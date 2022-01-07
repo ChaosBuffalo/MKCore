@@ -1,17 +1,14 @@
 package com.chaosbuffalo.mkcore.effects.status;
 
 import com.chaosbuffalo.mkcore.MKCore;
-import com.chaosbuffalo.mkcore.effects.PassiveEffect;
-import com.chaosbuffalo.mkcore.effects.SpellCast;
+import com.chaosbuffalo.mkcore.core.IMKEntityData;
+import com.chaosbuffalo.mkcore.effects.*;
 import com.chaosbuffalo.mkcore.init.CoreSounds;
 import com.chaosbuffalo.mkcore.utils.SoundUtils;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MobEntity;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.ai.attributes.AttributeModifierManager;
 import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.potion.Effect;
 import net.minecraft.potion.EffectType;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -20,45 +17,57 @@ import net.minecraftforge.fml.common.Mod;
 import java.util.UUID;
 
 @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
-public class StunEffect extends PassiveEffect {
-    public static final UUID MODIFIER_ID = UUID.fromString("2d012acc-43ac-40e6-a37c-e6ac5dfd47f2");
+public class StunEffect extends MKEffect {
+    private final UUID MODIFIER_ID = UUID.fromString("e27f71ce-26f0-465e-b465-7e5ea711e53c");
 
-    public static final StunEffect INSTANCE = (StunEffect) new StunEffect(0)
-            .addAttributesModifier(Attributes.MOVEMENT_SPEED, MODIFIER_ID.toString(), -1,
-                    AttributeModifier.Operation.MULTIPLY_TOTAL);
+    public static final StunEffect INSTANCE = new StunEffect();
 
-    protected StunEffect(int liquidColorIn) {
-        super(EffectType.HARMFUL, liquidColorIn);
+    protected StunEffect() {
+        super(EffectType.HARMFUL);
         setRegistryName(MKCore.MOD_ID, "effect.stun");
+        addAttribute(Attributes.MOVEMENT_SPEED, MODIFIER_ID, -1, AttributeModifier.Operation.MULTIPLY_TOTAL);
     }
 
     @SubscribeEvent
-    public static void register(RegistryEvent.Register<Effect> event) {
+    public static void register(RegistryEvent.Register<MKEffect> event) {
         event.getRegistry().register(INSTANCE);
     }
 
-    public static SpellCast Create(Entity source) {
-        return INSTANCE.newSpellCast(source);
+    @Override
+    public void onInstanceAdded(IMKEntityData targetData, MKActiveEffect newInstance) {
+        super.onInstanceAdded(targetData, newInstance);
+        applyEffect(targetData, newInstance);
     }
 
     @Override
-    public void onPotionAdd(SpellCast cast, LivingEntity target, AttributeModifierManager attributes, int amplifier) {
-        super.onPotionAdd(cast, target, attributes, amplifier);
-        if (target instanceof MobEntity) {
-            MobEntity mob = (MobEntity) target;
-            mob.setNoAI(true);
-        }
-        MKCore.getEntityData(target).ifPresent(entityData -> entityData.getAbilityExecutor().interruptCast());
-        SoundUtils.serverPlaySoundAtEntity(target, CoreSounds.stun_sound, target.getSoundCategory());
-    }
-
-    @Override
-    public void onPotionRemove(SpellCast cast, LivingEntity target, AttributeModifierManager attributes, int amplifier) {
-        super.onPotionRemove(cast, target, attributes, amplifier);
+    public void onInstanceRemoved(IMKEntityData targetData, MKActiveEffect expiredEffect) {
+        super.onInstanceRemoved(targetData, expiredEffect);
+        LivingEntity target = targetData.getEntity();
         if (target instanceof MobEntity) {
             MobEntity mob = (MobEntity) target;
             mob.setNoAI(false);
         }
+    }
+
+    @Override
+    public void onInstanceReady(IMKEntityData targetData, MKActiveEffect activeInstance) {
+        applyEffect(targetData, activeInstance);
+    }
+
+
+    private void applyEffect(IMKEntityData targetData, MKActiveEffect activeEffect) {
+        LivingEntity target = targetData.getEntity();;
+        if (target instanceof MobEntity) {
+            MobEntity mob = (MobEntity) target;
+            mob.setNoAI(true);
+        }
+        targetData.getAbilityExecutor().interruptCast();
+        SoundUtils.serverPlaySoundAtEntity(target, CoreSounds.stun_sound, target.getSoundCategory());
+    }
+
+    @Override
+    public MKEffectState makeState() {
+        return MKSimplePassiveState.INSTANCE;
     }
 }
 

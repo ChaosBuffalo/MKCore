@@ -24,7 +24,7 @@ public class AbilityExecutor {
     public static final ResourceLocation GCD_TIMER = MKCore.makeRL("timer.gcd");
     protected final IMKEntityData entityData;
     private EntityCastingState currentCast;
-    private final Map<ResourceLocation, MKToggleAbilityBase> activeToggleMap = new HashMap<>();
+    private final Map<ResourceLocation, MKToggleAbility> activeToggleMap = new HashMap<>();
     private Consumer<MKAbility> startCastCallback;
     private Consumer<MKAbility> completeAbilityCallback;
     private Consumer<MKAbility> interruptCastCallback;
@@ -371,10 +371,10 @@ public class AbilityExecutor {
     }
 
     private void updateToggleAbility(MKAbility ability) {
-        if (!(ability instanceof MKToggleAbilityBase)) {
+        if (!(ability instanceof MKToggleAbility)) {
             return;
         }
-        MKToggleAbilityBase toggle = (MKToggleAbilityBase) ability;
+        MKToggleAbility toggle = (MKToggleAbility) ability;
 
         LivingEntity entity = entityData.getEntity();
         MKAbilityInfo info = entityData.getKnowledge().getAbilityKnowledge().getKnownAbility(ability.getAbilityId());
@@ -394,8 +394,8 @@ public class AbilityExecutor {
         activeToggleMap.remove(groupId);
     }
 
-    public void setToggleGroupAbility(ResourceLocation groupId, MKToggleAbilityBase ability) {
-        MKToggleAbilityBase current = activeToggleMap.get(ability.getToggleGroupId());
+    public void setToggleGroupAbility(ResourceLocation groupId, MKToggleAbility ability) {
+        MKToggleAbility current = activeToggleMap.get(ability.getToggleGroupId());
         // This can also be called when rebuilding the activeToggleMap after transferring dimensions and in that case
         // ability will be the same as current
         if (current != null && current != ability) {

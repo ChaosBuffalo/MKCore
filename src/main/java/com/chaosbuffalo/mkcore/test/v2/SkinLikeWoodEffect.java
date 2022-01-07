@@ -12,15 +12,15 @@ import net.minecraftforge.fml.common.Mod;
 import java.util.UUID;
 
 @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
-public class SkinLikeWoodEffectV2 extends MKEffect {
-    public static final SkinLikeWoodEffectV2 INSTANCE = new SkinLikeWoodEffectV2();
+public class SkinLikeWoodEffect extends MKEffect {
+    public static final SkinLikeWoodEffect INSTANCE = new SkinLikeWoodEffect();
 
     @SubscribeEvent
     public static void register(RegistryEvent.Register<MKEffect> event) {
         event.getRegistry().register(INSTANCE);
     }
 
-    private SkinLikeWoodEffectV2() {
+    private SkinLikeWoodEffect() {
         super(EffectType.BENEFICIAL);
         setRegistryName("effect.v2.skin_like_wood");
         addAttribute(Attributes.ARMOR, UUID.fromString("4b488b68-1151-4bae-b99e-b381707a6964"), 2, AttributeModifier.Operation.ADDITION);

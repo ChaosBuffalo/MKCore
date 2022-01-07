@@ -1,62 +1,52 @@
-package com.chaosbuffalo.mkcore.effects;
+package com.chaosbuffalo.mkcore.effects.utility;
 
 import com.chaosbuffalo.mkcore.MKCore;
+import com.chaosbuffalo.mkcore.core.IMKEntityData;
+import com.chaosbuffalo.mkcore.effects.*;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.ParticleEffectSpawnPacket;
-import com.chaosbuffalo.targeting_api.TargetingContext;
-import com.chaosbuffalo.targeting_api.TargetingContexts;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.particles.IParticleData;
-import net.minecraft.potion.Effect;
 import net.minecraft.potion.EffectType;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-@Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
-public class ParticleEffect extends SpellEffectBase {
+import java.util.UUID;
 
-    public static final ParticleEffect INSTANCE = new ParticleEffect();
+@Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
+public class MKOldParticleEffect extends MKEffect {
+    public static final MKOldParticleEffect INSTANCE = new MKOldParticleEffect();
+
+    public MKOldParticleEffect() {
+        super(EffectType.NEUTRAL);
+        setRegistryName("effect.old_particle");
+    }
 
     @SubscribeEvent
-    public static void register(RegistryEvent.Register<Effect> event) {
+    public static void register(RegistryEvent.Register<MKEffect> event) {
         event.getRegistry().register(INSTANCE);
     }
 
-    public static SpellCast Create(Entity source, IParticleData particleId, int motionType, boolean includeSelf,
-                                   Vector3d radius, Vector3d offsets, int particleCount, int particleData,
-                                   double particleSpeed) {
-        return new ParticleCast(source, particleId, motionType, radius, offsets, particleCount, particleData, particleSpeed, includeSelf);
-    }
-
-    protected ParticleEffect() {
-        super(EffectType.NEUTRAL, 123);
-        setRegistryName("effect.particle_potion");
+    public static MKEffectBuilder<?> Create(Entity source, IParticleData particleId, int motionType, boolean includeSelf,
+                                         Vector3d radius, Vector3d offsets, int particleCount, int particleData,
+                                         double particleSpeed) {
+        return INSTANCE.builder(source.getUniqueID()).state(s ->
+                s.setup(source, particleId, motionType, radius, offsets, particleCount, particleData, particleSpeed, includeSelf));
     }
 
     @Override
-    public TargetingContext getTargetContext() {
-        return TargetingContexts.ALL;
+    public State makeState() {
+        return new State();
     }
 
     @Override
-    public void doEffect(Entity applier, Entity caster,
-                         LivingEntity target, int amplifier, SpellCast cast) {
-        if (!(cast instanceof ParticleCast)) {
-            MKCore.LOGGER.error("Got to ParticlePotion.doEffect with a cast that wasn't a ParticleCast!");
-            return;
-        }
-        ParticleCast particleCast = (ParticleCast) cast;
-        // Check canSelfCast first
-        if (!particleCast.includeSelf && target.equals(caster)) {
-            return;
-        }
-        PacketHandler.sendToTrackingAndSelf(particleCast.createPacket(target), target);
+    public MKEffectBuilder<State> builder(UUID sourceId) {
+        return new MKEffectBuilder<>(this, sourceId, this::makeState);
     }
 
-    public static class ParticleCast extends SpellCast {
+    public static class State extends MKEffectState {
         Entity source;
         IParticleData particleId;
         int motionType;
@@ -67,10 +57,9 @@ public class ParticleEffect extends SpellEffectBase {
         double particleSpeed;
         boolean includeSelf;
 
-        public ParticleCast(Entity source, IParticleData particleId, int motionType,
+        public void setup(Entity source, IParticleData particleId, int motionType,
                             Vector3d radius, Vector3d offsets, int particleCount, int particleData,
                             double particleSpeed, boolean includeSelf) {
-            super(ParticleEffect.INSTANCE, source);
             this.source = source;
             this.particleId = particleId;
             this.motionType = motionType;
@@ -80,6 +69,18 @@ public class ParticleEffect extends SpellEffectBase {
             this.particleData = particleData;
             this.particleSpeed = particleSpeed;
             this.includeSelf = includeSelf;
+        }
+
+        @Override
+        public boolean validateOnApply(IMKEntityData targetData, MKActiveEffect activeEffect) {
+            // Don't apply if we're the caster and the caller didn't want us included
+            return includeSelf || !isEffectSource(targetData.getEntity(), activeEffect);
+        }
+
+        @Override
+        public boolean performEffect(IMKEntityData targetData, MKActiveEffect instance) {
+            PacketHandler.sendToTrackingAndSelf(createPacket(targetData.getEntity()), targetData.getEntity());
+            return false;
         }
 
         public ParticleEffectSpawnPacket createPacket(Entity target) {

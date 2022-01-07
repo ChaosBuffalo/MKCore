@@ -10,10 +10,10 @@ import com.chaosbuffalo.mkcore.abilities.ai.conditions.MeleeUseCondition;
 import com.chaosbuffalo.mkcore.core.AbilityType;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.effects.AreaEffectBuilder;
-import com.chaosbuffalo.mkcore.effects.ParticleEffect;
-import com.chaosbuffalo.mkcore.effects.SpellCast;
-import com.chaosbuffalo.mkcore.fx.ParticleEffects;
+import com.chaosbuffalo.mkcore.effects.MKEffectBuilder;
 import com.chaosbuffalo.mkcore.effects.instant.AbilityMagicDamageEffect;
+import com.chaosbuffalo.mkcore.effects.utility.MKOldParticleEffect;
+import com.chaosbuffalo.mkcore.fx.ParticleEffects;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.ParticleEffectSpawnPacket;
 import com.chaosbuffalo.targeting_api.TargetingContext;
@@ -100,18 +100,22 @@ public class WhirlwindBlades extends MKAbility {
             float baseAmount = 0.15f;
             float scaling = count * baseAmount;
             // What to do for each target hit
-            SpellCast damage = AbilityMagicDamageEffect.Create(castingEntity, BASE_DAMAGE, DAMAGE_SCALE, scaling);
-            SpellCast particlePotion = ParticleEffect.Create(castingEntity,
+            MKEffectBuilder<?> damage = AbilityMagicDamageEffect.from(castingEntity, BASE_DAMAGE, DAMAGE_SCALE, scaling)
+                    .ability(this)
+                    .amplify(level);
+            MKEffectBuilder<?> particlePotion = MKOldParticleEffect.Create(castingEntity,
                     ParticleTypes.SWEEP_ATTACK,
                     ParticleEffects.CIRCLE_MOTION, false,
                     new Vector3d(1.0, 1.0, 1.0),
                     new Vector3d(0.0, 1.0, 0.0),
-                    4, 0, 1.0);
+                    4, 0, 1.0)
+                    .ability(this)
+                    .amplify(level);
 
 
             AreaEffectBuilder.createOnCaster(castingEntity)
-                    .spellCast(damage, level, getTargetContext())
-                    .spellCast(particlePotion, level, getTargetContext())
+                    .effect(damage, getTargetContext())
+                    .effect(particlePotion, getTargetContext())
 //                    .spellCast(SoundPotion.Create(entity, ModSounds.spell_shadow_2, SoundCategory.PLAYERS),
 //                            1, getTargetType())
                     .instant()

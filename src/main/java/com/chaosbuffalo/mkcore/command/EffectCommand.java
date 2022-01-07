@@ -1,14 +1,10 @@
 package com.chaosbuffalo.mkcore.command;
 
 import com.chaosbuffalo.mkcore.MKCore;
-import com.chaosbuffalo.mkcore.core.damage.MKDamageType;
 import com.chaosbuffalo.mkcore.effects.MKActiveEffect;
 import com.chaosbuffalo.mkcore.effects.MKEffectBuilder;
-import com.chaosbuffalo.mkcore.effects.instant.AbilityMagicDamageEffectNew;
-import com.chaosbuffalo.mkcore.effects.instant.MKAbilityDamageEffectNew;
-import com.chaosbuffalo.mkcore.effects.status.StunEffectV2;
+import com.chaosbuffalo.mkcore.effects.instant.MKAbilityDamageEffect;
 import com.chaosbuffalo.mkcore.init.CoreDamageTypes;
-import com.chaosbuffalo.mkcore.test.v2.TestFallCountingEffect;
 import com.chaosbuffalo.mkcore.utils.ChatUtils;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -87,7 +83,7 @@ public class EffectCommand {
 //                s.base = 1;
 //                s.scale = 1;
 //            }).periodic(40);
-            newInstance = MKAbilityDamageEffectNew.INSTANCE.builder(source).state(s -> {
+            newInstance = MKAbilityDamageEffect.INSTANCE.builder(source).state(s -> {
                 s.damageType = CoreDamageTypes.FireDamage;
                 s.setScalingParameters(1, 1);
             }).periodic(20);
