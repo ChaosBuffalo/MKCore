@@ -178,7 +178,10 @@ public class AbilityGroup implements IPlayerSyncComponentProvider {
             return;
         }
 
-        MKCore.LOGGER.error("setSlot error! unknown case {} {} {} {}", index, abilityId, newExistingSlot, currentAbilityId);
+        // New ability is not current slotted and is replacing an existing ability
+        setIndex(index, abilityId);
+        onAbilityRemoved(currentAbilityId);
+        onAbilityAdded(abilityId);
     }
 
     private boolean validateAbilityForSlot(int index, ResourceLocation abilityId) {
