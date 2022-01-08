@@ -27,18 +27,13 @@ import java.util.List;
 public class MKAreaEffectEntity extends AreaEffectCloudEntity implements IEntityAdditionalSpawnData {
     @ObjectHolder(MKCore.MOD_ID + ":mk_area_effect")
     public static EntityType<MKAreaEffectEntity> TYPE;
-    public boolean particlesDisabled;
+
+    private static final float DEFAULT_RADIUS = 3.0f;
+    private static final float DEFAULT_HEIGHT = 1.0f;
+
+    private final List<EffectEntry> effects;
+    private boolean particlesDisabled;
     private IMKEntityData ownerData;
-
-    @Override
-    public void writeSpawnData(PacketBuffer buffer) {
-        buffer.writeBoolean(particlesDisabled);
-    }
-
-    @Override
-    public void readSpawnData(PacketBuffer additionalData) {
-        particlesDisabled = additionalData.readBoolean();
-    }
 
 
     private abstract static class EffectEntry {
@@ -48,7 +43,7 @@ public class MKAreaEffectEntity extends AreaEffectCloudEntity implements IEntity
             this.targetContext = context;
         }
 
-        abstract boolean apply(IMKEntityData entityData, IMKEntityData targetData);
+        abstract boolean apply(IMKEntityData casterData, IMKEntityData targetData);
     }
 
     class VanillaEffectEntry extends EffectEntry {
@@ -60,16 +55,16 @@ public class MKAreaEffectEntity extends AreaEffectCloudEntity implements IEntity
         }
 
         @Override
-        boolean apply(IMKEntityData entityData, IMKEntityData targetData) {
+        boolean apply(IMKEntityData casterData, IMKEntityData targetData) {
             LivingEntity target = targetData.getEntity();
-            boolean validTarget = Targeting.isValidTarget(targetContext, entityData.getEntity(), target);
+            boolean validTarget = Targeting.isValidTarget(targetContext, casterData.getEntity(), target);
 
             if (!validTarget) {
                 return false;
             }
 
             if (effect.getPotion().isInstant()) {
-                effect.getPotion().affectEntity(MKAreaEffectEntity.this, entityData.getEntity(), target, effect.getAmplifier(), 0.5D);
+                effect.getPotion().affectEntity(MKAreaEffectEntity.this, casterData.getEntity(), target, effect.getAmplifier(), 0.5D);
             } else {
                 target.addPotionEffect(new EffectInstance(effect));
             }
@@ -86,7 +81,7 @@ public class MKAreaEffectEntity extends AreaEffectCloudEntity implements IEntity
         }
 
         @Override
-        boolean apply(IMKEntityData entityData, IMKEntityData targetData) {
+        boolean apply(IMKEntityData casterData, IMKEntityData targetData) {
 
             if (effect.getPotion() instanceof SpellEffectBase) {
                 LivingEntity target = targetData.getEntity();
@@ -95,7 +90,7 @@ public class MKAreaEffectEntity extends AreaEffectCloudEntity implements IEntity
                     MKCore.LOGGER.warn("MKAreaEffect periodic cast was null! Spell: {}", spBase.getName());
                     return false;
                 }
-                boolean validTarget = spBase.isValidTarget(targetContext, entityData.getEntity(), target);
+                boolean validTarget = spBase.isValidTarget(targetContext, casterData.getEntity(), target);
                 if (!validTarget) {
                     return false;
                 }
@@ -104,7 +99,7 @@ public class MKAreaEffectEntity extends AreaEffectCloudEntity implements IEntity
 
                     // We can skip affectEntity and go directly to the effect because we
                     // have already ensured the target is valid.
-                    spBase.doEffect(MKAreaEffectEntity.this, entityData.getEntity(), target, effect.getAmplifier(), cast);
+                    spBase.doEffect(MKAreaEffectEntity.this, casterData.getEntity(), target, effect.getAmplifier(), cast);
                 } else {
 
                     // The cast given to MKAreaEffect has no target, so we need to register
@@ -113,7 +108,7 @@ public class MKAreaEffectEntity extends AreaEffectCloudEntity implements IEntity
                     target.addPotionEffect(new EffectInstance(effect));
                 }
             } else {
-                return super.apply(entityData, targetData);
+                return super.apply(casterData, targetData);
             }
             return true;
         }
@@ -128,8 +123,8 @@ public class MKAreaEffectEntity extends AreaEffectCloudEntity implements IEntity
         }
 
         @Override
-        boolean apply(IMKEntityData entityData, IMKEntityData targetData) {
-            boolean validTarget = newEffect.getEffect().isValidTarget(targetContext, entityData, targetData);
+        boolean apply(IMKEntityData casterData, IMKEntityData targetData) {
+            boolean validTarget = newEffect.getEffect().isValidTarget(targetContext, casterData, targetData);
             if (!validTarget) {
                 return false;
             }
@@ -138,12 +133,6 @@ public class MKAreaEffectEntity extends AreaEffectCloudEntity implements IEntity
             return false;
         }
     }
-
-    private final List<EffectEntry> effects;
-
-    private static final float DEFAULT_RADIUS = 3.0f;
-    private static final float DEFAULT_HEIGHT = 1.0f;
-
 
     public MKAreaEffectEntity(EntityType<? extends AreaEffectCloudEntity> entityType, World world) {
         super(entityType, world);
@@ -217,6 +206,17 @@ public class MKAreaEffectEntity extends AreaEffectCloudEntity implements IEntity
         super.readAdditional(compound);
         particlesDisabled = compound.getBoolean("ParticlesDisabled");
     }
+
+    @Override
+    public void writeSpawnData(PacketBuffer buffer) {
+        buffer.writeBoolean(particlesDisabled);
+    }
+
+    @Override
+    public void readSpawnData(PacketBuffer additionalData) {
+        particlesDisabled = additionalData.readBoolean();
+    }
+
 
     public void addSpellCast(SpellCast cast, EffectInstance effect, TargetingContext targetContext) {
         this.effects.add(new CastEffectEntry(cast, effect, targetContext));
@@ -298,9 +298,8 @@ public class MKAreaEffectEntity extends AreaEffectCloudEntity implements IEntity
             }
 
             reapplicationDelayMap.put(target, ticksExisted + reapplicationDelay);
-            MKCore.getEntityData(target).ifPresent(targetData -> {
-                targetEffects.forEach(entry -> entry.apply(entityData, targetData));
-            });
+            MKCore.getEntityData(target).ifPresent(targetData ->
+                    targetEffects.forEach(entry -> entry.apply(entityData, targetData)));
         }
         return false;
     }
