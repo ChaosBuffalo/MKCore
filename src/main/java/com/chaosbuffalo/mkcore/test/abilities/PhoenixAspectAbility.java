@@ -11,7 +11,6 @@ import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.effects.AreaEffectBuilder;
 import com.chaosbuffalo.mkcore.effects.MKEffectBuilder;
 import com.chaosbuffalo.mkcore.effects.utility.MKOldParticleEffect;
-import com.chaosbuffalo.mkcore.effects.SpellCast;
 import com.chaosbuffalo.mkcore.fx.ParticleEffects;
 import com.chaosbuffalo.mkcore.test.effects.FeatherFallEffect;
 import com.chaosbuffalo.mkcore.test.effects.PhoenixAspectEffect;

@@ -13,7 +13,7 @@ import net.minecraft.util.text.TranslationTextComponent;
 
 import java.util.function.Consumer;
 
-public abstract class MKPassiveAbility extends MKAbility implements IMKPassiveAbility {
+public abstract class MKPassiveAbility extends MKAbility {
     public MKPassiveAbility(ResourceLocation abilityId) {
         super(abilityId);
     }

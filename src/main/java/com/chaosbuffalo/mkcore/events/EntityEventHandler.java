@@ -5,7 +5,6 @@ import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.core.MKEntityData;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
-import com.chaosbuffalo.mkcore.effects.PassiveTalentEffect;
 import com.chaosbuffalo.mkcore.effects.status.StunEffect;
 import com.chaosbuffalo.mkcore.entities.IUpdateEngineProvider;
 import net.minecraft.entity.LivingEntity;
@@ -13,7 +12,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
-import net.minecraftforge.event.entity.living.PotionEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerXpEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -70,20 +68,6 @@ public class EntityEventHandler {
             if (event.getTarget() instanceof IUpdateEngineProvider) {
                 ((IUpdateEngineProvider) event.getTarget()).getUpdateEngine().sendAll(playerEntity);
             }
-        }
-    }
-
-    @SubscribeEvent
-    public static void onPotionRemove(PotionEvent.PotionRemoveEvent event) {
-//        MKCore.LOGGER.info("PotionRemoveEvent - {} - {}", event.getEntityLiving(), event.getPotion());
-
-        if (event.getEntityLiving() instanceof ServerPlayerEntity && event.getPotion() instanceof PassiveTalentEffect) {
-            MKCore.getPlayer(event.getEntityLiving()).ifPresent(playerData -> {
-                if (!playerData.getLoadout().getPassiveGroup().canRemovePassiveEffects()) {
-                    MKCore.LOGGER.info("Effect {} is a passive and passives are not unlocked", event.getPotion());
-                    event.setCanceled(true);
-                }
-            });
         }
     }
 
