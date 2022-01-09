@@ -1,4 +1,4 @@
-package com.chaosbuffalo.mkcore.test.v2;
+package com.chaosbuffalo.mkcore.test.effects;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.effects.MKEffect;
@@ -9,15 +9,9 @@ import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-@Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class NewFireArmorEffect extends MKEffect {
 
     public static final NewFireArmorEffect INSTANCE = new NewFireArmorEffect();
-
-    @SubscribeEvent
-    public static void register(RegistryEvent.Register<MKEffect> event) {
-        event.getRegistry().register(INSTANCE);
-    }
 
     private NewFireArmorEffect() {
         super(EffectType.BENEFICIAL);
@@ -27,5 +21,14 @@ public class NewFireArmorEffect extends MKEffect {
     @Override
     public MKEffectState makeState() {
         return MKSimplePassiveState.INSTANCE;
+    }
+
+    @SuppressWarnings("unused")
+    @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
+    private static class RegisterMe {
+        @SubscribeEvent
+        public static void register(RegistryEvent.Register<MKEffect> event) {
+            event.getRegistry().register(INSTANCE);
+        }
     }
 }

@@ -1,4 +1,4 @@
-package com.chaosbuffalo.mkcore.test.v2;
+package com.chaosbuffalo.mkcore.test.abilities;
 
 import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.MKConfig;
@@ -12,6 +12,7 @@ import com.chaosbuffalo.mkcore.core.MKAttributes;
 import com.chaosbuffalo.mkcore.core.healing.MKHealing;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.serialization.attributes.ResourceLocationAttribute;
+import com.chaosbuffalo.mkcore.test.effects.NewHealEffect;
 import com.chaosbuffalo.targeting_api.TargetingContext;
 import com.chaosbuffalo.targeting_api.TargetingContexts;
 import com.google.common.collect.ImmutableSet;
@@ -27,17 +28,10 @@ import net.minecraftforge.fml.common.Mod;
 
 import java.util.Set;
 
-//
-@Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class HealAbility extends MKAbility {
     public static final ResourceLocation CASTING_PARTICLES = new ResourceLocation(MKCore.MOD_ID, "heal_casting");
     public static final ResourceLocation CAST_PARTICLES = new ResourceLocation(MKCore.MOD_ID, "heal_cast");
     public static final HealAbility INSTANCE = new HealAbility();
-
-    @SubscribeEvent
-    public static void register(RegistryEvent.Register<MKAbility> event) {
-        event.getRegistry().register(INSTANCE);
-    }
 
     protected final FloatAttribute base = new FloatAttribute("base", 5.0f);
     protected final FloatAttribute scale = new FloatAttribute("scale", 5.0f);
@@ -124,5 +118,14 @@ public class HealAbility extends MKAbility {
                             targetEntity.getEntityId()),
                     targetEntity);
         });
+    }
+
+    @SuppressWarnings("unused")
+    @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
+    private static class RegisterMe {
+        @SubscribeEvent
+        public static void register(RegistryEvent.Register<MKAbility> event) {
+            event.getRegistry().register(INSTANCE);
+        }
     }
 }

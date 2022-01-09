@@ -4,7 +4,7 @@ import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.abilities.MKAbilityInfo;
-import com.chaosbuffalo.mkcore.abilities.MKToggleAbilityBase;
+import com.chaosbuffalo.mkcore.abilities.MKToggleAbility;
 import com.chaosbuffalo.mkcore.core.AbilityGroupId;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.sync.ResourceListUpdater;
@@ -131,8 +131,8 @@ public class AbilityGroup implements IPlayerSyncComponentProvider {
     protected void onAbilityRemoved(ResourceLocation abilityId) {
         MKCore.LOGGER.debug("onAbilityRemoved({})", abilityId);
         MKAbility ability = MKCoreRegistry.getAbility(abilityId);
-        if (ability instanceof MKToggleAbilityBase) {
-            ((MKToggleAbilityBase) ability).removeEffect(playerData.getEntity(), playerData);
+        if (ability instanceof MKToggleAbility) {
+            ((MKToggleAbility) ability).removeEffect(playerData.getEntity(), playerData);
         }
     }
 
@@ -178,7 +178,10 @@ public class AbilityGroup implements IPlayerSyncComponentProvider {
             return;
         }
 
-        MKCore.LOGGER.error("setSlot error! unknown case {} {} {} {}", index, abilityId, newExistingSlot, currentAbilityId);
+        // New ability is not current slotted and is replacing an existing ability
+        setIndex(index, abilityId);
+        onAbilityRemoved(currentAbilityId);
+        onAbilityAdded(abilityId);
     }
 
     private boolean validateAbilityForSlot(int index, ResourceLocation abilityId) {

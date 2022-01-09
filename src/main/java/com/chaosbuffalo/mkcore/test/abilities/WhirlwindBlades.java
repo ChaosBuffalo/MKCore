@@ -10,10 +10,10 @@ import com.chaosbuffalo.mkcore.abilities.ai.conditions.MeleeUseCondition;
 import com.chaosbuffalo.mkcore.core.AbilityType;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.effects.AreaEffectBuilder;
-import com.chaosbuffalo.mkcore.effects.ParticleEffect;
-import com.chaosbuffalo.mkcore.effects.SpellCast;
-import com.chaosbuffalo.mkcore.fx.ParticleEffects;
+import com.chaosbuffalo.mkcore.effects.MKEffectBuilder;
 import com.chaosbuffalo.mkcore.effects.instant.AbilityMagicDamageEffect;
+import com.chaosbuffalo.mkcore.effects.utility.MKOldParticleEffect;
+import com.chaosbuffalo.mkcore.fx.ParticleEffects;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.ParticleEffectSpawnPacket;
 import com.chaosbuffalo.targeting_api.TargetingContext;
@@ -28,14 +28,8 @@ import net.minecraftforge.fml.common.Mod;
 
 import javax.annotation.Nullable;
 
-@Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class WhirlwindBlades extends MKAbility {
     public static WhirlwindBlades INSTANCE = new WhirlwindBlades();
-
-    @SubscribeEvent
-    public static void register(RegistryEvent.Register<MKAbility> event) {
-        event.getRegistry().register(INSTANCE);
-    }
 
     public static float BASE_DAMAGE = 2.0f;
     public static float DAMAGE_SCALE = 1.0f;
@@ -100,22 +94,27 @@ public class WhirlwindBlades extends MKAbility {
             float baseAmount = 0.15f;
             float scaling = count * baseAmount;
             // What to do for each target hit
-            SpellCast damage = AbilityMagicDamageEffect.Create(castingEntity, BASE_DAMAGE, DAMAGE_SCALE, scaling);
-            SpellCast particlePotion = ParticleEffect.Create(castingEntity,
+            MKEffectBuilder<?> damage = AbilityMagicDamageEffect.from(castingEntity, BASE_DAMAGE, DAMAGE_SCALE, scaling)
+                    .ability(this)
+                    .amplify(level);
+            MKEffectBuilder<?> particlePotion = MKOldParticleEffect.from(castingEntity,
                     ParticleTypes.SWEEP_ATTACK,
                     ParticleEffects.CIRCLE_MOTION, false,
                     new Vector3d(1.0, 1.0, 1.0),
                     new Vector3d(0.0, 1.0, 0.0),
-                    4, 0, 1.0);
+                    4, 0, 1.0)
+                    .ability(this)
+                    .amplify(level);
 
 
             AreaEffectBuilder.createOnCaster(castingEntity)
-                    .spellCast(damage, level, getTargetContext())
-                    .spellCast(particlePotion, level, getTargetContext())
+                    .effect(damage, getTargetContext())
+                    .effect(particlePotion, getTargetContext())
 //                    .spellCast(SoundPotion.Create(entity, ModSounds.spell_shadow_2, SoundCategory.PLAYERS),
 //                            1, getTargetType())
                     .instant()
-                    .color(16409620).radius(getDistance(castingEntity), true)
+                    .color(16409620)
+                    .radius(getDistance(castingEntity), true)
                     .particle(ParticleTypes.CRIT)
                     .spawn();
 
@@ -125,6 +124,15 @@ public class WhirlwindBlades extends MKAbility {
                                 castingEntity.getPosX(), castingEntity.getPosY() + 1.0,
                                 castingEntity.getPosZ(), 1.0, 1.0, 1.0, 1.5,
                                 castingEntity.getLookVec()), castingEntity);
+        }
+    }
+
+    @SuppressWarnings("unused")
+    @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
+    private static class RegisterMe {
+        @SubscribeEvent
+        public static void register(RegistryEvent.Register<MKAbility> event) {
+            event.getRegistry().register(INSTANCE);
         }
     }
 }

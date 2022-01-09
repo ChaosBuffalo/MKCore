@@ -9,12 +9,12 @@ import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.core.AbilityType;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.effects.AreaEffectBuilder;
-import com.chaosbuffalo.mkcore.effects.ParticleEffect;
-import com.chaosbuffalo.mkcore.effects.SpellCast;
+import com.chaosbuffalo.mkcore.effects.MKEffectBuilder;
+import com.chaosbuffalo.mkcore.effects.utility.MKOldParticleEffect;
 import com.chaosbuffalo.mkcore.fx.ParticleEffects;
-import com.chaosbuffalo.mkcore.test.effects.ClericHealEffect;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.ParticleEffectSpawnPacket;
+import com.chaosbuffalo.mkcore.test.effects.NewHealEffect;
 import com.chaosbuffalo.targeting_api.TargetingContext;
 import com.chaosbuffalo.targeting_api.TargetingContexts;
 import net.minecraft.entity.LivingEntity;
@@ -24,18 +24,11 @@ import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-@Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class HealingRain extends MKAbility {
     public static final HealingRain INSTANCE = new HealingRain();
 
     public static float BASE_AMOUNT = 2.0f;
     public static float AMOUNT_SCALE = 1.0f;
-
-    @SubscribeEvent
-    public static void register(RegistryEvent.Register<MKAbility> event) {
-        event.getRegistry().register(INSTANCE);
-    }
-
 
     public HealingRain() {
         super(MKCore.makeRL("ability.test_healing_rain"));
@@ -76,20 +69,25 @@ public class HealingRain extends MKAbility {
         int tickSpeed = 5;
         if (castTimeLeft % tickSpeed == 0) {
             int level = 0;
-            SpellCast heal = ClericHealEffect.Create(castingEntity, BASE_AMOUNT, AMOUNT_SCALE);
-            SpellCast particlePotion = ParticleEffect.Create(castingEntity,
+            MKEffectBuilder<?> heal = NewHealEffect.INSTANCE.builder(castingEntity.getUniqueID())
+                    .state(s -> s.setScalingParameters(BASE_AMOUNT, AMOUNT_SCALE))
+                    .ability(this)
+                    .amplify(level);
+            MKEffectBuilder<?> particlePotion = MKOldParticleEffect.from(castingEntity,
                     ParticleTypes.BUBBLE,
                     ParticleEffects.CIRCLE_MOTION, false,
                     new Vector3d(1.0, 1.0, 1.0),
                     new Vector3d(0.0, 1.0, 0.0),
-                    10, 0, 1.0);
+                    10, 0, 1.0)
+                    .ability(this);
 
             float dist = getDistance(castingEntity);
             AreaEffectBuilder.createOnCaster(castingEntity)
-                    .spellCast(heal, level, getTargetContext())
-                    .spellCast(particlePotion, level, getTargetContext())
+                    .effect(heal, getTargetContext())
+                    .effect(particlePotion, getTargetContext())
                     .instant()
-                    .color(16409620).radius(dist, true)
+                    .color(16409620)
+                    .radius(dist, true)
                     .disableParticle()
                     .spawn();
 
@@ -99,6 +97,15 @@ public class HealingRain extends MKAbility {
                                 castingEntity.getPosX(), castingEntity.getPosY() + 3.0,
                                 castingEntity.getPosZ(), dist, 0.5, dist, 1.0,
                                 castingEntity.getLookVec()), castingEntity);
+        }
+    }
+
+    @SuppressWarnings("unused")
+    @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
+    private static class RegisterMe {
+        @SubscribeEvent
+        public static void register(RegistryEvent.Register<MKAbility> event) {
+            event.getRegistry().register(INSTANCE);
         }
     }
 }

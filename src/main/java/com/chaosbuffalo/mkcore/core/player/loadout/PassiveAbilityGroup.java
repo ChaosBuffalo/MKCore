@@ -6,13 +6,10 @@ import com.chaosbuffalo.mkcore.core.AbilityGroupId;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.player.AbilityGroup;
 import com.chaosbuffalo.mkcore.effects.MKEffect;
-import com.chaosbuffalo.mkcore.effects.PassiveEffect;
 import net.minecraft.util.ResourceLocation;
 
 
 public class PassiveAbilityGroup extends AbilityGroup {
-
-    private boolean passiveEffectsUnlocked;
 
     public PassiveAbilityGroup(MKPlayerData playerData) {
         super(playerData, "passive", AbilityGroupId.Passive);
@@ -50,7 +47,7 @@ public class PassiveAbilityGroup extends AbilityGroup {
 
     private void activatePassive(ResourceLocation abilityId) {
         MKAbilityInfo info = playerData.getAbilities().getKnownAbility(abilityId);
-        if (info != null && info.getAbility() instanceof IMKPassiveAbility) {
+        if (info != null && info.getAbility() instanceof MKPassiveAbility) {
             info.getAbility().executeWithContext(playerData, AbilityContext.selfTarget(playerData), info);
         }
     }
@@ -69,12 +66,7 @@ public class PassiveAbilityGroup extends AbilityGroup {
 
     private void removePassive(ResourceLocation abilityId) {
         MKAbility ability = MKCoreRegistry.getAbility(abilityId);
-        if (ability instanceof PassiveTalentAbility) {
-            // vanilla effect-based passives
-            // TODO: remove after porting to new effects
-            PassiveEffect passiveEffect = ((PassiveTalentAbility) ability).getPassiveEffect();
-            removePassiveEffect(passiveEffect);
-        } else if (ability instanceof MKPassiveAbility) {
+        if (ability instanceof MKPassiveAbility) {
             MKEffect passiveEffect = ((MKPassiveAbility) ability).getPassiveEffect();
             if (playerData.getEffects().isEffectActive(passiveEffect)) {
                 playerData.getEffects().removeEffect(passiveEffect);
@@ -86,15 +78,4 @@ public class PassiveAbilityGroup extends AbilityGroup {
         getAbilities().forEach(this::removePassive);
     }
 
-    public boolean canRemovePassiveEffects() {
-        return passiveEffectsUnlocked;
-    }
-
-    private void removePassiveEffect(PassiveEffect passiveEffect) {
-        if (playerData.getEntity().isPotionActive(passiveEffect)) {
-            passiveEffectsUnlocked = true;
-            playerData.getEntity().removePotionEffect(passiveEffect);
-            passiveEffectsUnlocked = false;
-        }
-    }
 }

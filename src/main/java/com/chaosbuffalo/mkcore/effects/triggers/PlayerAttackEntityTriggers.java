@@ -1,14 +1,14 @@
 package com.chaosbuffalo.mkcore.effects.triggers;
 
+import com.chaosbuffalo.mkcore.effects.MKActiveEffect;
 import com.chaosbuffalo.mkcore.effects.SpellTriggers;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.potion.EffectInstance;
 
 public class PlayerAttackEntityTriggers extends SpellTriggers.EffectBasedTriggerCollection<PlayerAttackEntityTriggers.PlayerAttackEntityTrigger> {
     @FunctionalInterface
     public interface PlayerAttackEntityTrigger {
-        void apply(LivingEntity player, Entity target, EffectInstance effect);
+        void apply(LivingEntity player, Entity target, MKActiveEffect effect);
     }
 
     private static final String TAG = "PLAYER_ATTACK_ENTITY";

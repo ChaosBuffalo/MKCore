@@ -1,4 +1,4 @@
-package com.chaosbuffalo.mkcore.test.v2;
+package com.chaosbuffalo.mkcore.test.abilities;
 
 import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.MKCore;
@@ -11,6 +11,7 @@ import com.chaosbuffalo.mkcore.fx.ParticleEffects;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.ParticleEffectSpawnPacket;
 import com.chaosbuffalo.mkcore.serialization.attributes.FloatAttribute;
+import com.chaosbuffalo.mkcore.test.effects.NewHealEffect;
 import com.chaosbuffalo.targeting_api.TargetingContext;
 import com.chaosbuffalo.targeting_api.TargetingContexts;
 import com.google.common.collect.ImmutableSet;
@@ -26,14 +27,8 @@ import net.minecraftforge.fml.common.Mod;
 
 import java.util.Set;
 
-@Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class NewHeal extends MKAbility {
     public static NewHeal INSTANCE = new NewHeal();
-
-    @SubscribeEvent
-    public static void register(RegistryEvent.Register<MKAbility> event) {
-        event.getRegistry().register(INSTANCE);
-    }
 
     protected final FloatAttribute base = new FloatAttribute("base", 5.0f);
     protected final FloatAttribute scale = new FloatAttribute("scale", 5.0f);
@@ -110,5 +105,14 @@ public class NewHeal extends MKAbility {
                             1.0, 1.0, 1.0, 1.5, lookVec),
                     targetEntity);
         });
+    }
+
+    @SuppressWarnings("unused")
+    @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
+    private static class RegisterMe {
+        @SubscribeEvent
+        public static void register(RegistryEvent.Register<MKAbility> event) {
+            event.getRegistry().register(INSTANCE);
+        }
     }
 }
