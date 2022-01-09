@@ -6,10 +6,10 @@ import com.chaosbuffalo.mkcore.effects.triggers.*;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.potion.EffectInstance;
 import net.minecraft.util.DamageSource;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.BiConsumer;
 
 public class SpellTriggers {
@@ -80,18 +80,18 @@ public class SpellTriggers {
     }
 
     public static abstract class EffectBasedTriggerCollection<TTrigger> extends TriggerCollectionBase {
-        protected final Map<SpellEffectBase, TTrigger> effectTriggers = new HashMap<>();
+        protected final Map<MKEffect, TTrigger> effectTriggers = new HashMap<>();
 
         @Override
         public boolean hasTriggers() {
             return effectTriggers.size() > 0;
         }
 
-        public void register(SpellEffectBase potion, TTrigger trigger) {
+        public void register(MKEffect potion, TTrigger trigger) {
             effectTriggers.put(potion, trigger);
         }
 
-        protected void runTrigger(LivingEntity entity, String tag, BiConsumer<TTrigger, EffectInstance> consumer) {
+        protected void runTrigger(LivingEntity entity, String tag, BiConsumer<TTrigger, MKActiveEffect> consumer) {
             if (startTrigger(entity, tag))
                 return;
 
@@ -100,16 +100,15 @@ public class SpellTriggers {
             endTrigger(entity, tag);
         }
 
-        private void dispatchTriggers(LivingEntity entity, BiConsumer<TTrigger, EffectInstance> consumer) {
-            for (EffectInstance effectInstance : entity.getActivePotionEffects()) {
-                if (effectInstance.getPotion() instanceof SpellEffectBase) {
-                    SpellEffectBase effect = (SpellEffectBase) effectInstance.getPotion();
-                    TTrigger trigger = effectTriggers.get(effect);
+        private void dispatchTriggers(LivingEntity entity, BiConsumer<TTrigger, MKActiveEffect> consumer) {
+            MKCore.getEntityData(entity).ifPresent(targetData -> {
+                for (MKActiveEffect effect : targetData.getEffects().effects()) {
+                    TTrigger trigger = effectTriggers.get(effect.getEffect());
                     if (trigger != null) {
-                        consumer.accept(trigger, effectInstance);
+                        consumer.accept(trigger, effect);
                     }
                 }
-            }
+            });
         }
     }
 }

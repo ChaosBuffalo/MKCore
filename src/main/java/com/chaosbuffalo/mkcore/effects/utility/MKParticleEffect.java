@@ -1,7 +1,11 @@
-package com.chaosbuffalo.mkcore.effects;
+package com.chaosbuffalo.mkcore.effects.utility;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
+import com.chaosbuffalo.mkcore.effects.MKActiveEffect;
+import com.chaosbuffalo.mkcore.effects.MKEffect;
+import com.chaosbuffalo.mkcore.effects.MKEffectBuilder;
+import com.chaosbuffalo.mkcore.effects.MKEffectState;
 import com.chaosbuffalo.mkcore.network.MKParticleEffectSpawnPacket;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.utils.MKNBTUtil;
@@ -16,18 +20,16 @@ import net.minecraftforge.fml.common.Mod;
 
 import java.util.UUID;
 
-@Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
-public class MKParticleEffectNew extends MKEffect {
-    public static final MKParticleEffectNew INSTANCE = new MKParticleEffectNew();
+public class MKParticleEffect extends MKEffect {
+    public static final MKParticleEffect INSTANCE = new MKParticleEffect();
 
-    @SubscribeEvent
-    public static void register(RegistryEvent.Register<MKEffect> event) {
-        event.getRegistry().register(INSTANCE);
+    public MKParticleEffect() {
+        super(EffectType.NEUTRAL);
+        setRegistryName("effect.mk_particle");
     }
 
-    public MKParticleEffectNew() {
-        super(EffectType.NEUTRAL);
-        setRegistryName("effect.v2.mkparticle");
+    public static MKEffectBuilder<?> from(Entity source, ResourceLocation animName, boolean includeSelf, Vector3d location) {
+        return INSTANCE.builder(source.getUniqueID()).state(s -> s.setup(animName, includeSelf, location));
     }
 
     @Override
@@ -81,6 +83,15 @@ public class MKParticleEffectNew extends MKEffect {
             includeSelf = tag.getBoolean("includeSelf");
             location = MKNBTUtil.readVector3(tag, "location");
             animName = MKNBTUtil.readResourceLocation(tag, "animName");
+        }
+    }
+
+    @SuppressWarnings("unused")
+    @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
+    private static class RegisterMe {
+        @SubscribeEvent
+        public static void register(RegistryEvent.Register<MKEffect> event) {
+            event.getRegistry().register(INSTANCE);
         }
     }
 }

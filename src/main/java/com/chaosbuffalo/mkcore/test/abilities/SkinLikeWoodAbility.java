@@ -3,38 +3,24 @@ package com.chaosbuffalo.mkcore.test.abilities;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.abilities.MKToggleAbility;
-import com.chaosbuffalo.mkcore.abilities.ai.conditions.NeedsBuffCondition;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
-import com.chaosbuffalo.mkcore.effects.PassiveEffect;
-import com.chaosbuffalo.mkcore.fx.ParticleEffects;
+import com.chaosbuffalo.mkcore.effects.MKEffect;
+import com.chaosbuffalo.mkcore.effects.MKEffectBuilder;
 import com.chaosbuffalo.mkcore.test.effects.SkinLikeWoodEffect;
-import com.chaosbuffalo.mkcore.network.PacketHandler;
-import com.chaosbuffalo.mkcore.network.ParticleEffectSpawnPacket;
 import com.chaosbuffalo.targeting_api.TargetingContext;
 import com.chaosbuffalo.targeting_api.TargetingContexts;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.util.SoundEvent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-import javax.annotation.Nullable;
-
-@Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class SkinLikeWoodAbility extends MKToggleAbility {
-    public static final SkinLikeWoodAbility INSTANCE = new SkinLikeWoodAbility();
+    public static SkinLikeWoodAbility INSTANCE = new SkinLikeWoodAbility();
 
-    @SubscribeEvent
-    public static void register(RegistryEvent.Register<MKAbility> event) {
-        event.getRegistry().register(INSTANCE);
-    }
-
-    private SkinLikeWoodAbility() {
-        super(MKCore.makeRL("ability.test_skin_like_wood"));
-        setCooldownSeconds(3);
-        setManaCost(2);
-        setUseCondition(new NeedsBuffCondition(this, SkinLikeWoodEffect.INSTANCE).setSelfOnly(true));
+    public SkinLikeWoodAbility() {
+        super(MKCore.MOD_ID, "ability.v2.skin_like_wood");
+        setCooldownSeconds(6);
+        setManaCost(4);
     }
 
     @Override
@@ -43,35 +29,26 @@ public class SkinLikeWoodAbility extends MKToggleAbility {
     }
 
     @Override
-    public float getDistance(LivingEntity entity) {
-        return 1.0f;
-    }
-
-    @Override
-    public PassiveEffect getToggleEffect() {
+    public MKEffect getToggleEffect() {
         return SkinLikeWoodEffect.INSTANCE;
-    }
-
-    @Nullable
-    @Override
-    public SoundEvent getSpellCompleteSoundEvent() {
-        return null;
     }
 
     @Override
     public void applyEffect(LivingEntity castingEntity, IMKEntityData casterData) {
         super.applyEffect(castingEntity, casterData);
-        int amplifier = 0;
-//        SoundUtils.playSoundAtEntity(entity, ModSounds.spell_earth_7);
-        // What to do for each target hit
-        castingEntity.addPotionEffect(getToggleEffect().createSelfCastEffectInstance(castingEntity, amplifier));
 
-        PacketHandler.sendToTrackingAndSelf(
-                new ParticleEffectSpawnPacket(
-                        ParticleTypes.ITEM_SLIME,
-                        ParticleEffects.CIRCLE_MOTION, 30, 0,
-                        castingEntity.getPosX(), castingEntity.getPosY() + .5,
-                        castingEntity.getPosZ(), 1.0, 1.0, 1.0, 1.0f,
-                        castingEntity.getLookVec()), castingEntity);
+        MKEffectBuilder<?> instance = getToggleEffect().builder(castingEntity.getUniqueID())
+                .amplify(2)
+                .infinite();
+        casterData.getEffects().addEffect(instance);
+    }
+
+    @SuppressWarnings("unused")
+    @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
+    private static class RegisterMe {
+        @SubscribeEvent
+        public static void register(RegistryEvent.Register<MKAbility> event) {
+            event.getRegistry().register(INSTANCE);
+        }
     }
 }

@@ -40,21 +40,6 @@ public class AreaEffectBuilder {
         return this;
     }
 
-    public AreaEffectBuilder spellCast(SpellCast cast, int amplifier, TargetingContext targetContext) {
-        return spellCast(cast, cast.toPotionEffect(amplifier), targetContext);
-    }
-
-
-    public AreaEffectBuilder spellCast(SpellCast cast, int duration, int amplifier, TargetingContext targetContext) {
-        return spellCast(cast, cast.toPotionEffect(duration, amplifier), targetContext);
-    }
-
-
-    public AreaEffectBuilder spellCast(SpellCast cast, EffectInstance effect, TargetingContext targetContext) {
-        areaEffectCloud.addSpellCast(cast, effect, targetContext);
-        return this;
-    }
-
     public AreaEffectBuilder effect(EffectInstance effect, TargetingContext targetContext) {
         areaEffectCloud.addEffect(effect, targetContext);
         return this;

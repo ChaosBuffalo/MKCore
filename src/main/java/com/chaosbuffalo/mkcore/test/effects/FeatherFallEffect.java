@@ -1,13 +1,10 @@
 package com.chaosbuffalo.mkcore.test.effects;
 
 import com.chaosbuffalo.mkcore.MKCore;
-import com.chaosbuffalo.mkcore.effects.PassiveEffect;
-import com.chaosbuffalo.mkcore.effects.SpellCast;
-import com.chaosbuffalo.mkcore.effects.SpellTriggers;
+import com.chaosbuffalo.mkcore.effects.*;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.potion.Effect;
 import net.minecraft.potion.EffectType;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.Util;
@@ -17,39 +14,43 @@ import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-@Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
-public class FeatherFallEffect extends PassiveEffect {
+public class FeatherFallEffect extends MKEffect {
 
     public static final FeatherFallEffect INSTANCE = new FeatherFallEffect();
 
-    @SubscribeEvent
-    public static void register(RegistryEvent.Register<Effect> event) {
-        event.getRegistry().register(INSTANCE);
+    public static MKEffectBuilder<?> from(Entity source) {
+        return INSTANCE.builder(source.getUniqueID());
     }
-
-    public static SpellCast Create(Entity source) {
-        return INSTANCE.newSpellCast(source);
-    }
-
 
     private FeatherFallEffect() {
-        super(EffectType.BENEFICIAL, 16750080);
+        super(EffectType.BENEFICIAL);
         setRegistryName("effect.test_featherfall");
         SpellTriggers.FALL.register(this::onFall);
     }
 
 
     private void onFall(LivingHurtEvent event, DamageSource source, LivingEntity entity) {
-        if (entity.isPotionActive(INSTANCE)) {
-            event.setAmount(0.0f);
-            if (entity instanceof PlayerEntity) {
-                entity.sendMessage(new StringTextComponent("My legs are OK"), Util.DUMMY_UUID);
+        MKCore.getEntityData(entity).ifPresent(targetData -> {
+            if (targetData.getEffects().isEffectActive(INSTANCE)) {
+                event.setAmount(0.0f);
+                if (entity instanceof PlayerEntity) {
+                    entity.sendMessage(new StringTextComponent("My legs are OK"), Util.DUMMY_UUID);
+                }
             }
-        }
+        });
     }
 
     @Override
-    protected boolean shouldShowParticles() {
-        return false;
+    public MKEffectState makeState() {
+        return MKSimplePassiveState.INSTANCE;
+    }
+
+    @SuppressWarnings("unused")
+    @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
+    private static class RegisterMe {
+        @SubscribeEvent
+        public static void register(RegistryEvent.Register<MKEffect> event) {
+            event.getRegistry().register(INSTANCE);
+        }
     }
 }

@@ -5,8 +5,6 @@ import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.abilities.*;
 import com.chaosbuffalo.mkcore.client.sound.MovingSoundCasting;
-import com.chaosbuffalo.mkcore.effects.PassiveEffect;
-import com.chaosbuffalo.mkcore.effects.SpellCast;
 import com.chaosbuffalo.mkcore.network.EntityCastPacket;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.utils.SoundUtils;
@@ -24,7 +22,7 @@ public class AbilityExecutor {
     public static final ResourceLocation GCD_TIMER = MKCore.makeRL("timer.gcd");
     protected final IMKEntityData entityData;
     private EntityCastingState currentCast;
-    private final Map<ResourceLocation, MKToggleAbilityBase> activeToggleMap = new HashMap<>();
+    private final Map<ResourceLocation, MKToggleAbility> activeToggleMap = new HashMap<>();
     private Consumer<MKAbility> startCastCallback;
     private Consumer<MKAbility> completeAbilityCallback;
     private Consumer<MKAbility> interruptCastCallback;
@@ -99,9 +97,7 @@ public class AbilityExecutor {
     }
 
     public void onJoinWorld() {
-        if (entityData.isServerSide()) {
-            checkPassiveEffects();
-        }
+
     }
 
     public void setCooldown(ResourceLocation id, int ticks) {
@@ -371,10 +367,10 @@ public class AbilityExecutor {
     }
 
     private void updateToggleAbility(MKAbility ability) {
-        if (!(ability instanceof MKToggleAbilityBase)) {
+        if (!(ability instanceof MKToggleAbility)) {
             return;
         }
-        MKToggleAbilityBase toggle = (MKToggleAbilityBase) ability;
+        MKToggleAbility toggle = (MKToggleAbility) ability;
 
         LivingEntity entity = entityData.getEntity();
         MKAbilityInfo info = entityData.getKnowledge().getAbilityKnowledge().getKnownAbility(ability.getAbilityId());
@@ -394,8 +390,8 @@ public class AbilityExecutor {
         activeToggleMap.remove(groupId);
     }
 
-    public void setToggleGroupAbility(ResourceLocation groupId, MKToggleAbilityBase ability) {
-        MKToggleAbilityBase current = activeToggleMap.get(ability.getToggleGroupId());
+    public void setToggleGroupAbility(ResourceLocation groupId, MKToggleAbility ability) {
+        MKToggleAbility current = activeToggleMap.get(ability.getToggleGroupId());
         // This can also be called when rebuilding the activeToggleMap after transferring dimensions and in that case
         // ability will be the same as current
         if (current != null && current != ability) {
@@ -403,25 +399,5 @@ public class AbilityExecutor {
             setCooldown(current.getAbilityId(), entityData.getStats().getAbilityCooldown(current));
         }
         activeToggleMap.put(groupId, ability);
-    }
-
-    protected void checkPassiveEffects() {
-        LivingEntity entity = entityData.getEntity();
-        entity.getActivePotionMap().forEach((p, e) -> {
-            if (p instanceof PassiveEffect) {
-                PassiveEffect sp = (PassiveEffect) p;
-                if (sp.canPersistAcrossSessions())
-                    return;
-
-                MKCore.LOGGER.debug("AbilityExecutor.checkPassiveEffects {} {}", entity, sp.getName());
-
-                SpellCast cast = sp.createReapplicationCast(entity);
-                if (cast != null) {
-                    // Call onPotionAdd to re-apply any non-attribute bonuses (such as granting flying)
-                    sp.onPotionAdd(cast, entity, entity.getAttributeManager(), e.getAmplifier());
-                    MKCore.LOGGER.debug("AbilityExecutor.checkPassiveEffects {} {} onPotionAdd", entity, sp.getName());
-                }
-            }
-        });
     }
 }

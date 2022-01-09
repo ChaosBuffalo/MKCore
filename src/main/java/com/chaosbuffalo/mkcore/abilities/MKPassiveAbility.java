@@ -13,7 +13,7 @@ import net.minecraft.util.text.TranslationTextComponent;
 
 import java.util.function.Consumer;
 
-public abstract class MKPassiveAbility extends MKAbility implements IMKPassiveAbility {
+public abstract class MKPassiveAbility extends MKAbility {
     public MKPassiveAbility(ResourceLocation abilityId) {
         super(abilityId);
     }
@@ -43,6 +43,7 @@ public abstract class MKPassiveAbility extends MKAbility implements IMKPassiveAb
         // TODO: see if this isEffectActive is needed in practice
         if (!casterData.getEffects().isEffectActive(getPassiveEffect())) {
             MKEffectBuilder<?> effect = getPassiveEffect().builder(casterData.getEntity().getUniqueID())
+                    .ability(this)
                     .temporary() // Abilities slotted to the passive group are re-executed when joining the world
                     .infinite();
             casterData.getEffects().addEffect(effect);

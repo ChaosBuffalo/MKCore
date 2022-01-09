@@ -25,18 +25,10 @@ import net.minecraftforge.fml.common.Mod;
 import java.util.Random;
 import java.util.Set;
 
-
-@Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class EmberAbility extends MKAbility {
     public static final EmberAbility INSTANCE = new EmberAbility();
     protected final FloatAttribute damage = new FloatAttribute("damage", 6.0f);
     protected final IntAttribute burnTime = new IntAttribute("burnTime", 5);
-
-
-    @SubscribeEvent
-    public static void register(RegistryEvent.Register<MKAbility> event) {
-        event.getRegistry().register(INSTANCE);
-    }
 
     private EmberAbility() {
         super(MKCore.makeRL("ability.test_ember"));
@@ -101,5 +93,14 @@ public class EmberAbility extends MKAbility {
     @Override
     public AbilityTargetSelector getTargetSelector() {
         return AbilityTargeting.SINGLE_TARGET;
+    }
+
+    @SuppressWarnings("unused")
+    @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
+    private static class RegisterMe {
+        @SubscribeEvent
+        public static void register(RegistryEvent.Register<MKAbility> event) {
+            event.getRegistry().register(INSTANCE);
+        }
     }
 }

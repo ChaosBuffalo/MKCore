@@ -1,55 +1,66 @@
 package com.chaosbuffalo.mkcore.effects.instant;
 
 import com.chaosbuffalo.mkcore.MKCore;
-import com.chaosbuffalo.mkcore.effects.SpellCast;
-import com.chaosbuffalo.mkcore.effects.SpellEffectBase;
-import com.chaosbuffalo.targeting_api.TargetingContext;
-import com.chaosbuffalo.targeting_api.TargetingContexts;
+import com.chaosbuffalo.mkcore.core.IMKEntityData;
+import com.chaosbuffalo.mkcore.effects.*;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.potion.Effect;
 import net.minecraft.potion.EffectType;
 import net.minecraft.util.DamageSource;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-@Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
-public class AbilityMagicDamageEffect extends SpellEffectBase {
-    public static final String SCALING_CONTRIBUTION = "instant_indirect_magic_damage.scaling_contribution";
+import java.util.UUID;
 
-    public static ResourceLocation INDIRECT_MAGIC_DMG_ABILITY_ID = MKCore.makeRL("ability.instant_indirect_magic_damage");
-
+public class AbilityMagicDamageEffect extends MKEffect {
     public static final AbilityMagicDamageEffect INSTANCE = new AbilityMagicDamageEffect();
 
-    @SubscribeEvent
-    public static void register(RegistryEvent.Register<Effect> event) {
-        event.getRegistry().register(INSTANCE);
+
+    public AbilityMagicDamageEffect() {
+        super(EffectType.HARMFUL);
+        setRegistryName(MKCore.makeRL("effect.ability_magic_damage"));
     }
 
-    public static SpellCast Create(Entity source, float baseDamage, float scaling) {
-        return INSTANCE.newSpellCast(source).setScalingParameters(baseDamage, scaling);
-    }
-
-    public static SpellCast Create(Entity source, float baseDamage, float scaling, float modifierScaling) {
-        return INSTANCE.newSpellCast(source).setScalingParameters(baseDamage, scaling)
-                .setFloat(SCALING_CONTRIBUTION, modifierScaling);
-    }
-
-    private AbilityMagicDamageEffect() {
-        super(EffectType.HARMFUL, 123);
-        setRegistryName("effect.instant_indirect_magic_damage");
+    public static MKEffectBuilder<State> from(Entity source, float baseDamage, float scaling, float modifierScaling) {
+        return INSTANCE.builder(source.getUniqueID()).state(s -> s.setScalingParameters(baseDamage, scaling, modifierScaling));
     }
 
     @Override
-    public TargetingContext getTargetContext() {
-        return TargetingContexts.ENEMY;
+    public State makeState() {
+        return new State();
     }
 
     @Override
-    public void doEffect(Entity applier, Entity caster, LivingEntity target, int amplifier, SpellCast cast) {
-        float damage = cast.getScaledValue(amplifier);
-        target.attackEntityFrom(DamageSource.causeIndirectMagicDamage(applier, caster), damage);
+    public MKEffectBuilder<State> builder(UUID sourceId) {
+        return new MKEffectBuilder<>(this, sourceId, this::makeState);
+    }
+
+    public static class State extends ScalingValueEffectState {
+        private Entity source;
+
+        @Override
+        public boolean performEffect(IMKEntityData targetData, MKActiveEffect instance) {
+            source = findEntity(source, instance.getSourceId(), targetData);
+
+            DamageSource damage;
+            if (source != null) {
+                damage = DamageSource.causeIndirectMagicDamage(source, source);
+            } else {
+                damage = DamageSource.MAGIC;
+            }
+
+            float value = getScaledValue(instance.getStackCount());
+            targetData.getEntity().attackEntityFrom(damage, value);
+            return true;
+        }
+    }
+
+    @SuppressWarnings("unused")
+    @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
+    private static class RegisterMe {
+        @SubscribeEvent
+        public static void register(RegistryEvent.Register<MKEffect> event) {
+            event.getRegistry().register(INSTANCE);
+        }
     }
 }

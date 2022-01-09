@@ -1,9 +1,10 @@
-package com.chaosbuffalo.mkcore.effects.instant;
+package com.chaosbuffalo.mkcore.effects.utility;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.effects.*;
 import com.chaosbuffalo.mkcore.utils.SoundUtils;
+import net.minecraft.entity.Entity;
 import net.minecraft.potion.EffectType;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
@@ -15,18 +16,21 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.UUID;
 
-@Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
-public class SoundEffectNew extends MKEffect {
-    public static final SoundEffectNew INSTANCE = new SoundEffectNew();
+public class SoundEffect extends MKEffect {
+    public static final SoundEffect INSTANCE = new SoundEffect();
 
-    @SubscribeEvent
-    public static void register(RegistryEvent.Register<MKEffect> event) {
-        event.getRegistry().register(INSTANCE);
+    public SoundEffect() {
+        super(EffectType.NEUTRAL);
+        setRegistryName("effect.sound_effect");
     }
 
-    public SoundEffectNew() {
-        super(EffectType.NEUTRAL);
-        setRegistryName(MKCore.makeRL("effect.v2.sound_effect"));
+    public static MKEffectBuilder<?> from(Entity source, SoundEvent event, float pitch, float volume,
+                                          SoundCategory cat) {
+        return INSTANCE.builder(source.getUniqueID()).state(s -> s.setup(event, pitch, volume, cat));
+    }
+
+    public static MKEffectBuilder<?> from(Entity source, SoundEvent event, SoundCategory cat) {
+        return from(source, event, 1f, 1f, cat);
     }
 
     @Override
@@ -52,6 +56,10 @@ public class SoundEffectNew extends MKEffect {
             this.category = cat;
         }
 
+        public void setup(SoundEvent event, SoundCategory cat) {
+            setup(event, 1f, 1f, cat);
+        }
+
         @Override
         public boolean performEffect(IMKEntityData targetData, MKActiveEffect instance) {
             SoundEvent event = ForgeRegistries.SOUND_EVENTS.getValue(soundEvent);
@@ -62,6 +70,15 @@ public class SoundEffectNew extends MKEffect {
                 SoundUtils.serverPlaySoundAtEntity(targetData.getEntity(), event, category, volume, pitch);
             }
             return true;
+        }
+    }
+
+    @SuppressWarnings("unused")
+    @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
+    private static class RegisterMe {
+        @SubscribeEvent
+        public static void register(RegistryEvent.Register<MKEffect> event) {
+            event.getRegistry().register(INSTANCE);
         }
     }
 }

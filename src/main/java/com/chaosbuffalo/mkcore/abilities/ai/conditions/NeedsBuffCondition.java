@@ -1,8 +1,10 @@
 package com.chaosbuffalo.mkcore.abilities.ai.conditions;
 
+import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.abilities.ai.AbilityDecisionContext;
 import com.chaosbuffalo.mkcore.abilities.ai.AbilityTargetingDecision;
+import com.chaosbuffalo.mkcore.effects.MKEffect;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.potion.Effect;
 
@@ -11,6 +13,7 @@ import javax.annotation.Nonnull;
 public class NeedsBuffCondition extends AbilityUseCondition {
 
     private final Effect buffEffect;
+    private final MKEffect buffMKEffect;
     private final AbilityTargetingDecision.MovementSuggestion movementSuggestion;
     private boolean selfOnly;
 
@@ -18,6 +21,15 @@ public class NeedsBuffCondition extends AbilityUseCondition {
     public NeedsBuffCondition(MKAbility ability, Effect buffEffect) {
         super(ability);
         this.buffEffect = buffEffect;
+        buffMKEffect = null;
+        this.movementSuggestion = AbilityTargetingDecision.MovementSuggestion.FOLLOW;
+        selfOnly = false;
+    }
+
+    public NeedsBuffCondition(MKAbility ability, MKEffect buffEffect) {
+        super(ability);
+        this.buffEffect = null;
+        buffMKEffect = buffEffect;
         this.movementSuggestion = AbilityTargetingDecision.MovementSuggestion.FOLLOW;
         selfOnly = false;
     }
@@ -28,7 +40,14 @@ public class NeedsBuffCondition extends AbilityUseCondition {
     }
 
     private boolean needsBuff(LivingEntity entity) {
-        return entity.getActivePotionEffect(buffEffect) == null;
+        if (buffEffect != null) {
+            return entity.getActivePotionEffect(buffEffect) == null;
+        } else if (buffMKEffect != null) {
+            return MKCore.getEntityData(entity)
+                    .map(entityData -> !entityData.getEffects().isEffectActive(buffMKEffect))
+                    .orElse(false);
+        }
+        return false;
     }
 
     @Nonnull

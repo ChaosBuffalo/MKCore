@@ -1,34 +1,23 @@
-package com.chaosbuffalo.mkcore.test.v2;
+package com.chaosbuffalo.mkcore.test.abilities;
 
 import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
-import com.chaosbuffalo.mkcore.abilities.MKSongAbilityNew;
+import com.chaosbuffalo.mkcore.abilities.MKSongAbility;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.effects.AreaEffectBuilder;
 import com.chaosbuffalo.mkcore.effects.MKEffect;
 import com.chaosbuffalo.mkcore.effects.MKEffectBuilder;
 import com.chaosbuffalo.mkcore.effects.song.MKSongPulseEffect;
 import com.chaosbuffalo.mkcore.effects.song.MKSongSustainEffect;
+import com.chaosbuffalo.mkcore.test.effects.NewHealEffect;
 import com.chaosbuffalo.targeting_api.TargetingContexts;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-@Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
-public class NewHealSong extends MKSongAbilityNew {
+public class NewHealSong extends MKSongAbility {
     public static final NewHealSong INSTANCE = new NewHealSong();
-
-    @SubscribeEvent
-    public static void registerAbility(RegistryEvent.Register<MKAbility> event) {
-        event.getRegistry().register(INSTANCE);
-    }
-
-    @SubscribeEvent
-    public static void registerEffects(RegistryEvent.Register<MKEffect> event) {
-        event.getRegistry().register(NewHealSongSustainEffect.INSTANCE);
-        event.getRegistry().register(NewHealSongPulseEffect.INSTANCE);
-    }
 
     public NewHealSong() {
         super(MKCore.makeRL("ability.v2.heal_song"));
@@ -76,6 +65,21 @@ public class NewHealSong extends MKSongAbilityNew {
 
         public NewHealSongPulseEffect() {
             setRegistryName(MKCore.makeRL("effect.v2.new_heal_song_pulse"));
+        }
+    }
+
+    @SuppressWarnings("unused")
+    @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
+    private static class RegisterMe {
+        @SubscribeEvent
+        public static void register(RegistryEvent.Register<MKAbility> event) {
+            event.getRegistry().register(INSTANCE);
+        }
+
+        @SubscribeEvent
+        public static void registerEffects(RegistryEvent.Register<MKEffect> event) {
+            event.getRegistry().register(NewHealSongSustainEffect.INSTANCE);
+            event.getRegistry().register(NewHealSongPulseEffect.INSTANCE);
         }
     }
 }
