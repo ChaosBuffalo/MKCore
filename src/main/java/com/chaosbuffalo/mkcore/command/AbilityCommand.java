@@ -4,9 +4,11 @@ import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.abilities.AbilitySource;
+import com.chaosbuffalo.mkcore.abilities.AbilitySourceType;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.abilities.MKAbilityInfo;
 import com.chaosbuffalo.mkcore.command.arguments.AbilityIdArgument;
+import com.chaosbuffalo.mkcore.command.arguments.AbilitySourceTypeArgument;
 import com.chaosbuffalo.mkcore.core.player.PlayerAbilityKnowledge;
 import com.chaosbuffalo.mkcore.utils.ChatUtils;
 import com.mojang.brigadier.Command;
@@ -35,6 +37,8 @@ public class AbilityCommand {
                 .then(Commands.literal("learn")
                         .then(Commands.argument("ability", AbilityIdArgument.ability())
                                 .suggests(AbilityCommand::suggestUnknownAbilities)
+                                .then(Commands.argument("type", AbilitySourceTypeArgument.abilitySourceType())
+                                        .executes(AbilityCommand::learnAbilityWithType))
                                 .executes(AbilityCommand::learnAbility)))
                 .then(Commands.literal("unlearn")
                         .then(Commands.argument("ability", AbilityIdArgument.ability())
@@ -82,6 +86,23 @@ public class AbilityCommand {
         MKAbility ability = MKCoreRegistry.getAbility(abilityId);
         if (ability != null) {
             MKCore.getPlayer(player).ifPresent(cap -> cap.getAbilities().learnAbility(ability, AbilitySource.ADMIN));
+        }
+
+        return Command.SINGLE_SUCCESS;
+    }
+
+    static int learnAbilityWithType(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
+        ServerPlayerEntity player = ctx.getSource().asPlayer();
+        ResourceLocation abilityId = ctx.getArgument("ability", ResourceLocation.class);
+        AbilitySourceType type = ctx.getArgument("type", AbilitySourceType.class);
+
+        if (!type.isSimple()) {
+            return Command.SINGLE_SUCCESS;
+        }
+
+        MKAbility ability = MKCoreRegistry.getAbility(abilityId);
+        if (ability != null) {
+            MKCore.getPlayer(player).ifPresent(cap -> cap.getAbilities().learnAbility(ability, AbilitySource.decode(type, "")));
         }
 
         return Command.SINGLE_SUCCESS;

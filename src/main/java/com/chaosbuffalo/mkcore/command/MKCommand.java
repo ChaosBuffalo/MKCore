@@ -31,6 +31,7 @@ public class MKCommand {
         ArgumentTypes.register("talent_line_id", TalentLineIdArgument.class, new ArgumentSerializer<>(TalentLineIdArgument::talentLine));
         ArgumentTypes.register("bone_id", BipedBoneArgument.class, new ArgumentSerializer<>(BipedBoneArgument::BipedBone));
         ArgumentTypes.register("particle_animation_id", ParticleAnimationArgument.class, new ArgumentSerializer<>(ParticleAnimationArgument::ParticleAnimation));
+        ArgumentTypes.register("ability_source_type_id", AbilitySourceTypeArgument.class, new ArgumentSerializer<>(AbilitySourceTypeArgument::abilitySourceType));
     }
 
 }
