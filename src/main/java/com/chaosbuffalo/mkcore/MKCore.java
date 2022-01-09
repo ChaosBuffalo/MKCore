@@ -85,6 +85,7 @@ public class MKCore {
         CoreCapabilities.registerCapabilities();
         MKCommand.registerArguments();
         ParticleAnimationManager.setupDeserializers();
+        AbilityManager.setupDeserializers();
     }
 
     private void loadComplete(final FMLLoadCompleteEvent event) {

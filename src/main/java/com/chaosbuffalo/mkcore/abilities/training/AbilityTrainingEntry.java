@@ -12,7 +12,7 @@ public class AbilityTrainingEntry {
 
     private final MKAbility ability;
     private final AbilitySource source;
-    private final List<IAbilityTrainingRequirement> requirementList;
+    private final List<AbilityTrainingRequirement> requirementList;
 
     public AbilityTrainingEntry(MKAbility ability, AbilitySource source) {
         this.ability = ability;
@@ -24,11 +24,11 @@ public class AbilityTrainingEntry {
         return ability;
     }
 
-    public List<IAbilityTrainingRequirement> getRequirements() {
+    public List<AbilityTrainingRequirement> getRequirements() {
         return requirementList;
     }
 
-    public AbilityTrainingEntry addRequirement(IAbilityTrainingRequirement requirement) {
+    public AbilityTrainingEntry addRequirement(AbilityTrainingRequirement requirement) {
         requirementList.add(requirement);
         return this;
     }
@@ -41,7 +41,7 @@ public class AbilityTrainingEntry {
         getRequirements().forEach(req -> req.onLearned(playerData, ability));
     }
 
-    private AbilityRequirementEvaluation evaluateRequirement(IAbilityTrainingRequirement req, MKPlayerData playerData) {
+    private AbilityRequirementEvaluation evaluateRequirement(AbilityTrainingRequirement req, MKPlayerData playerData) {
         return new AbilityRequirementEvaluation(req.describe(playerData), req.check(playerData, getAbility()));
     }
 

@@ -3,6 +3,7 @@ package com.chaosbuffalo.mkcore.client.rendering;
 import com.chaosbuffalo.mkcore.MKConfig;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.entities.MKAreaEffectEntity;
+import com.chaosbuffalo.mkcore.fx.particles.IndicatorParticle;
 import com.chaosbuffalo.mkcore.fx.particles.MKParticle;
 import com.chaosbuffalo.mkcore.init.CoreParticles;
 import net.minecraft.client.Minecraft;
@@ -58,5 +59,7 @@ public class MKRenderers {
                         spriteSet, -0.0001f, 0.05f,
                         0.05f, 80, true,
                         null));
+        Minecraft.getInstance().particles.registerFactory(CoreParticles.INDICATOR_PARTICLE,
+                IndicatorParticle.IndicatorFactory::new);
     }
 }
