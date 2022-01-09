@@ -1,4 +1,4 @@
-package com.chaosbuffalo.mkcore.test.v2;
+package com.chaosbuffalo.mkcore.test.effects;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.effects.*;
@@ -11,14 +11,8 @@ import net.minecraftforge.fml.common.Mod;
 
 import java.util.UUID;
 
-@Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class SkinLikeWoodEffect extends MKEffect {
     public static final SkinLikeWoodEffect INSTANCE = new SkinLikeWoodEffect();
-
-    @SubscribeEvent
-    public static void register(RegistryEvent.Register<MKEffect> event) {
-        event.getRegistry().register(INSTANCE);
-    }
 
     private SkinLikeWoodEffect() {
         super(EffectType.BENEFICIAL);
@@ -29,5 +23,14 @@ public class SkinLikeWoodEffect extends MKEffect {
     @Override
     public MKEffectState makeState() {
         return MKSimplePassiveState.INSTANCE;
+    }
+
+    @SuppressWarnings("unused")
+    @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
+    private static class RegisterMe {
+        @SubscribeEvent
+        public static void register(RegistryEvent.Register<MKEffect> event) {
+            event.getRegistry().register(INSTANCE);
+        }
     }
 }

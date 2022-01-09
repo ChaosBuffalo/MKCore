@@ -20,14 +20,8 @@ import net.minecraftforge.fml.common.Mod;
 
 import java.util.UUID;
 
-@Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class MKParticleEffect extends MKEffect {
     public static final MKParticleEffect INSTANCE = new MKParticleEffect();
-
-    @SubscribeEvent
-    public static void register(RegistryEvent.Register<MKEffect> event) {
-        event.getRegistry().register(INSTANCE);
-    }
 
     public MKParticleEffect() {
         super(EffectType.NEUTRAL);
@@ -89,6 +83,15 @@ public class MKParticleEffect extends MKEffect {
             includeSelf = tag.getBoolean("includeSelf");
             location = MKNBTUtil.readVector3(tag, "location");
             animName = MKNBTUtil.readResourceLocation(tag, "animName");
+        }
+    }
+
+    @SuppressWarnings("unused")
+    @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
+    private static class RegisterMe {
+        @SubscribeEvent
+        public static void register(RegistryEvent.Register<MKEffect> event) {
+            event.getRegistry().register(INSTANCE);
         }
     }
 }

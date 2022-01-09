@@ -28,14 +28,8 @@ import net.minecraftforge.fml.common.Mod;
 
 import javax.annotation.Nullable;
 
-@Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class WhirlwindBlades extends MKAbility {
     public static WhirlwindBlades INSTANCE = new WhirlwindBlades();
-
-    @SubscribeEvent
-    public static void register(RegistryEvent.Register<MKAbility> event) {
-        event.getRegistry().register(INSTANCE);
-    }
 
     public static float BASE_DAMAGE = 2.0f;
     public static float DAMAGE_SCALE = 1.0f;
@@ -103,7 +97,7 @@ public class WhirlwindBlades extends MKAbility {
             MKEffectBuilder<?> damage = AbilityMagicDamageEffect.from(castingEntity, BASE_DAMAGE, DAMAGE_SCALE, scaling)
                     .ability(this)
                     .amplify(level);
-            MKEffectBuilder<?> particlePotion = MKOldParticleEffect.Create(castingEntity,
+            MKEffectBuilder<?> particlePotion = MKOldParticleEffect.from(castingEntity,
                     ParticleTypes.SWEEP_ATTACK,
                     ParticleEffects.CIRCLE_MOTION, false,
                     new Vector3d(1.0, 1.0, 1.0),
@@ -119,7 +113,8 @@ public class WhirlwindBlades extends MKAbility {
 //                    .spellCast(SoundPotion.Create(entity, ModSounds.spell_shadow_2, SoundCategory.PLAYERS),
 //                            1, getTargetType())
                     .instant()
-                    .color(16409620).radius(getDistance(castingEntity), true)
+                    .color(16409620)
+                    .radius(getDistance(castingEntity), true)
                     .particle(ParticleTypes.CRIT)
                     .spawn();
 
@@ -129,6 +124,15 @@ public class WhirlwindBlades extends MKAbility {
                                 castingEntity.getPosX(), castingEntity.getPosY() + 1.0,
                                 castingEntity.getPosZ(), 1.0, 1.0, 1.0, 1.5,
                                 castingEntity.getLookVec()), castingEntity);
+        }
+    }
+
+    @SuppressWarnings("unused")
+    @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
+    private static class RegisterMe {
+        @SubscribeEvent
+        public static void register(RegistryEvent.Register<MKAbility> event) {
+            event.getRegistry().register(INSTANCE);
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.chaosbuffalo.mkcore.test.v2;
+package com.chaosbuffalo.mkcore.test.effects;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.MKAttributes;
@@ -13,15 +13,9 @@ import net.minecraftforge.fml.common.Mod;
 
 import java.util.UUID;
 
-@Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class NewBurningSoulEffect extends MKEffect {
 
     public static final NewBurningSoulEffect INSTANCE = new NewBurningSoulEffect();
-
-    @SubscribeEvent
-    public static void register(RegistryEvent.Register<MKEffect> event) {
-        event.getRegistry().register(INSTANCE);
-    }
 
     public final UUID MODIFIER_ID = UUID.fromString("a5924381-d396-4dde-9a62-908b479d9775");
 
@@ -35,5 +29,14 @@ public class NewBurningSoulEffect extends MKEffect {
     @Override
     public MKEffectState makeState() {
         return MKSimplePassiveState.INSTANCE;
+    }
+
+    @SuppressWarnings("unused")
+    @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
+    private static class RegisterMe {
+        @SubscribeEvent
+        public static void register(RegistryEvent.Register<MKEffect> event) {
+            event.getRegistry().register(INSTANCE);
+        }
     }
 }

@@ -12,14 +12,8 @@ import net.minecraftforge.fml.common.Mod;
 
 import java.util.UUID;
 
-@Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class AbilityMagicDamageEffect extends MKEffect {
     public static final AbilityMagicDamageEffect INSTANCE = new AbilityMagicDamageEffect();
-
-    @SubscribeEvent
-    public static void register(RegistryEvent.Register<MKEffect> event) {
-        event.getRegistry().register(INSTANCE);
-    }
 
 
     public AbilityMagicDamageEffect() {
@@ -58,6 +52,15 @@ public class AbilityMagicDamageEffect extends MKEffect {
             float value = getScaledValue(instance.getStackCount());
             targetData.getEntity().attackEntityFrom(damage, value);
             return true;
+        }
+    }
+
+    @SuppressWarnings("unused")
+    @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
+    private static class RegisterMe {
+        @SubscribeEvent
+        public static void register(RegistryEvent.Register<MKEffect> event) {
+            event.getRegistry().register(INSTANCE);
         }
     }
 }

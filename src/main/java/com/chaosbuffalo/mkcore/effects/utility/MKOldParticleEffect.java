@@ -15,7 +15,6 @@ import net.minecraftforge.fml.common.Mod;
 
 import java.util.UUID;
 
-@Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class MKOldParticleEffect extends MKEffect {
     public static final MKOldParticleEffect INSTANCE = new MKOldParticleEffect();
 
@@ -24,14 +23,9 @@ public class MKOldParticleEffect extends MKEffect {
         setRegistryName("effect.old_particle");
     }
 
-    @SubscribeEvent
-    public static void register(RegistryEvent.Register<MKEffect> event) {
-        event.getRegistry().register(INSTANCE);
-    }
-
-    public static MKEffectBuilder<?> Create(Entity source, IParticleData particleId, int motionType, boolean includeSelf,
-                                         Vector3d radius, Vector3d offsets, int particleCount, int particleData,
-                                         double particleSpeed) {
+    public static MKEffectBuilder<?> from(Entity source, IParticleData particleId, int motionType, boolean includeSelf,
+                                          Vector3d radius, Vector3d offsets, int particleCount, int particleData,
+                                          double particleSpeed) {
         return INSTANCE.builder(source.getUniqueID()).state(s ->
                 s.setup(source, particleId, motionType, radius, offsets, particleCount, particleData, particleSpeed, includeSelf));
     }
@@ -94,6 +88,15 @@ public class MKOldParticleEffect extends MKEffect {
                     radius.z,
                     particleSpeed,
                     source.getPositionVec().subtract(target.getPositionVec()).normalize());
+        }
+    }
+
+    @SuppressWarnings("unused")
+    @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
+    private static class RegisterMe {
+        @SubscribeEvent
+        public static void register(RegistryEvent.Register<MKEffect> event) {
+            event.getRegistry().register(INSTANCE);
         }
     }
 }

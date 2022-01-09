@@ -1,4 +1,4 @@
-package com.chaosbuffalo.mkcore.test.v2;
+package com.chaosbuffalo.mkcore.test.abilities;
 
 import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.MKCore;
@@ -11,9 +11,11 @@ import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.core.MKCombatFormulas;
 import com.chaosbuffalo.mkcore.effects.AreaEffectBuilder;
 import com.chaosbuffalo.mkcore.effects.MKEffectBuilder;
+import com.chaosbuffalo.mkcore.effects.utility.MKOldParticleEffect;
 import com.chaosbuffalo.mkcore.fx.ParticleEffects;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.ParticleEffectSpawnPacket;
+import com.chaosbuffalo.mkcore.test.effects.NewFireArmorEffect;
 import com.chaosbuffalo.targeting_api.TargetingContext;
 import com.chaosbuffalo.targeting_api.TargetingContexts;
 import net.minecraft.entity.LivingEntity;
@@ -25,14 +27,8 @@ import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-@Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class NewFireArmor extends MKAbility {
     public static final NewFireArmor INSTANCE = new NewFireArmor();
-
-    @SubscribeEvent
-    public static void register(RegistryEvent.Register<MKAbility> event) {
-        event.getRegistry().register(INSTANCE);
-    }
 
     public static int BASE_DURATION = 60;
     public static int DURATION_SCALE = 30;
@@ -81,10 +77,10 @@ public class NewFireArmor extends MKAbility {
                 .timed(duration)
                 .amplify(level);
 
-        MKEffectBuilder<?> particleEffect = NewParticleEffect.INSTANCE.builder(castingEntity.getUniqueID())
+        MKEffectBuilder<?> particleEffect = MKOldParticleEffect.from(castingEntity, ParticleTypes.FLAME,
+                        ParticleEffects.CIRCLE_PILLAR_MOTION, false, new Vector3d(1.0, 1.0, 1.0),
+                        new Vector3d(0.0, 1.0, 0.0), 40, 5, .1f)
                 .ability(this)
-                .state(s -> s.setup(castingEntity, ParticleTypes.FLAME, ParticleEffects.CIRCLE_PILLAR_MOTION, false,
-                        new Vector3d(1.0, 1.0, 1.0), new Vector3d(0.0, 1.0, 0.0), 40, 5, .1f))
                 .amplify(level);
 
         AreaEffectBuilder.createOnCaster(castingEntity)
@@ -94,7 +90,8 @@ public class NewFireArmor extends MKAbility {
                 .effect(particleEffect, getTargetContext())
                 .instant()
                 .particle(ParticleTypes.DRIPPING_LAVA)
-                .color(16762905).radius(getDistance(castingEntity), true)
+                .color(16762905)
+                .radius(getDistance(castingEntity), true)
                 .spawn();
 
         PacketHandler.sendToTrackingAndSelf(new ParticleEffectSpawnPacket(
@@ -103,5 +100,14 @@ public class NewFireArmor extends MKAbility {
                 castingEntity.getPosX(), castingEntity.getPosY() + 1.0,
                 castingEntity.getPosZ(), 1.0, 1.0, 1.0, .1f,
                 castingEntity.getLookVec()), castingEntity);
+    }
+
+    @SuppressWarnings("unused")
+    @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
+    private static class RegisterMe {
+        @SubscribeEvent
+        public static void register(RegistryEvent.Register<MKAbility> event) {
+            event.getRegistry().register(INSTANCE);
+        }
     }
 }

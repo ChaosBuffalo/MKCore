@@ -25,15 +25,8 @@ import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-
-@Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class PhoenixAspectAbility extends MKAbility {
     public static PhoenixAspectAbility INSTANCE = new PhoenixAspectAbility();
-
-    @SubscribeEvent
-    public static void register(RegistryEvent.Register<MKAbility> event) {
-        event.getRegistry().register(INSTANCE);
-    }
 
     public static int BASE_DURATION = 60;
     public static int DURATION_SCALE = 60;
@@ -81,7 +74,7 @@ public class PhoenixAspectAbility extends MKAbility {
                 .ability(this)
                 .timed(duration + 10 * GameConstants.TICKS_PER_SECOND)
                 .amplify(level);
-        MKEffectBuilder<?> particlePotion = MKOldParticleEffect.Create(castingEntity,
+        MKEffectBuilder<?> particlePotion = MKOldParticleEffect.from(castingEntity,
                 ParticleTypes.FIREWORK,
                 ParticleEffects.DIRECTED_SPOUT, false, new Vector3d(1.0, 1.5, 1.0),
                 new Vector3d(0.0, 1.0, 0.0), 40, 5, 1.0)
@@ -103,5 +96,14 @@ public class PhoenixAspectAbility extends MKAbility {
                 castingEntity.getPosX(), castingEntity.getPosY() + 1.5,
                 castingEntity.getPosZ(), 1.0, 1.0, 1.0, 1.0f,
                 castingEntity.getLookVec()), castingEntity);
+    }
+
+    @SuppressWarnings("unused")
+    @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
+    private static class RegisterMe {
+        @SubscribeEvent
+        public static void register(RegistryEvent.Register<MKAbility> event) {
+            event.getRegistry().register(INSTANCE);
+        }
     }
 }

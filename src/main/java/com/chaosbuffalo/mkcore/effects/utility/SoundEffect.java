@@ -16,14 +16,8 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.UUID;
 
-@Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class SoundEffect extends MKEffect {
     public static final SoundEffect INSTANCE = new SoundEffect();
-
-    @SubscribeEvent
-    public static void register(RegistryEvent.Register<MKEffect> event) {
-        event.getRegistry().register(INSTANCE);
-    }
 
     public SoundEffect() {
         super(EffectType.NEUTRAL);
@@ -76,6 +70,15 @@ public class SoundEffect extends MKEffect {
                 SoundUtils.serverPlaySoundAtEntity(targetData.getEntity(), event, category, volume, pitch);
             }
             return true;
+        }
+    }
+
+    @SuppressWarnings("unused")
+    @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
+    private static class RegisterMe {
+        @SubscribeEvent
+        public static void register(RegistryEvent.Register<MKEffect> event) {
+            event.getRegistry().register(INSTANCE);
         }
     }
 }
