@@ -11,8 +11,6 @@ import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.DynamicOps;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -68,7 +66,7 @@ public abstract class AbilityTrainingRequirement implements ISerializableAttribu
                 ops.createMap(attributes.stream().map(attr ->
                         Pair.of(ops.createString(attr.getName()), attr.serialize(ops))
                 ).collect(Collectors.toMap(Pair::getFirst, Pair::getSecond))));
-        putAdditionalData(ops, builder);
+        writeAdditionalData(ops, builder);
         return ops.createMap(builder.build());
     }
 
@@ -84,7 +82,7 @@ public abstract class AbilityTrainingRequirement implements ISerializableAttribu
         return new ResourceLocation(dynamic.get("reqType").asString().result().orElse(INVALID_OPTION.toString()));
     }
 
-    public <D> void putAdditionalData(DynamicOps<D> ops, ImmutableMap.Builder<D, D> builder) {
+    public <D> void writeAdditionalData(DynamicOps<D> ops, ImmutableMap.Builder<D, D> builder) {
 
     }
 

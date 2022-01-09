@@ -37,8 +37,8 @@ public class HasEntitlementRequirement extends AbilityTrainingRequirement {
     }
 
     @Override
-    public <D> void putAdditionalData(DynamicOps<D> ops, ImmutableMap.Builder<D, D> builder) {
-        super.putAdditionalData(ops, builder);
+    public <D> void writeAdditionalData(DynamicOps<D> ops, ImmutableMap.Builder<D, D> builder) {
+        super.writeAdditionalData(ops, builder);
         builder.put(ops.createString("entitlement"), ops.createString(entitlement.getRegistryName().toString()));
     }
 

@@ -46,8 +46,8 @@ public class HeldItemRequirement extends AbilityTrainingRequirement {
     }
 
     @Override
-    public <D> void putAdditionalData(DynamicOps<D> ops, ImmutableMap.Builder<D, D> builder) {
-        super.putAdditionalData(ops, builder);
+    public <D> void writeAdditionalData(DynamicOps<D> ops, ImmutableMap.Builder<D, D> builder) {
+        super.writeAdditionalData(ops, builder);
         builder.put(ops.createString("item"), ops.createString(item.getRegistryName().toString()));
         builder.put(ops.createString("hand"), ops.createInt(hand.ordinal()));
     }
