@@ -40,11 +40,13 @@ public class PhoenixAspectEffect extends MKEffect {
 
     @Override
     public void onInstanceAdded(IMKEntityData targetData, MKActiveEffect newInstance) {
+        super.onInstanceAdded(targetData, newInstance);
         enableFlying(targetData.getEntity());
     }
 
     @Override
     public void onInstanceReady(IMKEntityData targetData, MKActiveEffect activeInstance) {
+        super.onInstanceReady(targetData, activeInstance);
         enableFlying(targetData.getEntity());
     }
 

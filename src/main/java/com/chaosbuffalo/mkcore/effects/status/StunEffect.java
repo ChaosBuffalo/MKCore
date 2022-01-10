@@ -5,6 +5,7 @@ import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.effects.*;
 import com.chaosbuffalo.mkcore.init.CoreSounds;
 import com.chaosbuffalo.mkcore.utils.SoundUtils;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MobEntity;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
@@ -17,7 +18,7 @@ import net.minecraftforge.fml.common.Mod;
 import java.util.UUID;
 
 public class StunEffect extends MKEffect {
-    private final UUID MODIFIER_ID = UUID.fromString("e27f71ce-26f0-465e-b465-7e5ea711e53c");
+    public static final UUID MODIFIER_ID = UUID.fromString("e27f71ce-26f0-465e-b465-7e5ea711e53c");
 
     public static final StunEffect INSTANCE = new StunEffect();
 
@@ -25,6 +26,10 @@ public class StunEffect extends MKEffect {
         super(EffectType.HARMFUL);
         setRegistryName(MKCore.MOD_ID, "effect.stun");
         addAttribute(Attributes.MOVEMENT_SPEED, MODIFIER_ID, -1, AttributeModifier.Operation.MULTIPLY_TOTAL);
+    }
+
+    public static MKEffectBuilder<?> from(Entity source) {
+        return INSTANCE.builder(source.getUniqueID());
     }
 
     @Override
@@ -45,9 +50,9 @@ public class StunEffect extends MKEffect {
 
     @Override
     public void onInstanceReady(IMKEntityData targetData, MKActiveEffect activeInstance) {
+        super.onInstanceReady(targetData, activeInstance);
         applyEffect(targetData, activeInstance);
     }
-
 
     private void applyEffect(IMKEntityData targetData, MKActiveEffect activeEffect) {
         LivingEntity target = targetData.getEntity();;
