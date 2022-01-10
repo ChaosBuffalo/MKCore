@@ -22,19 +22,19 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.StringTextComponent;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
 
 public class LearnAbilityPage extends AbilityPageBase {
-    private final Map<MKAbility, AbilityTrainingEvaluation> abilities;
+    private final Map<MKAbility, AbilityTrainingEvaluation> requirements;
     private final int entityId;
-    private LearnAbilityTray abilityTray;
+    private LearnAbilityTray requirementsTray;
     private MKLayout footer;
     private MKLayout root;
 
-    public LearnAbilityPage(MKPlayerData playerData, Map<MKAbility, AbilityTrainingEvaluation> abilities, int entityId) {
+    public LearnAbilityPage(MKPlayerData playerData, Map<MKAbility, AbilityTrainingEvaluation> requirements, int entityId) {
         super(playerData, new StringTextComponent("Learn Abilities"));
-        this.abilities = abilities;
+        this.requirements = requirements;
         this.entityId = entityId;
     }
 
@@ -50,28 +50,20 @@ public class LearnAbilityPage extends AbilityPageBase {
     }
 
     @Override
-    protected void persistState(boolean wasResized) {
-        super.persistState(wasResized);
-        final MKAbility abilityInf = getAbility();
-        addPostSetupCallback(() -> {
-            if (infoWidget != null && abilities.containsKey(abilityInf)) {
-                infoWidget.setAbility(abilityInf);
-                abilityTray.setAbility(abilityInf, abilities.get(abilityInf));
-                resetFooter();
-            }
-        });
+    protected Collection<MKAbility> getSortedAbilityList() {
+        return requirements.keySet(); // TODO: sort this by some metric
     }
 
     @Override
-    public void setAbility(MKAbility ability) {
-        super.setAbility(ability);
-        if (abilityTray != null && abilities.containsKey(ability)) {
-            abilityTray.setAbility(ability, abilities.get(ability));
+    protected void restoreSelectedAbility(MKAbility ability) {
+        super.restoreSelectedAbility(ability);
+        if (requirementsTray != null && requirements.containsKey(ability)) {
+            requirementsTray.setAbility(ability, requirements.get(ability));
             resetFooter();
         }
     }
 
-    private MKLayout createPoolManagementFooter(MKPlayerData playerData) {
+    private MKLayout createPoolManagementFooter() {
         int xPos = width / 2 - PANEL_WIDTH / 2;
         int yPos = height / 2 - PANEL_HEIGHT / 2;
         int xOffset = GuiTextures.CORE_TEXTURES.getCenterXOffset(getDataBoxTexture(), GuiTextures.BACKGROUND_320_240);
@@ -82,10 +74,10 @@ public class LearnAbilityPage extends AbilityPageBase {
         layout.setMarginLeft(24);
         MKButton manage = createManageButton();
 
-        MKButton learnButton = createLearnButton(playerData);
+        MKButton learnButton = createLearnButton();
         layout.addWidget(learnButton);
 
-        IconText poolText = createPoolUsageText(playerData);
+        IconText poolText = createPoolUsageText();
         layout.addWidget(poolText, new OffsetConstraint(0, 2, false, true));
         layout.addWidget(manage);
         this.footer = layout;
@@ -94,7 +86,7 @@ public class LearnAbilityPage extends AbilityPageBase {
     }
 
     @Nonnull
-    private MKButton createLearnButton(MKPlayerData playerData) {
+    private MKButton createLearnButton() {
         String learnButtonText = I18n.format("mkcore.gui.character.learn");
         MKButton learnButton = new MKButton(0, 0, learnButtonText) {
 
@@ -106,7 +98,7 @@ public class LearnAbilityPage extends AbilityPageBase {
             @Override
             public void onMouseHover(Minecraft mc, int mouseX, int mouseY, float partialTicks) {
                 super.onMouseHover(mc, mouseX, mouseY, partialTicks);
-                if (abilityTray != null && abilityTray.getEvaluation() != null && abilityTray.getEvaluation().getRequirements().size() > 0) {
+                if (requirementsTray != null && requirementsTray.getEvaluation() != null && requirementsTray.getEvaluation().getRequirements().size() > 0) {
                     if (getScreen() != null) {
                         getScreen().addPostRenderInstruction(new HoveringTextInstruction(
                                 I18n.format("mkcore.gui.character.unmet_req_tooltip"),
@@ -116,23 +108,23 @@ public class LearnAbilityPage extends AbilityPageBase {
             }
         };
         learnButton.setWidth(60);
-        learnButton.setEnabled(canLearnCurrentAbility(playerData));
+        learnButton.setEnabled(canLearnCurrentAbility());
         learnButton.setPressedCallback((button, buttonType) -> {
-            if (abilityTray.getEvaluation().usesAbilityPool() && playerData.getAbilities().isAbilityPoolFull()) {
-                addModal(getChoosePoolSlotWidget(playerData, abilityTray.getAbility(), abilityTray.getTrainerEntityId()));
+            if (requirementsTray.getEvaluation().usesAbilityPool() && playerData.getAbilities().isAbilityPoolFull()) {
+                addModal(getChoosePoolSlotWidget(requirementsTray.getAbility(), requirementsTray.getTrainerEntityId()));
             } else {
                 PacketHandler.sendMessageToServer(new PlayerLearnAbilityRequestPacket(
-                        abilityTray.getAbility().getAbilityId(), abilityTray.getTrainerEntityId()));
+                        requirementsTray.getAbility().getAbilityId(), requirementsTray.getTrainerEntityId()));
             }
             return true;
         });
         return learnButton;
     }
 
-    private boolean canLearnCurrentAbility(MKPlayerData playerData) {
-        if (abilityTray.getAbility() != null && abilityTray.getEvaluation() != null) {
-            boolean isKnown = playerData.getAbilities().knowsAbility(abilityTray.getAbility().getAbilityId());
-            boolean canLearn = abilityTray.getEvaluation().canLearn();
+    private boolean canLearnCurrentAbility() {
+        if (requirementsTray.getAbility() != null && requirementsTray.getEvaluation() != null) {
+            boolean isKnown = playerData.getAbilities().knowsAbility(requirementsTray.getAbility().getAbilityId());
+            boolean canLearn = requirementsTray.getEvaluation().canLearn();
             return !isKnown && canLearn;
         } else {
             return false;
@@ -152,14 +144,14 @@ public class LearnAbilityPage extends AbilityPageBase {
         int contentY = yPos + DATA_BOX_OFFSET;
         int contentWidth = dataBoxRegion.width;
         int contentHeight = dataBoxRegion.height;
-        LearnAbilityTray tray = new LearnAbilityTray(contentX, yPos + 3, contentWidth, playerData, font, entityId);
-        abilityTray = tray;
-        root.addWidget(tray);
-        abilitiesScrollPanel = getAbilityScrollPanel(contentX, contentY,
-                contentWidth, contentHeight, new ArrayList<>(abilities.keySet()));
 
-        MKLayout footer = createPoolManagementFooter(playerData);
+        requirementsTray = new LearnAbilityTray(contentX, yPos + 3, contentWidth, playerData, font, entityId);
+        root.addWidget(requirementsTray);
+
+        abilitiesScrollPanel = getAbilityScrollPanel(contentX, contentY, contentWidth, contentHeight);
         root.addWidget(abilitiesScrollPanel);
+
+        MKLayout footer = createPoolManagementFooter();
         root.addWidget(footer);
 
         this.root = root;
@@ -169,7 +161,7 @@ public class LearnAbilityPage extends AbilityPageBase {
     public void resetFooter() {
         if (minecraft != null && minecraft.player != null && root != null && footer != null) {
             this.root.removeWidget(footer);
-            root.addWidget(createPoolManagementFooter(playerData));
+            root.addWidget(createPoolManagementFooter());
         }
     }
 }

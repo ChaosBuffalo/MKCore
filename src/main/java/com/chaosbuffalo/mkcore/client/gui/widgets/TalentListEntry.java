@@ -1,6 +1,6 @@
 package com.chaosbuffalo.mkcore.client.gui.widgets;
 
-import com.chaosbuffalo.mkcore.client.gui.ITalentScreen;
+import com.chaosbuffalo.mkcore.client.gui.TalentPage;
 import com.chaosbuffalo.mkcore.core.talents.TalentTreeRecord;
 import com.chaosbuffalo.mkwidgets.client.gui.constraints.CenterYWithOffsetConstraint;
 import com.chaosbuffalo.mkwidgets.client.gui.layouts.MKStackLayoutHorizontal;
@@ -11,17 +11,12 @@ import net.minecraft.client.gui.FontRenderer;
 
 public class TalentListEntry extends MKStackLayoutHorizontal {
 
-    private final TalentTreeWidget treeWidget;
     private final TalentTreeRecord record;
-    private final FontRenderer font;
-    private final ITalentScreen screen;
+    private final TalentPage screen;
 
-    public TalentListEntry(int x, int y, int height, TalentTreeRecord record,
-                           TalentTreeWidget treeWidget, FontRenderer font, ITalentScreen screen) {
+    public TalentListEntry(int x, int y, int height, FontRenderer font, TalentPage screen, TalentTreeRecord record) {
         super(x, y, height);
-        this.treeWidget = treeWidget;
         this.record = record;
-        this.font = font;
         this.screen = screen;
         setPaddingRight(2);
         setPaddingLeft(2);
@@ -35,7 +30,6 @@ public class TalentListEntry extends MKStackLayoutHorizontal {
 
     @Override
     public boolean onMousePressed(Minecraft minecraft, double mouseX, double mouseY, int mouseButton) {
-        treeWidget.setTreeRecord(record);
         screen.setCurrentTree(record);
         return true;
     }

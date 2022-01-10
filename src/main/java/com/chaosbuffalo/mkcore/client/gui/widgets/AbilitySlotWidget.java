@@ -3,7 +3,6 @@ package com.chaosbuffalo.mkcore.client.gui.widgets;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
-import com.chaosbuffalo.mkcore.client.gui.CharacterScreen;
 import com.chaosbuffalo.mkcore.client.gui.GuiTextures;
 import com.chaosbuffalo.mkcore.client.gui.IAbilityScreen;
 import com.chaosbuffalo.mkcore.core.AbilityGroupId;
@@ -68,11 +67,11 @@ public class AbilitySlotWidget extends MKLayout {
         PlayerEntity playerEntity = Minecraft.getInstance().player;
         if (playerEntity == null)
             return;
-        MKCore.getPlayer(playerEntity).ifPresent((playerData -> {
+        MKCore.getPlayer(playerEntity).ifPresent(playerData -> {
             abilityId = playerData.getLoadout().getAbilityInSlot(slotGroup, slotIndex);
             setupBackground(playerData);
             setupIcon(abilityId);
-        }));
+        });
     }
 
     private void setupBackground(MKPlayerData playerData) {
@@ -86,12 +85,12 @@ public class AbilitySlotWidget extends MKLayout {
         addConstraintToWidget(new FillConstraint(), background);
     }
 
-    private void setupIcon(ResourceLocation abilityName) {
+    private void setupIcon(ResourceLocation newAbilityId) {
         if (icon != null) {
             removeWidget(icon);
         }
         if (!this.abilityId.equals(MKCoreRegistry.INVALID_ABILITY)) {
-            MKAbility ability = MKCoreRegistry.getAbility(abilityName);
+            MKAbility ability = MKCoreRegistry.getAbility(newAbilityId);
             if (ability != null) {
                 icon = new MKImage(0, 0, 16, 16, ability.getAbilityIcon());
                 addWidget(icon);
@@ -102,20 +101,19 @@ public class AbilitySlotWidget extends MKLayout {
     }
 
     private MKImage getAbilityGroupSlotImage(AbilityGroupId group, boolean unlocked) {
+        String texture;
         switch (group) {
             case Ultimate:
-                return GuiTextures.CORE_TEXTURES.getImageForRegion(unlocked ?
-                                GuiTextures.ABILITY_SLOT_ULT : GuiTextures.ABILITY_SLOT_ULT_LOCKED,
-                        getX(), getY(), getWidth(), getHeight());
+                texture = unlocked ? GuiTextures.ABILITY_SLOT_ULT : GuiTextures.ABILITY_SLOT_ULT_LOCKED;
+                break;
             case Passive:
-                return GuiTextures.CORE_TEXTURES.getImageForRegion(unlocked ?
-                                GuiTextures.ABILITY_SLOT_PASSIVE : GuiTextures.ABILITY_SLOT_PASSIVE_LOCKED,
-                        getX(), getY(), getWidth(), getHeight());
+                texture = unlocked ? GuiTextures.ABILITY_SLOT_PASSIVE : GuiTextures.ABILITY_SLOT_PASSIVE_LOCKED;
+                break;
             default:
-                return GuiTextures.CORE_TEXTURES.getImageForRegion(unlocked ?
-                                GuiTextures.ABILITY_SLOT_REG : GuiTextures.ABILITY_SLOT_REG_LOCKED,
-                        getX(), getY(), getWidth(), getHeight());
+                texture = unlocked ? GuiTextures.ABILITY_SLOT_REG : GuiTextures.ABILITY_SLOT_REG_LOCKED;
+                break;
         }
+        return GuiTextures.CORE_TEXTURES.getImageForRegion(texture, getX(), getY(), getWidth(), getHeight());
     }
 
     public ResourceLocation getAbilityId() {
@@ -141,7 +139,7 @@ public class AbilitySlotWidget extends MKLayout {
                 }
                 screen.setDragState(new WidgetHoldingDragState(new MKImage(0, 0, icon.getWidth(),
                         icon.getHeight(), icon.getImageLoc())), this);
-                screen.setDragging(ability);
+                screen.startDraggingAbility(ability);
                 icon.setColor(new IntColor(0xff555555));
                 return true;
             }
@@ -155,11 +153,11 @@ public class AbilitySlotWidget extends MKLayout {
     @Override
     public boolean onMouseRelease(double mouseX, double mouseY, int mouseButton) {
         if (screen.isDraggingAbility()) {
-            if (unlocked && slotGroup.fitsAbilityType(screen.getDragging().getType())) {
-                ResourceLocation ability = screen.getDragging().getAbilityId();
+            if (unlocked && slotGroup.fitsAbilityType(screen.getDraggingAbility().getType())) {
+                ResourceLocation ability = screen.getDraggingAbility().getAbilityId();
                 setSlotToAbility(ability);
             }
-            screen.clearDragging();
+            screen.stopDraggingAbility();
             screen.clearDragState();
             return true;
         }
@@ -178,9 +176,7 @@ public class AbilitySlotWidget extends MKLayout {
                                 getParentCoords(new Vec2i(mouseX, mouseY))));
                     }
                 }
-
             }
-
         }
     }
 }

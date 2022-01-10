@@ -2,10 +2,11 @@ package com.chaosbuffalo.mkcore.client.gui;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
-import com.chaosbuffalo.mkcore.abilities.MKAbilityInfo;
 import com.chaosbuffalo.mkcore.client.gui.widgets.AbilitySlotWidget;
+import com.chaosbuffalo.mkcore.client.gui.widgets.CycleButton;
 import com.chaosbuffalo.mkcore.client.gui.widgets.IconText;
 import com.chaosbuffalo.mkcore.core.AbilityGroupId;
+import com.chaosbuffalo.mkcore.core.AbilityType;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkwidgets.client.gui.constraints.OffsetConstraint;
 import com.chaosbuffalo.mkwidgets.client.gui.layouts.MKLayout;
@@ -15,11 +16,11 @@ import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKText;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKWidget;
 import com.chaosbuffalo.mkwidgets.utils.TextureRegion;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class PersonalAbilityPage extends AbilityPageBase implements IAbilityScreen {
@@ -35,7 +36,7 @@ public class PersonalAbilityPage extends AbilityPageBase implements IAbilityScre
 
         @Override
         public int hashCode() {
-            return slot + group.hashCode();
+            return Objects.hash(slot, group);
         }
 
         @Override
@@ -48,7 +49,32 @@ public class PersonalAbilityPage extends AbilityPageBase implements IAbilityScre
         }
     }
 
+    public enum AbilityFilter {
+        All(new StringTextComponent("All"), EnumSet.allOf(AbilityType.class)),
+        Basic(new TranslationTextComponent("mkcore.gui.actives"), EnumSet.of(AbilityType.Basic)),
+        Passive(new TranslationTextComponent("mkcore.gui.passives"), EnumSet.of(AbilityType.Passive)),
+        Ultimate(new TranslationTextComponent("mkcore.gui.ultimates"), EnumSet.of(AbilityType.Ultimate));
+
+        private final ITextComponent name;
+        private final EnumSet<AbilityType> accepting;
+
+        AbilityFilter(ITextComponent name, EnumSet<AbilityType> accepting) {
+            this.name = name;
+            this.accepting = accepting;
+        }
+
+        public boolean accepts(AbilityType t) {
+            return accepting.contains(t);
+        }
+
+        public ITextComponent getName() {
+            return name;
+        }
+    }
+
     private final Map<AbilitySlotKey, AbilitySlotWidget> abilitySlots = new HashMap<>();
+    private final List<AbilityFilter> availableFilters = new ArrayList<>();
+    private AbilityFilter currentFilter = AbilityFilter.All;
 
     public PersonalAbilityPage(MKPlayerData playerData) {
         super(playerData, new TranslationTextComponent("mk_character_screen.title"));
@@ -59,22 +85,10 @@ public class PersonalAbilityPage extends AbilityPageBase implements IAbilityScre
         return MKCore.makeRL("abilities");
     }
 
-
     @Override
     public void setupScreen() {
         super.setupScreen();
         addWidget(createAbilitiesPage());
-    }
-
-    @Override
-    protected void persistState(boolean wasResized) {
-        super.persistState(wasResized);
-        final MKAbility abilityInf = getAbility();
-        addPostSetupCallback(() -> {
-            if (infoWidget != null) {
-                infoWidget.setAbility(abilityInf);
-            }
-        });
     }
 
     private MKWidget createAbilitiesPage() {
@@ -88,6 +102,21 @@ public class PersonalAbilityPage extends AbilityPageBase implements IAbilityScre
         MKLayout root = getRootLayout(xPos, yPos, xOffset, dataBoxRegion.width, true);
 
         // Stat Panel
+        addSlotGroupWidgets(xPos, yPos, xOffset, root);
+
+        int contentX = xPos + xOffset;
+        int contentY = yPos + DATA_BOX_OFFSET;
+        int contentWidth = dataBoxRegion.width;
+        int contentHeight = dataBoxRegion.height;
+        abilitiesScrollPanel = getAbilityScrollPanel(contentX, contentY, contentWidth, contentHeight);
+        root.addWidget(abilitiesScrollPanel);
+
+        MKLayout footer = createPoolManagementFooter();
+        root.addWidget(footer);
+        return root;
+    }
+
+    private void addSlotGroupWidgets(int xPos, int yPos, int xOffset, MKLayout root) {
         int slotsY = yPos + DATA_BOX_OFFSET - 28;
         int slotsX = xPos + xOffset + 4;
         MKText activesLabel = new MKText(font, new TranslationTextComponent("mkcore.gui.actives"));
@@ -114,22 +143,57 @@ public class PersonalAbilityPage extends AbilityPageBase implements IAbilityScre
         passivesLabel.setY(slotsY - 12);
         root.addWidget(passivesLabel);
         root.addWidget(passiveSlots);
-        int contentX = xPos + xOffset;
-        int contentY = yPos + DATA_BOX_OFFSET;
-        int contentWidth = dataBoxRegion.width;
-        int contentHeight = dataBoxRegion.height;
-        List<MKAbility> abilities = playerData.getAbilities()
-                .getKnownStream()
-                .map(MKAbilityInfo::getAbility)
-                .collect(Collectors.toList());
-        abilitiesScrollPanel = getAbilityScrollPanel(contentX, contentY, contentWidth, contentHeight, abilities);
-        root.addWidget(abilitiesScrollPanel);
-        MKLayout footer = createPoolManagementFooter(playerData);
-        root.addWidget(footer);
-        return root;
     }
 
-    private MKLayout createPoolManagementFooter(MKPlayerData playerData) {
+    @Override
+    protected Collection<MKAbility> getSortedAbilityList() {
+        return currentAbilityList().stream()
+                .sorted(Comparator.comparing(a -> a.getAbilityName().getString()))
+                .collect(Collectors.toList());
+    }
+
+    private List<MKAbility> currentAbilityList() {
+        availableFilters.clear();
+        availableFilters.add(AbilityFilter.All);
+
+        Set<AbilityType> knownTypes = new HashSet<>();
+        List<MKAbility> knownAbilities = playerData.getAbilities()
+                .getKnownStream()
+                .map(info -> {
+                    knownTypes.add(info.getAbility().getType());
+                    return info.getAbility();
+                }).collect(Collectors.toList());
+        if (knownTypes.contains(AbilityType.Basic))
+            availableFilters.add(AbilityFilter.Basic);
+        if (knownTypes.contains(AbilityType.Passive))
+            availableFilters.add(AbilityFilter.Passive);
+        if (knownTypes.contains(AbilityType.Ultimate))
+            availableFilters.add(AbilityFilter.Ultimate);
+
+        if (!availableFilters.contains(currentFilter)) {
+            currentFilter = AbilityFilter.All;
+        }
+        return knownAbilities.stream()
+                .filter(ability -> currentFilter.accepts(ability.getType()))
+                .collect(Collectors.toList());
+    }
+
+    private CycleButton<AbilityFilter> createFilterButton() {
+        CycleButton<AbilityFilter> button = new CycleButton<>(
+                availableFilters,
+                f -> new StringTextComponent("Filter: ").appendSibling(f.getName()),
+                f -> {
+                    currentFilter = f;
+                    if (getSelectedAbility() != null && !currentFilter.accepts(getSelectedAbility().getType())) {
+                        setSelectedAbility(null);
+                    }
+                    flagNeedSetup();
+                });
+        button.setCurrent(currentFilter);
+        return button;
+    }
+
+    private MKLayout createPoolManagementFooter() {
         int xPos = width / 2 - PANEL_WIDTH / 2;
         int yPos = height / 2 - PANEL_HEIGHT / 2;
         int xOffset = GuiTextures.CORE_TEXTURES.getCenterXOffset(getDataBoxTexture(), GuiTextures.BACKGROUND_320_240);
@@ -137,12 +201,16 @@ public class PersonalAbilityPage extends AbilityPageBase implements IAbilityScre
         MKStackLayoutHorizontal layout = new MKStackLayoutHorizontal(xPos + xOffset, yStart, 20);
         layout.setPaddingLeft(16);
         layout.setPaddingRight(16);
-        int marginLeft = 116;
-        layout.setMarginLeft(marginLeft);
-        MKButton manage = createManageButton();
+        layout.setMarginLeft(0);
 
-        IconText poolText = createPoolUsageText(playerData);
+        MKButton filterButton = createFilterButton();
+        filterButton.setWidth(84);
+        layout.addWidget(filterButton);
+
+        IconText poolText = createPoolUsageText();
         layout.addWidget(poolText, new OffsetConstraint(0, 2, false, true));
+
+        MKButton manage = createManageButton();
         layout.addWidget(manage);
         return layout;
 
@@ -163,32 +231,31 @@ public class PersonalAbilityPage extends AbilityPageBase implements IAbilityScre
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int mouseButton) {
         boolean handled = super.mouseReleased(mouseX, mouseY, mouseButton);
-        if (isDraggingAbility) {
-            clearDragging();
+        if (isDraggingAbility()) {
+            stopDraggingAbility();
             clearDragState();
             return true;
         }
         return handled;
     }
 
-
     @Override
-    public boolean shouldAbilityDrag() {
+    public boolean allowsDraggingAbilities() {
         return true;
     }
 
     @Override
-    public void clearDragging() {
+    public void stopDraggingAbility() {
         for (AbilitySlotWidget widget : abilitySlots.values()) {
             widget.setBackgroundColor(0xffffffff);
             widget.setIconColor(0xffffffff);
         }
-        super.clearDragging();
+        super.stopDraggingAbility();
     }
 
     @Override
-    public void setDragging(MKAbility dragging) {
-        super.setDragging(dragging);
+    public void startDraggingAbility(MKAbility dragging) {
+        super.startDraggingAbility(dragging);
         abilitySlots.forEach((key, widget) -> {
             if (!key.group.fitsAbilityType(dragging.getType())) {
                 widget.setBackgroundColor(0xff555555);
