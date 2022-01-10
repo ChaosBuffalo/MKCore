@@ -2,6 +2,10 @@ package com.chaosbuffalo.mkcore.abilities;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
+import com.chaosbuffalo.mkcore.abilities.training.AbilityTrainingRequirement;
+import com.chaosbuffalo.mkcore.abilities.training.requirements.ExperienceLevelRequirement;
+import com.chaosbuffalo.mkcore.abilities.training.requirements.HasEntitlementRequirement;
+import com.chaosbuffalo.mkcore.abilities.training.requirements.HeldItemRequirement;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.PlayerAbilitiesSyncPacket;
 import com.google.gson.Gson;
@@ -19,12 +23,17 @@ import net.minecraftforge.event.OnDatapackSyncEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class AbilityManager extends JsonReloadListener {
     public static final String DEFINITION_FOLDER = "player_abilities";
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
+    public static final Map<ResourceLocation, Function<Dynamic<?>, AbilityTrainingRequirement>> REQ_DESERIALIZERS = new HashMap<>();
 
     public AbilityManager() {
         super(GSON, DEFINITION_FOLDER);
@@ -45,6 +54,15 @@ public class AbilityManager extends JsonReloadListener {
         }
     }
 
+    public static void putAbilityTrainingReqDeserializer(ResourceLocation name, Function<Dynamic<?>, AbilityTrainingRequirement> supplier){
+        REQ_DESERIALIZERS.put(name, supplier);
+    }
+
+    @Nullable
+    public static Function<Dynamic<?>, AbilityTrainingRequirement> getAbilityTrainingReqDeserializer(ResourceLocation name){
+        return REQ_DESERIALIZERS.get(name);
+    }
+
     @SubscribeEvent
     public void onDataPackSync(OnDatapackSyncEvent event) {
         MKCore.LOGGER.debug("AbilityManager.onDataPackSync");
@@ -57,6 +75,12 @@ public class AbilityManager extends JsonReloadListener {
             // sync to playerlist
             PacketHandler.sendToAll(updatePacket);
         }
+    }
+
+    public static void setupDeserializers(){
+        putAbilityTrainingReqDeserializer(ExperienceLevelRequirement.TYPE_NAME, ExperienceLevelRequirement::new);
+        putAbilityTrainingReqDeserializer(HasEntitlementRequirement.TYPE_NAME, HasEntitlementRequirement::new);
+        putAbilityTrainingReqDeserializer(HeldItemRequirement.TYPE_NAME, HeldItemRequirement::new);
     }
 
     private boolean parse(ResourceLocation loc, JsonObject json) {

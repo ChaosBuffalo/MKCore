@@ -74,7 +74,7 @@ public abstract class PlayerPageBase extends MKScreen implements IPlayerDataAwar
 
         public StateSwitcher(PlayerPageBase currentPage, int x, int y) {
             super(x, y, ROW_HEIGHT);
-            setMargins(4, 4, 2, 2);
+            setMargins(2, 2, 1, 1);
             setPaddingLeft(2).setPaddingRight(2);
             for (PlayerPageRegistry.Extension otherPage : PlayerPageRegistry.getAllPages()) {
                 MKButton button = new MKButton(otherPage.getDisplayName());

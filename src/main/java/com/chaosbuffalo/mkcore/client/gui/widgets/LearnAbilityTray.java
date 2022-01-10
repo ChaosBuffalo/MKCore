@@ -75,6 +75,8 @@ public class LearnAbilityTray extends MKStackLayoutVertical {
             addWidget(doesKnowWid);
             MKScrollView reqScrollView = new MKScrollView(0, 0, getWidth(), 40,
                     true);
+            addWidget(reqScrollView);
+            manualRecompute();
             MKStackLayoutVertical reqlayout = new MKStackLayoutVertical(0, 0, getWidth());
             reqlayout.setPaddingBot(1);
             reqlayout.setPaddingTop(1);
@@ -91,10 +93,6 @@ public class LearnAbilityTray extends MKStackLayoutVertical {
                 reqlayout.addWidget(reqText);
             }
             reqlayout.manualRecompute();
-            addWidget(reqScrollView);
-            manualRecompute();
-            reqScrollView.setToTop();
-            reqScrollView.setToRight();
         } else {
             MKText prompt = new MKText(font, I18n.format("mkcore.gui.character.learn_ability_prompt"));
             addWidget(prompt);

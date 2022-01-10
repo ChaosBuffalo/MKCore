@@ -1,10 +1,16 @@
 package com.chaosbuffalo.mkcore.init;
 
 import com.chaosbuffalo.mkcore.MKCore;
+import com.chaosbuffalo.mkcore.fx.particles.IndicatorParticle;
 import com.chaosbuffalo.mkcore.fx.particles.MKParticleData;
 import com.chaosbuffalo.mkcore.fx.particles.ParticleAnimationManager;
 import com.mojang.serialization.Codec;
+import net.minecraft.client.Minecraft;
+import net.minecraft.particles.BasicParticleType;
 import net.minecraft.particles.ParticleType;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.event.ParticleFactoryRegisterEvent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -24,6 +30,8 @@ public class CoreParticles {
     public static ParticleType<MKParticleData> MAGIC_CIRCLE;
     @ObjectHolder("magic_gradient_square")
     public static ParticleType<MKParticleData> MAGIC_GRADIENT_SQUARE;
+    @ObjectHolder("indicator_particle")
+    public static BasicParticleType INDICATOR_PARTICLE;
 
     @SubscribeEvent
     public static void registerParticles(RegistryEvent.Register<ParticleType<?>> evt){
@@ -71,6 +79,11 @@ public class CoreParticles {
         };
         magicGradientSquare.setRegistryName(CoreRegistryNames.MAGIC_GRADIENT_SQUARE_NAME);
         evt.getRegistry().register(magicGradientSquare);
+
+        BasicParticleType indiciatorParticle = new BasicParticleType(true);
+        indiciatorParticle.setRegistryName(MKCore.MOD_ID, "indicator_particle");
+        evt.getRegistry().register(indiciatorParticle);
+
     }
 
     public static void HandleEditorParticleRegistration(){
