@@ -2,10 +2,11 @@ package com.chaosbuffalo.mkcore.client.gui;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
-import com.chaosbuffalo.mkcore.abilities.MKAbilityInfo;
 import com.chaosbuffalo.mkcore.client.gui.widgets.AbilitySlotWidget;
+import com.chaosbuffalo.mkcore.client.gui.widgets.CycleButton;
 import com.chaosbuffalo.mkcore.client.gui.widgets.IconText;
 import com.chaosbuffalo.mkcore.core.AbilityGroupId;
+import com.chaosbuffalo.mkcore.core.AbilityType;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkwidgets.client.gui.constraints.OffsetConstraint;
 import com.chaosbuffalo.mkwidgets.client.gui.layouts.MKLayout;
@@ -15,6 +16,8 @@ import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKText;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKWidget;
 import com.chaosbuffalo.mkwidgets.utils.TextureRegion;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 
 import java.util.*;
@@ -46,7 +49,32 @@ public class PersonalAbilityPage extends AbilityPageBase implements IAbilityScre
         }
     }
 
+    public enum AbilityFilter {
+        All(new StringTextComponent("All"), EnumSet.allOf(AbilityType.class)),
+        Basic(new TranslationTextComponent("mkcore.gui.actives"), EnumSet.of(AbilityType.Basic)),
+        Passive(new TranslationTextComponent("mkcore.gui.passives"), EnumSet.of(AbilityType.Passive)),
+        Ultimate(new TranslationTextComponent("mkcore.gui.ultimates"), EnumSet.of(AbilityType.Ultimate));
+
+        private final ITextComponent name;
+        private final EnumSet<AbilityType> accepting;
+
+        AbilityFilter(ITextComponent name, EnumSet<AbilityType> accepting) {
+            this.name = name;
+            this.accepting = accepting;
+        }
+
+        public boolean accepts(AbilityType t) {
+            return accepting.contains(t);
+        }
+
+        public ITextComponent getName() {
+            return name;
+        }
+    }
+
     private final Map<AbilitySlotKey, AbilitySlotWidget> abilitySlots = new HashMap<>();
+    private final List<AbilityFilter> availableFilters = new ArrayList<>();
+    private AbilityFilter currentFilter = AbilityFilter.All;
 
     public PersonalAbilityPage(MKPlayerData playerData) {
         super(playerData, new TranslationTextComponent("mk_character_screen.title"));
@@ -125,10 +153,44 @@ public class PersonalAbilityPage extends AbilityPageBase implements IAbilityScre
     }
 
     private List<MKAbility> currentAbilityList() {
-        return playerData.getAbilities()
+        availableFilters.clear();
+        availableFilters.add(AbilityFilter.All);
+
+        Set<AbilityType> knownTypes = new HashSet<>();
+        List<MKAbility> knownAbilities = playerData.getAbilities()
                 .getKnownStream()
-                .map(MKAbilityInfo::getAbility)
+                .map(info -> {
+                    knownTypes.add(info.getAbility().getType());
+                    return info.getAbility();
+                }).collect(Collectors.toList());
+        if (knownTypes.contains(AbilityType.Basic))
+            availableFilters.add(AbilityFilter.Basic);
+        if (knownTypes.contains(AbilityType.Passive))
+            availableFilters.add(AbilityFilter.Passive);
+        if (knownTypes.contains(AbilityType.Ultimate))
+            availableFilters.add(AbilityFilter.Ultimate);
+
+        if (!availableFilters.contains(currentFilter)) {
+            currentFilter = AbilityFilter.All;
+        }
+        return knownAbilities.stream()
+                .filter(ability -> currentFilter.accepts(ability.getType()))
                 .collect(Collectors.toList());
+    }
+
+    private CycleButton<AbilityFilter> createFilterButton() {
+        CycleButton<AbilityFilter> button = new CycleButton<>(
+                availableFilters,
+                f -> new StringTextComponent("Filter: ").appendSibling(f.getName()),
+                f -> {
+                    currentFilter = f;
+                    if (getSelectedAbility() != null && !currentFilter.accepts(getSelectedAbility().getType())) {
+                        setSelectedAbility(null);
+                    }
+                    flagNeedSetup();
+                });
+        button.setCurrent(currentFilter);
+        return button;
     }
 
     private MKLayout createPoolManagementFooter() {
@@ -139,8 +201,11 @@ public class PersonalAbilityPage extends AbilityPageBase implements IAbilityScre
         MKStackLayoutHorizontal layout = new MKStackLayoutHorizontal(xPos + xOffset, yStart, 20);
         layout.setPaddingLeft(16);
         layout.setPaddingRight(16);
-        int marginLeft = 116;
-        layout.setMarginLeft(marginLeft);
+        layout.setMarginLeft(0);
+
+        MKButton filterButton = createFilterButton();
+        filterButton.setWidth(84);
+        layout.addWidget(filterButton);
 
         IconText poolText = createPoolUsageText();
         layout.addWidget(poolText, new OffsetConstraint(0, 2, false, true));
