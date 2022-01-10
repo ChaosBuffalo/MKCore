@@ -20,7 +20,7 @@ import net.minecraft.util.text.TranslationTextComponent;
 import javax.annotation.Nonnull;
 import java.util.Comparator;
 
-public class TalentPage extends PlayerPageBase implements ITalentScreen {
+public class TalentPage extends PlayerPageBase {
 
     private TalentTreeWidget talentTreeWidget;
     private TalentTreeRecord currentTree;
@@ -77,7 +77,7 @@ public class TalentPage extends PlayerPageBase implements ITalentScreen {
         talentScrollPanel = new ScrollingListPanelLayout(contentX, contentY, contentWidth, contentHeight);
         talentTreeWidget = new TalentTreeWidget(0, 0,
                 talentScrollPanel.getContentScrollView().getWidth(),
-                talentScrollPanel.getContentScrollView().getHeight(), font);
+                talentScrollPanel.getContentScrollView().getHeight(), font, this::getCurrentTree);
         talentScrollPanel.setContent(talentTreeWidget);
 
         MKStackLayoutVertical stackLayout = new MKStackLayoutVertical(0, 0, talentScrollPanel.getListScrollView().getWidth());
@@ -86,10 +86,10 @@ public class TalentPage extends PlayerPageBase implements ITalentScreen {
         stackLayout.doSetChildWidth(true);
 
         playerData.getTalents().getKnownTrees().stream()
-                .map((loc) -> playerData.getTalents().getTree(loc))
+                .map(treeId -> playerData.getTalents().getTree(treeId))
                 .sorted(Comparator.comparing(info -> info.getTreeDefinition().getName().getString()))
                 .forEach(record -> {
-                    MKLayout talentEntry = new TalentListEntry(0, 0, 16, record, talentTreeWidget, font, this);
+                    MKLayout talentEntry = new TalentListEntry(0, 0, 16, font, this, record);
                     stackLayout.addWidget(talentEntry);
                     MKRectangle div = new MKRectangle(0, 0,
                             talentScrollPanel.getListScrollView().getWidth() - 8, 1, 0x99ffffff);
@@ -119,11 +119,7 @@ public class TalentPage extends PlayerPageBase implements ITalentScreen {
     @Override
     protected void persistState(boolean wasResized) {
         final TalentTreeRecord current = getCurrentTree();
-        addPostSetupCallback(() -> {
-            if (talentTreeWidget != null) {
-                talentTreeWidget.setTreeRecord(current);
-            }
-        });
+        addPostSetupCallback(() -> restoreCurrentTree(current));
         persistScrollingListPanelState(() -> talentScrollPanel, wasResized);
     }
 
@@ -131,7 +127,16 @@ public class TalentPage extends PlayerPageBase implements ITalentScreen {
         return currentTree;
     }
 
-    public void setCurrentTree(TalentTreeRecord currentTree) {
+    private void restoreCurrentTree(TalentTreeRecord currentTree) {
         this.currentTree = currentTree;
+        if (talentTreeWidget != null) {
+            talentTreeWidget.refresh();
+        }
+    }
+
+    public void setCurrentTree(TalentTreeRecord newTree) {
+        restoreCurrentTree(newTree);
+        talentScrollPanel.getContentScrollView().setToRight();
+        talentScrollPanel.getContentScrollView().setToTop();
     }
 }

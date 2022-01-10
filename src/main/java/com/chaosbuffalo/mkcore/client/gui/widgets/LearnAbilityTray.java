@@ -3,16 +3,11 @@ package com.chaosbuffalo.mkcore.client.gui.widgets;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.abilities.training.AbilityTrainingEvaluation;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
-import com.chaosbuffalo.mkcore.network.PacketHandler;
-import com.chaosbuffalo.mkcore.network.PlayerLearnAbilityRequestPacket;
 import com.chaosbuffalo.mkwidgets.client.gui.constraints.LayoutRelativeWidthConstraint;
-import com.chaosbuffalo.mkwidgets.client.gui.instructions.HoveringTextInstruction;
 import com.chaosbuffalo.mkwidgets.client.gui.layouts.MKStackLayoutHorizontal;
 import com.chaosbuffalo.mkwidgets.client.gui.layouts.MKStackLayoutVertical;
-import com.chaosbuffalo.mkwidgets.client.gui.math.Vec2i;
-import com.chaosbuffalo.mkwidgets.client.gui.screens.IMKScreen;
-import com.chaosbuffalo.mkwidgets.client.gui.widgets.*;
-import net.minecraft.client.Minecraft;
+import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKScrollView;
+import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKText;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.ITextComponent;
@@ -60,6 +55,7 @@ public class LearnAbilityTray extends MKStackLayoutVertical {
                     getAbility().getAbilityIcon(), font, 16, 1);
             nameTray.addWidget(abilityName);
             addWidget(nameTray);
+
             boolean isKnown = playerData.getAbilities().knowsAbility(getAbility().getAbilityId());
             boolean canLearn = evaluation.canLearn();
             String knowText;
@@ -73,8 +69,8 @@ public class LearnAbilityTray extends MKStackLayoutVertical {
             MKText doesKnowWid = new MKText(font, knowText);
             doesKnowWid.setWidth(font.getStringWidth(knowText));
             addWidget(doesKnowWid);
-            MKScrollView reqScrollView = new MKScrollView(0, 0, getWidth(), 40,
-                    true);
+
+            MKScrollView reqScrollView = new MKScrollView(0, 0, getWidth(), 36, true);
             addWidget(reqScrollView);
             manualRecompute();
             MKStackLayoutVertical reqlayout = new MKStackLayoutVertical(0, 0, getWidth());
@@ -82,9 +78,9 @@ public class LearnAbilityTray extends MKStackLayoutVertical {
             reqlayout.setPaddingTop(1);
             reqScrollView.addWidget(reqlayout);
             List<ITextComponent> texts = evaluation.getRequirements().stream()
-                    .map((x) -> new StringTextComponent("  - ")
-                            .appendSibling(x.description())
-                            .mergeStyle(x.isMet() ? TextFormatting.DARK_GREEN : TextFormatting.BLACK))
+                    .map(req -> new StringTextComponent("  - ")
+                            .appendSibling(req.description())
+                            .mergeStyle(req.isMet() ? TextFormatting.DARK_GREEN : TextFormatting.BLACK))
                     .collect(Collectors.toList());
             for (ITextComponent text : texts) {
                 MKText reqText = new MKText(font, text);

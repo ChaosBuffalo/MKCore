@@ -1,7 +1,5 @@
 package com.chaosbuffalo.mkcore.client.gui.widgets;
 
-import com.chaosbuffalo.mkcore.abilities.MKAbility;
-import com.chaosbuffalo.mkcore.client.gui.AbilityPanelScreen;
 import com.chaosbuffalo.mkcore.client.gui.IAbilityScreen;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.utils.text.IconTextComponent;
@@ -14,7 +12,6 @@ import net.minecraft.util.text.TranslationTextComponent;
 public class AbilityInfoWidget extends MKStackLayoutVertical {
 
     private final MKPlayerData playerData;
-    private MKAbility ability;
     private final FontRenderer fontRenderer;
     private final IAbilityScreen screen;
 
@@ -24,7 +21,6 @@ public class AbilityInfoWidget extends MKStackLayoutVertical {
         this.screen = screen;
         this.playerData = playerData;
         this.fontRenderer = fontRenderer;
-        ability = null;
         setMargins(6, 6, 6, 6);
         setPaddings(0, 0, 2, 2);
         doSetChildWidth(true);
@@ -32,7 +28,7 @@ public class AbilityInfoWidget extends MKStackLayoutVertical {
     }
 
     private void addDescriptionLine(ITextComponent component) {
-        if (component instanceof IconTextComponent){
+        if (component instanceof IconTextComponent) {
             IconText icon = new IconText(0, 0, 16, component, ((IconTextComponent) component).getIcon(), fontRenderer, 16, 1);
             icon.getText().setColor(0xaaffffff);
             addWidget(icon);
@@ -42,30 +38,22 @@ public class AbilityInfoWidget extends MKStackLayoutVertical {
             text.setMultiline(true);
             addWidget(text);
         }
-
-
     }
 
     public void setup() {
-        if (ability == null) {
+        if (screen.getSelectedAbility() == null) {
             MKText noSelectPrompt = new MKText(fontRenderer, new TranslationTextComponent("mkcore.gui.select_ability"));
             noSelectPrompt.setColor(0xffffffff);
             addWidget(noSelectPrompt);
         } else {
-            IconText abilityIcon = new AbilityIconText(0, 0, 16, fontRenderer, 16, screen, this.ability);
+            IconText abilityIcon = new AbilityIconText(0, 0, 16, fontRenderer, 16, screen, screen.getSelectedAbility());
             addWidget(abilityIcon);
-            ability.buildDescription(playerData, this::addDescriptionLine);
+            screen.getSelectedAbility().buildDescription(playerData, this::addDescriptionLine);
         }
     }
 
-
-    public void setAbility(MKAbility ability) {
-        this.ability = ability;
+    public void refresh() {
         clearWidgets();
         setup();
-    }
-
-    public MKAbility getAbility() {
-        return ability;
     }
 }

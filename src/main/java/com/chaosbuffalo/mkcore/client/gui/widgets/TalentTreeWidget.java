@@ -16,32 +16,31 @@ import net.minecraft.util.text.TranslationTextComponent;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.function.Supplier;
 
 public class TalentTreeWidget extends MKLayout {
-    private TalentTreeRecord treeRecord;
     private final FontRenderer fontRenderer;
     private final int originalWidth;
     private final int originalHeight;
+    private final Supplier<TalentTreeRecord> recordSupplier;
 
     public TalentTreeWidget(int x, int y, int width, int height,
-                            FontRenderer fontRenderer) {
+                            FontRenderer fontRenderer, Supplier<TalentTreeRecord> recordSupplier) {
         super(x, y, width, height);
-        this.treeRecord = null;
         this.fontRenderer = fontRenderer;
         this.originalWidth = width;
         this.originalHeight = height;
+        this.recordSupplier = recordSupplier;
         setMargins(6, 6, 6, 6);
         setup();
     }
 
     public void setup() {
-        if (treeRecord == null) {
+        if (getCurrent() == null) {
             MKText noSelectPrompt = new MKText(fontRenderer,
                     new TranslationTextComponent("mkcore.gui.select_talent_tree"));
-            addConstraintToWidget(MarginConstraint.TOP, noSelectPrompt);
-            addConstraintToWidget(MarginConstraint.LEFT, noSelectPrompt);
             noSelectPrompt.setColor(0xffffffff);
-            addWidget(noSelectPrompt);
+            addWidget(noSelectPrompt, MarginConstraint.TOP, MarginConstraint.LEFT);
             setWidth(originalWidth);
             setHeight(originalHeight);
         } else {
@@ -50,7 +49,7 @@ public class TalentTreeWidget extends MKLayout {
             int talentButtonHeight = TalentButton.HEIGHT;
             int talentButtonWidth = TalentButton.WIDTH;
             int talentButtonYMargin = getMarginTop();
-            Map<String, TalentLineDefinition> lineDefs = treeRecord.getTreeDefinition().getTalentLines();
+            Map<String, TalentLineDefinition> lineDefs = getCurrent().getTreeDefinition().getTalentLines();
             int count = lineDefs.size();
             int talentWidth = talentButtonWidth * count + treeRenderingMarginX + (count - 1) * treeRenderingPaddingX;
             int spacePerColumn = talentWidth / count;
@@ -64,11 +63,11 @@ public class TalentTreeWidget extends MKLayout {
             for (String name : keys) {
                 TalentLineDefinition lineDef = lineDefs.get(name);
                 for (int talentIndex = 0; talentIndex < lineDef.getLength(); talentIndex++) {
-                    TalentRecord record = treeRecord.getNodeRecord(name, talentIndex);
+                    TalentRecord record = getCurrent().getNodeRecord(name, talentIndex);
                     if (record == null) {
                         continue;
                     }
-                    TalentRecord nextRecord = treeRecord.getNodeRecord(name, talentIndex + 1);
+                    TalentRecord nextRecord = getCurrent().getNodeRecord(name, talentIndex + 1);
                     if (nextRecord != null) {
                         int lineColor = nextRecord.isKnown() ? 0x99ffffff : 0xff555555;
                         MKRectangle rect = new MKRectangle(
@@ -104,21 +103,24 @@ public class TalentTreeWidget extends MKLayout {
         TalentButton talentButton = (TalentButton) button;
         if (mouseButton == UIConstants.MOUSE_BUTTON_RIGHT) {
             PacketHandler.sendMessageToServer(new TalentPointActionPacket(
-                    treeRecord.getTreeDefinition().getTreeId(),
+                    getCurrent().getTreeDefinition().getTreeId(),
                     talentButton.line, talentButton.index,
                     TalentPointActionPacket.Action.REFUND));
 
         } else if (mouseButton == UIConstants.MOUSE_BUTTON_LEFT) {
             PacketHandler.sendMessageToServer(new TalentPointActionPacket(
-                    treeRecord.getTreeDefinition().getTreeId(),
+                    getCurrent().getTreeDefinition().getTreeId(),
                     talentButton.line, talentButton.index,
                     TalentPointActionPacket.Action.SPEND));
         }
         return true;
     }
 
-    public void setTreeRecord(TalentTreeRecord treeRecord) {
-        this.treeRecord = treeRecord;
+    private TalentTreeRecord getCurrent() {
+        return recordSupplier.get();
+    }
+
+    public void refresh() {
         clearWidgets();
         setup();
     }

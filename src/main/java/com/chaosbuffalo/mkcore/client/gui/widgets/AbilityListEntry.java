@@ -13,28 +13,24 @@ import net.minecraft.client.gui.FontRenderer;
 
 public class AbilityListEntry extends MKStackLayoutHorizontal {
     private final MKAbility ability;
-    private final AbilityInfoWidget infoWidget;
     private final IAbilityScreen screen;
     private final MKImage icon;
 
 
-    public AbilityListEntry(int x, int y, int height, MKAbility ability, AbilityInfoWidget infoWidget,
-                            FontRenderer font, IAbilityScreen screen) {
+    public AbilityListEntry(int x, int y, int height, FontRenderer font, IAbilityScreen screen, MKAbility ability) {
         super(x, y, height);
         this.ability = ability;
-        this.infoWidget = infoWidget;
         this.screen = screen;
         setPaddingRight(2);
         setPaddingLeft(2);
         icon = new MKImage(0, 0, 16, 16, ability.getAbilityIcon()) {
             @Override
             public boolean onMousePressed(Minecraft minecraft, double mouseX, double mouseY, int mouseButton) {
-                if (screen.shouldAbilityDrag()) {
+                if (screen.allowsDraggingAbilities()) {
                     screen.setDragState(new WidgetHoldingDragState(new MKImage(0, 0, icon.getWidth(),
                             icon.getHeight(), icon.getImageLoc())), this);
-                    screen.setDragging(ability);
-                    infoWidget.setAbility(ability);
-                    screen.setAbility(ability);
+                    screen.startDraggingAbility(ability);
+                    screen.setSelectedAbility(ability);
                     return true;
                 }
                 return false;
@@ -53,15 +49,14 @@ public class AbilityListEntry extends MKStackLayoutHorizontal {
         if (isHovered()) {
             mkFill(matrixStack, x, y, x + width, y + height, 0x55ffffff);
         }
-        if (ability.equals(screen.getAbility())) {
+        if (ability.equals(screen.getSelectedAbility())) {
             mkFill(matrixStack, x, y, x + width, y + height, 0x99ffffff);
         }
     }
 
     @Override
     public boolean onMousePressed(Minecraft minecraft, double mouseX, double mouseY, int mouseButton) {
-        infoWidget.setAbility(ability);
-        screen.setAbility(ability);
+        screen.setSelectedAbility(ability);
         return true;
     }
 }
