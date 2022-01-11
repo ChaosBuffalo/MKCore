@@ -69,7 +69,7 @@ public class HealingRain extends MKAbility {
         int tickSpeed = 5;
         if (castTimeLeft % tickSpeed == 0) {
             int level = 0;
-            MKEffectBuilder<?> heal = NewHealEffect.INSTANCE.builder(castingEntity.getUniqueID())
+            MKEffectBuilder<?> heal = NewHealEffect.INSTANCE.builder(castingEntity)
                     .state(s -> s.setScalingParameters(BASE_AMOUNT, AMOUNT_SCALE))
                     .ability(this)
                     .amplify(level);

@@ -2,16 +2,20 @@ package com.chaosbuffalo.mkcore.effects;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
+import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.utils.MKNBTUtil;
 import com.google.common.reflect.TypeToken;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.gui.AbstractGui;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.util.Lazy;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.UUID;
 
@@ -25,6 +29,12 @@ public class MKActiveEffect {
     private int stackCount;
     @Nullable
     private ResourceLocation abilityId;
+    @Nullable
+    private LivingEntity sourceEntity;
+    @Nullable
+    private Entity directEntity;
+    @Nullable
+    private UUID directUUID;
 
     // Builder
     public MKActiveEffect(MKEffectBuilder<?> builder, MKEffectState state) {
@@ -34,6 +44,11 @@ public class MKActiveEffect {
         stackCount = builder.getInitialStackCount();
         this.state = state;
         abilityId = builder.getAbilityId();
+        sourceEntity = builder.getSourceEntity();
+        directEntity = builder.getDirectEntity();
+        if (directEntity != null) {
+            directUUID = directEntity.getUniqueID();
+        }
     }
 
     // Deserialize
@@ -95,6 +110,48 @@ public class MKActiveEffect {
         stackCount += delta;
     }
 
+    @Nullable
+    public LivingEntity getSourceEntity() {
+        return sourceEntity;
+    }
+
+    public boolean hasSourceEntity() {
+        return getSourceEntity() != null;
+    }
+
+    @Nullable
+    public Entity getDirectEntity() {
+        if (directEntity == null)
+            return sourceEntity;
+        return directEntity;
+    }
+
+    public boolean hasDirectEntity() {
+        return getDirectEntity() != null;
+    }
+
+    public void recoverState(IMKEntityData targetData) {
+        Entity rawSource = findEntity(sourceEntity, getSourceId(), targetData);
+        if (rawSource instanceof LivingEntity) {
+            sourceEntity = (LivingEntity) rawSource;
+        }
+
+        if (directEntity == null && directUUID != null) {
+            directEntity = findEntity(directEntity, directUUID, targetData);
+        }
+    }
+
+    @Nullable
+    protected Entity findEntity(Entity entity, UUID entityId, IMKEntityData targetData) {
+        if (entity != null)
+            return entity;
+        World world = targetData.getEntity().getEntityWorld();
+        if (!world.isRemote()) {
+            return ((ServerWorld) world).getEntityByUuid(entityId);
+        }
+        return null;
+    }
+
     public CompoundNBT serializeClient() {
         CompoundNBT stateTag = new CompoundNBT();
         stateTag.put("state", serializeState());
@@ -119,6 +176,9 @@ public class MKActiveEffect {
         if (abilityId != null) {
             stateTag.putString("abilityId", abilityId.toString());
         }
+        if (directUUID != null) {
+            stateTag.putUniqueId("directEntity", directUUID);
+        }
         return stateTag;
     }
 
@@ -130,6 +190,9 @@ public class MKActiveEffect {
         }
         if (stateTag.contains("state")) {
             state.deserializeStorage(stateTag.getCompound("state"));
+        }
+        if (stateTag.contains("directEntity")) {
+            directUUID = stateTag.getUniqueId("directEntity");
         }
     }
 

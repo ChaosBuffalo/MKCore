@@ -5,7 +5,6 @@ import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.effects.*;
 import com.chaosbuffalo.mkcore.init.CoreSounds;
 import com.chaosbuffalo.mkcore.utils.SoundUtils;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MobEntity;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
@@ -28,8 +27,8 @@ public class StunEffect extends MKEffect {
         addAttribute(Attributes.MOVEMENT_SPEED, MODIFIER_ID, -1, AttributeModifier.Operation.MULTIPLY_TOTAL);
     }
 
-    public static MKEffectBuilder<?> from(Entity source) {
-        return INSTANCE.builder(source.getUniqueID());
+    public static MKEffectBuilder<?> from(LivingEntity source) {
+        return INSTANCE.builder(source);
     }
 
     @Override

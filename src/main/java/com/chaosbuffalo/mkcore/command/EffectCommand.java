@@ -5,6 +5,7 @@ import com.chaosbuffalo.mkcore.effects.MKActiveEffect;
 import com.chaosbuffalo.mkcore.effects.MKEffectBuilder;
 import com.chaosbuffalo.mkcore.effects.instant.MKAbilityDamageEffect;
 import com.chaosbuffalo.mkcore.init.CoreDamageTypes;
+import com.chaosbuffalo.mkcore.test.effects.NewHealEffect;
 import com.chaosbuffalo.mkcore.utils.ChatUtils;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -73,20 +74,22 @@ public class EffectCommand {
     static int testEffects(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().asPlayer();
 
-        UUID source = UUID.randomUUID();
-//        UUID source = player.getUniqueID();
+//        UUID source = UUID.randomUUID();
+        UUID source = player.getUniqueID();
         MKCore.getPlayer(player).ifPresent(playerData -> {
             MKEffectBuilder<?> newInstance;
-//            newInstance = NewHealEffect.INSTANCE.builder(UUID.randomUUID()).configure(1, 2);
+            newInstance = NewHealEffect.INSTANCE.builder(source)
+                    .state(s -> s.setScalingParameters(3, 1))
+                    .periodic(20);
 //            newInstance = TestFallCountingEffect.INSTANCE.builder(UUID.randomUUID());
 //            newInstance = AbilityMagicDamageEffectNew.INSTANCE.builder(player.getUniqueID()).state(s -> {
 //                s.base = 1;
 //                s.scale = 1;
 //            }).periodic(40);
-            newInstance = MKAbilityDamageEffect.INSTANCE.builder(source).state(s -> {
-                s.damageType = CoreDamageTypes.FireDamage;
-                s.setScalingParameters(1, 1);
-            }).periodic(20);
+//            newInstance = MKAbilityDamageEffect.INSTANCE.builder(player).state(s -> {
+//                s.setDamageType(CoreDamageTypes.FireDamage);
+//                s.setScalingParameters(1, 0);
+//            }).periodic(20);
             newInstance.timed(200);
 //            newInstance.infinite();
             ChatUtils.sendMessage(player, "Adding effect with UUID %s", newInstance.getSourceId());

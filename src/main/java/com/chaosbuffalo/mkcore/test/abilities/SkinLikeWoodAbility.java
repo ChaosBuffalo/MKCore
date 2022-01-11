@@ -37,7 +37,7 @@ public class SkinLikeWoodAbility extends MKToggleAbility {
     public void applyEffect(LivingEntity castingEntity, IMKEntityData casterData) {
         super.applyEffect(castingEntity, casterData);
 
-        MKEffectBuilder<?> instance = getToggleEffect().builder(castingEntity.getUniqueID())
+        MKEffectBuilder<?> instance = getToggleEffect().builder(castingEntity)
                 .amplify(2)
                 .infinite();
         casterData.getEffects().addEffect(instance);

@@ -5,6 +5,7 @@ import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.targeting_api.Targeting;
 import com.chaosbuffalo.targeting_api.TargetingContext;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.Attribute;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.AttributeModifierManager;
@@ -86,13 +87,18 @@ public abstract class MKEffect extends ForgeRegistryEntry<MKEffect> {
         MKCore.LOGGER.debug("MKEffect.onInstanceLoaded {}", activeInstance);
     }
 
-    // Entity is about to be added to the world
+    // Entity is about to be added to the world, but has NOT been added to the UUID map
+    // Do not attempt to locate other entities here
     public void onInstanceReady(IMKEntityData targetData, MKActiveEffect activeInstance) {
         MKCore.LOGGER.debug("MKEffect.onInstanceReady {}", activeInstance);
     }
 
     public MKEffectBuilder<?> builder(UUID sourceId) {
         return new MKEffectBuilder<>(this, sourceId, this::makeState);
+    }
+
+    public MKEffectBuilder<?> builder(LivingEntity sourceEntity) {
+        return new MKEffectBuilder<>(this, sourceEntity, this::makeState);
     }
 
     public abstract MKEffectState makeState();

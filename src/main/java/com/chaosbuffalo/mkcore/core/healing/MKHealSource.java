@@ -38,7 +38,7 @@ public class MKHealSource {
         return new MKHealSource(abilityId, immediateSource, trueSource, CoreDamageTypes.HolyDamage, modifierScaling);
     }
 
-    public static MKHealSource getNatureHeal(ResourceLocation abilityId, Entity source,
+    public static MKHealSource getNatureHeal(ResourceLocation abilityId, @Nullable Entity source,
                                              @Nullable Entity trueSourceIn, float modifierScaling) {
         return new MKHealSource(abilityId, source, trueSourceIn, CoreDamageTypes.NatureDamage, modifierScaling);
     }

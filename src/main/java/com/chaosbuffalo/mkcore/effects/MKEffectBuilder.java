@@ -2,8 +2,11 @@ package com.chaosbuffalo.mkcore.effects;
 
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.ResourceLocation;
 
+import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -16,6 +19,10 @@ public class MKEffectBuilder<T extends MKEffectState> {
     private final MKEffectBehaviour behaviour;
     private final Supplier<T> stateFactory;
     private int baseStackCount;
+    @Nullable
+    private LivingEntity sourceEntity;
+    @Nullable
+    private Entity directEntity;
     private Consumer<T> configureState;
     private ResourceLocation abilityId = MKCoreRegistry.INVALID_ABILITY;
 
@@ -25,6 +32,11 @@ public class MKEffectBuilder<T extends MKEffectState> {
         baseStackCount = 1;
         behaviour = new MKEffectBehaviour();
         this.stateFactory = stateFactory;
+    }
+
+    public MKEffectBuilder(MKEffect effect, LivingEntity sourceEntity, Supplier<T> stateFactory) {
+        this(effect, sourceEntity.getUniqueID(), stateFactory);
+        this.sourceEntity = sourceEntity;
     }
 
     public MKEffect getEffect() {
@@ -44,7 +56,9 @@ public class MKEffectBuilder<T extends MKEffectState> {
     }
 
     public MKEffectBuilder<T> ability(MKAbility ability) {
-        this.abilityId = ability.getAbilityId();
+        if (ability != null) {
+            this.abilityId = ability.getAbilityId();
+        }
         return this;
     }
 
@@ -86,6 +100,26 @@ public class MKEffectBuilder<T extends MKEffectState> {
     public MKEffectBuilder<T> temporary() {
         behaviour.setTemporary();
         return this;
+    }
+
+    public MKEffectBuilder<T> sourceEntity(LivingEntity entity) {
+        sourceEntity = entity;
+        return this;
+    }
+
+    public MKEffectBuilder<T> directEntity(Entity entity) {
+        directEntity = entity;
+        return this;
+    }
+
+    @Nullable
+    public Entity getDirectEntity() {
+        return directEntity;
+    }
+
+    @Nullable
+    public LivingEntity getSourceEntity() {
+        return sourceEntity;
     }
 
     public MKEffectBuilder<T> state(Consumer<T> configure) {

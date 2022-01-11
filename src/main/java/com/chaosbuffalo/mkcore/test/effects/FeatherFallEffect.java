@@ -2,7 +2,6 @@ package com.chaosbuffalo.mkcore.test.effects;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.effects.*;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.potion.EffectType;
@@ -18,8 +17,8 @@ public class FeatherFallEffect extends MKEffect {
 
     public static final FeatherFallEffect INSTANCE = new FeatherFallEffect();
 
-    public static MKEffectBuilder<?> from(Entity source) {
-        return INSTANCE.builder(source.getUniqueID());
+    public static MKEffectBuilder<?> from(LivingEntity source) {
+        return INSTANCE.builder(source);
     }
 
     private FeatherFallEffect() {

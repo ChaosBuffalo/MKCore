@@ -18,12 +18,17 @@ public class AreaEffectBuilder {
         areaEffectCloud.setOwner(caster);
     }
 
+    @Deprecated
     public static AreaEffectBuilder Create(LivingEntity caster, Entity center) {
         return new AreaEffectBuilder(caster, center);
     }
 
+    public static AreaEffectBuilder createOnEntity(LivingEntity caster, Entity center) {
+        return new AreaEffectBuilder(caster, center);
+    }
+
     public static AreaEffectBuilder createOnCaster(LivingEntity caster) {
-        return Create(caster, caster);
+        return createOnEntity(caster, caster);
     }
 
     public AreaEffectBuilder instant() {

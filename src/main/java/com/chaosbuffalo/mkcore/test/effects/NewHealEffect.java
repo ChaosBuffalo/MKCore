@@ -8,7 +8,6 @@ import com.chaosbuffalo.mkcore.effects.MKActiveEffect;
 import com.chaosbuffalo.mkcore.effects.MKEffect;
 import com.chaosbuffalo.mkcore.effects.MKEffectBuilder;
 import com.chaosbuffalo.mkcore.effects.ScalingValueEffectState;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.potion.EffectType;
 import net.minecraftforge.event.RegistryEvent;
@@ -41,22 +40,33 @@ public class NewHealEffect extends MKEffect {
     }
 
     @Override
+    public MKEffectBuilder<State> builder(LivingEntity sourceEntity) {
+        return new MKEffectBuilder<>(this, sourceEntity, this::makeState);
+    }
+
+    @Override
     public State makeState() {
         return new State();
     }
 
     public static class State extends ScalingValueEffectState {
-        private Entity source;
 
         @Override
-        public boolean performEffect(IMKEntityData targetData, MKActiveEffect instance) {
-            source = findEntity(source, instance.getSourceId(), targetData);
-//            MKCore.LOGGER.info("NewHealEffect.performEffect trying to recover source {} = {}", sourceId, source);
+        public boolean performEffect(IMKEntityData targetData, MKActiveEffect activeEffect) {
+            if (activeEffect.getSourceEntity() == null) {
+                MKCore.LOGGER.debug("NewHealEffect.performEffect before trying to recover source {} = {} {}",
+                        activeEffect.getSourceId(), activeEffect.getSourceEntity(), activeEffect.getDirectEntity());
+                activeEffect.recoverState(targetData);
+                MKCore.LOGGER.debug("NewHealEffect.performEffect after trying to recover source {} = {} {}",
+                        activeEffect.getSourceId(), activeEffect.getSourceEntity(), activeEffect.getDirectEntity());
+            }
 
             LivingEntity target = targetData.getEntity();
-            float value = getScaledValue(instance.getStackCount());
-            MKCore.LOGGER.info("NewHealEffect.performEffect {} on {} from {} {}", value, target, source, instance);
-            MKHealSource heal = MKHealSource.getHolyHeal(instance.getAbilityId(), source, getModifierScale());
+            float value = getScaledValue(activeEffect.getStackCount());
+            MKCore.LOGGER.debug("NewHealEffect.performEffect {} on {} from {} {}", value, target,
+                    activeEffect.getSourceEntity(), activeEffect);
+            MKHealSource heal = MKHealSource.getHolyHeal(activeEffect.getAbilityId(), activeEffect.getDirectEntity(),
+                    activeEffect.getSourceEntity(), getModifierScale());
             MKHealing.healEntityFrom(target, value, heal);
             return true;
         }

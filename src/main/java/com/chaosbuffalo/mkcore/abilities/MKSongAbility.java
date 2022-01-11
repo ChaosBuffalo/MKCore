@@ -46,7 +46,7 @@ public abstract class MKSongAbility extends MKToggleAbility {
     }
 
     public MKActiveEffect createSustainEffect(IMKEntityData casterData) {
-        return getSustainEffect().builder(casterData.getEntity().getUniqueID())
+        return getSustainEffect().builder(casterData.getEntity())
                 .ability(this)
                 .periodic(getSustainEffectTicks())
                 .infinite()
@@ -54,7 +54,7 @@ public abstract class MKSongAbility extends MKToggleAbility {
     }
 
     public MKActiveEffect createPulseEffect(IMKEntityData casterData) {
-        return getPulseEffect().builder(casterData.getEntity().getUniqueID())
+        return getPulseEffect().builder(casterData.getEntity())
                 .ability(this)
                 .periodic(getPulseEffectTicks())
                 .timed(getSustainEffectTicks())

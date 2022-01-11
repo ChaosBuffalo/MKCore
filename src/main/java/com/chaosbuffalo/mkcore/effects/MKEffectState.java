@@ -3,6 +3,7 @@ package com.chaosbuffalo.mkcore.effects;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
@@ -22,7 +23,6 @@ public abstract class MKEffectState {
             return newValue;
         return Math.min(maxStacks, newValue);
     }
-
 
     public void combine(MKActiveEffect existing, MKActiveEffect otherInstance) {
         MKCore.LOGGER.debug("MKEffectState.combine {} + {}", existing, otherInstance);
@@ -44,6 +44,7 @@ public abstract class MKEffectState {
         this.maxStacks = max;
     }
 
+    @Deprecated
     @Nullable
     protected Entity findEntity(Entity entity, UUID entityId, World world) {
         if (entity != null)
@@ -54,6 +55,7 @@ public abstract class MKEffectState {
         return null;
     }
 
+    @Deprecated
     @Nullable
     protected Entity findEntity(Entity entity, UUID entityId, IMKEntityData targetData) {
         return findEntity(entity, entityId, targetData.getEntity().getEntityWorld());

@@ -1,14 +1,14 @@
 package com.chaosbuffalo.mkcore.effects.instant;
 
 import com.chaosbuffalo.mkcore.MKCore;
-import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.core.damage.MKDamageSource;
 import com.chaosbuffalo.mkcore.core.damage.MKDamageType;
-import com.chaosbuffalo.mkcore.effects.*;
-import com.chaosbuffalo.mkcore.utils.MKNBTUtil;
-import net.minecraft.entity.Entity;
-import net.minecraft.nbt.CompoundNBT;
+import com.chaosbuffalo.mkcore.effects.MKActiveEffect;
+import com.chaosbuffalo.mkcore.effects.MKEffect;
+import com.chaosbuffalo.mkcore.effects.MKEffectBuilder;
+import com.chaosbuffalo.mkcore.effects.ScalingValueEffectState;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.potion.EffectType;
 import net.minecraft.util.DamageSource;
 import net.minecraftforge.event.RegistryEvent;
@@ -26,11 +26,12 @@ public class MKAbilityDamageEffect extends MKEffect {
         setRegistryName(MKCore.makeRL("effect.ability_damage"));
     }
 
-    public static MKEffectBuilder<State> from(Entity source, MKDamageType damageType, float baseDamage, float scaling, float modifierScaling) {
-        return INSTANCE.builder(source.getUniqueID()).state(s -> {
-                    s.damageType = damageType;
-                    s.setScalingParameters(baseDamage, scaling, modifierScaling);
-                });
+    public static MKEffectBuilder<State> from(LivingEntity source, MKDamageType damageType, float baseDamage,
+                                              float scaling, float modifierScaling) {
+        return INSTANCE.builder(source).state(s -> {
+            s.setDamageType(damageType);
+            s.setScalingParameters(baseDamage, scaling, modifierScaling);
+        });
     }
 
     @Override
@@ -43,12 +44,12 @@ public class MKAbilityDamageEffect extends MKEffect {
         return new MKEffectBuilder<>(this, sourceId, this::makeState);
     }
 
-    public static class State extends ScalingValueEffectState {
-        // Serialized
-        public MKDamageType damageType;
+    @Override
+    public MKEffectBuilder<State> builder(LivingEntity sourceEntity) {
+        return new MKEffectBuilder<>(this, sourceEntity, this::makeState);
+    }
 
-        // Non-serialized
-        public Entity source;
+    public static class State extends ScalingValueEffectState {
 
         @Override
         public boolean validateOnLoad(MKActiveEffect activeEffect) {
@@ -61,27 +62,15 @@ public class MKAbilityDamageEffect extends MKEffect {
         }
 
         @Override
-        public boolean performEffect(IMKEntityData targetData, MKActiveEffect instance) {
-            source = findEntity(source, instance.getSourceId(), targetData);
+        public boolean performEffect(IMKEntityData targetData, MKActiveEffect activeEffect) {
+            MKCore.LOGGER.info("MKAD {} {}", activeEffect.getSourceEntity(), activeEffect.getDirectEntity());
 
-            DamageSource damage = MKDamageSource.causeAbilityDamage(damageType, instance.getAbilityId(),
-                    source, source, getModifierScale());
+            DamageSource damage = MKDamageSource.causeAbilityDamage(damageType, activeEffect.getAbilityId(),
+                    activeEffect.getDirectEntity(), activeEffect.getSourceEntity(), getModifierScale());
 
-            float value = getScaledValue(instance.getStackCount());
+            float value = getScaledValue(activeEffect.getStackCount());
             targetData.getEntity().attackEntityFrom(damage, value);
             return true;
-        }
-
-        @Override
-        public void serializeStorage(CompoundNBT stateTag) {
-            super.serializeStorage(stateTag);
-            MKNBTUtil.writeResourceLocation(stateTag, "damageType", damageType.getId());
-        }
-
-        @Override
-        public void deserializeStorage(CompoundNBT stateTag) {
-            super.deserializeStorage(stateTag);
-            damageType = MKCoreRegistry.getDamageType(MKNBTUtil.readResourceLocation(stateTag, "damageType"));
         }
     }
 

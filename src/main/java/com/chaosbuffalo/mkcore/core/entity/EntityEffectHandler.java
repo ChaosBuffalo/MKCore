@@ -188,11 +188,11 @@ public class EntityEffectHandler {
 
         public INBT serializeStorage() {
             ListNBT list = new ListNBT();
-            activeEffectMap.forEach(((effect, activeEffect) -> {
+            activeEffectMap.forEach((effect, activeEffect) -> {
                 if (!activeEffect.getBehaviour().isTemporary()) {
                     list.add(activeEffect.serializeStorage());
                 }
-            }));
+            });
 
             return list;
         }

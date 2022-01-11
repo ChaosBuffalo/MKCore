@@ -3,7 +3,7 @@ package com.chaosbuffalo.mkcore.effects.instant;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.effects.*;
-import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.potion.EffectType;
 import net.minecraft.util.DamageSource;
 import net.minecraftforge.event.RegistryEvent;
@@ -21,8 +21,8 @@ public class AbilityMagicDamageEffect extends MKEffect {
         setRegistryName(MKCore.makeRL("effect.ability_magic_damage"));
     }
 
-    public static MKEffectBuilder<State> from(Entity source, float baseDamage, float scaling, float modifierScaling) {
-        return INSTANCE.builder(source.getUniqueID()).state(s -> s.setScalingParameters(baseDamage, scaling, modifierScaling));
+    public static MKEffectBuilder<State> from(LivingEntity source, float baseDamage, float scaling, float modifierScaling) {
+        return INSTANCE.builder(source).state(s -> s.setScalingParameters(baseDamage, scaling, modifierScaling));
     }
 
     @Override
@@ -35,21 +35,24 @@ public class AbilityMagicDamageEffect extends MKEffect {
         return new MKEffectBuilder<>(this, sourceId, this::makeState);
     }
 
+    @Override
+    public MKEffectBuilder<State> builder(LivingEntity sourceEntity) {
+        return new MKEffectBuilder<>(this, sourceEntity, this::makeState);
+    }
+
     public static class State extends ScalingValueEffectState {
-        private Entity source;
 
         @Override
-        public boolean performEffect(IMKEntityData targetData, MKActiveEffect instance) {
-            source = findEntity(source, instance.getSourceId(), targetData);
+        public boolean performEffect(IMKEntityData targetData, MKActiveEffect activeEffect) {
 
             DamageSource damage;
-            if (source != null) {
-                damage = DamageSource.causeIndirectMagicDamage(source, source);
+            if (activeEffect.getDirectEntity() != null) {
+                damage = DamageSource.causeIndirectMagicDamage(activeEffect.getDirectEntity(), activeEffect.getSourceEntity());
             } else {
                 damage = DamageSource.MAGIC;
             }
 
-            float value = getScaledValue(instance.getStackCount());
+            float value = getScaledValue(activeEffect.getStackCount());
             targetData.getEntity().attackEntityFrom(damage, value);
             return true;
         }

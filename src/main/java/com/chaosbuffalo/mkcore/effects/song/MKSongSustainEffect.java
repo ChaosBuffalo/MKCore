@@ -31,6 +31,11 @@ public abstract class MKSongSustainEffect extends MKEffect {
         return new MKEffectBuilder<>(this, sourceId, this::makeState);
     }
 
+    @Override
+    public MKEffectBuilder<?> builder(LivingEntity sourceEntity) {
+        return new MKEffectBuilder<>(this, sourceEntity, this::makeState);
+    }
+
     public static class SongSustainState extends MKSongStateBase {
 
         @Override

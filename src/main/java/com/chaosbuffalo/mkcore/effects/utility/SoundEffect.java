@@ -4,7 +4,7 @@ import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.effects.*;
 import com.chaosbuffalo.mkcore.utils.SoundUtils;
-import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.potion.EffectType;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
@@ -24,12 +24,12 @@ public class SoundEffect extends MKEffect {
         setRegistryName("effect.sound_effect");
     }
 
-    public static MKEffectBuilder<?> from(Entity source, SoundEvent event, float pitch, float volume,
+    public static MKEffectBuilder<?> from(LivingEntity source, SoundEvent event, float pitch, float volume,
                                           SoundCategory cat) {
-        return INSTANCE.builder(source.getUniqueID()).state(s -> s.setup(event, pitch, volume, cat));
+        return INSTANCE.builder(source).state(s -> s.setup(event, pitch, volume, cat));
     }
 
-    public static MKEffectBuilder<?> from(Entity source, SoundEvent event, SoundCategory cat) {
+    public static MKEffectBuilder<?> from(LivingEntity source, SoundEvent event, SoundCategory cat) {
         return from(source, event, 1f, 1f, cat);
     }
 
@@ -41,6 +41,11 @@ public class SoundEffect extends MKEffect {
     @Override
     public MKEffectBuilder<State> builder(UUID sourceId) {
         return new MKEffectBuilder<>(this, sourceId, this::makeState);
+    }
+
+    @Override
+    public MKEffectBuilder<State> builder(LivingEntity sourceEntity) {
+        return new MKEffectBuilder<>(this, sourceEntity, this::makeState);
     }
 
     public static class State extends MKEffectState {

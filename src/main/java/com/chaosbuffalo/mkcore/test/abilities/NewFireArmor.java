@@ -72,7 +72,7 @@ public class NewFireArmor extends MKAbility {
 
         EffectInstance fireResistanceEffect = new EffectInstance(Effects.FIRE_RESISTANCE, duration, level, false, true);
 
-        MKEffectBuilder<?> newFireEffect = NewFireArmorEffect.INSTANCE.builder(castingEntity.getUniqueID())
+        MKEffectBuilder<?> newFireEffect = NewFireArmorEffect.INSTANCE.builder(castingEntity)
                 .ability(this)
                 .timed(duration)
                 .amplify(level);

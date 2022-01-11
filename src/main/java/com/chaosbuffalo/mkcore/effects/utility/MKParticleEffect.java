@@ -10,6 +10,7 @@ import com.chaosbuffalo.mkcore.network.MKParticleEffectSpawnPacket;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.utils.MKNBTUtil;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.potion.EffectType;
 import net.minecraft.util.ResourceLocation;
@@ -28,8 +29,8 @@ public class MKParticleEffect extends MKEffect {
         setRegistryName("effect.mk_particle");
     }
 
-    public static MKEffectBuilder<?> from(Entity source, ResourceLocation animName, boolean includeSelf, Vector3d location) {
-        return INSTANCE.builder(source.getUniqueID()).state(s -> s.setup(animName, includeSelf, location));
+    public static MKEffectBuilder<?> from(LivingEntity source, ResourceLocation animName, boolean includeSelf, Vector3d location) {
+        return INSTANCE.builder(source).state(s -> s.setup(animName, includeSelf, location));
     }
 
     @Override
@@ -40,6 +41,11 @@ public class MKParticleEffect extends MKEffect {
     @Override
     public MKEffectBuilder<State> builder(UUID sourceId) {
         return new MKEffectBuilder<>(this, sourceId, this::makeState);
+    }
+
+    @Override
+    public MKEffectBuilder<State> builder(LivingEntity sourceEntity) {
+        return new MKEffectBuilder<>(this, sourceEntity, this::makeState);
     }
 
     public static class State extends MKEffectState {

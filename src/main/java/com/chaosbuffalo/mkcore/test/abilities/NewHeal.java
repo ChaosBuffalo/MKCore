@@ -84,7 +84,7 @@ public class NewHeal extends MKAbility {
         int level = getSkillLevel(castingEntity, MKAttributes.RESTORATION);
         context.getMemory(MKAbilityMemories.ABILITY_TARGET).ifPresent(targetEntity -> {
             MKCore.getEntityData(targetEntity).ifPresent(targetData -> {
-                MKEffectBuilder<?> heal = NewHealEffect.INSTANCE.builder(castingEntity.getUniqueID())
+                MKEffectBuilder<?> heal = NewHealEffect.INSTANCE.builder(castingEntity)
                         .ability(this)
                         .state(s -> s.setScalingParameters(base.value(), scale.value()))
                         .timed(200)

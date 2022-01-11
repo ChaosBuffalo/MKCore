@@ -6,6 +6,7 @@ import com.chaosbuffalo.mkcore.effects.*;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.ParticleEffectSpawnPacket;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.particles.IParticleData;
 import net.minecraft.potion.EffectType;
 import net.minecraft.util.math.vector.Vector3d;
@@ -23,10 +24,10 @@ public class MKOldParticleEffect extends MKEffect {
         setRegistryName("effect.old_particle");
     }
 
-    public static MKEffectBuilder<?> from(Entity source, IParticleData particleId, int motionType, boolean includeSelf,
+    public static MKEffectBuilder<?> from(LivingEntity source, IParticleData particleId, int motionType, boolean includeSelf,
                                           Vector3d radius, Vector3d offsets, int particleCount, int particleData,
                                           double particleSpeed) {
-        return INSTANCE.builder(source.getUniqueID()).state(s ->
+        return INSTANCE.builder(source).state(s ->
                 s.setup(source, particleId, motionType, radius, offsets, particleCount, particleData, particleSpeed, includeSelf));
     }
 
@@ -38,6 +39,11 @@ public class MKOldParticleEffect extends MKEffect {
     @Override
     public MKEffectBuilder<State> builder(UUID sourceId) {
         return new MKEffectBuilder<>(this, sourceId, this::makeState);
+    }
+
+    @Override
+    public MKEffectBuilder<State> builder(LivingEntity sourceEntity) {
+        return new MKEffectBuilder<>(this, sourceEntity, this::makeState);
     }
 
     public static class State extends MKEffectState {
