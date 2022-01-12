@@ -44,6 +44,10 @@ public class AbilityCommand {
                         .then(Commands.argument("ability", AbilityIdArgument.ability())
                                 .suggests(AbilityCommand::suggestForgettableAbilities)
                                 .executes(AbilityCommand::unlearnAbility)))
+                .then(Commands.literal("learn_all")
+                        .executes(AbilityCommand::learnAllAbilities))
+                .then(Commands.literal("unlearn_all")
+                        .executes(AbilityCommand::unlearnAllAbilities))
                 .then(Commands.literal("list")
                         .executes(AbilityCommand::listAbilities))
                 .then(Commands.literal("pool_size")
@@ -104,6 +108,27 @@ public class AbilityCommand {
         if (ability != null) {
             MKCore.getPlayer(player).ifPresent(cap -> cap.getAbilities().learnAbility(ability, AbilitySource.decode(type, "")));
         }
+
+        return Command.SINGLE_SUCCESS;
+    }
+
+    static int learnAllAbilities(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
+        ServerPlayerEntity player = ctx.getSource().asPlayer();
+
+        MKCore.getPlayer(player).ifPresent(playerData ->
+                MKCoreRegistry.ABILITIES.forEach(ability ->
+                        playerData.getAbilities().learnAbility(ability, AbilitySource.ADMIN)));
+
+        return Command.SINGLE_SUCCESS;
+    }
+
+    static int unlearnAllAbilities(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
+        ServerPlayerEntity player = ctx.getSource().asPlayer();
+
+        MKCore.getPlayer(player).ifPresent(playerData -> {
+            List<MKAbilityInfo> allAbilities = new ArrayList<>(playerData.getAbilities().getAllAbilities());
+            allAbilities.forEach(info -> playerData.getAbilities().unlearnAbility(info.getId(), AbilitySource.ADMIN));
+        });
 
         return Command.SINGLE_SUCCESS;
     }
