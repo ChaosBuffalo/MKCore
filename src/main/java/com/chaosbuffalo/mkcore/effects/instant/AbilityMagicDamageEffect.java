@@ -52,7 +52,7 @@ public class AbilityMagicDamageEffect extends MKEffect {
                 damage = DamageSource.MAGIC;
             }
 
-            float value = getScaledValue(activeEffect.getStackCount());
+            float value = getScaledValue(activeEffect.getStackCount(), activeEffect.getSkillLevel());
             targetData.getEntity().attackEntityFrom(damage, value);
             return true;
         }

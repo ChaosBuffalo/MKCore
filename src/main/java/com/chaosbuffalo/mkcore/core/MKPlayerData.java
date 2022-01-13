@@ -1,6 +1,7 @@
 package com.chaosbuffalo.mkcore.core;
 
 import com.chaosbuffalo.mkcore.MKCore;
+import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.core.editor.PlayerEditorModule;
 import com.chaosbuffalo.mkcore.core.persona.IPersonaExtension;
 import com.chaosbuffalo.mkcore.core.persona.PersonaManager;
@@ -25,6 +26,7 @@ public class MKPlayerData implements IMKEntityData {
     private final PlayerCombatExtensionModule combatExtensionModule;
     private final PlayerEditorModule editorModule;
     private final PlayerEffectHandler effectHandler;
+    private final PlayerSkills skills;
 
     public MKPlayerData(PlayerEntity playerEntity) {
         player = Objects.requireNonNull(playerEntity);
@@ -38,15 +40,28 @@ public class MKPlayerData implements IMKEntityData {
 
         animationModule = new PlayerAnimationModule(this);
         abilityExecutor.setStartCastCallback(animationModule::startCast);
-        abilityExecutor.setCompleteAbilityCallback(animationModule::endCast);
+        abilityExecutor.setCompleteAbilityCallback(this::completeAbility);
         abilityExecutor.setInterruptCastCallback(animationModule::interruptCast);
         animationModule.getSyncComponent().attach(updateEngine);
+        skills = new PlayerSkills(this);
 
         equipment = new PlayerEquipment(this);
         editorModule = new PlayerEditorModule(this);
         editorModule.getSyncComponent().attach(updateEngine);
 
         effectHandler = new PlayerEffectHandler(this);
+    }
+
+    private void completeAbility(MKAbility ability){
+        animationModule.endCast(ability);
+        if (isServerSide()){
+            skills.onCastAbility(ability);
+        }
+
+    }
+
+    public PlayerSkills getSkills() {
+        return skills;
     }
 
     @Override

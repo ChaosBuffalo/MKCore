@@ -68,7 +68,7 @@ public class MKAbilityDamageEffect extends MKEffect {
             DamageSource damage = MKDamageSource.causeAbilityDamage(damageType, activeEffect.getAbilityId(),
                     activeEffect.getDirectEntity(), activeEffect.getSourceEntity(), getModifierScale());
 
-            float value = getScaledValue(activeEffect.getStackCount());
+            float value = getScaledValue(activeEffect.getStackCount(), activeEffect.getSkillLevel());
             targetData.getEntity().attackEntityFrom(damage, value);
             return true;
         }

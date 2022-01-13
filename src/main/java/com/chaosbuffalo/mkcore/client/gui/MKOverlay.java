@@ -129,7 +129,6 @@ public class MKOverlay {
 
     private void drawBarSlots(MatrixStack matrixStack, AbilityGroupId group, int startSlot, int slotCount, int totalSlots) {
         GuiTextures.CORE_TEXTURES.bind(mc);
-        RenderSystem.disableLighting();
         int xOffset = 0;
         int yOffset = getBarStartY(totalSlots);
         for (int i = startSlot; i < (startSlot + slotCount); i++) {

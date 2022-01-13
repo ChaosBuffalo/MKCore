@@ -28,7 +28,7 @@ public abstract class DamageTypeDotEffect extends MKEffect {
 
         @Override
         public boolean performEffect(IMKEntityData targetData, MKActiveEffect activeEffect) {
-            float damage = getScaledValue(activeEffect.getStackCount());
+            float damage = getScaledValue(activeEffect.getStackCount(), activeEffect.getSkillLevel());
             if (effectName == null && damageType != null) {
                 effectName = String.format("%s.%s.dot", damageType.getId().getNamespace(), damageType.getId().getPath());
             }

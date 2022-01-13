@@ -62,7 +62,7 @@ public class NewHealEffect extends MKEffect {
             }
 
             LivingEntity target = targetData.getEntity();
-            float value = getScaledValue(activeEffect.getStackCount());
+            float value = getScaledValue(activeEffect.getStackCount(), activeEffect.getSkillLevel());
             MKCore.LOGGER.debug("NewHealEffect.performEffect {} on {} from {} {}", value, target,
                     activeEffect.getSourceEntity(), activeEffect);
             MKHealSource heal = MKHealSource.getHolyHeal(activeEffect.getAbilityId(), activeEffect.getDirectEntity(),

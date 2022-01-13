@@ -75,7 +75,7 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
     }
 
     public ITextComponent getDamageDescription(IMKEntityData casterData, MKDamageType damageType, float damage,
-                                               float scale, int level, float modifierScaling) {
+                                               float scale, float level, float modifierScaling) {
         float bonus = casterData.getStats().getDamageTypeBonus(damageType) * modifierScaling;
         float abilityDamage = damage + (scale * level) + bonus;
         IFormattableTextComponent damageStr = StringTextComponent.EMPTY.deepCopy();
@@ -88,7 +88,7 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
     }
 
 
-    protected IFormattableTextComponent formatEffectValue(float damage, float levelScale, int level, float bonus, float scaleMod) {
+    protected IFormattableTextComponent formatEffectValue(float damage, float levelScale, float level, float bonus, float scaleMod) {
         float value = damage + (levelScale * level) + (bonus * scaleMod);
         IFormattableTextComponent damageStr = StringTextComponent.EMPTY.deepCopy();
         damageStr.appendSibling(new StringTextComponent(String.format("%.1f", value)).mergeStyle(TextFormatting.BOLD));
@@ -99,12 +99,12 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
     }
 
     public ITextComponent getHealDescription(IMKEntityData casterData, float value,
-                                             float scale, int level, float modifierScaling) {
+                                             float scale, float level, float modifierScaling) {
         float bonus = casterData.getStats().getHealBonus();
         return formatEffectValue(value, scale, level, bonus, modifierScaling).mergeStyle(TextFormatting.GREEN);
     }
 
-    protected ITextComponent formatManaValue(IMKEntityData casterData, float value, float scale, int level,
+    protected ITextComponent formatManaValue(IMKEntityData casterData, float value, float scale, float level,
                                              float bonus, float modifierScaling) {
         return formatEffectValue(value, scale, level, bonus, modifierScaling).mergeStyle(TextFormatting.BLUE);
     }
@@ -379,12 +379,12 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
         }
     }
 
-    public static int getSkillLevel(LivingEntity castingEntity, Attribute skillAttribute) {
+    public static float getSkillLevel(LivingEntity castingEntity, Attribute skillAttribute) {
         if (skillAttribute == null) {
-            return 0;
+            return 0.0f;
         }
         ModifiableAttributeInstance skill = castingEntity.getAttribute(skillAttribute);
-        return skill != null ? (int) Math.round(skill.getValue()) : 0;
+        return skill != null ? (float) (skill.getValue() / 20.0) : 0.0f;
     }
 
     protected MKAbility addSkillAttribute(Attribute attribute) {
@@ -396,8 +396,8 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
         return Collections.unmodifiableSet(skillAttributes);
     }
 
-    protected int getBuffDuration(IMKEntityData casterData, int level, int base, int scale) {
-        int duration = (base + scale * level) * GameConstants.TICKS_PER_SECOND;
+    protected int getBuffDuration(IMKEntityData casterData, float level, int base, int scale) {
+        int duration = Math.round((base + scale * level) * GameConstants.TICKS_PER_SECOND);
         return MKCombatFormulas.applyBuffDurationModifier(casterData, duration);
     }
 }

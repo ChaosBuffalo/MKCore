@@ -19,6 +19,7 @@ public class MKEffectBuilder<T extends MKEffectState> {
     private final MKEffectBehaviour behaviour;
     private final Supplier<T> stateFactory;
     private int baseStackCount;
+    private float skillLevel;
     @Nullable
     private LivingEntity sourceEntity;
     @Nullable
@@ -55,6 +56,10 @@ public class MKEffectBuilder<T extends MKEffectState> {
         return baseStackCount;
     }
 
+    public float getSkillLevel() {
+        return skillLevel;
+    }
+
     public MKEffectBuilder<T> ability(MKAbility ability) {
         if (ability != null) {
             this.abilityId = ability.getAbilityId();
@@ -73,6 +78,11 @@ public class MKEffectBuilder<T extends MKEffectState> {
 
     public MKEffectBuilder<T> amplify(int level) {
         baseStackCount += level;
+        return this;
+    }
+
+    public MKEffectBuilder<T> skillLevel(float skillLevel){
+        this.skillLevel = skillLevel;
         return this;
     }
 

@@ -207,5 +207,6 @@
   "attribute.name.mk.poise_break_cd": "Poise Break Time",
   "attribute.name.mk.block_efficiency": "Block Efficiency",
   "mkcore.subtitle.attack_cd_reset": "The sound of you swiftly readying your weapon for another strike",
-  "mkcore.subtitle.stun": "The sound of someone getting stunned"
+  "mkcore.subtitle.stun": "The sound of someone getting stunned",
+  "mkcore.skill.increase": "Your %s Skill Increased to %.0f"
 }

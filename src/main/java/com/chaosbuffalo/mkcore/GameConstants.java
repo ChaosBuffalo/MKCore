@@ -17,4 +17,6 @@ public class GameConstants {
     public static final int GLOBAL_COOLDOWN_TICKS = 1 * TICKS_PER_SECOND;
     public static final int DEFAULT_ABILITY_POOL_SIZE = 8;
     public static final int MAX_ABILITY_POOL_SIZE = 20;
+    public static final double SKILL_MAX = 200.0;
+    public static final double NATURAL_SKILL_MAX = 100.0;
 }
