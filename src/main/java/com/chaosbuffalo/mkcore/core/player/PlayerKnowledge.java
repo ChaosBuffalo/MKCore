@@ -13,6 +13,7 @@ public class PlayerKnowledge implements IMKEntityKnowledge, IPlayerSyncComponent
     private final PlayerTalentKnowledge talentKnowledge;
     private final PlayerEntitlementKnowledge entitlementsKnowledge;
     private final PlayerAbilityLoadout loadout;
+    private final PlayerSkills skills;
 
     public PlayerKnowledge(MKPlayerData playerData) {
         abilityKnowledge = new PlayerAbilityKnowledge(playerData);
@@ -22,6 +23,11 @@ public class PlayerKnowledge implements IMKEntityKnowledge, IPlayerSyncComponent
         addSyncChild(abilityKnowledge);
         addSyncChild(talentKnowledge);
         addSyncChild(loadout);
+        skills = new PlayerSkills(playerData);
+    }
+
+    public PlayerSkills getSkills() {
+        return skills;
     }
 
     @Override
@@ -52,6 +58,7 @@ public class PlayerKnowledge implements IMKEntityKnowledge, IPlayerSyncComponent
         tag.put("talents", talentKnowledge.serializeNBT());
         tag.put("entitlements", entitlementsKnowledge.serialize());
         tag.put("loadout", loadout.serializeNBT());
+        tag.put("skills", skills.serialize());
         return tag;
     }
 
@@ -60,6 +67,7 @@ public class PlayerKnowledge implements IMKEntityKnowledge, IPlayerSyncComponent
         talentKnowledge.deserializeNBT(tag.get("talents"));
         entitlementsKnowledge.deserialize(tag.getCompound("entitlements"));
         loadout.deserializeNBT(tag.getCompound("loadout"));
+        skills.deserialize(tag.getCompound("skills"));
     }
 
     public void onPersonaActivated() {
@@ -67,6 +75,7 @@ public class PlayerKnowledge implements IMKEntityKnowledge, IPlayerSyncComponent
         entitlementsKnowledge.onPersonaActivated();
         talentKnowledge.onPersonaActivated();
         loadout.onPersonaActivated();
+        skills.onPersonaActivated();
     }
 
     public void onPersonaDeactivated() {
@@ -74,6 +83,7 @@ public class PlayerKnowledge implements IMKEntityKnowledge, IPlayerSyncComponent
         entitlementsKnowledge.onPersonaDeactivated();
         talentKnowledge.onPersonaDeactivated();
         loadout.onPersonaDeactivated();
+        skills.onPersonaDeactivated();
     }
 
     public void onJoinWorld() {

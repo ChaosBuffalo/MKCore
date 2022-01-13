@@ -26,7 +26,6 @@ public class MKPlayerData implements IMKEntityData {
     private final PlayerCombatExtensionModule combatExtensionModule;
     private final PlayerEditorModule editorModule;
     private final PlayerEffectHandler effectHandler;
-    private final PlayerSkills skills;
 
     public MKPlayerData(PlayerEntity playerEntity) {
         player = Objects.requireNonNull(playerEntity);
@@ -43,25 +42,23 @@ public class MKPlayerData implements IMKEntityData {
         abilityExecutor.setCompleteAbilityCallback(this::completeAbility);
         abilityExecutor.setInterruptCastCallback(animationModule::interruptCast);
         animationModule.getSyncComponent().attach(updateEngine);
-        skills = new PlayerSkills(this);
 
         equipment = new PlayerEquipment(this);
         editorModule = new PlayerEditorModule(this);
         editorModule.getSyncComponent().attach(updateEngine);
-
         effectHandler = new PlayerEffectHandler(this);
     }
 
     private void completeAbility(MKAbility ability){
         animationModule.endCast(ability);
         if (isServerSide()){
-            skills.onCastAbility(ability);
+            getPersonaManager().getActivePersona().getPlayerSkills().onCastAbility(ability);
         }
 
     }
 
     public PlayerSkills getSkills() {
-        return skills;
+        return getPersonaManager().getActivePersona().getPlayerSkills();
     }
 
     @Override

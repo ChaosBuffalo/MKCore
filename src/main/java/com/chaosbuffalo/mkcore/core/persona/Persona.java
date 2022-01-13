@@ -2,6 +2,7 @@ package com.chaosbuffalo.mkcore.core.persona;
 
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.player.PlayerKnowledge;
+import com.chaosbuffalo.mkcore.core.player.PlayerSkills;
 import com.chaosbuffalo.mkcore.sync.IMKSerializable;
 import net.minecraft.nbt.CompoundNBT;
 
@@ -11,6 +12,7 @@ import java.util.Map;
 public class Persona implements IMKSerializable<CompoundNBT> {
     private final String name;
     private final PlayerKnowledge knowledge;
+
     private final MKPlayerData data;
     private final Map<Class<? extends IPersonaExtension>, IPersonaExtension> extensions = new IdentityHashMap<>();
 
@@ -18,6 +20,11 @@ public class Persona implements IMKSerializable<CompoundNBT> {
         this.name = name;
         knowledge = new PlayerKnowledge(playerData);
         data = playerData;
+
+    }
+
+    public PlayerSkills getPlayerSkills() {
+        return knowledge.getSkills();
     }
 
     public String getName() {
