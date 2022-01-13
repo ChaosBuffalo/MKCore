@@ -86,11 +86,13 @@ public abstract class MKDamageSource extends DamageSource {
             } else {
                 comp.appendString(" anonymously");
             }
-            if (damageType != null) {
-                comp.appendString(" with some major ").appendSibling(damageType.getDisplayName());
-            }
-            if (damageTypeName != null) {
-                comp.appendString(" (WTF is ").appendString(damageTypeName).appendString(")");
+            if (damageType != null || damageTypeName != null) {
+                comp.appendString(" with some major ");
+                if (damageTypeName != null) {
+                    comp.appendSibling(new TranslationTextComponent(damageTypeName));
+                } else {
+                    comp.appendSibling(damageType.getDisplayName());
+                }
             }
             return comp;
         }
