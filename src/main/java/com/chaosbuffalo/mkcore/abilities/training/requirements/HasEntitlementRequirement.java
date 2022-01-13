@@ -45,8 +45,11 @@ public class HasEntitlementRequirement extends AbilityTrainingRequirement {
     @Override
     public <D> void readAdditionalData(Dynamic<D> dynamic) {
         super.readAdditionalData(dynamic);
-        this.entitlement = MKCoreRegistry.getEntitlement(new ResourceLocation(dynamic.get("entitlement").asString(
-                AbilityTrainingRequirement.INVALID_OPTION.toString())));
+        ResourceLocation entitlementId = dynamic.get("entitlement").asString()
+                .resultOrPartial(MKCore.LOGGER::error)
+                .map(ResourceLocation::new)
+                .orElse(INVALID_OPTION);
+        entitlement = MKCoreRegistry.getEntitlement(entitlementId);
     }
 
     @Override
