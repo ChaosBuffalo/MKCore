@@ -118,8 +118,7 @@ public abstract class AbilityPageBase extends PlayerPageBase implements IAbility
 
     public void setSelectedAbility(MKAbility ability) {
         restoreSelectedAbility(ability);
-        abilitiesScrollPanel.getContentScrollView().setToTop();
-        abilitiesScrollPanel.getContentScrollView().setToRight();
+        abilitiesScrollPanel.getContentScrollView().resetView();
     }
 
     public MKAbility getSelectedAbility() {

@@ -136,7 +136,6 @@ public class TalentPage extends PlayerPageBase {
 
     public void setCurrentTree(TalentTreeRecord newTree) {
         restoreCurrentTree(newTree);
-        talentScrollPanel.getContentScrollView().setToRight();
-        talentScrollPanel.getContentScrollView().setToTop();
+        talentScrollPanel.getContentScrollView().resetView();
     }
 }

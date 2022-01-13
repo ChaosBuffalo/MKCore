@@ -192,8 +192,7 @@ public class ParticleEditorScreen extends MKScreen {
         });
         scrollview.addWidget(names);
         names.manualRecompute();
-        scrollview.setToRight();
-        scrollview.setToTop();
+        scrollview.resetView();
         addModal(popup);
     }
 
@@ -234,8 +233,7 @@ public class ParticleEditorScreen extends MKScreen {
         });
         scrollview.addWidget(names);
         names.manualRecompute();
-        scrollview.setToRight();
-        scrollview.setToTop();
+        scrollview.resetView();
         addModal(popup);
         return true;
     }
@@ -296,8 +294,7 @@ public class ParticleEditorScreen extends MKScreen {
         });
         scrollview.addWidget(names);
         names.manualRecompute();
-        scrollview.setToRight();
-        scrollview.setToTop();
+        scrollview.resetView();
         addModal(popup);
         return true;
     }

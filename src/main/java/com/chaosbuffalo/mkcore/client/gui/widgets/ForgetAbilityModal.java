@@ -75,8 +75,7 @@ public class ForgetAbilityModal extends MKModal {
         });
         scrollview.addWidget(abilities);
         abilities.manualRecompute();
-        scrollview.setToRight();
-        scrollview.setToTop();
+        scrollview.resetView();
     }
 
     private boolean forgetCallback(MKButton button, int click){

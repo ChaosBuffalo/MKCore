@@ -7,6 +7,7 @@ import com.chaosbuffalo.mkwidgets.client.gui.constraints.LayoutRelativeWidthCons
 import com.chaosbuffalo.mkwidgets.client.gui.constraints.MarginConstraint;
 import com.chaosbuffalo.mkwidgets.client.gui.layouts.MKLayout;
 import com.chaosbuffalo.mkwidgets.client.gui.layouts.MKStackLayoutVertical;
+import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKScrollView;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKText;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKWidget;
 import net.minecraft.client.resources.I18n;
@@ -60,6 +61,8 @@ public class StatsPage extends StatPageBase {
         STAT_PANEL_ATTRIBUTES.add(MKAttributes.POISE_BREAK_CD);
     }
 
+    protected MKScrollView scrollView;
+
     public StatsPage(MKPlayerData playerData) {
         super(playerData, new StringTextComponent("Stats"));
     }
@@ -72,7 +75,13 @@ public class StatsPage extends StatPageBase {
     @Override
     public void setupScreen() {
         super.setupScreen();
-        addWidget(createScrollingPanelWithContent(this::createDamageTypeList, this::setupStatsHeader));
+        addWidget(createScrollingPanelWithContent(this::createDamageTypeList, this::setupStatsHeader, v -> scrollView = v));
+    }
+
+    @Override
+    protected void persistState(boolean wasResized) {
+        super.persistState(wasResized);
+        persistScrollView(() -> scrollView, wasResized);
     }
 
     @Override

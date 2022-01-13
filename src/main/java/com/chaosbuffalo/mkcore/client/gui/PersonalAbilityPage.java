@@ -187,8 +187,7 @@ public class PersonalAbilityPage extends AbilityPageBase implements IAbilityScre
                     if (getSelectedAbility() != null && !currentFilter.accepts(getSelectedAbility().getType())) {
                         setSelectedAbility(null);
                     }
-                    abilitiesScrollPanel.getListScrollView().setToTop();
-                    abilitiesScrollPanel.getListScrollView().setToRight();
+                    abilitiesScrollPanel.getListScrollView().resetView();
                     flagNeedSetup();
                 });
         button.setCurrent(currentFilter);

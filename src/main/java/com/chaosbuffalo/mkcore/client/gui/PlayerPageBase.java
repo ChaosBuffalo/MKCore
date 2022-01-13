@@ -19,6 +19,7 @@ import net.minecraft.util.text.ITextComponent;
 import javax.annotation.Nonnull;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public abstract class PlayerPageBase extends MKScreen implements IPlayerDataAwareScreen {
@@ -104,8 +105,15 @@ public abstract class PlayerPageBase extends MKScreen implements IPlayerDataAwar
         return new StateSwitcher(this, xPos, yPos);
     }
 
+    @Deprecated
     protected MKLayout createScrollingPanelWithContent(BiFunction<MKPlayerData, Integer, MKWidget> contentCreator,
                                                        BiConsumer<MKPlayerData, MKLayout> headerCreator) {
+        return createScrollingPanelWithContent(contentCreator, headerCreator, v -> {});
+    }
+
+    protected MKLayout createScrollingPanelWithContent(BiFunction<MKPlayerData, Integer, MKWidget> contentCreator,
+                                                       BiConsumer<MKPlayerData, MKLayout> headerCreator,
+                                                       Consumer<MKScrollView> scrollViewConsumer) {
         int xPos = width / 2 - PANEL_WIDTH / 2;
         int yPos = height / 2 - PANEL_HEIGHT / 2;
         MKLayout root = new MKLayout(xPos, yPos, PANEL_WIDTH, PANEL_HEIGHT);
@@ -118,12 +126,12 @@ public abstract class PlayerPageBase extends MKScreen implements IPlayerDataAwar
         }
 
         int xOffset = GuiTextures.CORE_TEXTURES.getCenterXOffset(dataBoxRegion.regionName, GuiTextures.BACKGROUND_320_240);
-        MKLayout statebuttons = createStateSwitcher(xPos + xOffset, yPos + STATE_SWITCHER_Y_OFFSET);
-        root.addWidget(statebuttons);
+        MKLayout switcher = createStateSwitcher(xPos + xOffset, yPos + STATE_SWITCHER_Y_OFFSET);
+        root.addWidget(switcher);
 
         // Stat Panel
-        MKLayout headerLayout = new MKLayout(xPos, statebuttons.getY() + statebuttons.getHeight(), PANEL_WIDTH,
-                DATA_BOX_OFFSET - statebuttons.getHeight() - STATE_SWITCHER_Y_OFFSET);
+        MKLayout headerLayout = new MKLayout(xPos, switcher.getY() + switcher.getHeight(), PANEL_WIDTH,
+                DATA_BOX_OFFSET - switcher.getHeight() - STATE_SWITCHER_Y_OFFSET);
         headerLayout.setMargins(4, 4, 0, 0);
         headerCreator.accept(playerData, headerLayout);
         root.addWidget(headerLayout);
@@ -131,8 +139,8 @@ public abstract class PlayerPageBase extends MKScreen implements IPlayerDataAwar
         MKScrollView scrollView = new MKScrollView(xPos + xOffset + 4, yPos + DATA_BOX_OFFSET + 4,
                 dataBoxRegion.width - 8, dataBoxRegion.height - 8, true);
         scrollView.addWidget(contentCreator.apply(playerData, dataBoxRegion.width - 8));
-        scrollView.setToTop();
-        scrollView.setToRight();
+        scrollView.resetView();
+        scrollViewConsumer.accept(scrollView);
         root.addWidget(scrollView);
         return root;
     }
@@ -145,11 +153,11 @@ public abstract class PlayerPageBase extends MKScreen implements IPlayerDataAwar
             addPostSetupCallback(() -> {
                 MKScrollView newView = viewSupplier.get();
                 if (newView != null) {
-                    newView.setOffsetX(offsetX);
-                    newView.setOffsetY(offsetY);
                     if (wasResized) {
-                        newView.setToTop();
-                        newView.setToRight();
+                        newView.resetView();
+                    } else {
+                        newView.setOffsetX(offsetX);
+                        newView.setOffsetY(offsetY);
                     }
                 }
             });

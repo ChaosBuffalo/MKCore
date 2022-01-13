@@ -40,10 +40,8 @@ public class ScrollingListPanelLayout extends MKLayout {
 //        contentScrollView.setDebugColor(0x9900ff00);
 //        listScrollView.setDrawDebug(true);
 //        listScrollView.setDebugColor(0x99ff0000);
-        listScrollView.setToTop();
-        contentScrollView.setToTop();
-        listScrollView.setToRight();
-        contentScrollView.setToRight();
+        listScrollView.resetView();
+        contentScrollView.resetView();
 //        setDebugColor(0x330000ff);
 //        setDrawDebug(true);
     }

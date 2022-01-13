@@ -10,6 +10,7 @@ import com.chaosbuffalo.mkwidgets.client.gui.constraints.MarginConstraint;
 import com.chaosbuffalo.mkwidgets.client.gui.layouts.MKLayout;
 import com.chaosbuffalo.mkwidgets.client.gui.layouts.MKStackLayoutVertical;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKRectangle;
+import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKScrollView;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKText;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKWidget;
 import net.minecraft.client.Minecraft;
@@ -25,6 +26,8 @@ import java.util.Comparator;
 import java.util.List;
 
 public class DamagePage extends StatPageBase {
+    protected MKScrollView scrollView;
+
     public DamagePage(MKPlayerData playerData) {
         super(playerData, new StringTextComponent("Damage Types"));
     }
@@ -37,7 +40,13 @@ public class DamagePage extends StatPageBase {
     @Override
     public void setupScreen() {
         super.setupScreen();
-        addWidget(createScrollingPanelWithContent(this::createDamageTypeList, this::setupDamageHeader));
+        addWidget(createScrollingPanelWithContent(this::createDamageTypeList, this::setupDamageHeader, v -> scrollView = v));
+    }
+
+    @Override
+    protected void persistState(boolean wasResized) {
+        super.persistState(wasResized);
+        persistScrollView(() -> scrollView, wasResized);
     }
 
     private MKWidget createDamageTypeList(MKPlayerData pData, int panelWidth) {
