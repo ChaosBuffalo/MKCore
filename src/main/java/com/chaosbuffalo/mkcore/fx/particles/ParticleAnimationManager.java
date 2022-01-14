@@ -47,6 +47,7 @@ public class ParticleAnimationManager extends JsonReloadListener {
     public static final String DEFINITION_FOLDER = "particle_animations";
 
     public static final ResourceLocation RAW_EFFECT = new ResourceLocation(MKCore.MOD_ID, "particle_anim.raw_effect");
+    public static final ResourceLocation INVALID_EFFECT = new ResourceLocation(MKCore.MOD_ID, "particle_anim.invalid");
     private MinecraftServer server;
     private boolean serverStarted = false;
 

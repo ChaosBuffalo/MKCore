@@ -27,6 +27,7 @@ public class MKActiveEffect {
     private final MKEffectState state;
     private final MKEffectBehaviour behaviour;
     private int stackCount;
+    private float skillLevel;
     @Nullable
     private ResourceLocation abilityId;
     @Nullable
@@ -42,6 +43,7 @@ public class MKActiveEffect {
         effect = builder.getEffect();
         this.behaviour = new MKEffectBehaviour(builder.getBehaviour());
         stackCount = builder.getInitialStackCount();
+        skillLevel = builder.getSkillLevel();
         this.state = state;
         abilityId = builder.getAbilityId();
         sourceEntity = builder.getSourceEntity();
@@ -57,6 +59,7 @@ public class MKActiveEffect {
         this.effect = effect;
         this.behaviour = new MKEffectBehaviour();
         stackCount = 1;
+        skillLevel = 0.0f;
         this.state = effect.makeState();
     }
 
@@ -104,6 +107,14 @@ public class MKActiveEffect {
 
     public void setStackCount(int count) {
         stackCount = count;
+    }
+
+    public void setSkillLevel(float skillLevel) {
+        this.skillLevel = skillLevel;
+    }
+
+    public float getSkillLevel() {
+        return skillLevel;
     }
 
     public void modifyStackCount(int delta) {
@@ -173,6 +184,7 @@ public class MKActiveEffect {
         CompoundNBT stateTag = new CompoundNBT();
         stateTag.put("behaviour", behaviour.serialize());
         stateTag.putInt("stacks", getStackCount());
+        stateTag.putFloat("skillLevel", getSkillLevel());
         if (abilityId != null) {
             stateTag.putString("abilityId", abilityId.toString());
         }
@@ -184,6 +196,7 @@ public class MKActiveEffect {
 
     public void deserializeState(CompoundNBT stateTag) {
         stackCount = stateTag.getInt("stacks");
+        skillLevel = stateTag.getFloat("skillLevel");
         behaviour.deserializeState(stateTag.getCompound("behaviour"));
         if (stateTag.contains("abilityId")) {
             abilityId = ResourceLocation.tryCreate(stateTag.getString("abilityId"));
@@ -240,6 +253,7 @@ public class MKActiveEffect {
                 ", behaviour=" + behaviour +
                 ", stackCount=" + stackCount +
                 ", abilityId=" + getAbilityId() +
+                ", skillLevel=" + skillLevel +
                 '}';
     }
 

@@ -150,7 +150,7 @@ public abstract class MKEffect extends ForgeRegistryEntry<MKEffect> {
     }
 
     protected double calculateModifierAmount(AttributeModifier modifier, MKActiveEffect activeEffect) {
-        return modifier.getAmount() * activeEffect.getStackCount();
+        return modifier.getAmount() + (modifier.getAmount() * activeEffect.getStackCount() * activeEffect.getSkillLevel());
     }
 
     /**

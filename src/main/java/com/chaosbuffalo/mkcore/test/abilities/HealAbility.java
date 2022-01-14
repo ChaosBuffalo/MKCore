@@ -51,7 +51,7 @@ public class HealAbility extends MKAbility {
 
     @Override
     protected ITextComponent getAbilityDescription(IMKEntityData casterData) {
-        int level = getSkillLevel(casterData.getEntity(), MKAttributes.RESTORATION);
+        float level = getSkillLevel(casterData.getEntity(), MKAttributes.RESTORATION);
         ITextComponent valueStr = getHealDescription(casterData, base.value(),
                 scale.value(), level,
                 modifierScaling.value());
@@ -101,10 +101,11 @@ public class HealAbility extends MKAbility {
     @Override
     public void endCast(LivingEntity castingEntity, IMKEntityData casterData, AbilityContext context) {
         super.endCast(castingEntity, casterData, context);
-        int level = getSkillLevel(castingEntity, MKAttributes.RESTORATION);
+        float level = getSkillLevel(castingEntity, MKAttributes.RESTORATION);
         context.getMemory(MKAbilityMemories.ABILITY_TARGET).ifPresent(targetEntity -> {
             MKEffectBuilder<?> heal = NewHealEffect.INSTANCE.builder(castingEntity)
                     .ability(this)
+                    .skillLevel(level)
                     .state(s -> s.setScalingParameters(base.value(), scale.value()));
 //            SpellCast heal = ClericHealEffect.Create(entity, targetEntity,
 //                    base.getValue(), scale.getValue());

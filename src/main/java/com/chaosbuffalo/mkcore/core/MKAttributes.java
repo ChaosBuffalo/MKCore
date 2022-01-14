@@ -1,5 +1,6 @@
 package com.chaosbuffalo.mkcore.core;
 
+import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.MKCore;
 import net.minecraft.entity.ai.attributes.Attribute;
 import net.minecraftforge.event.RegistryEvent;
@@ -145,55 +146,55 @@ public class MKAttributes {
             .setRegistryName(MKCore.makeRL("attack_reach"))
             .setShouldWatch(true);
 
-    public static final Attribute ABJURATION = new MKRangedAttribute("attribute.name.mk.abjuration", 0, 0, 20)
+    public static final Attribute ABJURATION = new MKRangedAttribute("attribute.name.mk.abjuration", 0, 0, GameConstants.SKILL_MAX)
             .setRegistryName(MKCore.makeRL("abjuration"))
             .setShouldWatch(true);
 
-    public static final Attribute ALTERATON = new MKRangedAttribute("attribute.name.mk.alteration", 0, 0, 20)
+    public static final Attribute ALTERATON = new MKRangedAttribute("attribute.name.mk.alteration", 0, 0, GameConstants.SKILL_MAX)
             .setRegistryName(MKCore.makeRL("alteration"))
             .setShouldWatch(true);
 
-    public static final Attribute CONJURATION = new MKRangedAttribute("attribute.name.mk.conjuration", 0, 0, 20)
+    public static final Attribute CONJURATION = new MKRangedAttribute("attribute.name.mk.conjuration", 0, 0, GameConstants.SKILL_MAX)
             .setRegistryName(MKCore.makeRL("conjuration"))
             .setShouldWatch(true);
 
-    public static final Attribute DIVINATION = new MKRangedAttribute("attribute.name.mk.divination", 0, 0, 20)
+    public static final Attribute DIVINATION = new MKRangedAttribute("attribute.name.mk.divination", 0, 0, GameConstants.SKILL_MAX)
             .setRegistryName(MKCore.makeRL("divination"))
             .setShouldWatch(true);
 
-    public static final Attribute ENCHANTMENT = new MKRangedAttribute("attribute.name.mk.enchantment", 0, 0, 20)
+    public static final Attribute ENCHANTMENT = new MKRangedAttribute("attribute.name.mk.enchantment", 0, 0, GameConstants.SKILL_MAX)
             .setRegistryName(MKCore.makeRL("enchantment"))
             .setShouldWatch(true);
 
-    public static final Attribute PHANTASM = new MKRangedAttribute("attribute.name.mk.phantasm", 0, 0, 20)
+    public static final Attribute PHANTASM = new MKRangedAttribute("attribute.name.mk.phantasm", 0, 0, GameConstants.SKILL_MAX)
             .setRegistryName(MKCore.makeRL("phantasm"))
             .setShouldWatch(true);
 
-    public static final Attribute NECROMANCY = new MKRangedAttribute("attribute.name.mk.necromancy", 0, 0, 20)
+    public static final Attribute NECROMANCY = new MKRangedAttribute("attribute.name.mk.necromancy", 0, 0, GameConstants.SKILL_MAX)
             .setRegistryName(MKCore.makeRL("necromancy"))
             .setShouldWatch(true);
 
-    public static final Attribute RESTORATION = new MKRangedAttribute("attribute.name.mk.restoration", 0, 0, 20)
+    public static final Attribute RESTORATION = new MKRangedAttribute("attribute.name.mk.restoration", 0, 0, GameConstants.SKILL_MAX)
             .setRegistryName(MKCore.makeRL("restoration"))
             .setShouldWatch(true);
 
-    public static final Attribute ARETE = new MKRangedAttribute("attribute.name.mk.arete", 0, 0, 20)
+    public static final Attribute ARETE = new MKRangedAttribute("attribute.name.mk.arete", 0, 0, GameConstants.SKILL_MAX)
             .setRegistryName(MKCore.makeRL("arete"))
             .setShouldWatch(true);
 
-    public static final Attribute PNEUMA = new MKRangedAttribute("attribute.name.mk.pneuma", 0, 0, 20)
+    public static final Attribute PNEUMA = new MKRangedAttribute("attribute.name.mk.pneuma", 0, 0, GameConstants.SKILL_MAX)
             .setRegistryName(MKCore.makeRL("pneuma"))
             .setShouldWatch(true);
 
-    public static final Attribute PANKRATION = new MKRangedAttribute("attribute.name.mk.pankration", 0, 0, 20)
+    public static final Attribute PANKRATION = new MKRangedAttribute("attribute.name.mk.pankration", 0, 0, GameConstants.SKILL_MAX)
             .setRegistryName(MKCore.makeRL("pankration"))
             .setShouldWatch(true);
 
-    public static final Attribute EVOCATION = new MKRangedAttribute("attribute.name.mk.evocation", 0, 0, 20)
+    public static final Attribute EVOCATION = new MKRangedAttribute("attribute.name.mk.evocation", 0, 0, GameConstants.SKILL_MAX)
             .setRegistryName(MKCore.makeRL("evocation"))
             .setShouldWatch(true);
 
-    public static final Attribute MARKSMANSHIP = new MKRangedAttribute("attribute.name.mk.marksmanship", 0, 0, 20)
+    public static final Attribute MARKSMANSHIP = new MKRangedAttribute("attribute.name.mk.marksmanship", 0, 0, GameConstants.SKILL_MAX)
             .setRegistryName(MKCore.makeRL("marksmanship"))
             .setShouldWatch(true);
 

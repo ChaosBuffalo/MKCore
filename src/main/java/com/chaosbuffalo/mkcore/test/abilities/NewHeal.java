@@ -46,7 +46,7 @@ public class NewHeal extends MKAbility {
 
     @Override
     protected ITextComponent getAbilityDescription(IMKEntityData casterData) {
-        int level = getSkillLevel(casterData.getEntity(), MKAttributes.RESTORATION);
+        float level = getSkillLevel(casterData.getEntity(), MKAttributes.RESTORATION);
         ITextComponent valueStr = getHealDescription(casterData, base.value(),
                 scale.value(), level,
                 modifierScaling.value());
@@ -81,15 +81,15 @@ public class NewHeal extends MKAbility {
     @Override
     public void endCast(LivingEntity castingEntity, IMKEntityData casterData, AbilityContext context) {
         super.endCast(castingEntity, casterData, context);
-        int level = getSkillLevel(castingEntity, MKAttributes.RESTORATION);
+        float level = getSkillLevel(castingEntity, MKAttributes.RESTORATION);
         context.getMemory(MKAbilityMemories.ABILITY_TARGET).ifPresent(targetEntity -> {
             MKCore.getEntityData(targetEntity).ifPresent(targetData -> {
                 MKEffectBuilder<?> heal = NewHealEffect.INSTANCE.builder(castingEntity)
                         .ability(this)
                         .state(s -> s.setScalingParameters(base.value(), scale.value()))
                         .timed(200)
-                        .periodic(40)
-                        .amplify(level);
+                        .skillLevel(level)
+                        .periodic(40);
                 targetData.getEffects().addEffect(heal);
             });
 

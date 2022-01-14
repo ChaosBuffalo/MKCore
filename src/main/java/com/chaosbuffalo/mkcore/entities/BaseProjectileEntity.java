@@ -41,6 +41,7 @@ public abstract class BaseProjectileEntity extends ProjectileEntity implements I
     private int airProcTime;
     private boolean doAirProc;
     private int groundProcTime;
+    private float skillLevel;
     private boolean doGroundProc;
 
     public BaseProjectileEntity(EntityType<? extends ProjectileEntity> entityTypeIn, World worldIn) {
@@ -53,11 +54,20 @@ public abstract class BaseProjectileEntity extends ProjectileEntity implements I
         this.setAirProcTime(20);
         this.setDoAirProc(false);
         this.setAmplifier(0);
+        this.setSkillLevel(0.0f);
         setup();
     }
 
     public void setup() {
 
+    }
+
+    public void setSkillLevel(float skillLevel) {
+        this.skillLevel = skillLevel;
+    }
+
+    public float getSkillLevel() {
+        return skillLevel;
     }
 
     @Override

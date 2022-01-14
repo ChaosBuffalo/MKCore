@@ -31,8 +31,8 @@ public abstract class ScalingValueEffectState extends MKEffectState {
         this.modScale = modScale;
     }
 
-    public float getScaledValue(int stacks) {
-        return base + (scale * stacks);
+    public float getScaledValue(int stacks, float skillLevel) {
+        return base + (stacks * (scale * skillLevel));
     }
 
     public float getModifierScale() {

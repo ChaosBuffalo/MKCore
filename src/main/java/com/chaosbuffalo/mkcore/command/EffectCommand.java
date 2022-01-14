@@ -79,7 +79,7 @@ public class EffectCommand {
         MKCore.getPlayer(player).ifPresent(playerData -> {
             MKEffectBuilder<?> newInstance;
             newInstance = NewHealEffect.INSTANCE.builder(source)
-                    .state(s -> s.setScalingParameters(3, 1))
+                    .state(s -> s.setScalingParameters(3, 1, 1.f))
                     .periodic(20);
 //            newInstance = TestFallCountingEffect.INSTANCE.builder(UUID.randomUUID());
 //            newInstance = AbilityMagicDamageEffectNew.INSTANCE.builder(player.getUniqueID()).state(s -> {

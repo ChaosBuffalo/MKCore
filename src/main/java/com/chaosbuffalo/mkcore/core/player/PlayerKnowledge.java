@@ -13,6 +13,7 @@ public class PlayerKnowledge implements IMKEntityKnowledge, IPlayerSyncComponent
     private final PlayerTalentKnowledge talentKnowledge;
     private final PlayerEntitlementKnowledge entitlementsKnowledge;
     private final PlayerAbilityLoadout loadout;
+    private final PlayerSkills skills;
 
     public PlayerKnowledge(MKPlayerData playerData) {
         abilityKnowledge = new PlayerAbilityKnowledge(playerData);
@@ -22,6 +23,11 @@ public class PlayerKnowledge implements IMKEntityKnowledge, IPlayerSyncComponent
         addSyncChild(abilityKnowledge);
         addSyncChild(talentKnowledge);
         addSyncChild(loadout);
+        skills = new PlayerSkills(playerData);
+    }
+
+    public PlayerSkills getSkills() {
+        return skills;
     }
 
     @Override
@@ -51,6 +57,7 @@ public class PlayerKnowledge implements IMKEntityKnowledge, IPlayerSyncComponent
         tag.put("abilities", abilityKnowledge.serialize());
         tag.put("talents", talentKnowledge.serializeNBT());
         tag.put("entitlements", entitlementsKnowledge.serialize());
+        tag.put("skills", skills.serialize());
         tag.put("loadout", loadout.serializeNBT());
         return tag;
     }
@@ -59,6 +66,7 @@ public class PlayerKnowledge implements IMKEntityKnowledge, IPlayerSyncComponent
         abilityKnowledge.deserialize(tag.getCompound("abilities"));
         talentKnowledge.deserializeNBT(tag.get("talents"));
         entitlementsKnowledge.deserialize(tag.getCompound("entitlements"));
+        skills.deserialize(tag.getCompound("skills"));
         loadout.deserializeNBT(tag.getCompound("loadout"));
     }
 
@@ -66,6 +74,7 @@ public class PlayerKnowledge implements IMKEntityKnowledge, IPlayerSyncComponent
         MKCore.LOGGER.debug("PlayerKnowledge.onPersonaActivated");
         entitlementsKnowledge.onPersonaActivated();
         talentKnowledge.onPersonaActivated();
+        skills.onPersonaActivated();
         loadout.onPersonaActivated();
     }
 
@@ -73,6 +82,7 @@ public class PlayerKnowledge implements IMKEntityKnowledge, IPlayerSyncComponent
         MKCore.LOGGER.debug("PlayerKnowledge.onPersonaDeactivated");
         entitlementsKnowledge.onPersonaDeactivated();
         talentKnowledge.onPersonaDeactivated();
+        skills.onPersonaDeactivated();
         loadout.onPersonaDeactivated();
     }
 
