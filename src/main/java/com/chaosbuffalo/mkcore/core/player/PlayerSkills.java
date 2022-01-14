@@ -67,7 +67,7 @@ public class PlayerSkills implements IMKSerializable<CompoundNBT> {
             if (player.getRNG().nextDouble() <= chance){
                 skillValues.put(attribute, currentSkill + 1.0);
                 player.sendMessage(new TranslationTextComponent("mkcore.skill.increase",
-                        I18n.format(attribute.getAttributeName()), currentSkill + 1.0)
+                        new TranslationTextComponent(attribute.getAttributeName()), currentSkill + 1.0)
                         .mergeStyle(TextFormatting.AQUA), Util.DUMMY_UUID);
                 ModifiableAttributeInstance attrInst = player.getAttributeManager().createInstanceIfAbsent(attribute);
                 if (attrInst != null){

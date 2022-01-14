@@ -52,13 +52,13 @@ public class MKPlayerData implements IMKEntityData {
     private void completeAbility(MKAbility ability){
         animationModule.endCast(ability);
         if (isServerSide()){
-            getPersonaManager().getActivePersona().getPlayerSkills().onCastAbility(ability);
+            getKnowledge().getSkills().onCastAbility(ability);
         }
 
     }
 
     public PlayerSkills getSkills() {
-        return getPersonaManager().getActivePersona().getPlayerSkills();
+        return getKnowledge().getSkills();
     }
 
     @Override

@@ -20,11 +20,6 @@ public class Persona implements IMKSerializable<CompoundNBT> {
         this.name = name;
         knowledge = new PlayerKnowledge(playerData);
         data = playerData;
-
-    }
-
-    public PlayerSkills getPlayerSkills() {
-        return knowledge.getSkills();
     }
 
     public String getName() {
