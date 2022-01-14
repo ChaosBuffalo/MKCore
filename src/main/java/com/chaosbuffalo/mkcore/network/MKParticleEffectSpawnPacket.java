@@ -125,12 +125,11 @@ public class MKParticleEffectSpawnPacket {
                 throw new RuntimeException(String.format("Particle Animation %s did not serialize to a CompoundNBT!", anim));
             }
         } else {
-            if (animName != null){
+            if (animName != null) {
                 buf.writeResourceLocation(animName);
             } else {
                 buf.writeResourceLocation(ParticleAnimationManager.INVALID_EFFECT);
             }
-
         }
 
     }

@@ -81,7 +81,7 @@ public class MKEffectBuilder<T extends MKEffectState> {
         return this;
     }
 
-    public MKEffectBuilder<T> skillLevel(float skillLevel){
+    public MKEffectBuilder<T> skillLevel(float skillLevel) {
         this.skillLevel = skillLevel;
         return this;
     }

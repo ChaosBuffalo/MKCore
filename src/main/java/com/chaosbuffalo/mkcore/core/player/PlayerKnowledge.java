@@ -57,8 +57,8 @@ public class PlayerKnowledge implements IMKEntityKnowledge, IPlayerSyncComponent
         tag.put("abilities", abilityKnowledge.serialize());
         tag.put("talents", talentKnowledge.serializeNBT());
         tag.put("entitlements", entitlementsKnowledge.serialize());
-        tag.put("loadout", loadout.serializeNBT());
         tag.put("skills", skills.serialize());
+        tag.put("loadout", loadout.serializeNBT());
         return tag;
     }
 
@@ -66,24 +66,24 @@ public class PlayerKnowledge implements IMKEntityKnowledge, IPlayerSyncComponent
         abilityKnowledge.deserialize(tag.getCompound("abilities"));
         talentKnowledge.deserializeNBT(tag.get("talents"));
         entitlementsKnowledge.deserialize(tag.getCompound("entitlements"));
-        loadout.deserializeNBT(tag.getCompound("loadout"));
         skills.deserialize(tag.getCompound("skills"));
+        loadout.deserializeNBT(tag.getCompound("loadout"));
     }
 
     public void onPersonaActivated() {
         MKCore.LOGGER.debug("PlayerKnowledge.onPersonaActivated");
         entitlementsKnowledge.onPersonaActivated();
         talentKnowledge.onPersonaActivated();
-        loadout.onPersonaActivated();
         skills.onPersonaActivated();
+        loadout.onPersonaActivated();
     }
 
     public void onPersonaDeactivated() {
         MKCore.LOGGER.debug("PlayerKnowledge.onPersonaDeactivated");
         entitlementsKnowledge.onPersonaDeactivated();
         talentKnowledge.onPersonaDeactivated();
-        loadout.onPersonaDeactivated();
         skills.onPersonaDeactivated();
+        loadout.onPersonaDeactivated();
     }
 
     public void onJoinWorld() {

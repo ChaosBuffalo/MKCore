@@ -49,18 +49,6 @@ public class MKPlayerData implements IMKEntityData {
         effectHandler = new PlayerEffectHandler(this);
     }
 
-    private void completeAbility(MKAbility ability){
-        animationModule.endCast(ability);
-        if (isServerSide()){
-            getKnowledge().getSkills().onCastAbility(ability);
-        }
-
-    }
-
-    public PlayerSkills getSkills() {
-        return getKnowledge().getSkills();
-    }
-
     @Override
     public PlayerStats getStats() {
         return stats;
@@ -87,6 +75,10 @@ public class MKPlayerData implements IMKEntityData {
 
     public PlayerAbilityKnowledge getAbilities() {
         return getKnowledge().getAbilityKnowledge();
+    }
+
+    public PlayerSkills getSkills() {
+        return getKnowledge().getSkills();
     }
 
     public PlayerUpdateEngine getUpdateEngine() {
@@ -127,6 +119,13 @@ public class MKPlayerData implements IMKEntityData {
     @Override
     public boolean isServerSide() {
         return player instanceof ServerPlayerEntity;
+    }
+
+    private void completeAbility(MKAbility ability) {
+        animationModule.endCast(ability);
+        if (isServerSide()) {
+            getSkills().onCastAbility(ability);
+        }
     }
 
     @Override
