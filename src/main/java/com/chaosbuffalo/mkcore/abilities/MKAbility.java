@@ -271,10 +271,7 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
     protected float getManaCostModifierForSkills(IMKEntityData casterData) {
         float total = 0.0f;
         for (Attribute attribute : getSkillAttributes()) {
-            ModifiableAttributeInstance attr = casterData.getEntity().getAttribute(attribute);
-            if (attr != null) {
-                total += attr.getValue();
-            }
+            total += getSkillLevel(casterData.getEntity(), attribute);
         }
         return total;
     }
