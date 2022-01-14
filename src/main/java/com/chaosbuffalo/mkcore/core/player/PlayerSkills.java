@@ -38,7 +38,7 @@ public class PlayerSkills implements IMKSerializable<CompoundNBT> {
     public void onPersonaActivated() {
         PlayerEntity player = playerData.getEntity();
         for (Map.Entry<Attribute, Double> entry : skillValues.entrySet()){
-            ModifiableAttributeInstance attrInst = player.getAttributeManager().createInstanceIfAbsent(entry.getKey());
+            ModifiableAttributeInstance attrInst = player.getAttribute(entry.getKey());
             if (attrInst != null){
                 attrInst.setBaseValue(entry.getValue());
             }
@@ -48,7 +48,7 @@ public class PlayerSkills implements IMKSerializable<CompoundNBT> {
     public void onPersonaDeactivated() {
         PlayerEntity player = playerData.getEntity();
         for (Map.Entry<Attribute, Double> entry : skillValues.entrySet()){
-            ModifiableAttributeInstance attrInst = player.getAttributeManager().createInstanceIfAbsent(entry.getKey());
+            ModifiableAttributeInstance attrInst = player.getAttribute(entry.getKey());
             if (attrInst != null){
                 attrInst.setBaseValue(0.0);
             }
@@ -69,7 +69,7 @@ public class PlayerSkills implements IMKSerializable<CompoundNBT> {
                 player.sendMessage(new TranslationTextComponent("mkcore.skill.increase",
                         new TranslationTextComponent(attribute.getAttributeName()), currentSkill + 1.0)
                         .mergeStyle(TextFormatting.AQUA), Util.DUMMY_UUID);
-                ModifiableAttributeInstance attrInst = player.getAttributeManager().createInstanceIfAbsent(attribute);
+                ModifiableAttributeInstance attrInst = player.getAttribute(attribute);
                 if (attrInst != null){
                     attrInst.setBaseValue(currentSkill + 1.0);
                 }
