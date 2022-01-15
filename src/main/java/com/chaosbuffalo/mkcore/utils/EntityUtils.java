@@ -51,13 +51,28 @@ public class EntityUtils {
                 GameConstants.TICKS_PER_SECOND;
     }
 
-    public static void shootArrow(LivingEntity source, AbstractArrowEntity arrowEntity, LivingEntity target){
+    public static void shootArrow(LivingEntity source, AbstractArrowEntity arrowEntity, LivingEntity target, float launchVelocity){
+
+
+        Vector3d targetVec = new Vector3d(target.getPosX(), target.getPosYHeight(0.6D), target.getPosZ());
+        Vector3d diff = targetVec.subtract(arrowEntity.getPositionVec());
+        Vector3d diffXZ = new Vector3d(diff.x, 0.0, diff.z);
+        double groundDist = diffXZ.length();
+
+        double vel = launchVelocity * GameConstants.TICKS_PER_SECOND;
+        double seconds = groundDist / vel;
+        double heightLostToGravity = arrowEntity.hasNoGravity() ? 0.0 : 0.05 * GameConstants.TICKS_PER_SECOND * seconds;
+
+        double yDiff = diff.y;
+        double yWithGravity = yDiff + heightLostToGravity;
+        Vector3d targetPos = new Vector3d(diff.getX(), yWithGravity, diff.getZ());
+
         // emulates the logic skeleton uses to shoot an arrow
-        double d0 = target.getPosX() - source.getPosX();
-        double d1 = target.getPosYHeight(0.3333333333333333D) - arrowEntity.getPosY();
-        double d2 = target.getPosZ() - source.getPosZ();
-        double d3 = MathHelper.sqrt(d0 * d0 + d2 * d2);
-        arrowEntity.shoot(d0, d1 + d3 * (double)0.2F, d2, 1.6F, (float)(
+//        double d0 = target.getPosX() - source.getPosX();
+//        double d1 = target.getPosYHeight(0.3333333333333333D) - arrowEntity.getPosY();
+//        double d2 = target.getPosZ() - source.getPosZ();
+//        double d3 = MathHelper.sqrt(d0 * d0 + d2 * d2);
+        arrowEntity.shoot(targetPos.getX(), targetPos.getY(), targetPos.getZ(), launchVelocity, (float)(
                 14 - source.getEntityWorld().getDifficulty().getId() * 4));
     }
 
