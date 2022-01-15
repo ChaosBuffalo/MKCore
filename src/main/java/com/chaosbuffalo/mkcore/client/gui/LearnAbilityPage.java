@@ -16,6 +16,7 @@ import com.chaosbuffalo.mkwidgets.client.gui.math.Vec2i;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKButton;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKWidget;
 import com.chaosbuffalo.mkwidgets.utils.TextureRegion;
+import com.google.common.collect.ImmutableList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
@@ -23,18 +24,20 @@ import net.minecraft.util.text.StringTextComponent;
 
 import javax.annotation.Nonnull;
 import java.util.Collection;
-import java.util.Map;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class LearnAbilityPage extends AbilityPageBase {
-    private final Map<MKAbility, AbilityTrainingEvaluation> requirements;
+    private final List<AbilityTrainingEvaluation> offeredAbilities;
     private final int entityId;
     private LearnAbilityTray requirementsTray;
     private MKLayout footer;
     private MKLayout root;
 
-    public LearnAbilityPage(MKPlayerData playerData, Map<MKAbility, AbilityTrainingEvaluation> requirements, int entityId) {
+    public LearnAbilityPage(MKPlayerData playerData, List<AbilityTrainingEvaluation> offeredAbilities, int entityId) {
         super(playerData, new StringTextComponent("Learn Abilities"));
-        this.requirements = requirements;
+        this.offeredAbilities = ImmutableList.copyOf(offeredAbilities);
         this.entityId = entityId;
     }
 
@@ -51,15 +54,21 @@ public class LearnAbilityPage extends AbilityPageBase {
 
     @Override
     protected Collection<MKAbility> getSortedAbilityList() {
-        return requirements.keySet(); // TODO: sort this by some metric
+        return offeredAbilities.stream().map(AbilityTrainingEvaluation::getAbility).collect(Collectors.toList());
+    }
+
+    private Optional<AbilityTrainingEvaluation> findEvaluation(MKAbility ability) {
+        return offeredAbilities.stream().filter(evaluation -> evaluation.getAbility() == ability).findFirst();
     }
 
     @Override
     protected void restoreSelectedAbility(MKAbility ability) {
         super.restoreSelectedAbility(ability);
-        if (requirementsTray != null && requirements.containsKey(ability)) {
-            requirementsTray.setAbility(ability, requirements.get(ability));
-            resetFooter();
+        if (requirementsTray != null) {
+            findEvaluation(ability).ifPresent(eval -> {
+                requirementsTray.setAbility(ability, eval);
+                resetFooter();
+            });
         }
     }
 
