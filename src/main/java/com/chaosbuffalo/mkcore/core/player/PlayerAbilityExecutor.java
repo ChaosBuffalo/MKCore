@@ -6,9 +6,7 @@ import com.chaosbuffalo.mkcore.abilities.*;
 import com.chaosbuffalo.mkcore.core.AbilityExecutor;
 import com.chaosbuffalo.mkcore.core.AbilityGroupId;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
-import com.chaosbuffalo.mkcore.events.PlayerAbilityEvent;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.common.MinecraftForge;
 
 public class PlayerAbilityExecutor extends AbilityExecutor {
 
@@ -30,7 +28,7 @@ public class PlayerAbilityExecutor extends AbilityExecutor {
             return false;
         }
 
-        if (abilityExecutionCheck(ability, info)) {
+        if (ability.meetsCastingRequirements(entityData, info)) {
             AbilityTargetSelector selector = ability.getTargetSelector();
             AbilityContext context = selector.createContext(entityData, ability);
             if (context != null) {
@@ -46,18 +44,6 @@ public class PlayerAbilityExecutor extends AbilityExecutor {
     protected void consumeResource(MKAbility ability) {
         float manaCost = getPlayerData().getStats().getAbilityManaCost(ability);
         getPlayerData().getStats().consumeMana(manaCost);
-    }
-
-    @Override
-    protected boolean abilityExecutionCheck(MKAbility ability, MKAbilityInfo info) {
-        return super.abilityExecutionCheck(ability, info) &&
-                !MinecraftForge.EVENT_BUS.post(new PlayerAbilityEvent.StartCasting(getPlayerData(), info));
-    }
-
-    @Override
-    protected void completeAbility(MKAbility ability, MKAbilityInfo info, AbilityContext context) {
-        super.completeAbility(ability, info, context);
-        MinecraftForge.EVENT_BUS.post(new PlayerAbilityEvent.Completed(getPlayerData(), info));
     }
 
     public void onPersonaActivated() {

@@ -280,7 +280,7 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
         manaCost = cost;
     }
 
-    public boolean meetsRequirements(IMKEntityData casterData) {
+    public boolean meetsCastingRequirements(IMKEntityData casterData, MKAbilityInfo info) {
         return casterData.getAbilityExecutor().canActivateAbility(this) &&
                 casterData.getStats().canActivateAbility(this);
     }

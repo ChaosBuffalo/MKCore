@@ -47,10 +47,6 @@ public class AbilityExecutor {
         this.startCastCallback = startCastCallback;
     }
 
-    protected boolean abilityExecutionCheck(MKAbility ability, MKAbilityInfo info) {
-        return ability.meetsRequirements(entityData);
-    }
-
     public void executeAbility(ResourceLocation abilityId) {
         executeAbilityWithContext(abilityId, null);
     }
@@ -65,7 +61,7 @@ public class AbilityExecutor {
 
     public void executeAbilityInfoWithContext(MKAbilityInfo info, AbilityContext context) {
         MKAbility ability = info.getAbility();
-        if (abilityExecutionCheck(ability, info)) {
+        if (ability.meetsCastingRequirements(entityData, info)) {
             if (context == null) {
                 context = ability.getTargetSelector().createContext(entityData, ability);
             } else {
