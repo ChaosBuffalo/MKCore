@@ -20,6 +20,7 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -220,12 +221,21 @@ public class AbilityGroup implements IPlayerSyncComponentProvider {
         }
     }
 
-    public void executeSlot(int index) {
+    @Nullable
+    public MKAbilityInfo getAbilityInfo(int index) {
         ResourceLocation abilityId = getSlot(index);
         if (abilityId.equals(MKCoreRegistry.INVALID_ABILITY))
+            return null;
+
+        return playerData.getAbilities().getKnownAbility(abilityId);
+    }
+
+    public void executeSlot(int index) {
+        MKAbilityInfo info = getAbilityInfo(index);
+        if (info == null)
             return;
 
-        playerData.getAbilityExecutor().executeAbility(abilityId);
+        playerData.getAbilityExecutor().executeAbilityInfoWithContext(info, null);
     }
 
     public void clearSlot(int slot) {

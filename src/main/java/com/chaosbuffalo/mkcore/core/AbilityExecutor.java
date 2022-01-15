@@ -63,7 +63,7 @@ public class AbilityExecutor {
         MKAbility ability = info.getAbility();
         if (ability.meetsCastingRequirements(entityData, info)) {
             if (context == null) {
-                context = ability.getTargetSelector().createContext(entityData, ability);
+                context = ability.getTargetSelector().createContext(entityData, info);
             } else {
                 boolean validContext = ability.getTargetSelector().validateContext(entityData, context);
                 if (!validContext) {

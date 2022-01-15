@@ -22,15 +22,16 @@ public class PlayerAbilityExecutor extends AbilityExecutor {
         getPlayerData().getLoadout().getAbilityGroup(group).executeSlot(slot);
     }
 
-    public boolean clientSimulateAbility(MKAbility ability, AbilityGroupId executingGroup) {
-        MKAbilityInfo info = getPlayerData().getAbilities().getKnownAbility(ability.getAbilityId());
-        if (executingGroup.requiresAbilityKnown() && info == null) {
+    public boolean clientSimulateAbility(AbilityGroupId executingGroup, int slot) {
+        MKAbilityInfo info = getPlayerData().getLoadout().getAbilityGroup(executingGroup).getAbilityInfo(slot);
+        if (info == null) {
             return false;
         }
 
+        MKAbility ability = info.getAbility();
         if (ability.meetsCastingRequirements(entityData, info)) {
             AbilityTargetSelector selector = ability.getTargetSelector();
-            AbilityContext context = selector.createContext(entityData, ability);
+            AbilityContext context = selector.createContext(entityData, info);
             if (context != null) {
                 return selector.validateContext(entityData, context);
             } else {

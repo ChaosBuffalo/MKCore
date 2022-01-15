@@ -126,13 +126,7 @@ public class ClientEventHandler {
                 player.getEffects().isEffectActive(StunEffect.INSTANCE))
             return;
 
-        ResourceLocation abilityId = player.getLoadout().getAbilityInSlot(group, slot);
-        if (abilityId.equals(MKCoreRegistry.INVALID_ABILITY))
-            return;
-
-        MKAbility ability = MKCoreRegistry.getAbility(abilityId);
-
-        if (ability != null && player.getAbilityExecutor().clientSimulateAbility(ability, group)) {
+        if (player.getAbilityExecutor().clientSimulateAbility(group, slot)) {
             MKCore.LOGGER.debug("sending execute ability {} {}", group, slot);
             PacketHandler.sendMessageToServer(new ExecuteActiveAbilityPacket(group, slot));
             player.getAbilityExecutor().startGlobalCooldown();

@@ -9,6 +9,8 @@ import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.player.AbilityGroup;
 import net.minecraft.util.ResourceLocation;
 
+import javax.annotation.Nullable;
+
 public class ItemAbilityGroup extends AbilityGroup {
 
     public ItemAbilityGroup(MKPlayerData playerData) {
@@ -21,11 +23,12 @@ public class ItemAbilityGroup extends AbilityGroup {
         return !getSlot(0).equals(MKCoreRegistry.INVALID_ABILITY) ? 1 : 0;
     }
 
+    @Nullable
     @Override
-    public void executeSlot(int index) {
+    public MKAbilityInfo getAbilityInfo(int index) {
         ResourceLocation abilityId = getSlot(index);
         if (abilityId.equals(MKCoreRegistry.INVALID_ABILITY))
-            return;
+            return null;
 
         // If the ability is already known by another method, lookup that info
         MKAbilityInfo info = playerData.getAbilities().getKnownAbility(abilityId);
@@ -37,9 +40,6 @@ public class ItemAbilityGroup extends AbilityGroup {
                 info.addSource(AbilitySource.forItem(playerData.getEntity().getHeldItemMainhand()));
             }
         }
-
-        if (info != null) {
-            playerData.getAbilityExecutor().executeAbilityInfoWithContext(info, null);
-        }
+        return info;
     }
 }

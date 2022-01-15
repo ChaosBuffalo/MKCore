@@ -82,8 +82,8 @@ public class AbilityTargetSelector {
         return selector;
     }
 
-    public AbilityContext createContext(IMKEntityData casterData, MKAbility ability) {
-        return selector.apply(casterData, ability);
+    public AbilityContext createContext(IMKEntityData casterData, MKAbilityInfo abilityInfo) {
+        return selector.apply(casterData, abilityInfo.getAbility());
     }
 
     public boolean validateContext(IMKEntityData casterData, AbilityContext context) {
