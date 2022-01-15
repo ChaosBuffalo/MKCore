@@ -8,6 +8,7 @@ import com.chaosbuffalo.mkcore.abilities.AbilityTargeting;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.abilities.ai.conditions.MeleeUseCondition;
 import com.chaosbuffalo.mkcore.core.AbilityType;
+import com.chaosbuffalo.mkcore.core.CastInterruptReason;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.effects.AreaEffectBuilder;
 import com.chaosbuffalo.mkcore.effects.MKEffectBuilder;
@@ -53,7 +54,7 @@ public class WhirlwindBlades extends MKAbility {
     }
 
     @Override
-    public boolean isInterruptible() {
+    public boolean isInterruptedBy(IMKEntityData targetData, CastInterruptReason reason) {
         return false;
     }
 

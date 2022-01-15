@@ -2,6 +2,7 @@ package com.chaosbuffalo.mkcore.events;
 
 import com.chaosbuffalo.mkcore.CoreCapabilities;
 import com.chaosbuffalo.mkcore.MKCore;
+import com.chaosbuffalo.mkcore.core.CastInterruptReason;
 import com.chaosbuffalo.mkcore.core.damage.MKDamageSource;
 import com.chaosbuffalo.mkcore.effects.SpellTriggers;
 import com.chaosbuffalo.mkcore.init.CoreDamageTypes;
@@ -188,8 +189,10 @@ public class CombatEventHandler {
 
     @SubscribeEvent
     public static void onEntityDeath(LivingDeathEvent event) {
-        DamageSource source = event.getSource();
+        MKCore.getEntityData(event.getEntityLiving()).ifPresent(entityData ->
+                entityData.getAbilityExecutor().interruptCast(CastInterruptReason.Death));
 
+        DamageSource source = event.getSource();
         if (source.getTrueSource() instanceof LivingEntity) {
             LivingEntity killer = (LivingEntity) source.getTrueSource();
             if (killer.world.isRemote) {

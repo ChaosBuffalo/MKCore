@@ -1,6 +1,7 @@
 package com.chaosbuffalo.mkcore.effects.status;
 
 import com.chaosbuffalo.mkcore.MKCore;
+import com.chaosbuffalo.mkcore.core.CastInterruptReason;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.effects.*;
 import com.chaosbuffalo.mkcore.init.CoreSounds;
@@ -59,7 +60,7 @@ public class StunEffect extends MKEffect {
             MobEntity mob = (MobEntity) target;
             mob.setNoAI(true);
         }
-        targetData.getAbilityExecutor().interruptCast();
+        targetData.getAbilityExecutor().interruptCast(CastInterruptReason.Stun);
         SoundUtils.serverPlaySoundAtEntity(target, CoreSounds.stun_sound, target.getSoundCategory());
     }
 

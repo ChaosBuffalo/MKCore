@@ -2,6 +2,7 @@ package com.chaosbuffalo.mkcore.events;
 
 import com.chaosbuffalo.mkcore.CoreCapabilities;
 import com.chaosbuffalo.mkcore.MKCore;
+import com.chaosbuffalo.mkcore.core.CastInterruptReason;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.core.MKEntityData;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
@@ -74,7 +75,7 @@ public class EntityEventHandler {
     @SubscribeEvent
     public static void onEntityJump(LivingEvent.LivingJumpEvent event) {
         MKCore.getEntityData(event.getEntity()).ifPresent(entityData -> {
-            entityData.getAbilityExecutor().interruptCast();
+            entityData.getAbilityExecutor().interruptCast(CastInterruptReason.Jump);
             if (entityData.getEffects().isEffectActive(StunEffect.INSTANCE)) {
                 event.getEntity().setMotion(0, 0, 0);
             }
