@@ -2,6 +2,7 @@ package com.chaosbuffalo.mkcore.core.player;
 
 import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.MKCore;
+import com.chaosbuffalo.mkcore.core.CastInterruptReason;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.core.MKAttributes;
 import com.chaosbuffalo.mkcore.core.MKCombatFormulas;
@@ -165,7 +166,7 @@ public class PlayerStats extends EntityStats implements IPlayerSyncComponentProv
         boolean isBroken = isPoiseBroke();
         if (getEntity().isActiveItemStackBlocking()) {
             if (entityData.getAbilityExecutor().isCasting()) {
-                entityData.getAbilityExecutor().interruptCast();
+                entityData.getAbilityExecutor().interruptCast(CastInterruptReason.StartedBlocking);
             }
             if (isBroken) {
                 getEntity().stopActiveHand();

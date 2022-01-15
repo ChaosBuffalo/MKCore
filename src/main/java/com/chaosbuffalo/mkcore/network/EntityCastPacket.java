@@ -1,6 +1,7 @@
 package com.chaosbuffalo.mkcore.network;
 
 import com.chaosbuffalo.mkcore.MKCore;
+import com.chaosbuffalo.mkcore.core.CastInterruptReason;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
@@ -17,6 +18,7 @@ public class EntityCastPacket {
     private ResourceLocation abilityId;
     private int castTicks;
     private final CastAction action;
+    private CastInterruptReason interruptReason;
 
     enum CastAction {
         START,
@@ -30,17 +32,18 @@ public class EntityCastPacket {
         action = CastAction.START;
     }
 
-    public EntityCastPacket(IMKEntityData entityData, CastAction action) {
+    public EntityCastPacket(IMKEntityData entityData, CastAction action, CastInterruptReason reason) {
         entityId = entityData.getEntity().getEntityId();
         this.action = action;
+        interruptReason = reason;
     }
 
     public static EntityCastPacket start(IMKEntityData entityData, ResourceLocation abilityId, int castTicks) {
         return new EntityCastPacket(entityData, abilityId, castTicks);
     }
 
-    public static EntityCastPacket interrupt(IMKEntityData entityData) {
-        return new EntityCastPacket(entityData, CastAction.INTERRUPT);
+    public static EntityCastPacket interrupt(IMKEntityData entityData, CastInterruptReason reason) {
+        return new EntityCastPacket(entityData, CastAction.INTERRUPT, reason);
     }
 
     public EntityCastPacket(PacketBuffer buffer) {
@@ -49,6 +52,8 @@ public class EntityCastPacket {
         if (action == CastAction.START) {
             abilityId = buffer.readResourceLocation();
             castTicks = buffer.readInt();
+        } else if (action == CastAction.INTERRUPT) {
+            interruptReason = buffer.readEnumValue(CastInterruptReason.class);
         }
     }
 
@@ -58,6 +63,8 @@ public class EntityCastPacket {
         if (action == CastAction.START) {
             buffer.writeResourceLocation(abilityId);
             buffer.writeInt(castTicks);
+        } else if (action == CastAction.INTERRUPT) {
+            buffer.writeEnumValue(interruptReason);
         }
     }
 
@@ -81,7 +88,7 @@ public class EntityCastPacket {
                 if (packet.action == CastAction.START) {
                     entityData.getAbilityExecutor().startCastClient(packet.abilityId, packet.castTicks);
                 } else if (packet.action == CastAction.INTERRUPT) {
-                    entityData.getAbilityExecutor().interruptCast();
+                    entityData.getAbilityExecutor().interruptCast(packet.interruptReason);
                 }
             });
         }

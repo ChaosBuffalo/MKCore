@@ -354,7 +354,7 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
     public void endCast(LivingEntity castingEntity, IMKEntityData casterData, AbilityContext context) {
     }
 
-    public boolean isInterruptible() {
+    public boolean isInterruptedBy(IMKEntityData targetData, CastInterruptReason reason) {
         return true;
     }
 

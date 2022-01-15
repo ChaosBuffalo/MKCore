@@ -16,6 +16,7 @@ import net.minecraft.util.SoundEvent;
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class AbilityExecutor {
@@ -25,7 +26,7 @@ public class AbilityExecutor {
     private final Map<ResourceLocation, MKToggleAbility> activeToggleMap = new HashMap<>();
     private Consumer<MKAbility> startCastCallback;
     private Consumer<MKAbility> completeAbilityCallback;
-    private Consumer<MKAbility> interruptCastCallback;
+    private BiConsumer<MKAbility, CastInterruptReason> interruptCastCallback;
 
     public AbilityExecutor(IMKEntityData entityData) {
         this.entityData = entityData;
@@ -38,7 +39,7 @@ public class AbilityExecutor {
         this.completeAbilityCallback = completeAbilityCallback;
     }
 
-    public void setInterruptCastCallback(Consumer<MKAbility> interruptCastCallback) {
+    public void setInterruptCastCallback(BiConsumer<MKAbility, CastInterruptReason> interruptCastCallback) {
         this.interruptCastCallback = interruptCastCallback;
     }
 
@@ -150,14 +151,16 @@ public class AbilityExecutor {
         }
     }
 
-    public void interruptCast() {
+    public void interruptCast(CastInterruptReason reason) {
         if (!isCasting())
             return;
 
-        if (currentCast.getAbility().isInterruptible()) {
-            currentCast.interrupt();
+        MKCore.LOGGER.debug("{} interrupted by {} for {}", currentCast.getAbility(), reason, entityData.getEntity());
+
+        if (reason.cannotBeBypassed() || currentCast.getAbility().isInterruptedBy(entityData, reason)) {
+            currentCast.interrupt(reason);
             if (interruptCastCallback != null) {
-                interruptCastCallback.accept(currentCast.getAbility());
+                interruptCastCallback.accept(currentCast.getAbility(), reason);
             }
             clearCastingAbility();
         }
@@ -285,7 +288,7 @@ public class AbilityExecutor {
 
         public abstract void finish();
 
-        void interrupt() {
+        void interrupt(CastInterruptReason reason) {
         }
     }
 
@@ -314,9 +317,9 @@ public class AbilityExecutor {
         }
 
         @Override
-        void interrupt() {
-            super.interrupt();
-            PacketHandler.sendToTrackingAndSelf(EntityCastPacket.interrupt(executor.entityData), executor.entityData.getEntity());
+        void interrupt(CastInterruptReason reason) {
+            super.interrupt(reason);
+            PacketHandler.sendToTrackingAndSelf(EntityCastPacket.interrupt(executor.entityData, reason), executor.entityData.getEntity());
         }
     }
 
@@ -360,8 +363,8 @@ public class AbilityExecutor {
         }
 
         @Override
-        public void interrupt() {
-            super.interrupt();
+        public void interrupt(CastInterruptReason reason) {
+            super.interrupt(reason);
             stopSound();
         }
     }

@@ -1,6 +1,7 @@
 package com.chaosbuffalo.mkcore.core.player;
 
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
+import com.chaosbuffalo.mkcore.core.CastInterruptReason;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.fx.particles.effect_instances.ParticleEffectInstance;
 
@@ -83,7 +84,7 @@ public class PlayerAnimationModule implements IPlayerSyncComponentProvider {
         castAnimTimer = 15;
     }
 
-    public void interruptCast(MKAbility ability){
+    public void interruptCast(MKAbility ability, CastInterruptReason reason) {
         castingAbility = null;
         castAnimTimer = 0;
         playerVisualCastState = PlayerVisualCastState.NONE;
