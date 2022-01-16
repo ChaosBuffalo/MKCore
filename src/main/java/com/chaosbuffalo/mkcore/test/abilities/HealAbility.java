@@ -94,8 +94,7 @@ public class HealAbility extends MKAbility {
 
     @Override
     public boolean isValidTarget(LivingEntity caster, LivingEntity target) {
-        return super.isValidTarget(caster, target) || (MKConfig.SERVER.healsDamageUndead.get() &&
-                target.isEntityUndead() && MKHealing.isEnemyUndead(caster, target));
+        return super.isValidTarget(caster, target) || MKHealing.wouldHealHurtUndead(caster, target);
     }
 
     @Override
