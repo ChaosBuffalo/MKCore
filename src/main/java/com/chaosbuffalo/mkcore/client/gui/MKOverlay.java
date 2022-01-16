@@ -3,6 +3,8 @@ package com.chaosbuffalo.mkcore.client.gui;
 
 import com.chaosbuffalo.mkcore.*;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
+import com.chaosbuffalo.mkcore.client.gui.widgets.OnScreenXpBarWidget;
+import com.chaosbuffalo.mkcore.client.gui.widgets.XpBarWidget;
 import com.chaosbuffalo.mkcore.core.AbilityGroupId;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.player.AbilityGroup;
@@ -12,8 +14,10 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
+import net.minecraft.potion.Effects;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.client.gui.ForgeIngameGui;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.Arrays;
@@ -26,6 +30,7 @@ public class MKOverlay {
     private static final int SLOT_HEIGHT = 20;
     private static final int MIN_BAR_START_Y = 80;
     public static final int ABILITY_ICON_SIZE = 16;
+    public static final OnScreenXpBarWidget xpBarWidget = new OnScreenXpBarWidget(2, 0, 63, 5);
 
     private final Minecraft mc;
 
@@ -36,27 +41,38 @@ public class MKOverlay {
 
 
     private void drawMana(MatrixStack matrixStack, MKPlayerData data) {
-        int height = mc.getMainWindow().getScaledHeight();
-
-        GuiTextures.CORE_TEXTURES.bind(mc);
-        RenderSystem.disableLighting();
-
-        final int maxManaPerRow = 20;
-        final int manaCellWidth = 4;
-        final int manaCellRowSize = 9;
-
-        int manaStartY = height - 24 - 10;
-        int manaStartX = 24;
-
-        for (int i = 0; i < data.getStats().getMana(); i++) {
-            int manaX = manaCellWidth * (i % maxManaPerRow);
-            int manaY = (i / maxManaPerRow) * manaCellRowSize;
-            GuiTextures.CORE_TEXTURES.drawRegionAtPos(matrixStack, GuiTextures.MANA_REGION, manaStartX + manaX, manaStartY + manaY);
+        float maxMana = data.getStats().getMaxMana();
+        float currentMana = data.getStats().getMana();
+        String textureName = GuiTextures.MANA_BAR_LONG;
+        float percentage = currentMana / maxMana;
+        int width = 75;
+        int barSize = Math.round(width * percentage);
+        if (currentMana > 0 && barSize < 1){
+            barSize = 1;
         }
+        int height = mc.getMainWindow().getScaledHeight();
+        int winWidth = mc.getMainWindow().getScaledWidth();
+        int castStartY = height - 34;
+        int castStartX = (winWidth / 2) - 89;
+        GuiTextures.CORE_TEXTURES.bind(mc);
+        RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
+        GuiTextures.CORE_TEXTURES.drawRegionAtPosPartialWidth(matrixStack, textureName, castStartX, castStartY, barSize);
     }
 
-    private void drawPoise(MatrixStack matrixStack, MKPlayerData data, float partialTick) {
+    private void drawXpBar(MatrixStack matrixStack, MKPlayerData data, float partialTick){
+        int height = mc.getMainWindow().getScaledHeight();
+        int castStartY = height - 8;
+        int winWidth = mc.getMainWindow().getScaledWidth();
+        int castStartX = (winWidth / 2) - 89 - 100;
+        xpBarWidget.syncPlayerXp(data);
+        xpBarWidget.setY(castStartY);
+        xpBarWidget.setX(castStartX);
+        xpBarWidget.drawWidget(matrixStack, mc, 0, 0, partialTick);
+    }
 
+
+
+    private void drawPoise(MatrixStack matrixStack, MKPlayerData data, float partialTick) {
         float percentage;
         boolean isBroken = data.getStats().isPoiseBroke();
         if (isBroken) {
@@ -73,13 +89,44 @@ public class MKOverlay {
             castStartY = height / 2 + 8;
             castStartX = mc.getMainWindow().getScaledWidth() / 2 - barSize / 2;
         } else {
-            castStartY = height - 40;
-            castStartX = 24;
+            castStartX = (mc.getMainWindow().getScaledWidth() / 2) - 89 - 100;
+            castStartY = height - 14;
         }
 
         GuiTextures.CORE_TEXTURES.bind(mc);
         RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
         GuiTextures.CORE_TEXTURES.drawRegionAtPosPartialWidth(matrixStack, isBroken ? GuiTextures.POISE_BREAK : GuiTextures.POISE_BAR, castStartX, castStartY, barSize);
+
+    }
+
+    private void drawHP(MatrixStack matrixStack, MKPlayerData data, float partialTick) {
+        boolean isWithered = data.getEntity().getActivePotionEffect(Effects.WITHER) != null;
+        float absorption = data.getEntity().getAbsorptionAmount();
+        float maxHp = data.getEntity().getMaxHealth();
+        float current_hp = data.getEntity().getHealth();
+        String textureName = isWithered ? GuiTextures.WITHER_BAR_LONG : GuiTextures.HP_BAR_LONG;
+        float percentage = current_hp / maxHp;
+        int width = 75;
+        int barSize = Math.round(width * percentage);
+        if (current_hp > 0 && barSize < 1){
+            barSize = 1;
+        }
+        int height = mc.getMainWindow().getScaledHeight();
+        int winWidth = mc.getMainWindow().getScaledWidth();
+        int castStartY = height - 40;
+        int castStartX = (winWidth / 2) - 89;
+        GuiTextures.CORE_TEXTURES.bind(mc);
+        RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
+        GuiTextures.CORE_TEXTURES.drawRegionAtPosPartialWidth(matrixStack, textureName, castStartX, castStartY, barSize);
+        if (absorption > 0.0f){
+            float absorpPercentage = absorption / maxHp;
+            int abarSize = Math.round(width * absorpPercentage);
+            if (abarSize < 1){
+                abarSize = 1;
+            }
+            GuiTextures.CORE_TEXTURES.drawRegionAtPosPartialWidth(matrixStack, GuiTextures.ABSORPTION_BAR_LONG,
+                    castStartX, castStartY - 1, abarSize);
+        }
 
     }
 
@@ -201,9 +248,15 @@ public class MKOverlay {
         return startingSlot + slotCount;
     }
 
+
     @SuppressWarnings("unused")
     @SubscribeEvent
     public void onRender(RenderGameOverlayEvent.Pre event) {
+        if (event.getType() == RenderGameOverlayEvent.ElementType.HEALTH){
+            event.setCanceled(true);
+            ForgeIngameGui.left_height += 13;
+            return;
+        }
         if (event.getType() != RenderGameOverlayEvent.ElementType.ALL) {
             return;
         }
@@ -214,9 +267,11 @@ public class MKOverlay {
         mc.player.getCapability(CoreCapabilities.PLAYER_CAPABILITY).ifPresent(cap -> {
 
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            drawHP(event.getMatrixStack(), cap, event.getPartialTicks());
             drawMana(event.getMatrixStack(), cap);
             drawCastBar(event.getMatrixStack(), cap);
             drawPoise(event.getMatrixStack(), cap, event.getPartialTicks());
+            drawXpBar(event.getMatrixStack(), cap, event.getPartialTicks());
 
             int totalSlots = Arrays.stream(AbilityGroupId.values())
                     .filter(AbilityGroupId::isActive)
