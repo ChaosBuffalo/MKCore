@@ -32,6 +32,8 @@ public class CoreSounds {
     public static SoundEvent attack_cd_reset;
     @ObjectHolder("stun")
     public static SoundEvent stun_sound;
+    @ObjectHolder("quest_complete")
+    public static SoundEvent quest_complete_sound;
 
     public static void registerSound(RegistryEvent.Register<SoundEvent> evt, SoundEvent event) {
         evt.getRegistry().register(event);
@@ -56,5 +58,6 @@ public class CoreSounds {
         registerSound(evt, createSound("parry"));
         registerSound(evt, createSound("attack_cd_reset"));
         registerSound(evt, createSound("stun"));
+        registerSound(evt, createSound("quest_complete"));
     }
 }
