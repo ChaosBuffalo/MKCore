@@ -14,6 +14,7 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.potion.Effects;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
@@ -267,11 +268,14 @@ public class MKOverlay {
         mc.player.getCapability(CoreCapabilities.PLAYER_CAPABILITY).ifPresent(cap -> {
 
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-            drawHP(event.getMatrixStack(), cap, event.getPartialTicks());
-            drawMana(event.getMatrixStack(), cap);
+            if (mc.playerController != null && mc.playerController.shouldDrawHUD() && mc.getRenderViewEntity() instanceof PlayerEntity){
+                drawHP(event.getMatrixStack(), cap, event.getPartialTicks());
+                drawMana(event.getMatrixStack(), cap);
+                drawPoise(event.getMatrixStack(), cap, event.getPartialTicks());
+                drawXpBar(event.getMatrixStack(), cap, event.getPartialTicks());
+            }
             drawCastBar(event.getMatrixStack(), cap);
-            drawPoise(event.getMatrixStack(), cap, event.getPartialTicks());
-            drawXpBar(event.getMatrixStack(), cap, event.getPartialTicks());
+
 
             int totalSlots = Arrays.stream(AbilityGroupId.values())
                     .filter(AbilityGroupId::isActive)

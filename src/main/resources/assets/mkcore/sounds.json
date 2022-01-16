@@ -89,5 +89,14 @@
         "attenuation_distance": 20
       }
     ]
+  },
+  "quest_complete": {
+    "subtitle": "mkcore.subtitle.stun",
+    "sounds": [
+      {
+        "name": "mkcore:other/quest_complete",
+        "attenuation_distance": 10
+      }
+    ]
   }
 }
