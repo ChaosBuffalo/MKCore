@@ -26,6 +26,18 @@ public class GuiTextures {
     public static final String XP_BAR_YELLOW = "xp_bar_yellow";
     public static final String POISE_BAR = "poise_bar";
     public static final String POISE_BREAK = "poise_break";
+    public static final String HP_BAR = "hp_bar";
+    public static final String MANA_BAR = "mana_bar";
+    public static final String HP_WITHER_BAR = "hp_wither_bar";
+    public static final String ABSORPTON_BAR = "absorption_bar";
+    public static final String HP_BAR_LONG = "hp_bar_long";
+    public static final String WITHER_BAR_LONG = "wither_bar_long";
+    public static final String MANA_BAR_LONG = "mana_bar_long";
+    public static final String ABSORPTION_BAR_LONG = "absorption_bar_long";
+    public static final String XP_BAR_ON_SCREEN_YELLOW = "xp_bar_on_screen_yellow";
+    public static final String XP_BAR_ON_SCREEN_BACKGROUND = "xp_bar_on_screen_background";
+    public static final String XP_BAR_ON_SCREEN_BLUE = "xp_bar_on_screen_blue";
+
 
     static {
         CORE_TEXTURES.addTextureRegion(MANA_REGION, 326, 51, 3, 8);
@@ -47,6 +59,17 @@ public class GuiTextures {
         CORE_TEXTURES.addTextureRegion(DATA_BOX_SHORT, 0, 404, 308, 133);
         CORE_TEXTURES.addTextureRegion(POISE_BAR, 326, 118, 50, 3);
         CORE_TEXTURES.addTextureRegion(POISE_BREAK, 326, 125, 50, 3);
+        CORE_TEXTURES.addTextureRegion(HP_BAR, 326, 61, 50, 3);
+        CORE_TEXTURES.addTextureRegion(MANA_BAR, 326, 66, 50, 3);
+        CORE_TEXTURES.addTextureRegion(HP_WITHER_BAR, 326, 70, 50, 3);
+        CORE_TEXTURES.addTextureRegion(CAST_BAR_REGION, 378, 45, 50, 5);
+        CORE_TEXTURES.addTextureRegion(HP_BAR_LONG, 378, 61, 75, 3);
+        CORE_TEXTURES.addTextureRegion(MANA_BAR_LONG, 378, 66, 75, 3);
+        CORE_TEXTURES.addTextureRegion(WITHER_BAR_LONG, 378, 70, 75, 3);
+        CORE_TEXTURES.addTextureRegion(ABSORPTION_BAR_LONG, 378, 54, 75, 5);
+        CORE_TEXTURES.addTextureRegion(XP_BAR_ON_SCREEN_YELLOW, 393,108,59, 5);
+        CORE_TEXTURES.addTextureRegion(XP_BAR_ON_SCREEN_BACKGROUND, 391,100,63, 5);
+        CORE_TEXTURES.addTextureRegion(XP_BAR_ON_SCREEN_BLUE, 393,92,59, 5);
 
 
     }
