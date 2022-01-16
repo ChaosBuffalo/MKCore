@@ -148,9 +148,6 @@ public class MKDamageType extends ForgeRegistryEntry<MKDamageType> {
     }
 
     public boolean rollCrit(LivingEntity source, LivingEntity target, Entity immediate) {
-        if (target.isEntityUndead()) {
-            return false;
-        }
         float critChance = getCritChance(source, target, immediate);
         return MKCombatFormulas.checkCrit(source, critChance);
     }
