@@ -27,7 +27,7 @@ public class MKAttributes {
             .setRegistryName(MKCore.makeRL("melee_crit_chance"))
             .setShouldWatch(true);
 
-    public static final Attribute MELEE_CRIT_MULTIPLIER = new MKRangedAttribute("attribute.name.mk.melee_crit_multiplier", 0.0, 0.0, 10.0)
+    public static final Attribute MELEE_CRIT_MULTIPLIER = new MKRangedAttribute("attribute.name.mk.melee_crit_multiplier", 1.0, 0.0, 10.0)
             .setRegistryName(MKCore.makeRL("melee_crit_multiplier"))
             .setShouldWatch(true);
 
