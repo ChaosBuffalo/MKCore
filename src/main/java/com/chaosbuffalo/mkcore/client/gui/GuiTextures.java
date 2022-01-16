@@ -62,7 +62,7 @@ public class GuiTextures {
         CORE_TEXTURES.addTextureRegion(HP_BAR, 326, 61, 50, 3);
         CORE_TEXTURES.addTextureRegion(MANA_BAR, 326, 66, 50, 3);
         CORE_TEXTURES.addTextureRegion(HP_WITHER_BAR, 326, 70, 50, 3);
-        CORE_TEXTURES.addTextureRegion(CAST_BAR_REGION, 378, 45, 50, 5);
+        CORE_TEXTURES.addTextureRegion(CAST_BAR_REGION, 326, 45, 50, 5);
         CORE_TEXTURES.addTextureRegion(HP_BAR_LONG, 378, 61, 75, 3);
         CORE_TEXTURES.addTextureRegion(MANA_BAR_LONG, 378, 66, 75, 3);
         CORE_TEXTURES.addTextureRegion(WITHER_BAR_LONG, 378, 70, 75, 3);
