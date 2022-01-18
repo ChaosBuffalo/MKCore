@@ -173,21 +173,13 @@ public abstract class MKEffect extends ForgeRegistryEntry<MKEffect> {
         return new AttributeModifier(template.modifier.getID(), getName() + " " + stacks, amount, template.modifier.getOperation());
     }
 
-    public static double calculateModifierDesc(MKAttributeModifierEntry modifier, int stackCount, LivingEntity caster,
-                                               float skillLevel){
-        float skill = 0;
-        if (caster != null){
-            if (modifier.skill != null){
-                skill = MKAbility.getSkillLevel(caster, modifier.skill);
-            } else {
-                skill = skillLevel;
-            }
-        }
-        return modifier.base + (modifier.modifier.getAmount() * stackCount * skill);
+    public static double calculateModifierDesc(MKAttributeModifierEntry modifier, int stackCount, float skillLevel){
+        return modifier.base + (modifier.modifier.getAmount() * stackCount * skillLevel);
     }
 
     protected double calculateModifierAmount(MKAttributeModifierEntry modifier, MKActiveEffect activeEffect) {
-        return calculateModifierDesc(modifier, activeEffect.getStackCount(), activeEffect.getSourceEntity(), activeEffect.getSkillLevel());
+        return calculateModifierDesc(modifier, activeEffect.getStackCount(),
+                modifier.skill != null ? activeEffect.getAttrSkillLevel(modifier.skill) : 0.0f);
     }
 
     /**

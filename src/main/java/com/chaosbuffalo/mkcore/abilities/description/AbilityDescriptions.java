@@ -52,7 +52,8 @@ public class AbilityDescriptions {
             desc.add(new TranslationTextComponent("mkcore.ability.description.effect"));
         }
         for (Map.Entry<Attribute, MKEffect.MKAttributeModifierEntry> entry : effect.getAttributeModifierMap().entrySet()) {
-            double value = MKEffect.calculateModifierDesc(entry.getValue(), 1, casterData.getEntity(), 0);
+            double value = MKEffect.calculateModifierDesc(entry.getValue(), 1,
+                    entry.getValue().skill != null ? MKAbility.getSkillLevel(casterData.getEntity(), entry.getValue().skill) : 0.0f);
             desc.add(new StringTextComponent("    ")
                     .appendSibling(new TranslationTextComponent(entry.getKey().getAttributeName()))
                     .appendString(String.format(": %s%.2f ", value > 0 ? "+" : "", value)).mergeStyle(value > 0 ? TextFormatting.GREEN : TextFormatting.DARK_RED));
