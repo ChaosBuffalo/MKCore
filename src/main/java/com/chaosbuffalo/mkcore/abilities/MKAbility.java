@@ -32,6 +32,7 @@ import net.minecraftforge.registries.ForgeRegistryEntry;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.text.NumberFormat;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -49,6 +50,9 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
     private static final ResourceLocation EMPTY_PARTICLES = new ResourceLocation(MKCore.MOD_ID, "fx.casting.empty");
     protected final ResourceLocationAttribute casting_particles = new ResourceLocationAttribute("casting_particles", EMPTY_PARTICLES);
     public static final ResourceLocation POOL_SLOT_ICON = new ResourceLocation(MKCore.MOD_ID, "textures/talents/pool_count_icon_filled.png");
+    protected static final NumberFormat PERCENT_FORMATTER = NumberFormat.getPercentInstance();
+    protected static final NumberFormat INTEGER_FORMATTER = NumberFormat.getIntegerInstance();
+    protected static final NumberFormat NUMBER_FORMATTER = NumberFormat.getNumberInstance();
 
 
     public MKAbility(String domain, String id) {
@@ -79,9 +83,9 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
         float bonus = casterData.getStats().getDamageTypeBonus(damageType) * modifierScaling;
         float abilityDamage = damage + (scale * level) + bonus;
         IFormattableTextComponent damageStr = StringTextComponent.EMPTY.deepCopy();
-        damageStr.appendSibling(new StringTextComponent(String.format("%.1f", abilityDamage)).mergeStyle(TextFormatting.BOLD));
+        damageStr.appendSibling(new StringTextComponent(NUMBER_FORMATTER.format(abilityDamage)).mergeStyle(TextFormatting.BOLD));
         if (bonus != 0) {
-            damageStr.appendSibling(new StringTextComponent(String.format(" (+%.1f)", bonus)).mergeStyle(TextFormatting.BOLD));
+            damageStr.appendSibling(new StringTextComponent(String.format(" (+%s)", NUMBER_FORMATTER.format(bonus))).mergeStyle(TextFormatting.BOLD));
         }
         damageStr.appendString(" ").appendSibling(damageType.getDisplayName().mergeStyle(damageType.getFormatting()));
         return damageStr;
@@ -91,9 +95,9 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
     protected IFormattableTextComponent formatEffectValue(float damage, float levelScale, float level, float bonus, float scaleMod) {
         float value = damage + (levelScale * level) + (bonus * scaleMod);
         IFormattableTextComponent damageStr = StringTextComponent.EMPTY.deepCopy();
-        damageStr.appendSibling(new StringTextComponent(String.format("%.1f", value)).mergeStyle(TextFormatting.BOLD));
+        damageStr.appendSibling(new StringTextComponent(NUMBER_FORMATTER.format(value)).mergeStyle(TextFormatting.BOLD));
         if (bonus != 0) {
-            damageStr.appendSibling(new StringTextComponent(String.format(" (+%.1f)", bonus)).mergeStyle(TextFormatting.BOLD));
+            damageStr.appendSibling(new StringTextComponent(String.format(" (+%s)", NUMBER_FORMATTER.format(bonus))).mergeStyle(TextFormatting.BOLD));
         }
         return damageStr;
     }
