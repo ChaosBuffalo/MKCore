@@ -2,6 +2,7 @@ package com.chaosbuffalo.mkcore.effects;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
+import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.targeting_api.Targeting;
 import com.chaosbuffalo.targeting_api.TargetingContext;
@@ -23,9 +24,28 @@ import net.minecraftforge.registries.ForgeRegistryEntry;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.function.Supplier;
 
 public abstract class MKEffect extends ForgeRegistryEntry<MKEffect> {
-    private final Map<Attribute, AttributeModifier> attributeModifierMap = new HashMap<>();
+    private final Map<Attribute, MKAttributeModifierEntry> attributeModifierMap = new HashMap<>();
+
+    public static class MKAttributeModifierEntry {
+
+        public AttributeModifier modifier;
+        public double base;
+        @Nullable
+        public Attribute skill;
+        public boolean skillInvert;
+
+
+        public MKAttributeModifierEntry(Supplier<String> nameProvider, UUID uuid, double base, double amount,
+                                        AttributeModifier.Operation operation, Attribute skill, boolean skillInvert){
+            modifier = new AttributeModifier(uuid, nameProvider, amount, operation);
+            this.base = base;
+            this.skill = skill;
+            this.skillInvert = skillInvert;
+        }
+    }
 
     @Nullable
     protected String name;
@@ -107,7 +127,7 @@ public abstract class MKEffect extends ForgeRegistryEntry<MKEffect> {
         return new MKActiveEffect(this, sourceId);
     }
 
-    public Map<Attribute, AttributeModifier> getAttributeModifierMap() {
+    public Map<Attribute, MKAttributeModifierEntry> getAttributeModifierMap() {
         return attributeModifierMap;
     }
 
@@ -116,41 +136,64 @@ public abstract class MKEffect extends ForgeRegistryEntry<MKEffect> {
     }
 
     public MKEffect addAttribute(Attribute attribute, UUID uuid, double amount, AttributeModifier.Operation operation) {
-        AttributeModifier modifier = new AttributeModifier(uuid, this::getName, amount, operation);
-        attributeModifierMap.put(attribute, modifier);
+        return this.addAttribute(attribute, uuid, amount, amount, operation, null, false);
+    }
+
+    public MKEffect addAttribute(Attribute attribute, UUID uuid, double base, double amount,
+                                 AttributeModifier.Operation operation, Attribute skill, boolean invertSkill) {
+        attributeModifierMap.put(attribute, new MKAttributeModifierEntry(this::getName, uuid, base, amount, operation,
+                skill, invertSkill));
         return this;
     }
 
     protected void removeAttributesModifiers(IMKEntityData targetData) {
         AttributeModifierManager manager = targetData.getEntity().getAttributeManager();
-        for (Map.Entry<Attribute, AttributeModifier> entry : getAttributeModifierMap().entrySet()) {
+        for (Map.Entry<Attribute, MKAttributeModifierEntry> entry : getAttributeModifierMap().entrySet()) {
             ModifiableAttributeInstance attrInstance = manager.createInstanceIfAbsent(entry.getKey());
             if (attrInstance != null) {
-                attrInstance.removeModifier(entry.getValue());
+                attrInstance.removeModifier(entry.getValue().modifier);
             }
         }
     }
 
     protected void applyAttributesModifiers(IMKEntityData targetData, MKActiveEffect activeEffect) {
         AttributeModifierManager manager = targetData.getEntity().getAttributeManager();
-        for (Map.Entry<Attribute, AttributeModifier> entry : getAttributeModifierMap().entrySet()) {
+        for (Map.Entry<Attribute, MKAttributeModifierEntry> entry : getAttributeModifierMap().entrySet()) {
             ModifiableAttributeInstance attrInstance = manager.createInstanceIfAbsent(entry.getKey());
             if (attrInstance != null) {
-                AttributeModifier template = entry.getValue();
-                attrInstance.removeModifier(template);
+                MKAttributeModifierEntry template = entry.getValue();
+                attrInstance.removeModifier(template.modifier);
                 attrInstance.applyPersistentModifier(createModifier(template, activeEffect));
             }
         }
     }
 
-    private AttributeModifier createModifier(AttributeModifier template, MKActiveEffect activeEffect) {
+    private AttributeModifier createModifier(MKAttributeModifierEntry template, MKActiveEffect activeEffect) {
         int stacks = activeEffect.getStackCount();
+
+
         double amount = calculateModifierAmount(template, activeEffect);
-        return new AttributeModifier(template.getID(), getName() + " " + stacks, amount, template.getOperation());
+        return new AttributeModifier(template.modifier.getID(), getName() + " " + stacks, amount, template.modifier.getOperation());
     }
 
-    protected double calculateModifierAmount(AttributeModifier modifier, MKActiveEffect activeEffect) {
-        return modifier.getAmount() + (modifier.getAmount() * activeEffect.getStackCount() * activeEffect.getSkillLevel());
+    public static double calculateModifierDesc(MKAttributeModifierEntry modifier, int stackCount, LivingEntity caster,
+                                               float skillLevel){
+        float skill = 0;
+        if (caster != null){
+            if (modifier.skill != null){
+                skill = MKAbility.getSkillLevel(caster, modifier.skill);
+            } else {
+                skill = skillLevel;
+            }
+            if (modifier.skillInvert){
+                skill = 10.0f - skill;
+            }
+        }
+        return modifier.base + (modifier.modifier.getAmount() * stackCount * skill);
+    }
+
+    protected double calculateModifierAmount(MKAttributeModifierEntry modifier, MKActiveEffect activeEffect) {
+        return calculateModifierDesc(modifier, activeEffect.getStackCount(), activeEffect.getSourceEntity(), activeEffect.getSkillLevel());
     }
 
     /**

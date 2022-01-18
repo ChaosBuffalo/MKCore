@@ -8,6 +8,7 @@ import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.potion.Effect;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 
 import java.util.ArrayList;
@@ -50,11 +51,11 @@ public class AbilityDescriptions {
         } else {
             desc.add(new TranslationTextComponent("mkcore.ability.description.effect"));
         }
-        for (Map.Entry<Attribute, AttributeModifier> entry : effect.getAttributeModifierMap().entrySet()) {
+        for (Map.Entry<Attribute, MKEffect.MKAttributeModifierEntry> entry : effect.getAttributeModifierMap().entrySet()) {
+            double value = MKEffect.calculateModifierDesc(entry.getValue(), 1, casterData.getEntity(), 0);
             desc.add(new StringTextComponent("    ")
                     .appendSibling(new TranslationTextComponent(entry.getKey().getAttributeName()))
-                    .appendString(String.format(": %s%.2f ", entry.getValue().getAmount() > 0 ? "+" : "", entry.getValue().getAmount()))
-                    .appendSibling(new TranslationTextComponent("mkcore.ability.description.per_level")));
+                    .appendString(String.format(": %s%.2f ", value > 0 ? "+" : "", value)).mergeStyle(value > 0 ? TextFormatting.GREEN : TextFormatting.DARK_RED));
         }
         return desc;
     }
