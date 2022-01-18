@@ -54,7 +54,7 @@ public class MKActiveEffect {
         abilityId = builder.getAbilityId();
         sourceEntity = builder.getSourceEntity();
         directEntity = builder.getDirectEntity();
-        for (Map.Entry<Attribute, MKEffect.MKAttributeModifierEntry> entry : effect.getAttributeModifierMap().entrySet()){
+        for (Map.Entry<Attribute, MKEffect.Modifier> entry : effect.getAttributeModifierMap().entrySet()){
             if (entry.getValue().skill != null){
                 attrSkillLevels.put(entry.getValue().skill, MKAbility.getSkillLevel(sourceEntity, entry.getValue().skill));
             }

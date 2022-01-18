@@ -2,7 +2,6 @@ package com.chaosbuffalo.mkcore.effects;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
-import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.targeting_api.Targeting;
 import com.chaosbuffalo.targeting_api.TargetingContext;
@@ -27,18 +26,17 @@ import java.util.*;
 import java.util.function.Supplier;
 
 public abstract class MKEffect extends ForgeRegistryEntry<MKEffect> {
-    private final Map<Attribute, MKAttributeModifierEntry> attributeModifierMap = new HashMap<>();
+    private final Map<Attribute, Modifier> attributeModifierMap = new HashMap<>();
 
-    public static class MKAttributeModifierEntry {
-
+    public static class Modifier {
         public AttributeModifier modifier;
         public double base;
         @Nullable
         public Attribute skill;
 
 
-        public MKAttributeModifierEntry(Supplier<String> nameProvider, UUID uuid, double base, double amount,
-                                        AttributeModifier.Operation operation, Attribute skill){
+        public Modifier(Supplier<String> nameProvider, UUID uuid, double base, double amount,
+                        AttributeModifier.Operation operation, Attribute skill){
             modifier = new AttributeModifier(uuid, nameProvider, amount, operation);
             this.base = base;
             this.skill = skill;
@@ -125,7 +123,7 @@ public abstract class MKEffect extends ForgeRegistryEntry<MKEffect> {
         return new MKActiveEffect(this, sourceId);
     }
 
-    public Map<Attribute, MKAttributeModifierEntry> getAttributeModifierMap() {
+    public Map<Attribute, Modifier> getAttributeModifierMap() {
         return attributeModifierMap;
     }
 
@@ -139,13 +137,13 @@ public abstract class MKEffect extends ForgeRegistryEntry<MKEffect> {
 
     public MKEffect addAttribute(Attribute attribute, UUID uuid, double base, double amount,
                                  AttributeModifier.Operation operation, Attribute skill) {
-        attributeModifierMap.put(attribute, new MKAttributeModifierEntry(this::getName, uuid, base, amount, operation, skill));
+        attributeModifierMap.put(attribute, new Modifier(this::getName, uuid, base, amount, operation, skill));
         return this;
     }
 
     protected void removeAttributesModifiers(IMKEntityData targetData) {
         AttributeModifierManager manager = targetData.getEntity().getAttributeManager();
-        for (Map.Entry<Attribute, MKAttributeModifierEntry> entry : getAttributeModifierMap().entrySet()) {
+        for (Map.Entry<Attribute, Modifier> entry : getAttributeModifierMap().entrySet()) {
             ModifiableAttributeInstance attrInstance = manager.createInstanceIfAbsent(entry.getKey());
             if (attrInstance != null) {
                 attrInstance.removeModifier(entry.getValue().modifier);
@@ -155,17 +153,17 @@ public abstract class MKEffect extends ForgeRegistryEntry<MKEffect> {
 
     protected void applyAttributesModifiers(IMKEntityData targetData, MKActiveEffect activeEffect) {
         AttributeModifierManager manager = targetData.getEntity().getAttributeManager();
-        for (Map.Entry<Attribute, MKAttributeModifierEntry> entry : getAttributeModifierMap().entrySet()) {
+        for (Map.Entry<Attribute, Modifier> entry : getAttributeModifierMap().entrySet()) {
             ModifiableAttributeInstance attrInstance = manager.createInstanceIfAbsent(entry.getKey());
             if (attrInstance != null) {
-                MKAttributeModifierEntry template = entry.getValue();
+                Modifier template = entry.getValue();
                 attrInstance.removeModifier(template.modifier);
                 attrInstance.applyPersistentModifier(createModifier(template, activeEffect));
             }
         }
     }
 
-    private AttributeModifier createModifier(MKAttributeModifierEntry template, MKActiveEffect activeEffect) {
+    private AttributeModifier createModifier(Modifier template, MKActiveEffect activeEffect) {
         int stacks = activeEffect.getStackCount();
 
 
@@ -173,11 +171,11 @@ public abstract class MKEffect extends ForgeRegistryEntry<MKEffect> {
         return new AttributeModifier(template.modifier.getID(), getName() + " " + stacks, amount, template.modifier.getOperation());
     }
 
-    public static double calculateModifierDesc(MKAttributeModifierEntry modifier, int stackCount, float skillLevel){
+    public double calculateModifierDesc(Modifier modifier, int stackCount, float skillLevel){
         return modifier.base + (modifier.modifier.getAmount() * stackCount * skillLevel);
     }
 
-    protected double calculateModifierAmount(MKAttributeModifierEntry modifier, MKActiveEffect activeEffect) {
+    protected double calculateModifierAmount(Modifier modifier, MKActiveEffect activeEffect) {
         return calculateModifierDesc(modifier, activeEffect.getStackCount(),
                 modifier.skill != null ? activeEffect.getAttrSkillLevel(modifier.skill) : 0.0f);
     }

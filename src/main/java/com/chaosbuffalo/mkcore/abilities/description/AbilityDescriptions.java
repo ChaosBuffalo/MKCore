@@ -51,8 +51,8 @@ public class AbilityDescriptions {
         } else {
             desc.add(new TranslationTextComponent("mkcore.ability.description.effect"));
         }
-        for (Map.Entry<Attribute, MKEffect.MKAttributeModifierEntry> entry : effect.getAttributeModifierMap().entrySet()) {
-            double value = MKEffect.calculateModifierDesc(entry.getValue(), 1,
+        for (Map.Entry<Attribute, MKEffect.Modifier> entry : effect.getAttributeModifierMap().entrySet()) {
+            double value = effect.calculateModifierDesc(entry.getValue(), 1,
                     entry.getValue().skill != null ? MKAbility.getSkillLevel(casterData.getEntity(), entry.getValue().skill) : 0.0f);
             desc.add(new StringTextComponent("    ")
                     .appendSibling(new TranslationTextComponent(entry.getKey().getAttributeName()))
