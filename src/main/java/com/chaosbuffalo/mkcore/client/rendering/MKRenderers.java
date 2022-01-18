@@ -59,6 +59,16 @@ public class MKRenderers {
                         spriteSet, -0.0001f, 0.05f,
                         0.05f, 80, true,
                         null));
+        Minecraft.getInstance().particles.registerFactory(CoreParticles.MAGIC_SIDEWAYS_LINE,
+                (spriteSet) -> new MKParticle.MKParticleFactory(
+                        spriteSet, -0.0001f, 0.05f,
+                        0.05f, 80, true,
+                        null));
+        Minecraft.getInstance().particles.registerFactory(CoreParticles.MAGIC_CHIP,
+                (spriteSet) -> new MKParticle.MKParticleFactory(
+                        spriteSet, -0.0001f, 0.05f,
+                        0.05f, 80, true,
+                        null));
         Minecraft.getInstance().particles.registerFactory(CoreParticles.INDICATOR_PARTICLE,
                 IndicatorParticle.IndicatorFactory::new);
     }

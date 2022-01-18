@@ -66,7 +66,7 @@ public class MKAttributes {
             .setRegistryName(MKCore.makeRL("cooldown_rate"))
             .setShouldWatch(true);
 
-    public static final Attribute HEAL_BONUS = new MKRangedAttribute("attribute.name.mk.heal_bonus", 1.0, 0.0, 2.0)
+    public static final Attribute HEAL_BONUS = new MKRangedAttribute("attribute.name.mk.heal_bonus", 0.0, 0.0, 2.0)
             .setRegistryName(MKCore.makeRL("heal_bonus"))
             .setShouldWatch(true);
 

@@ -32,6 +32,10 @@ public class CoreParticles {
     public static ParticleType<MKParticleData> MAGIC_GRADIENT_SQUARE;
     @ObjectHolder("indicator_particle")
     public static BasicParticleType INDICATOR_PARTICLE;
+    @ObjectHolder("magic_sideways_line")
+    public static ParticleType<MKParticleData> MAGIC_SIDEWAYS_LINE;
+    @ObjectHolder("magic_chip")
+    public static ParticleType<MKParticleData> MAGIC_CHIP;
 
     @SubscribeEvent
     public static void registerParticles(RegistryEvent.Register<ParticleType<?>> evt){
@@ -80,6 +84,24 @@ public class CoreParticles {
         magicGradientSquare.setRegistryName(CoreRegistryNames.MAGIC_GRADIENT_SQUARE_NAME);
         evt.getRegistry().register(magicGradientSquare);
 
+        ParticleType<MKParticleData> magicSidewaysLine = new ParticleType<MKParticleData>(false, MKParticleData.DESERIALIZER){
+            @Override
+            public Codec<MKParticleData> func_230522_e_() {
+                return MKParticleData.typeCodec(this);
+            }
+        };
+        magicSidewaysLine.setRegistryName(CoreRegistryNames.MAGIC_SIDEWAYS_LINE_NAME);
+        evt.getRegistry().register(magicSidewaysLine);
+
+        ParticleType<MKParticleData> magicChip = new ParticleType<MKParticleData>(false, MKParticleData.DESERIALIZER){
+            @Override
+            public Codec<MKParticleData> func_230522_e_() {
+                return MKParticleData.typeCodec(this);
+            }
+        };
+        magicChip.setRegistryName(CoreRegistryNames.MAGIC_CHIP_NAME);
+        evt.getRegistry().register(magicChip);
+
         BasicParticleType indiciatorParticle = new BasicParticleType(true);
         indiciatorParticle.setRegistryName(MKCore.MOD_ID, "indicator_particle");
         evt.getRegistry().register(indiciatorParticle);
@@ -92,6 +114,8 @@ public class CoreParticles {
         ParticleAnimationManager.putParticleTypeForEditor(CoreRegistryNames.MAGIC_CROSS_NAME, MAGIC_CROSS);
         ParticleAnimationManager.putParticleTypeForEditor(CoreRegistryNames.MAGIC_GRADIENT_SQUARE_NAME, MAGIC_GRADIENT_SQUARE);
         ParticleAnimationManager.putParticleTypeForEditor(CoreRegistryNames.MAGIC_CLOVER_NAME, MAGIC_CLOVER);
+        ParticleAnimationManager.putParticleTypeForEditor(CoreRegistryNames.MAGIC_SIDEWAYS_LINE_NAME, MAGIC_SIDEWAYS_LINE);
+        ParticleAnimationManager.putParticleTypeForEditor(CoreRegistryNames.MAGIC_CHIP_NAME, MAGIC_CHIP);
     }
 
 }
