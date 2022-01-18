@@ -18,7 +18,7 @@ public class MKResistance extends MKEffect {
         super(perLevel > 0.0f ? EffectType.BENEFICIAL : EffectType.HARMFUL);
         setRegistryName(loc);
         this.perLevel = perLevel;
-        addAttribute(attribute, attrId, perLevel, perLevel, AttributeModifier.Operation.ADDITION, MKAttributes.ABJURATION, false);
+        addAttribute(attribute, attrId, perLevel, perLevel, AttributeModifier.Operation.ADDITION, MKAttributes.ABJURATION);
     }
 
     public float getPerLevel(){

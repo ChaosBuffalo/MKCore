@@ -35,15 +35,13 @@ public abstract class MKEffect extends ForgeRegistryEntry<MKEffect> {
         public double base;
         @Nullable
         public Attribute skill;
-        public boolean skillInvert;
 
 
         public MKAttributeModifierEntry(Supplier<String> nameProvider, UUID uuid, double base, double amount,
-                                        AttributeModifier.Operation operation, Attribute skill, boolean skillInvert){
+                                        AttributeModifier.Operation operation, Attribute skill){
             modifier = new AttributeModifier(uuid, nameProvider, amount, operation);
             this.base = base;
             this.skill = skill;
-            this.skillInvert = skillInvert;
         }
     }
 
@@ -136,13 +134,12 @@ public abstract class MKEffect extends ForgeRegistryEntry<MKEffect> {
     }
 
     public MKEffect addAttribute(Attribute attribute, UUID uuid, double amount, AttributeModifier.Operation operation) {
-        return this.addAttribute(attribute, uuid, amount, amount, operation, null, false);
+        return this.addAttribute(attribute, uuid, amount, amount, operation, null);
     }
 
     public MKEffect addAttribute(Attribute attribute, UUID uuid, double base, double amount,
-                                 AttributeModifier.Operation operation, Attribute skill, boolean invertSkill) {
-        attributeModifierMap.put(attribute, new MKAttributeModifierEntry(this::getName, uuid, base, amount, operation,
-                skill, invertSkill));
+                                 AttributeModifier.Operation operation, Attribute skill) {
+        attributeModifierMap.put(attribute, new MKAttributeModifierEntry(this::getName, uuid, base, amount, operation, skill));
         return this;
     }
 
@@ -184,9 +181,6 @@ public abstract class MKEffect extends ForgeRegistryEntry<MKEffect> {
                 skill = MKAbility.getSkillLevel(caster, modifier.skill);
             } else {
                 skill = skillLevel;
-            }
-            if (modifier.skillInvert){
-                skill = 10.0f - skill;
             }
         }
         return modifier.base + (modifier.modifier.getAmount() * stackCount * skill);
