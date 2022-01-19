@@ -240,6 +240,7 @@ public class EntityEffectHandler {
         sources.values().stream()
                 .filter(EffectSource::hasEffects)
                 .forEach(EffectSource::tick);
+        checkEmpty();
     }
 
     public void onJoinWorld() {
@@ -276,7 +277,6 @@ public class EntityEffectHandler {
     public void removeEffect(MKEffect effect) {
         if (hasEffects()) {
             sources.values().forEach(s -> s.removeEffect(effect));
-            checkEmpty();
         }
     }
 
@@ -290,7 +290,6 @@ public class EntityEffectHandler {
     public void clearEffects() {
         if (hasEffects()) {
             sources.values().forEach(EffectSource::clearEffects);
-            checkEmpty();
         }
     }
 
