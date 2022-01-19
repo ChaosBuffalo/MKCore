@@ -56,7 +56,9 @@ public class AbilityDescriptions {
                     entry.getValue().skill != null ? MKAbility.getSkillLevel(casterData.getEntity(), entry.getValue().skill) : 0.0f);
             desc.add(new StringTextComponent("    ")
                     .appendSibling(new TranslationTextComponent(entry.getKey().getAttributeName()))
-                    .appendString(String.format(": %s%.2f ", value > 0 ? "+" : "", value)).mergeStyle(value > 0 ? TextFormatting.GREEN : TextFormatting.DARK_RED));
+                    .appendString(String.format(": %s%s ", value > 0 ? "+" : "", entry.getValue().modifier.getOperation() == AttributeModifier.Operation.ADDITION ?
+                            MKAbility.NUMBER_FORMATTER.format(value) : MKAbility.PERCENT_FORMATTER.format(value)))
+                    .mergeStyle(value > 0 ? TextFormatting.GREEN : TextFormatting.DARK_RED));
         }
         return desc;
     }
