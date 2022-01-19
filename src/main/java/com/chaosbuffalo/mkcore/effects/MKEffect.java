@@ -23,9 +23,25 @@ import net.minecraftforge.registries.ForgeRegistryEntry;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.function.Supplier;
 
 public abstract class MKEffect extends ForgeRegistryEntry<MKEffect> {
-    private final Map<Attribute, AttributeModifier> attributeModifierMap = new HashMap<>();
+    private final Map<Attribute, Modifier> attributeModifierMap = new HashMap<>();
+
+    public static class Modifier {
+        public AttributeModifier modifier;
+        public double base;
+        @Nullable
+        public Attribute skill;
+
+
+        public Modifier(Supplier<String> nameProvider, UUID uuid, double base, double amount,
+                        AttributeModifier.Operation operation, Attribute skill){
+            modifier = new AttributeModifier(uuid, nameProvider, amount, operation);
+            this.base = base;
+            this.skill = skill;
+        }
+    }
 
     @Nullable
     protected String name;
@@ -107,7 +123,7 @@ public abstract class MKEffect extends ForgeRegistryEntry<MKEffect> {
         return new MKActiveEffect(this, sourceId);
     }
 
-    public Map<Attribute, AttributeModifier> getAttributeModifierMap() {
+    public Map<Attribute, Modifier> getAttributeModifierMap() {
         return attributeModifierMap;
     }
 
@@ -116,41 +132,52 @@ public abstract class MKEffect extends ForgeRegistryEntry<MKEffect> {
     }
 
     public MKEffect addAttribute(Attribute attribute, UUID uuid, double amount, AttributeModifier.Operation operation) {
-        AttributeModifier modifier = new AttributeModifier(uuid, this::getName, amount, operation);
-        attributeModifierMap.put(attribute, modifier);
+        return this.addAttribute(attribute, uuid, amount, amount, operation, null);
+    }
+
+    public MKEffect addAttribute(Attribute attribute, UUID uuid, double base, double amount,
+                                 AttributeModifier.Operation operation, Attribute skill) {
+        attributeModifierMap.put(attribute, new Modifier(this::getName, uuid, base, amount, operation, skill));
         return this;
     }
 
     protected void removeAttributesModifiers(IMKEntityData targetData) {
         AttributeModifierManager manager = targetData.getEntity().getAttributeManager();
-        for (Map.Entry<Attribute, AttributeModifier> entry : getAttributeModifierMap().entrySet()) {
+        for (Map.Entry<Attribute, Modifier> entry : getAttributeModifierMap().entrySet()) {
             ModifiableAttributeInstance attrInstance = manager.createInstanceIfAbsent(entry.getKey());
             if (attrInstance != null) {
-                attrInstance.removeModifier(entry.getValue());
+                attrInstance.removeModifier(entry.getValue().modifier);
             }
         }
     }
 
     protected void applyAttributesModifiers(IMKEntityData targetData, MKActiveEffect activeEffect) {
         AttributeModifierManager manager = targetData.getEntity().getAttributeManager();
-        for (Map.Entry<Attribute, AttributeModifier> entry : getAttributeModifierMap().entrySet()) {
+        for (Map.Entry<Attribute, Modifier> entry : getAttributeModifierMap().entrySet()) {
             ModifiableAttributeInstance attrInstance = manager.createInstanceIfAbsent(entry.getKey());
             if (attrInstance != null) {
-                AttributeModifier template = entry.getValue();
-                attrInstance.removeModifier(template);
+                Modifier template = entry.getValue();
+                attrInstance.removeModifier(template.modifier);
                 attrInstance.applyPersistentModifier(createModifier(template, activeEffect));
             }
         }
     }
 
-    private AttributeModifier createModifier(AttributeModifier template, MKActiveEffect activeEffect) {
+    private AttributeModifier createModifier(Modifier template, MKActiveEffect activeEffect) {
         int stacks = activeEffect.getStackCount();
+
+
         double amount = calculateModifierAmount(template, activeEffect);
-        return new AttributeModifier(template.getID(), getName() + " " + stacks, amount, template.getOperation());
+        return new AttributeModifier(template.modifier.getID(), getName() + " " + stacks, amount, template.modifier.getOperation());
     }
 
-    protected double calculateModifierAmount(AttributeModifier modifier, MKActiveEffect activeEffect) {
-        return modifier.getAmount() + (modifier.getAmount() * activeEffect.getStackCount() * activeEffect.getSkillLevel());
+    public double calculateModifierDesc(Modifier modifier, int stackCount, float skillLevel){
+        return modifier.base + (modifier.modifier.getAmount() * stackCount * skillLevel);
+    }
+
+    protected double calculateModifierAmount(Modifier modifier, MKActiveEffect activeEffect) {
+        return calculateModifierDesc(modifier, activeEffect.getStackCount(),
+                modifier.skill != null ? activeEffect.getAttrSkillLevel(modifier.skill) : 0.0f);
     }
 
     /**

@@ -50,9 +50,9 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
     private static final ResourceLocation EMPTY_PARTICLES = new ResourceLocation(MKCore.MOD_ID, "fx.casting.empty");
     protected final ResourceLocationAttribute casting_particles = new ResourceLocationAttribute("casting_particles", EMPTY_PARTICLES);
     public static final ResourceLocation POOL_SLOT_ICON = new ResourceLocation(MKCore.MOD_ID, "textures/talents/pool_count_icon_filled.png");
-    protected static final NumberFormat PERCENT_FORMATTER = NumberFormat.getPercentInstance();
-    protected static final NumberFormat INTEGER_FORMATTER = NumberFormat.getIntegerInstance();
-    protected static final NumberFormat NUMBER_FORMATTER = NumberFormat.getNumberInstance();
+    public static final NumberFormat PERCENT_FORMATTER = NumberFormat.getPercentInstance();
+    public static final NumberFormat INTEGER_FORMATTER = NumberFormat.getIntegerInstance();
+    public static final NumberFormat NUMBER_FORMATTER = NumberFormat.getNumberInstance();
 
 
     public MKAbility(String domain, String id) {

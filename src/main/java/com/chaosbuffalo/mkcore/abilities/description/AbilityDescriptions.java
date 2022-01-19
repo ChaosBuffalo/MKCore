@@ -8,6 +8,7 @@ import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.potion.Effect;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 
 import java.util.ArrayList;
@@ -50,11 +51,14 @@ public class AbilityDescriptions {
         } else {
             desc.add(new TranslationTextComponent("mkcore.ability.description.effect"));
         }
-        for (Map.Entry<Attribute, AttributeModifier> entry : effect.getAttributeModifierMap().entrySet()) {
+        for (Map.Entry<Attribute, MKEffect.Modifier> entry : effect.getAttributeModifierMap().entrySet()) {
+            double value = effect.calculateModifierDesc(entry.getValue(), 1,
+                    entry.getValue().skill != null ? MKAbility.getSkillLevel(casterData.getEntity(), entry.getValue().skill) : 0.0f);
             desc.add(new StringTextComponent("    ")
                     .appendSibling(new TranslationTextComponent(entry.getKey().getAttributeName()))
-                    .appendString(String.format(": %s%.2f ", entry.getValue().getAmount() > 0 ? "+" : "", entry.getValue().getAmount()))
-                    .appendSibling(new TranslationTextComponent("mkcore.ability.description.per_level")));
+                    .appendString(String.format(": %s%s ", value > 0 ? "+" : "", entry.getValue().modifier.getOperation() == AttributeModifier.Operation.ADDITION ?
+                            MKAbility.NUMBER_FORMATTER.format(value) : MKAbility.PERCENT_FORMATTER.format(value)))
+                    .mergeStyle(value > 0 ? TextFormatting.GREEN : TextFormatting.DARK_RED));
         }
         return desc;
     }
