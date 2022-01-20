@@ -23,16 +23,20 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.util.InputMappings;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.Attribute;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
+import net.minecraft.entity.item.ItemFrameEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.projectile.ProjectileHelper;
 import net.minecraft.item.ArmorItem;
 import net.minecraft.item.ShieldItem;
 import net.minecraft.item.SwordItem;
+import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.EntityRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.*;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -50,6 +54,7 @@ import net.minecraftforge.fml.common.Mod;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
+import java.util.Optional;
 
 @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, value = Dist.CLIENT)
 public class ClientEventHandler {
@@ -175,13 +180,23 @@ public class ClientEventHandler {
             Minecraft inst = Minecraft.getInstance();
             PlayerEntity player = inst.player;
             if (player != null) {
-                RayTraceResult lookingAt = RayTraceUtils.getLookingAt(Entity.class,
-                        player, player.getAttribute(MKAttributes.ATTACK_REACH).getValue(),
-                        (e) -> true);
+                double dist =  player.getAttribute(MKAttributes.ATTACK_REACH).getValue();
+                float partialTicks = inst.getRenderPartialTicks();
+                RayTraceResult result = player.pick(dist, partialTicks, false);
+                Vector3d eyePos = player.getEyePosition(partialTicks);
+
+                double tracedDist2 = dist * dist;
+                if (result != null){
+                    tracedDist2 = result.getHitVec().squareDistanceTo(eyePos);
+                }
+                Vector3d lookVec = player.getLook(1.0f);
+                Vector3d to = eyePos.add(lookVec.x * dist, lookVec.y * dist, lookVec.z * dist);
+                AxisAlignedBB lookBB = player.getBoundingBox().expand(lookVec.scale(dist)).grow(1.0D, 1.0D, 1.0D);
+                EntityRayTraceResult entityTrace = ProjectileHelper.rayTraceEntities(player, eyePos, to, lookBB,
+                        (ent) -> !ent.isSpectator() && ent.canBeCollidedWith(), tracedDist2);
                 MKCore.getPlayer(player).ifPresent(x -> {
-                    if (lookingAt != null && lookingAt.getType() == RayTraceResult.Type.ENTITY) {
-                        EntityRayTraceResult traceResult = (EntityRayTraceResult) lookingAt;
-                        Entity entityHit = traceResult.getEntity();
+                    if (entityTrace != null) {
+                        Entity entityHit = entityTrace.getEntity();
                         x.getCombatExtension().setPointedEntity(entityHit);
                     } else {
                         x.getCombatExtension().setPointedEntity(null);
@@ -298,20 +313,14 @@ public class ClientEventHandler {
             Minecraft inst = Minecraft.getInstance();
             PlayerEntity player = inst.player;
             if (player != null) {
-                RayTraceResult lookingAt = RayTraceUtils.getLookingAt(Entity.class,
-                        player, player.getAttribute(MKAttributes.ATTACK_REACH).getValue(),
-                        (e) -> true);
-                if (lookingAt != null && lookingAt.getType() == RayTraceResult.Type.ENTITY) {
-                    EntityRayTraceResult traceResult = (EntityRayTraceResult) lookingAt;
-                    Entity entityHit = traceResult.getEntity();
+                Optional<Entity> lookingAt = MKCore.getPlayer(player).map(x -> x.getCombatExtension().getPointedEntity()).orElse(Optional.empty());
+                lookingAt.ifPresent(entityHit -> {
                     if (!Targeting.isValidFriendly(player, entityHit)) {
-                        if (player.ticksSinceLastSwing - 2 > player.getCooldownPeriod()) {
-                            doPlayerAttack(player, entityHit, Minecraft.getInstance());
-                            event.setSwingHand(true);
-                        }
+                        doPlayerAttack(player, entityHit, Minecraft.getInstance());
+                        event.setSwingHand(true);
                     }
                     event.setCanceled(true);
-                }
+                });
             }
         }
     }
