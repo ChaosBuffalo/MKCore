@@ -52,12 +52,15 @@ public class AbilityDescriptions {
             desc.add(new TranslationTextComponent("mkcore.ability.description.effect"));
         }
         for (Map.Entry<Attribute, MKEffect.Modifier> entry : effect.getAttributeModifierMap().entrySet()) {
-            double value = effect.calculateModifierDesc(entry.getValue(), 1,
-                    entry.getValue().skill != null ? MKAbility.getSkillLevel(casterData.getEntity(), entry.getValue().skill) : 0.0f);
+            MKEffect.Modifier modifier = entry.getValue();
+            double value = effect.calculateModifierValue(modifier, 1,
+                    modifier.skill != null ? MKAbility.getSkillLevel(casterData.getEntity(), modifier.skill) : 0.0f);
             desc.add(new StringTextComponent("    ")
                     .appendSibling(new TranslationTextComponent(entry.getKey().getAttributeName()))
-                    .appendString(String.format(": %s%s ", value > 0 ? "+" : "", entry.getValue().modifier.getOperation() == AttributeModifier.Operation.ADDITION ?
-                            MKAbility.NUMBER_FORMATTER.format(value) : MKAbility.PERCENT_FORMATTER.format(value)))
+                    .appendString(String.format(": %s%s ", value > 0 ? "+" : "",
+                            modifier.attributeModifier.getOperation() == AttributeModifier.Operation.ADDITION ?
+                                    MKAbility.NUMBER_FORMATTER.format(value) :
+                                    MKAbility.PERCENT_FORMATTER.format(value)))
                     .mergeStyle(value > 0 ? TextFormatting.GREEN : TextFormatting.DARK_RED));
         }
         return desc;

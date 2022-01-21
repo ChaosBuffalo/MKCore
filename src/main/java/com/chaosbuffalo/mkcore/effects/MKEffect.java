@@ -26,18 +26,16 @@ import java.util.*;
 import java.util.function.Supplier;
 
 public abstract class MKEffect extends ForgeRegistryEntry<MKEffect> {
-    private final Map<Attribute, Modifier> attributeModifierMap = new HashMap<>();
 
     public static class Modifier {
-        public AttributeModifier modifier;
-        public double base;
+        public final AttributeModifier attributeModifier;
+        public final double base;
         @Nullable
-        public Attribute skill;
+        public final Attribute skill;
 
-
-        public Modifier(Supplier<String> nameProvider, UUID uuid, double base, double amount,
-                        AttributeModifier.Operation operation, Attribute skill){
-            modifier = new AttributeModifier(uuid, nameProvider, amount, operation);
+        public Modifier(UUID uuid, Supplier<String> nameProvider, double base, double amount,
+                        AttributeModifier.Operation operation, @Nullable Attribute skill) {
+            attributeModifier = new AttributeModifier(uuid, nameProvider, amount, operation);
             this.base = base;
             this.skill = skill;
         }
@@ -47,6 +45,7 @@ public abstract class MKEffect extends ForgeRegistryEntry<MKEffect> {
     protected String name;
     protected final Lazy<Effect> wrapperEffect = Lazy.of(() -> new WrapperEffect(this));
     protected final EffectType effectType;
+    private final Map<Attribute, Modifier> attributeModifierMap = new HashMap<>();
 
     public MKEffect(EffectType effectType) {
         this.effectType = effectType;
@@ -136,8 +135,8 @@ public abstract class MKEffect extends ForgeRegistryEntry<MKEffect> {
     }
 
     public MKEffect addAttribute(Attribute attribute, UUID uuid, double base, double amount,
-                                 AttributeModifier.Operation operation, Attribute skill) {
-        attributeModifierMap.put(attribute, new Modifier(this::getName, uuid, base, amount, operation, skill));
+                                 AttributeModifier.Operation operation, @Nullable Attribute skill) {
+        attributeModifierMap.put(attribute, new Modifier(uuid, this::getName, base, amount, operation, skill));
         return this;
     }
 
@@ -146,7 +145,7 @@ public abstract class MKEffect extends ForgeRegistryEntry<MKEffect> {
         for (Map.Entry<Attribute, Modifier> entry : getAttributeModifierMap().entrySet()) {
             ModifiableAttributeInstance attrInstance = manager.createInstanceIfAbsent(entry.getKey());
             if (attrInstance != null) {
-                attrInstance.removeModifier(entry.getValue().modifier);
+                attrInstance.removeModifier(entry.getValue().attributeModifier);
             }
         }
     }
@@ -157,7 +156,7 @@ public abstract class MKEffect extends ForgeRegistryEntry<MKEffect> {
             ModifiableAttributeInstance attrInstance = manager.createInstanceIfAbsent(entry.getKey());
             if (attrInstance != null) {
                 Modifier template = entry.getValue();
-                attrInstance.removeModifier(template.modifier);
+                attrInstance.removeModifier(template.attributeModifier);
                 attrInstance.applyPersistentModifier(createModifier(template, activeEffect));
             }
         }
@@ -166,40 +165,49 @@ public abstract class MKEffect extends ForgeRegistryEntry<MKEffect> {
     private AttributeModifier createModifier(Modifier template, MKActiveEffect activeEffect) {
         int stacks = activeEffect.getStackCount();
 
-
-        double amount = calculateModifierAmount(template, activeEffect);
-        return new AttributeModifier(template.modifier.getID(), getName() + " " + stacks, amount, template.modifier.getOperation());
+        double amount = calculateInstanceModifierValue(template, activeEffect);
+        return new AttributeModifier(template.attributeModifier.getID(), () -> getName() + " " + stacks,
+                amount, template.attributeModifier.getOperation());
     }
 
-    public double calculateModifierDesc(Modifier modifier, int stackCount, float skillLevel){
-        return modifier.base + (modifier.modifier.getAmount() * stackCount * skillLevel);
+    public double calculateModifierValue(Modifier modifier, int stackCount, float skillLevel) {
+        return modifier.base + (modifier.attributeModifier.getAmount() * stackCount * skillLevel);
     }
 
-    protected double calculateModifierAmount(Modifier modifier, MKActiveEffect activeEffect) {
-        return calculateModifierDesc(modifier, activeEffect.getStackCount(),
-                modifier.skill != null ? activeEffect.getAttrSkillLevel(modifier.skill) : 0.0f);
+    protected double calculateInstanceModifierValue(Modifier modifier, MKActiveEffect activeEffect) {
+        return calculateModifierValue(modifier, activeEffect.getStackCount(),
+                modifier.skill != null ? activeEffect.getAttributeSkillLevel(modifier.skill) : 0.0f);
     }
 
     /**
      * If the effect should be displayed in the players inventory
+     *
      * @param effect the active MKEffect
      * @return true to display it (default), false to hide it.
      */
-    public boolean shouldRender(MKActiveEffect effect) { return true; }
+    public boolean shouldRender(MKActiveEffect effect) {
+        return true;
+    }
 
     /**
      * If the standard text (name and duration) should be drawn when this potion is active.
+     *
      * @param effect the active MKEffect
      * @return true to draw the standard text
      */
-    public boolean shouldRenderInvText(MKActiveEffect effect) { return true; }
+    public boolean shouldRenderInvText(MKActiveEffect effect) {
+        return true;
+    }
 
     /**
      * If the effect should be displayed in the player's ingame HUD
+     *
      * @param effect the active MKEffect
      * @return true to display it (default), false to hide it.
      */
-    public boolean shouldRenderHUD(MKActiveEffect effect) { return true; }
+    public boolean shouldRenderHUD(MKActiveEffect effect) {
+        return true;
+    }
 
     @Override
     public String toString() {

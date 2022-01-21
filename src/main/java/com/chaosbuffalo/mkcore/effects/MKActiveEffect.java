@@ -7,6 +7,8 @@ import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.utils.MKNBTUtil;
 import com.google.common.reflect.TypeToken;
 import com.mojang.blaze3d.matrix.MatrixStack;
+import it.unimi.dsi.fastutil.objects.Object2FloatMap;
+import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -20,7 +22,6 @@ import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -31,6 +32,7 @@ public class MKActiveEffect {
     private final Lazy<EffectInstance> displayEffectInstance = Lazy.of(() -> createDisplayEffectInstance(this));
     private final MKEffectState state;
     private final MKEffectBehaviour behaviour;
+    private final Object2FloatMap<Attribute> attributeSkillSnapshot;
     private int stackCount;
     private float skillLevel;
     @Nullable
@@ -41,7 +43,6 @@ public class MKActiveEffect {
     private Entity directEntity;
     @Nullable
     private UUID directUUID;
-    private final Map<Attribute, Float> attrSkillLevels = new HashMap<>();
 
     // Builder
     public MKActiveEffect(MKEffectBuilder<?> builder, MKEffectState state) {
@@ -54,9 +55,13 @@ public class MKActiveEffect {
         abilityId = builder.getAbilityId();
         sourceEntity = builder.getSourceEntity();
         directEntity = builder.getDirectEntity();
-        for (Map.Entry<Attribute, MKEffect.Modifier> entry : effect.getAttributeModifierMap().entrySet()){
-            if (entry.getValue().skill != null){
-                attrSkillLevels.put(entry.getValue().skill, MKAbility.getSkillLevel(sourceEntity, entry.getValue().skill));
+        Map<Attribute, MKEffect.Modifier> modifierMap = effect.getAttributeModifierMap();
+        attributeSkillSnapshot = new Object2FloatOpenHashMap<>(modifierMap.size());
+        if (sourceEntity != null) {
+            for (MKEffect.Modifier modifier : modifierMap.values()) {
+                if (modifier.skill != null) {
+                    attributeSkillSnapshot.put(modifier.skill, MKAbility.getSkillLevel(sourceEntity, modifier.skill));
+                }
             }
         }
         if (directEntity != null) {
@@ -72,6 +77,7 @@ public class MKActiveEffect {
         stackCount = 1;
         skillLevel = 0.0f;
         this.state = effect.makeState();
+        attributeSkillSnapshot = new Object2FloatOpenHashMap<>(effect.getAttributeModifierMap().size());
     }
 
     public UUID getSourceId() {
@@ -82,6 +88,7 @@ public class MKActiveEffect {
         return state;
     }
 
+    @SuppressWarnings("unchecked")
     public <T extends MKEffectState> T getState(@SuppressWarnings("unused") TypeToken<T> typeBound) {
         return (T) getState();
     }
@@ -159,7 +166,7 @@ public class MKActiveEffect {
         }
 
         if (directEntity == null && directUUID != null) {
-            directEntity = findEntity(directEntity, directUUID, targetData);
+            directEntity = findEntity(null, directUUID, targetData);
         }
     }
 
@@ -202,20 +209,22 @@ public class MKActiveEffect {
         if (directUUID != null) {
             stateTag.putUniqueId("directEntity", directUUID);
         }
-        if (!attrSkillLevels.isEmpty()){
+        if (!attributeSkillSnapshot.isEmpty()) {
             CompoundNBT attrTag = new CompoundNBT();
-            for (Map.Entry<Attribute, Float> entry : attrSkillLevels.entrySet()){
-                attrTag.putFloat(entry.getKey().getRegistryName().toString(), entry.getValue());
-            }
+            attributeSkillSnapshot.object2FloatEntrySet().forEach(entry -> {
+                ResourceLocation attrId = entry.getKey().getRegistryName();
+                if (attrId != null) {
+                    attrTag.putFloat(attrId.toString(), entry.getFloatValue());
+                }
+            });
             stateTag.put("attrSkills", attrTag);
         }
-
 
         return stateTag;
     }
 
-    public float getAttrSkillLevel(Attribute skill){
-        return attrSkillLevels.getOrDefault(skill, 0f);
+    public float getAttributeSkillLevel(Attribute skill) {
+        return attributeSkillSnapshot.getOrDefault(skill, 0f);
     }
 
     public void deserializeState(CompoundNBT stateTag) {
@@ -231,14 +240,14 @@ public class MKActiveEffect {
         if (stateTag.contains("directEntity")) {
             directUUID = stateTag.getUniqueId("directEntity");
         }
-        if (stateTag.contains("attrSkills")){
+        if (stateTag.contains("attrSkills")) {
             CompoundNBT attrTag = stateTag.getCompound("attrSkills");
-            for (String key : attrTag.keySet()){
+            for (String key : attrTag.keySet()) {
                 ResourceLocation attrLoc = new ResourceLocation(key);
                 Attribute attribute = ForgeRegistries.ATTRIBUTES.getValue(attrLoc);
-                if (attribute != null){
+                if (attribute != null) {
                     float val = attrTag.getFloat(key);
-                    attrSkillLevels.put(attribute, val);
+                    attributeSkillSnapshot.put(attribute, val);
                 }
             }
         }
@@ -341,5 +350,4 @@ public class MKActiveEffect {
             }
         };
     }
-
 }
