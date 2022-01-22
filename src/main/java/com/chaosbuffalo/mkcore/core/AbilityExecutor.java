@@ -6,7 +6,6 @@ import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.abilities.*;
 import com.chaosbuffalo.mkcore.client.sound.MovingSoundCasting;
 import com.chaosbuffalo.mkcore.events.EntityAbilityEvent;
-import com.chaosbuffalo.mkcore.events.LivingCompleteAbilityEvent;
 import com.chaosbuffalo.mkcore.network.EntityCastPacket;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.utils.SoundUtils;
