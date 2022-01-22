@@ -47,11 +47,11 @@ public class ItemUtils {
     }
 
     static {
-        addCriticalStats(SwordItem.class, 0, .05f, 2.0f);
-        addCriticalStats(AxeItem.class, 0, .15f, 2.0f);
-        addCriticalStats(PickaxeItem.class, 0, .05f, 1.5f);
-        addCriticalStats(ShovelItem.class, 0, .05f, 1.5f);
-        addCriticalStats(HoeItem.class, 0, .05f, 1.5f);
+        addCriticalStats(SwordItem.class, 0, .05f, 1.0f);
+        addCriticalStats(AxeItem.class, 0, .15f, 1.0f);
+        addCriticalStats(PickaxeItem.class, 0, .05f, 0.5f);
+        addCriticalStats(ShovelItem.class, 0, .05f, 0.5f);
+        addCriticalStats(HoeItem.class, 0, .05f, 0.5f);
     }
 
 

@@ -3,8 +3,6 @@ package com.chaosbuffalo.mkcore.events;
 import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.MKConfig;
 import com.chaosbuffalo.mkcore.MKCore;
-import com.chaosbuffalo.mkcore.MKCoreRegistry;
-import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.client.gui.*;
 import com.chaosbuffalo.mkcore.core.AbilityGroupId;
 import com.chaosbuffalo.mkcore.core.MKAttributes;
@@ -12,29 +10,23 @@ import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.MKRangedAttribute;
 import com.chaosbuffalo.mkcore.effects.status.StunEffect;
 import com.chaosbuffalo.mkcore.item.ArmorClass;
-import com.chaosbuffalo.mkcore.item.IImplementsBlocking;
+import com.chaosbuffalo.mkcore.item.AttributeTooltipManager;
 import com.chaosbuffalo.mkcore.network.ExecuteActiveAbilityPacket;
 import com.chaosbuffalo.mkcore.network.MKItemAttackPacket;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
-import com.chaosbuffalo.mkcore.utils.RayTraceUtils;
 import com.chaosbuffalo.targeting_api.Targeting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.util.InputMappings;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.Attribute;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.item.ItemFrameEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileHelper;
-import net.minecraft.item.ArmorItem;
-import net.minecraft.item.ShieldItem;
-import net.minecraft.item.SwordItem;
-import net.minecraft.util.Direction;
+import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.item.*;
 import net.minecraft.util.Hand;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.ITextComponent;
@@ -53,6 +45,7 @@ import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Mod;
 import org.lwjgl.glfw.GLFW;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -224,18 +217,42 @@ public class ClientEventHandler {
         // Don't do anything during the initial search tree population
         if (event.getPlayer() == null)
             return;
-        if (event.getItemStack().getItem() instanceof ShieldItem){
-            event.getToolTip().add(new TranslationTextComponent("mkcore.max_poise.description",
-                    50f).mergeStyle(TextFormatting.GRAY));
-            event.getToolTip().add(new TranslationTextComponent("mkcore.block_efficiency.description",
-                    100.0f).mergeStyle(TextFormatting.GRAY));
-        }
-        if (event.getItemStack().getItem() instanceof SwordItem && !(event.getItemStack().getItem() instanceof IImplementsBlocking)){
-            event.getToolTip().add(new TranslationTextComponent("mkcore.max_poise.description",
-                    20f).mergeStyle(TextFormatting.GRAY));
-            event.getToolTip().add(new TranslationTextComponent("mkcore.block_efficiency.description",
-                    75.0f).mergeStyle(TextFormatting.GRAY));
-        }
+
+        addArmorClassTooltip(event);
+    }
+
+    public static void setupAttributeRenderers() {
+        AttributeTooltipManager.registerAttributeRenderer(MKAttributes.MAX_POISE, ClientEventHandler::renderPoise);
+        AttributeTooltipManager.registerAttributeRenderer(MKAttributes.BLOCK_EFFICIENCY, ClientEventHandler::renderAbsolutePercentTwoDigits);
+        AttributeTooltipManager.registerAttributeRenderer(MKAttributes.MELEE_CRIT, ClientEventHandler::renderAbsolutePercentTwoDigits);
+        AttributeTooltipManager.registerAttributeRenderer(MKAttributes.MELEE_CRIT_MULTIPLIER, ClientEventHandler::renderCritMultiplier);
+    }
+
+    static List<ITextComponent> renderPoise(ItemStack stack, EquipmentSlotType slotType, PlayerEntity player,
+                                            Attribute attribute, AttributeModifier modifier) {
+        return Collections.singletonList(
+                AttributeTooltipManager.makeBonusOrTakeText(attribute, modifier,
+                        modifier.getAmount(), modifier.getAmount()));
+    }
+
+    static List<ITextComponent> renderAbsolutePercentTwoDigits(ItemStack stack, EquipmentSlotType slotType,
+                                                               PlayerEntity player, Attribute attribute,
+                                                               AttributeModifier modifier) {
+        return Collections.singletonList(
+                AttributeTooltipManager.makeAbsoluteText(attribute, modifier,
+                        modifier.getAmount() * 100, v -> String.format("%.2f%%", v)));
+    }
+
+    static List<ITextComponent> renderCritMultiplier(ItemStack stack, EquipmentSlotType slotType,
+                                                     PlayerEntity player, Attribute attribute,
+                                                     AttributeModifier modifier) {
+        double value = player.getBaseAttributeValue(attribute) + modifier.getAmount();
+        return Collections.singletonList(
+                AttributeTooltipManager.makeAbsoluteText(attribute, modifier,
+                        value, v -> String.format("%.1fx", v)));
+    }
+
+    private static void addArmorClassTooltip(ItemTooltipEvent event) {
         if (!MKConfig.CLIENT.showArmorClassOnTooltip.get())
             return;
 
@@ -262,7 +279,6 @@ public class ClientEventHandler {
                 }
             }
         }
-
     }
 
     private static void addAttributeToTooltip(List<ITextComponent> tooltip, Attribute attribute,
@@ -313,7 +329,9 @@ public class ClientEventHandler {
             Minecraft inst = Minecraft.getInstance();
             PlayerEntity player = inst.player;
             if (player != null) {
-                Optional<Entity> lookingAt = MKCore.getPlayer(player).map(x -> x.getCombatExtension().getPointedEntity()).orElse(Optional.empty());
+                Optional<Entity> lookingAt = MKCore.getPlayer(player)
+                        .map(x -> x.getCombatExtension().getPointedEntity())
+                        .orElse(Optional.empty());
                 lookingAt.ifPresent(entityHit -> {
                     if (!Targeting.isValidFriendly(player, entityHit)) {
                         doPlayerAttack(player, entityHit, Minecraft.getInstance());
