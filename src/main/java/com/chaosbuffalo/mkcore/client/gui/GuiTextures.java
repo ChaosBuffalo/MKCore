@@ -70,6 +70,7 @@ public class GuiTextures {
         CORE_TEXTURES.addTextureRegion(XP_BAR_ON_SCREEN_YELLOW, 393,108,59, 5);
         CORE_TEXTURES.addTextureRegion(XP_BAR_ON_SCREEN_BACKGROUND, 391,100,63, 5);
         CORE_TEXTURES.addTextureRegion(XP_BAR_ON_SCREEN_BLUE, 393,92,59, 5);
+        CORE_TEXTURES.addTextureRegion(ABSORPTON_BAR, 378, 45, 50, 5);
 
 
     }

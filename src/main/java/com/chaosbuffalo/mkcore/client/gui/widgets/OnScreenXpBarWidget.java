@@ -45,6 +45,9 @@ public class OnScreenXpBarWidget extends MKWidget {
         int currentXp = playerData.getTalents().getTalentXp();
         int nextLevel = playerData.getTalents().getXpToNextLevel();
         float ratio = (float) currentXp / (float) nextLevel;
+        if (ratio > 1.0f){
+            ratio = 1.0f;
+        }
         float fifths = ratio;
         while (fifths > 0.2f){
             fifths -= 0.2f;

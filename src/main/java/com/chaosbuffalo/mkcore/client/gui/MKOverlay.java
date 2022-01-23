@@ -10,18 +10,24 @@ import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.player.AbilityGroup;
 import com.chaosbuffalo.mkcore.core.player.PlayerAbilityExecutor;
 import com.chaosbuffalo.mkcore.events.ClientEventHandler;
+import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKRectangle;
+import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKText;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.potion.Effects;
+import net.minecraft.scoreboard.Team;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.gui.ForgeIngameGui;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class MKOverlay {
 
@@ -39,13 +45,102 @@ public class MKOverlay {
         mc = Minecraft.getInstance();
     }
 
+    private void drawTeam(MatrixStack matrixStack, MKPlayerData data, float partialTicks){
+        Team team = data.getEntity().getTeam();
+        int height = mc.getMainWindow().getScaledHeight();
+        int winWidth = mc.getMainWindow().getScaledWidth();
+        int teamX = winWidth - 55;
+        if (team != null){
+            List<Optional<? extends PlayerEntity>> teamMembers = team.getMembershipCollection().stream().map(x ->
+                    data.getEntity().getEntityWorld().getPlayers().stream().filter(
+                            player -> player.getScoreboardName().equals(x)).findFirst()).collect(Collectors.toList());
+            List<? extends PlayerEntity> players = teamMembers.stream().filter(
+                    x -> x.isPresent() && !x.get().isEntityEqual(data.getEntity()))
+                    .map(Optional::get).collect(Collectors.toList());
 
+            int memberCount = players.size();
+            int perMember = 18;
+            int totalSize = perMember * memberCount;
+            int teamY = (height / 2) - (totalSize / 2);
+            MKRectangle teamBg = new MKRectangle(teamX - 2, teamY - 4, 54, totalSize + 8, 0xaa333333);
+            teamBg.drawWidget(matrixStack, mc, 0, 0, partialTicks);
+            if (memberCount > 0){
+                for (PlayerEntity teamMember : players){
+                    MKText text = new MKText(mc.fontRenderer, teamMember.getDisplayName(), teamX, teamY);
+                    text.setColor(0xffffffff);
+                    text.drawWidget(matrixStack, mc, 0, 0, partialTicks);
+                    int finalTeamY = teamY;
+                    MKCore.getPlayer(teamMember).ifPresent(x -> {
+                        drawTeamHP(matrixStack, x, partialTicks, teamX, finalTeamY + 10);
+                        drawTeamMana(matrixStack, x, teamX, finalTeamY + 16);
+                    });
+                    teamY += 18;
+
+                }
+            }
+        }
+
+    }
+
+    private void drawTeamHP(MatrixStack matrixStack, MKPlayerData data, float partialTick, int x, int y) {
+        boolean isWithered = data.getEntity().getActivePotionEffect(Effects.WITHER) != null;
+        float absorption = data.getEntity().getAbsorptionAmount();
+        float maxHp = data.getEntity().getMaxHealth();
+        float current_hp = data.getEntity().getHealth();
+        String textureName = isWithered ? GuiTextures.HP_WITHER_BAR : GuiTextures.HP_BAR;
+        float percentage = current_hp / maxHp;
+        if (percentage > 1.0f){
+            percentage = 1.0f;
+        }
+        int width = 50;
+        int barSize = Math.round(width * percentage);
+        if (current_hp > 0 && barSize < 1){
+            barSize = 1;
+        }
+        GuiTextures.CORE_TEXTURES.bind(mc);
+        RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
+        GuiTextures.CORE_TEXTURES.drawRegionAtPosPartialWidth(matrixStack, textureName, x, y, barSize);
+        if (absorption > 0.0f){
+            float absorpPercentage = absorption / maxHp;
+            if (absorpPercentage > 1.0f){
+                absorpPercentage = 1.0f;
+            }
+            int abarSize = Math.round(width * absorpPercentage);
+            if (abarSize < 1){
+                abarSize = 1;
+            }
+            GuiTextures.CORE_TEXTURES.drawRegionAtPosPartialWidth(matrixStack, GuiTextures.ABSORPTON_BAR,
+                    x, y - 1, abarSize);
+        }
+
+    }
+
+    private void drawTeamMana(MatrixStack matrixStack, MKPlayerData data, int x, int y) {
+        float maxMana = data.getStats().getMaxMana();
+        float currentMana = data.getStats().getMana();
+        String textureName = GuiTextures.MANA_BAR;
+        float percentage = currentMana / maxMana;
+        if (percentage > 1.0f){
+            percentage = 1.0f;
+        }
+        int width = 50;
+        int barSize = Math.round(width * percentage);
+        if (currentMana > 0 && barSize < 1){
+            barSize = 1;
+        }
+        GuiTextures.CORE_TEXTURES.bind(mc);
+        RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
+        GuiTextures.CORE_TEXTURES.drawRegionAtPosPartialWidth(matrixStack, textureName, x, y, barSize);
+    }
 
     private void drawMana(MatrixStack matrixStack, MKPlayerData data) {
         float maxMana = data.getStats().getMaxMana();
         float currentMana = data.getStats().getMana();
         String textureName = GuiTextures.MANA_BAR_LONG;
         float percentage = currentMana / maxMana;
+        if (percentage > 1.0f){
+            percentage = 1.0f;
+        }
         int width = 75;
         int barSize = Math.round(width * percentage);
         if (currentMana > 0 && barSize < 1){
@@ -81,6 +176,9 @@ public class MKOverlay {
         } else {
             percentage = data.getStats().getPoise() / data.getStats().getMaxPoise();
         }
+        if (percentage > 1.0f){
+            percentage = 1.0f;
+        }
         int width = 50;
         int barSize = Math.round(width * percentage);
         int castStartX;
@@ -107,6 +205,9 @@ public class MKOverlay {
         float current_hp = data.getEntity().getHealth();
         String textureName = isWithered ? GuiTextures.WITHER_BAR_LONG : GuiTextures.HP_BAR_LONG;
         float percentage = current_hp / maxHp;
+        if (percentage > 1.0f){
+            percentage = 1.0f;
+        }
         int width = 75;
         int barSize = Math.round(width * percentage);
         if (current_hp > 0 && barSize < 1){
@@ -121,6 +222,9 @@ public class MKOverlay {
         GuiTextures.CORE_TEXTURES.drawRegionAtPosPartialWidth(matrixStack, textureName, castStartX, castStartY, barSize);
         if (absorption > 0.0f){
             float absorpPercentage = absorption / maxHp;
+            if (absorpPercentage > 1.0f){
+                absorpPercentage = 1.0f;
+            }
             int abarSize = Math.round(width * absorpPercentage);
             if (abarSize < 1){
                 abarSize = 1;
@@ -273,6 +377,7 @@ public class MKOverlay {
                 drawMana(event.getMatrixStack(), cap);
                 drawPoise(event.getMatrixStack(), cap, event.getPartialTicks());
                 drawXpBar(event.getMatrixStack(), cap, event.getPartialTicks());
+                drawTeam(event.getMatrixStack(), cap, event.getPartialTicks());
             }
             drawCastBar(event.getMatrixStack(), cap);
 
