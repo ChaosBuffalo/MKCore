@@ -3,13 +3,17 @@ package com.chaosbuffalo.mkcore.utils;
 import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.entities.BaseProjectileEntity;
+import net.minecraft.command.impl.TeleportCommand;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.ai.RandomPositionGenerator;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.projectile.AbstractArrowEntity;
 import net.minecraft.entity.projectile.ArrowEntity;
 import net.minecraft.entity.projectile.SpectralArrowEntity;
 import net.minecraft.entity.projectile.ThrowableEntity;
+import net.minecraft.util.TeleportationRepositioner;
+import net.minecraft.util.TransportationHelper;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
@@ -94,19 +98,20 @@ public class EntityUtils {
     }
 
     public static boolean canTeleportEntity(LivingEntity target){
-        return !isLargeEntity(target);
+        return true;
     }
 
-    public static void safeTeleportEntity(LivingEntity targetEntity, Vector3d teleLoc) {
+    public static boolean safeTeleportEntity(LivingEntity targetEntity, Vector3d teleLoc) {
         Entity finalTarget = targetEntity;
         if (targetEntity.isPassenger()){
             finalTarget = targetEntity.getLowestRidingEntity();
         }
-        RayTraceResult colTrace = RayTraceUtils.rayTraceBlocks(finalTarget, finalTarget.getPositionVec(),
-                teleLoc, false);
-        if (colTrace.getType() == RayTraceResult.Type.BLOCK) {
-            teleLoc = colTrace.getHitVec();
+        AxisAlignedBB axisalignedbb = targetEntity.getPoseAABB(targetEntity.getPose());
+        if (TransportationHelper.func_234631_a_(targetEntity.world, targetEntity, axisalignedbb.offset(teleLoc))){
+            finalTarget.setPositionAndUpdate(teleLoc.x, teleLoc.y, teleLoc.z);
+            return true;
         }
-        finalTarget.setPositionAndUpdate(teleLoc.x, teleLoc.y, teleLoc.z);
+        return false;
+
     }
 }
