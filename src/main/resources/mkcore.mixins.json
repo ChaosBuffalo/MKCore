@@ -7,7 +7,6 @@
     "LivingEntityMixins",
     "ShieldItemMixins",
     "MobEntityMixins",
-    "ItemStackMixins",
     "SwordItemMixins"
   ],
   "injectors": {
@@ -16,6 +15,7 @@
   "client": [
     "WorldRendererMixins",
     "InGameGuiMixins",
+    "ItemStackClientMixins",
     "ClientPlayerEntityMixins",
     "PotionSpriteUploaderMixins"
   ],

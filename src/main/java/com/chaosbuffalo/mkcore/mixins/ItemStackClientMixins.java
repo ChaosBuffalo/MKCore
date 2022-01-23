@@ -19,7 +19,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import java.util.List;
 
 @Mixin(ItemStack.class)
-public abstract class ItemStackMixins {
+public abstract class ItemStackClientMixins {
 
     @Unique
     private List<ITextComponent> tooltipList;
