@@ -47,6 +47,10 @@ public class PlayerStats extends EntityStats implements IPlayerSyncComponentProv
         return (PlayerEntity) getEntity();
     }
 
+    private MKPlayerData getPlayerData() {
+        return (MKPlayerData) entityData;
+    }
+
     // Mostly to shut up warning about null returns from getAttribute. Only use this for attrs you know will be present
     @Nonnull
     protected ModifiableAttributeInstance requiredAttribute(Attribute attribute) {
@@ -247,8 +251,17 @@ public class PlayerStats extends EntityStats implements IPlayerSyncComponentProv
     }
 
     public float getAbilityManaCost(MKAbility ability) {
+        if (getPlayerData().getEntity().isCreative())
+            return 0f;
         float manaCost = ability.getManaCost(entityData);
         return MKCombatFormulas.applyManaCostReduction(entityData, manaCost);
+    }
+
+    @Override
+    public int getAbilityCooldown(MKAbility ability) {
+        if (getPlayerData().getEntity().isCreative())
+            return 0;
+        return super.getAbilityCooldown(ability);
     }
 
     @Override
