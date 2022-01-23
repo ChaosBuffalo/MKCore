@@ -3,6 +3,7 @@ package com.chaosbuffalo.mkcore.effects.triggers;
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
+import com.chaosbuffalo.mkcore.core.MKAttributes;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.damage.MKDamageSource;
 import com.chaosbuffalo.mkcore.effects.SpellTriggers;
@@ -163,6 +164,8 @@ public class PlayerHurtEntityTriggers extends SpellTriggers.TriggerCollectionBas
                     new CritMessagePacket(livingTarget.getEntityId(), playerSource.getUniqueID(), newDamage,
                             projectile.getEntityId()));
         }
+        float damage = (float) (event.getAmount() * (1.0 - livingTarget.getAttribute(MKAttributes.RANGED_RESISTANCE).getValue()));
+        event.setAmount(damage);
         if (playerHurtEntityProjectileTriggers.size() == 0 || startTrigger(playerSource, PROJECTILE_TAG))
             return;
         playerHurtEntityProjectileTriggers.forEach(f -> f.apply(event, source, livingTarget, playerSource, sourceData));

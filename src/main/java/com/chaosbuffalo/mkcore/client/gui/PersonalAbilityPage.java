@@ -2,6 +2,7 @@ package com.chaosbuffalo.mkcore.client.gui;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
+import com.chaosbuffalo.mkcore.abilities.MKAbilityInfo;
 import com.chaosbuffalo.mkcore.client.gui.widgets.AbilitySlotWidget;
 import com.chaosbuffalo.mkcore.client.gui.widgets.CycleButton;
 import com.chaosbuffalo.mkcore.client.gui.widgets.IconText;
@@ -163,6 +164,11 @@ public class PersonalAbilityPage extends AbilityPageBase implements IAbilityScre
                     knownTypes.add(info.getAbility().getType());
                     return info.getAbility();
                 }).collect(Collectors.toList());
+        MKAbilityInfo itemAbility = playerData.getLoadout().getAbilityGroup(AbilityGroupId.Item).getAbilityInfo(0);
+        if (itemAbility != null) {
+            knownAbilities.add(itemAbility.getAbility());
+            knownTypes.add(itemAbility.getAbility().getType());
+        }
         if (knownTypes.contains(AbilityType.Basic))
             availableFilters.add(AbilityFilter.Basic);
         if (knownTypes.contains(AbilityType.Passive))
@@ -173,6 +179,7 @@ public class PersonalAbilityPage extends AbilityPageBase implements IAbilityScre
         if (!availableFilters.contains(currentFilter)) {
             currentFilter = AbilityFilter.All;
         }
+
         return knownAbilities.stream()
                 .filter(ability -> currentFilter.accepts(ability.getType()))
                 .collect(Collectors.toList());

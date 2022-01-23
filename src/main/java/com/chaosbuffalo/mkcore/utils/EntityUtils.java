@@ -54,7 +54,7 @@ public class EntityUtils {
     public static void shootArrow(LivingEntity source, AbstractArrowEntity arrowEntity, LivingEntity target, float launchVelocity){
 
 
-        Vector3d targetVec = new Vector3d(target.getPosX(), target.getPosYHeight(0.6D), target.getPosZ());
+        Vector3d targetVec = new Vector3d(target.getPosX(), target.getPosYHeight(0.9D), target.getPosZ());
         Vector3d diff = targetVec.subtract(arrowEntity.getPositionVec());
         Vector3d diffXZ = new Vector3d(diff.x, 0.0, diff.z);
         double groundDist = diffXZ.length();
@@ -81,7 +81,7 @@ public class EntityUtils {
 
         ProjectileUtils.BallisticResult result = ProjectileUtils.solveBallisticArcStationaryTarget(
                 projectile.getPositionVec(),
-                target.getPositionVec().add(new Vector3d(0, target.getHeight() / 2.0, 0)),
+                new Vector3d(target.getPosX(), target.getPosYHeight(0.9D), target.getPosZ()),
                 velocity, projectile.getGravityVelocity());
 
         if (!result.foundSolution) {
