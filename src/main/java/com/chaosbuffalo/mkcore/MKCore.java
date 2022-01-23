@@ -118,6 +118,7 @@ public class MKCore {
         PlayerPageRegistry.init();
         MKRenderers.registerPlayerRenderers();
         CoreItems.registerItemProperties();
+        ClientEventHandler.setupAttributeRenderers();
     }
 
     // You can use SubscribeEvent and let the Event Bus discover methods to call

@@ -4,20 +4,21 @@ import com.chaosbuffalo.mkcore.CoreCapabilities;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.MKAttributes;
 import com.chaosbuffalo.mkcore.effects.SpellTriggers;
-import com.chaosbuffalo.mkcore.item.IImplementsBlocking;
+import com.chaosbuffalo.mkcore.utils.ItemUtils;
+import net.minecraft.entity.ai.attributes.Attribute;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import net.minecraft.item.ShieldItem;
 import net.minecraft.item.SwordItem;
+import net.minecraftforge.event.ItemAttributeModifierEvent;
 import net.minecraftforge.event.entity.living.LivingEquipmentChangeEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 import java.util.UUID;
+import java.util.function.Supplier;
 
 @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ItemEventHandler {
@@ -42,6 +43,9 @@ public class ItemEventHandler {
             UUID.fromString("e5a445c0-a08d-4cf5-960a-0945c505da94")
     };
 
+    private static final UUID CRIT_CHANCE_MODIFIER = UUID.fromString("3935094f-87c5-49a8-bcde-ea29ce3bb5f9");
+    private static final UUID CRIT_MULT_MODIFIER = UUID.fromString("c167f8f7-7bfc-4232-a321-ba635a4eb46f");
+
     @SubscribeEvent
     public static void onEquipmentChange(LivingEquipmentChangeEvent event) {
         if (!(event.getEntityLiving() instanceof ServerPlayerEntity))
@@ -52,46 +56,55 @@ public class ItemEventHandler {
             playerData.getEquipment().onEquipmentChange(event.getSlot(), event.getFrom(), event.getTo());
             SpellTriggers.PLAYER_EQUIPMENT_CHANGE.onEquipmentChange(event, playerData, player);
         });
+    }
 
-        if (event.getSlot().getSlotType() == EquipmentSlotType.Group.HAND) {
-            handlePoiseEffects(event);
+    private static AttributeModifier createDefaultSlotModifier(UUID uuid, double amount, AttributeModifier.Operation mod) {
+        return new AttributeModifier(uuid, () -> "MK:Core default bonus", amount, mod);
+    }
+
+    private static void addDefaultAttribute(ItemAttributeModifierEvent event, Attribute attribute, Supplier<AttributeModifier> modifierSupplier) {
+        if (!event.getModifiers().containsKey(attribute)) {
+            event.addModifier(attribute, modifierSupplier.get());
         }
     }
 
-    private static void handlePoiseEffects(LivingEquipmentChangeEvent event) {
-        // Only process actual changes, and not cases where from and to are the same item, like durability changes
-        if (ItemStack.areItemStacksEqual(event.getFrom(), event.getTo()))
-            return;
+    @SubscribeEvent
+    public static void onItemAttributeModifierEvent(ItemAttributeModifierEvent event) {
+        Item from = event.getItemStack().getItem();
+        if (event.getSlotType().getSlotType() == EquipmentSlotType.Group.HAND) {
+            int handIndex = event.getSlotType().getIndex();
+            if (from instanceof SwordItem && event.getSlotType() == EquipmentSlotType.MAINHAND) {
 
-        int handIndex = event.getSlot().getIndex();
+                addDefaultAttribute(event, MKAttributes.MAX_POISE,
+                        () -> createDefaultSlotModifier(SWORD_POISE_MOD_UUID[handIndex],
+                                20.0,
+                                AttributeModifier.Operation.ADDITION));
 
-        ModifiableAttributeInstance blockEfficiency = event.getEntityLiving().getAttribute(MKAttributes.BLOCK_EFFICIENCY);
-        ModifiableAttributeInstance maxPoise = event.getEntityLiving().getAttribute(MKAttributes.MAX_POISE);
-        if (blockEfficiency == null || maxPoise == null)
-            return;
+                addDefaultAttribute(event, MKAttributes.BLOCK_EFFICIENCY,
+                        () -> createDefaultSlotModifier(SWORD_EFFICIENCY_MOD_UUID[handIndex],
+                                0.75,
+                                AttributeModifier.Operation.ADDITION));
 
-        Item from = event.getFrom().getItem();
-        Item to = event.getTo().getItem();
-        if (from instanceof ShieldItem) {
-            blockEfficiency.removeModifier(SHIELD_EFFICIENCY_MOD_UUID[handIndex]);
-            maxPoise.removeModifier(SHIELD_POISE_MOD_UUID[handIndex]);
-        }
-        if (to instanceof ShieldItem) {
-            blockEfficiency.applyNonPersistentModifier(new AttributeModifier(SHIELD_EFFICIENCY_MOD_UUID[handIndex],
-                    "Shield Modifier", 1.0, AttributeModifier.Operation.ADDITION));
-            maxPoise.applyNonPersistentModifier(new AttributeModifier(SHIELD_POISE_MOD_UUID[handIndex],
-                    "Shield Modifier", 50.0, AttributeModifier.Operation.ADDITION));
-        }
+                addDefaultAttribute(event, MKAttributes.MELEE_CRIT,
+                        () -> createDefaultSlotModifier(CRIT_CHANCE_MODIFIER,
+                                ItemUtils.getCritChanceForItem(event.getItemStack()),
+                                AttributeModifier.Operation.ADDITION));
 
-        if (from instanceof SwordItem && !(from instanceof IImplementsBlocking)) {
-            blockEfficiency.removeModifier(SWORD_EFFICIENCY_MOD_UUID[handIndex]);
-            maxPoise.removeModifier(SWORD_POISE_MOD_UUID[handIndex]);
-        }
-        if (to instanceof SwordItem && !(to instanceof IImplementsBlocking)) {
-            blockEfficiency.applyNonPersistentModifier(new AttributeModifier(SWORD_EFFICIENCY_MOD_UUID[handIndex],
-                    "Sword Modifier", 0.75, AttributeModifier.Operation.ADDITION));
-            maxPoise.applyNonPersistentModifier(new AttributeModifier(SWORD_POISE_MOD_UUID[handIndex],
-                    "Sword Modifier", 20.0, AttributeModifier.Operation.ADDITION));
+                addDefaultAttribute(event, MKAttributes.MELEE_CRIT_MULTIPLIER,
+                        () -> createDefaultSlotModifier(CRIT_MULT_MODIFIER,
+                                ItemUtils.getCritMultiplierForItem(event.getItemStack()),
+                                AttributeModifier.Operation.ADDITION));
+            }
+            if (from instanceof ShieldItem && event.getSlotType() == EquipmentSlotType.OFFHAND) {
+                addDefaultAttribute(event, MKAttributes.MAX_POISE,
+                        () -> createDefaultSlotModifier(SHIELD_POISE_MOD_UUID[handIndex],
+                                50.0,
+                                AttributeModifier.Operation.ADDITION));
+                addDefaultAttribute(event, MKAttributes.BLOCK_EFFICIENCY,
+                        () -> createDefaultSlotModifier(SHIELD_EFFICIENCY_MOD_UUID[handIndex],
+                                1.0f,
+                                AttributeModifier.Operation.ADDITION));
+            }
         }
     }
 }
