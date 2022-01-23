@@ -51,13 +51,11 @@ public class MKOverlay {
         int winWidth = mc.getMainWindow().getScaledWidth();
         int teamX = winWidth - 55;
         if (team != null){
-            List<Optional<? extends PlayerEntity>> teamMembers = team.getMembershipCollection().stream().map(x ->
-                    data.getEntity().getEntityWorld().getPlayers().stream().filter(
-                            player -> player.getScoreboardName().equals(x)).findFirst()).collect(Collectors.toList());
-            List<? extends PlayerEntity> players = teamMembers.stream().filter(
-                    x -> x.isPresent() && !x.get().isEntityEqual(data.getEntity()))
-                    .map(Optional::get).collect(Collectors.toList());
-
+            List<PlayerEntity> players = data.getEntity().getEntityWorld().getPlayers().stream()
+                    .filter(otherPlayer ->
+                            !data.getEntity().isEntityEqual(otherPlayer) &&
+                                    data.getEntity().isOnSameTeam(otherPlayer))
+                    .collect(Collectors.toList());
             int memberCount = players.size();
             int perMember = 18;
             int totalSize = perMember * memberCount;
