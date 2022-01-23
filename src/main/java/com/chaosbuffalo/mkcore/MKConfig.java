@@ -59,8 +59,11 @@ public class MKConfig {
     }
 
     public static class Server {
-        public ForgeConfigSpec.BooleanValue healsDamageUndead;
-        public ForgeConfigSpec.ConfigValue<Double> undeadHealDamageMultiplier;
+        public final ForgeConfigSpec.BooleanValue healsDamageUndead;
+        public final ForgeConfigSpec.DoubleValue undeadHealDamageMultiplier;
+        public final ForgeConfigSpec.BooleanValue enablePartyXpShare;
+        public final ForgeConfigSpec.IntValue partyXpShareDistance;
+        public final ForgeConfigSpec.BooleanValue enablePartyXpShareMending;
 
         public Server(ForgeConfigSpec.Builder builder) {
             builder.comment("Gameplay settings").push("gameplay");
@@ -69,7 +72,17 @@ public class MKConfig {
                     .define("healsDamageUndead", true);
             undeadHealDamageMultiplier = builder
                     .comment("Damage multiplier to use when healing spells damage undead entities (if healsDamageUndead is set)")
-                    .define("undeadHealDamageMultiplier", 2.0);
+                    .defineInRange("undeadHealDamageMultiplier", 2.0, 0.0, 20);
+            enablePartyXpShare = builder
+                    .comment("Whether to split XP picked up with the player's party")
+                    .define("enablePartyXpShare", true);
+            partyXpShareDistance = builder
+                    .comment("Distance to share XP with party members")
+                    .defineInRange("partyXpShareDistance", 100, 0, Integer.MAX_VALUE);
+            enablePartyXpShareMending = builder
+                    .comment("Whether shared XP triggers the Mending enchantment")
+                    .define("enablePartyXpShareMending", true);
+
             builder.pop();
         }
     }
