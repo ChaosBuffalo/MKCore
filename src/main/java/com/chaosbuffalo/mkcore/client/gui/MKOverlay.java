@@ -62,9 +62,9 @@ public class MKOverlay {
             int perMember = 18;
             int totalSize = perMember * memberCount;
             int teamY = (height / 2) - (totalSize / 2);
-            MKRectangle teamBg = new MKRectangle(teamX - 2, teamY - 4, 54, totalSize + 8, 0xaa333333);
-            teamBg.drawWidget(matrixStack, mc, 0, 0, partialTicks);
             if (memberCount > 0){
+                MKRectangle teamBg = new MKRectangle(teamX - 2, teamY - 4, 54, totalSize + 8, 0xaa333333);
+                teamBg.drawWidget(matrixStack, mc, 0, 0, partialTicks);
                 for (PlayerEntity teamMember : players){
                     MKText text = new MKText(mc.fontRenderer, teamMember.getDisplayName(), teamX, teamY);
                     text.setColor(0xffffffff);
