@@ -11,12 +11,17 @@ import com.chaosbuffalo.mkcore.entities.IUpdateEngineProvider;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.scoreboard.Team;
+import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerXpEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Mod.EventBusSubscriber(modid = MKCore.MOD_ID)
 public class EntityEventHandler {
@@ -44,8 +49,34 @@ public class EntityEventHandler {
 
     @SubscribeEvent
     public static void onPlayerGainXP(PlayerXpEvent.XpChange event) {
+        int amount = event.getAmount();
+        if (event.getPlayer() instanceof ServerPlayerEntity){
+            ServerPlayerEntity serverPlayer = (ServerPlayerEntity) event.getPlayer();
+            Team team = event.getPlayer().getTeam();
+            MinecraftServer server = serverPlayer.getServer();
+            if (team != null && server != null){
+                List<PlayerEntity> playersInRange = team.getMembershipCollection().stream().map(
+                        x -> server.getPlayerList().getPlayerByUsername(x)).filter(
+                                other -> other != null && serverPlayer.getDistanceSq(other) <= 100.0 * 100.0)
+                        .collect(Collectors.toList());
+                if (!playersInRange.isEmpty()){
+                    amount = amount / playersInRange.size();
+                }
+                if (amount < 1){
+                    amount = 1;
+                }
+                for (PlayerEntity player : playersInRange){
+                    if (!player.isEntityEqual(serverPlayer)){
+                        player.giveExperiencePoints(amount);
+                    }
+                }
+
+            }
+        }
+        event.setAmount(amount);
+        int finalAmount = amount;
         MKCore.getPlayer(event.getPlayer()).ifPresent(data -> {
-            data.getTalents().addTalentXp(event.getAmount());
+            data.getTalents().addTalentXp(finalAmount);
         });
     }
 
