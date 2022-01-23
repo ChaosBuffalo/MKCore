@@ -45,7 +45,7 @@ public class MKAttributes {
             .setRegistryName(MKCore.makeRL("ranged_crit_chance"))
             .setShouldWatch(true);
 
-    public static final Attribute RANGED_CRIT_MULTIPLIER = new MKRangedAttribute("attribute.name.mk.ranged_crit_multiplier", 0.0, 0.0, 10.0)
+    public static final Attribute RANGED_CRIT_MULTIPLIER = new MKRangedAttribute("attribute.name.mk.ranged_crit_multiplier", 1.0, 0.0, 10.0)
             .setRegistryName(MKCore.makeRL("ranged_crit_multiplier"))
             .setShouldWatch(true);
 

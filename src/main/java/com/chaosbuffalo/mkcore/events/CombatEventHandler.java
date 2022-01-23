@@ -132,7 +132,12 @@ public class CombatEventHandler {
                 float left = breakResult.getA();
                 if (!(dmgSource instanceof MKDamageSource)){
                     // correct for if we're a vanilla damage source and we're going to bypass armor so pre-apply armor
-                    left = CoreDamageTypes.MeleeDamage.applyResistance(event.getEntityLiving(), left);
+                    if (SpellTriggers.isProjectileDamage(dmgSource)){
+                        left = CoreDamageTypes.RangedDamage.applyResistance(event.getEntityLiving(), left);
+                    } else {
+                        left = CoreDamageTypes.MeleeDamage.applyResistance(event.getEntityLiving(), left);
+                    }
+
                 }
                 event.setCanceled(true);
                 if (left > 0){
