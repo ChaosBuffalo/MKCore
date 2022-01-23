@@ -7,6 +7,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
+import net.minecraft.entity.projectile.ProjectileHelper;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.IPacket;
 import net.minecraft.network.PacketBuffer;
@@ -23,9 +24,6 @@ import net.minecraftforge.fml.network.NetworkHooks;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
 public abstract class BaseProjectileEntity extends ProjectileEntity implements IClientUpdatable, IEntityAdditionalSpawnData {
 
@@ -250,46 +248,23 @@ public abstract class BaseProjectileEntity extends ProjectileEntity implements I
 
 
     protected boolean isValidEntityTarget(Entity entity) {
-        if (entity instanceof LivingEntity && getShooter() != null) {
-            return Targeting.isValidTarget(getTargetContext(), getShooter(), entity);
+        Entity shooter = getShooter();
+        if (entity instanceof LivingEntity && shooter != null) {
+            return Targeting.isValidTarget(getTargetContext(), shooter, entity);
         }
         return isValidEntityTargetGeneric(entity);
     }
 
-    private EntityRayTraceResult checkRayTraceEntities(Vector3d traceStart, Vector3d traceEnd, RayTraceResult blockTrace) {
-        Entity entity = null;
-        EntityRayTraceResult entityResult = null;
-        Vector3d motion = getMotion();
-        List<Entity> targets = this.world.getEntitiesInAABBexcluding(this,
-                this.getBoundingBox().expand(motion.getX(), motion.getY(), motion.getZ()).grow(1.0D),
-                this::isValidEntityTarget);
-        double shortestEntityDistance = 0.0D;
+    // Real name canHitEntity
+    @Override
+    protected boolean func_230298_a_(Entity entity) {
+        // super will check if it has left the shooter
+        return super.func_230298_a_(entity) && isValidEntityTarget(entity);
+    }
 
-        Vector3d hitVec = null;
-        for (Entity hitEntity : targets) {
-            if (!hitEntity.canBeCollidedWith()) {
-                continue;
-            }
-            if (isValidEntityTarget(hitEntity)) {
-                AxisAlignedBB mobHitBB = hitEntity.getBoundingBox().grow(0.3);
-                Optional<Vector3d> intercept = mobHitBB.rayTrace(traceStart, traceEnd);
-
-                if (intercept.isPresent()) {
-                    double distToEntity = traceStart.squareDistanceTo(intercept.get());
-
-                    if (distToEntity < shortestEntityDistance || shortestEntityDistance == 0.0D) {
-                        entity = hitEntity;
-                        hitVec = intercept.get();
-                        shortestEntityDistance = distToEntity;
-                    }
-                }
-            }
-        }
-
-        if (entity != null) {
-            entityResult = new EntityRayTraceResult(entity, hitVec);
-        }
-        return entityResult;
+    private EntityRayTraceResult rayTraceEntities(Vector3d traceStart, Vector3d traceEnd) {
+        return ProjectileHelper.rayTraceEntities(world, this, traceStart, traceEnd,
+                getBoundingBox().expand(getMotion()).grow(1.0D), this::func_230298_a_);
     }
 
     protected boolean onHit(RayTraceResult rayTraceResult) {
@@ -409,7 +384,7 @@ public abstract class BaseProjectileEntity extends ProjectileEntity implements I
         } else {
             this.ticksInGround = 0;
             ++this.ticksInAir;
-            if (this.getDoAirProc() && this.ticksInAir == this.getAirProcTime()) {
+            if (this.getDoAirProc() && this.ticksInAir % this.getAirProcTime() == 0) {
                 if (this.onAirProc(this.getShooter(), this.getAmplifier())) {
                     this.remove();
                 }
@@ -424,7 +399,7 @@ public abstract class BaseProjectileEntity extends ProjectileEntity implements I
                 traceEnd = blockRayTrace.getHitVec();
             }
 
-            EntityRayTraceResult entityRayTrace = this.checkRayTraceEntities(traceStart, traceEnd, blockRayTrace);
+            EntityRayTraceResult entityRayTrace = rayTraceEntities(traceStart, traceEnd);
             if (entityRayTrace != null) {
                 trace = entityRayTrace;
             }
