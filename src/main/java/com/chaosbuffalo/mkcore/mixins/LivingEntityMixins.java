@@ -9,6 +9,8 @@ import net.minecraft.util.DamageSource;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Constant;
+import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(LivingEntity.class)
@@ -31,6 +33,11 @@ public abstract class LivingEntityMixins {
         } else {
             return canBlockDamageSource(damageSourceIn);
         }
+    }
+
+    @ModifyConstant(method = "Lnet/minecraft/entity/LivingEntity;attackEntityFrom(Lnet/minecraft/util/DamageSource;F)Z", constant = @Constant(floatValue = 10.0f))
+    private float injected(float value) {
+        return 100.0f;
     }
 
     public boolean isActiveItemStackBlocking() {
