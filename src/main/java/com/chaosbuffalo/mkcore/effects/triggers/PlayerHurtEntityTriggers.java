@@ -108,7 +108,7 @@ public class PlayerHurtEntityTriggers extends SpellTriggers.TriggerCollectionBas
         Entity immediate = source.getImmediateSource() != null ? source.getImmediateSource() : playerSource;
         float newDamage = source.getMKDamageType().applyDamage(playerSource, livingTarget, immediate, event.getAmount(), source.getModifierScaling());
         if (source.getMKDamageType().rollCrit(playerSource, livingTarget, immediate)) {
-            newDamage = source.getMKDamageType().applyCritDamage(playerSource, livingTarget, immediate, event.getAmount());
+            newDamage = source.getMKDamageType().applyCritDamage(playerSource, livingTarget, immediate, newDamage);
             switch (source.getOrigination()) {
                 case MK_ABILITY:
                     sendAbilityCrit(livingTarget, playerSource, source, newDamage);
