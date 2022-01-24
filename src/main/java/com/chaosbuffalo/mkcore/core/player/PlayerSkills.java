@@ -57,10 +57,15 @@ public class PlayerSkills implements IMKSerializable<CompoundNBT> {
     }
 
     public void tryIncreaseSkill(Attribute attribute) {
-        PlayerEntity player = playerData.getEntity();
+        double currentSkill = getSkillValue(attribute);
+        double chance = getChanceToIncreaseSkill(currentSkill);
+        tryIncreaseSkill(attribute, chance);
+    }
+
+    public void tryIncreaseSkill(Attribute attribute, double chance) {
         double currentSkill = getSkillValue(attribute);
         if (currentSkill < GameConstants.NATURAL_SKILL_MAX) {
-            double chance = getChanceToIncreaseSkill(currentSkill);
+            PlayerEntity player = playerData.getEntity();
             if (player.getRNG().nextDouble() <= chance) {
                 skillValues.put(attribute, currentSkill + 1.0);
                 player.sendMessage(new TranslationTextComponent("mkcore.skill.increase",
