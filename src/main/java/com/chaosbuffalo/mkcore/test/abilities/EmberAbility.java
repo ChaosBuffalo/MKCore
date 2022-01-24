@@ -83,7 +83,7 @@ public class EmberAbility extends MKAbility {
             LineEffectBuilder lineBuilder = LineEffectBuilder.createOnEntity(castingEntity, targetEntity,
                     new Vector3d(targetEntity.getPosX(), targetEntity.getPosYHeight(0.5), targetEntity.getPosZ()),
                     new Vector3d(castingEntity.getPosX(), castingEntity.getPosY() + castingEntity.getEyeHeight(), castingEntity.getPosZ()));
-            lineBuilder.setParticleAnimation(TEST_PARTICLES);
+            lineBuilder.setParticles(TEST_PARTICLES);
             lineBuilder.duration(40);
             lineBuilder.spawn();
             PacketHandler.sendToTrackingAndSelf(new ParticleEffectSpawnPacket(

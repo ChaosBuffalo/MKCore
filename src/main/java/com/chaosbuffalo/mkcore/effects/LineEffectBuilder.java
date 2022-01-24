@@ -49,8 +49,13 @@ public class LineEffectBuilder {
         return this;
     }
 
-    public LineEffectBuilder setParticleAnimation(ResourceLocation animation){
+    public LineEffectBuilder setParticles(ResourceLocation animation){
         lineEffect.setParticles(animation);
+        return this;
+    }
+
+    public LineEffectBuilder setWaitingParticles(ResourceLocation animation){
+        lineEffect.setWaitingParticles(animation);
         return this;
     }
 

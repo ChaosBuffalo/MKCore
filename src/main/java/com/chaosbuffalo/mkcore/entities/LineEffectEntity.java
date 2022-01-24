@@ -47,6 +47,9 @@ public class LineEffectEntity extends Entity implements IEntityAdditionalSpawnDa
     @Nullable
     private ResourceLocation particles;
 
+    @Nullable
+    private ResourceLocation waitingParticles;
+
     private Vector3d startPoint;
     private Vector3d endPoint;
 
@@ -71,6 +74,10 @@ public class LineEffectEntity extends Entity implements IEntityAdditionalSpawnDa
 
     public void setParticles(@Nullable ResourceLocation particles) {
         this.particles = particles;
+    }
+
+    public void setWaitingParticles(@Nullable ResourceLocation waitingParticles) {
+        this.waitingParticles = waitingParticles;
     }
 
     public void setEndPoint(Vector3d endPoint) {
@@ -126,8 +133,9 @@ public class LineEffectEntity extends Entity implements IEntityAdditionalSpawnDa
 
     private void clientUpdate() {
         if (ticksExisted % visualTickRate == 0){
-            if (particles != null){
-                ParticleAnimation anim = ParticleAnimationManager.getAnimation(particles);
+            ResourceLocation animName = isWaiting() ? waitingParticles : particles;
+            if (animName != null){
+                ParticleAnimation anim = ParticleAnimationManager.getAnimation(animName);
                 if (anim != null){
                     anim.spawn(getEntityWorld(), startPoint, Collections.singletonList(endPoint));
                 }
