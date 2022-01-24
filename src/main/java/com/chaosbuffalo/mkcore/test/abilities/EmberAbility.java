@@ -3,6 +3,7 @@ package com.chaosbuffalo.mkcore.test.abilities;
 import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.abilities.*;
+import com.chaosbuffalo.mkcore.effects.LineEffectBuilder;
 import com.chaosbuffalo.mkcore.serialization.attributes.FloatAttribute;
 import com.chaosbuffalo.mkcore.serialization.attributes.IntAttribute;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
@@ -17,6 +18,8 @@ import com.google.common.collect.ImmutableSet;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
 import net.minecraft.particles.ParticleTypes;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.*;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -26,6 +29,7 @@ import java.util.Random;
 import java.util.Set;
 
 public class EmberAbility extends MKAbility {
+    private static final ResourceLocation TEST_PARTICLES = new ResourceLocation(MKCore.MOD_ID, "beam_effect");
     public static final EmberAbility INSTANCE = new EmberAbility();
     protected final FloatAttribute damage = new FloatAttribute("damage", 6.0f);
     protected final IntAttribute burnTime = new IntAttribute("burnTime", 5);
@@ -76,6 +80,12 @@ public class EmberAbility extends MKAbility {
             targetEntity.attackEntityFrom(MKDamageSource.causeAbilityDamage(CoreDamageTypes.FireDamage,
                     getAbilityId(), castingEntity, castingEntity), amount);
 //            SoundUtils.playSoundAtEntity(targetEntity, ModSounds.spell_fire_6);
+            LineEffectBuilder lineBuilder = LineEffectBuilder.createOnEntity(castingEntity, targetEntity,
+                    new Vector3d(targetEntity.getPosX(), targetEntity.getPosYHeight(0.5), targetEntity.getPosZ()),
+                    new Vector3d(castingEntity.getPosX(), castingEntity.getPosY() + castingEntity.getEyeHeight(), castingEntity.getPosZ()));
+            lineBuilder.setParticleAnimation(TEST_PARTICLES);
+            lineBuilder.duration(40);
+            lineBuilder.spawn();
             PacketHandler.sendToTrackingAndSelf(new ParticleEffectSpawnPacket(
                                 ParticleTypes.FLAME,
                                 ParticleEffects.CIRCLE_PILLAR_MOTION, 60, 10,

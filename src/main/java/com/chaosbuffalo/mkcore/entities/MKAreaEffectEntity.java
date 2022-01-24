@@ -3,7 +3,6 @@ package com.chaosbuffalo.mkcore.entities;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.effects.*;
-import com.chaosbuffalo.targeting_api.Targeting;
 import com.chaosbuffalo.targeting_api.TargetingContext;
 import net.minecraft.entity.*;
 import net.minecraft.nbt.CompoundNBT;
@@ -35,60 +34,6 @@ public class MKAreaEffectEntity extends AreaEffectCloudEntity implements IEntity
     private boolean particlesDisabled;
     private IMKEntityData ownerData;
 
-
-    private abstract static class EffectEntry {
-        protected final TargetingContext targetContext;
-
-        private EffectEntry(TargetingContext context) {
-            this.targetContext = context;
-        }
-
-        abstract void apply(IMKEntityData casterData, IMKEntityData targetData);
-    }
-
-    class VanillaEffectEntry extends EffectEntry {
-        protected final EffectInstance effect;
-
-        VanillaEffectEntry(EffectInstance effect, TargetingContext targetContext) {
-            super(targetContext);
-            this.effect = effect;
-        }
-
-        @Override
-        void apply(IMKEntityData casterData, IMKEntityData targetData) {
-            LivingEntity target = targetData.getEntity();
-            boolean validTarget = Targeting.isValidTarget(targetContext, casterData.getEntity(), target);
-
-            if (!validTarget) {
-                return;
-            }
-
-            if (effect.getPotion().isInstant()) {
-                effect.getPotion().affectEntity(MKAreaEffectEntity.this, casterData.getEntity(), target, effect.getAmplifier(), 0.5D);
-            } else {
-                target.addPotionEffect(new EffectInstance(effect));
-            }
-        }
-    }
-
-    static class MKEffectEntry extends EffectEntry {
-        protected final MKEffectBuilder<?> newEffect;
-
-        public MKEffectEntry(MKEffectBuilder<?> instance, TargetingContext targetingContext) {
-            super(targetingContext);
-            this.newEffect = instance;
-        }
-
-        @Override
-        void apply(IMKEntityData casterData, IMKEntityData targetData) {
-            boolean validTarget = newEffect.getEffect().isValidTarget(targetContext, casterData, targetData);
-            if (!validTarget) {
-                return;
-            }
-
-            targetData.getEffects().addEffect(newEffect);
-        }
-    }
 
     public MKAreaEffectEntity(EntityType<? extends AreaEffectCloudEntity> entityType, World world) {
         super(entityType, world);
@@ -173,11 +118,11 @@ public class MKAreaEffectEntity extends AreaEffectCloudEntity implements IEntity
     }
 
     public void addEffect(EffectInstance effect, TargetingContext targetContext) {
-        this.effects.add(new VanillaEffectEntry(effect, targetContext));
+        this.effects.add(new EffectEntry.VanillaEffectEntry(this, effect, targetContext));
     }
 
     public void addEffect(MKEffectBuilder<?> effect, TargetingContext targetContext) {
-        this.effects.add(new MKEffectEntry(effect, targetContext));
+        this.effects.add(new EffectEntry.MKEffectEntry(effect, targetContext));
     }
 
     private boolean entityCheck(LivingEntity e) {

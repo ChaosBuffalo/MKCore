@@ -6,6 +6,7 @@ import net.minecraft.util.math.*;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -85,6 +86,36 @@ public class RayTraceUtils {
         if (nearest != null)
             return new EntityRayTraceResult(nearest);
         return null;
+    }
+
+    public static <E extends Entity> EntityCollectionRayTraceResult<E> rayTraceAllEntities(Class<E> clazz, World world,
+                                                                                           Vector3d from, Vector3d to,
+                                                                                           Vector3d aaExpansion,
+                                                                                           float aaGrowth,
+                                                                                           float entityExpansion,
+                                                                                           final Predicate<E> filter) {
+
+        Predicate<E> predicate = input -> defaultFilter.test(input) && filter.test(input);
+        E nearest = null;
+        double distance = 0;
+        AxisAlignedBB bb = new AxisAlignedBB(new BlockPos(from), new BlockPos(to))
+                .expand(aaExpansion.x, aaExpansion.y, aaExpansion.z)
+                .grow(aaGrowth);
+        List<E> entities = world.getEntitiesWithinAABB(clazz, bb, predicate);
+        List<E> ret = new ArrayList<>();
+        for (E entity : entities) {
+            AxisAlignedBB entityBB = entity.getBoundingBox().grow(entityExpansion);
+            Optional<Vector3d> intercept = entityBB.rayTrace(from, to);
+            if (intercept.isPresent()) {
+                double dist = from.distanceTo(intercept.get());
+                if (dist < distance || distance == 0.0D) {
+                    nearest = entity;
+                    distance = dist;
+                }
+                ret.add(entity);
+            }
+        }
+        return new EntityCollectionRayTraceResult<>(nearest, ret);
     }
 
     private static <E extends Entity> RayTraceResult rayTraceBlocksAndEntities(Class<E> clazz, Entity mainEntity,

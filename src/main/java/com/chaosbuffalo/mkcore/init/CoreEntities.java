@@ -1,6 +1,7 @@
 package com.chaosbuffalo.mkcore.init;
 
 import com.chaosbuffalo.mkcore.MKCore;
+import com.chaosbuffalo.mkcore.entities.LineEffectEntity;
 import com.chaosbuffalo.mkcore.entities.MKAreaEffectEntity;
 import net.minecraft.entity.EntityClassification;
 import net.minecraft.entity.EntityType;
@@ -16,12 +17,23 @@ public class CoreEntities {
         evt.getRegistry().register(EntityType.Builder.<MKAreaEffectEntity>create(MKAreaEffectEntity::new, EntityClassification.MISC)
                 .immuneToFire()
                 .size(0, 0)
-                .setTrackingRange(10)
+                .setTrackingRange(5)
                 .setUpdateInterval(10)
                 .setShouldReceiveVelocityUpdates(true)
                 .disableSummoning()
                 .disableSerialization()
                 .build("mk_area_effect")
                 .setRegistryName(MKCore.makeRL("mk_area_effect")));
+
+        evt.getRegistry().register(EntityType.Builder.<LineEffectEntity>create(LineEffectEntity::new, EntityClassification.MISC)
+                .immuneToFire()
+                .size(0, 0)
+                .setTrackingRange(5)
+                .setUpdateInterval(10)
+                .setShouldReceiveVelocityUpdates(true)
+                .disableSummoning()
+                .disableSerialization()
+                .build("mk_line_effect")
+                .setRegistryName(MKCore.makeRL("mk_line_effect")));
     }
 }
