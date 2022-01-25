@@ -53,8 +53,7 @@ public abstract class ItemStackClientMixins {
     @ModifyVariable(
             method = "Lnet/minecraft/item/ItemStack;getTooltip(Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/client/util/ITooltipFlag;)Ljava/util/List;",
             at = @At("HEAD"),
-            index = 1,
-            ordinal = 0
+            argsOnly = true
     )
     private PlayerEntity capturePlayer(PlayerEntity player) {
         this.player = player;

@@ -12,9 +12,11 @@ public class MobEntityMixins {
     /**
      * @author kovak
      * @reason disables vanilla entity block breaking since it makes less sense with the poise system
+     * <p>
+     * Real name maybeDisableShield
      */
     @Overwrite
-    private void func_233655_a_(PlayerEntity p_233655_1_, ItemStack p_233655_2_, ItemStack p_233655_3_){
+    private void func_233655_a_(PlayerEntity p_233655_1_, ItemStack p_233655_2_, ItemStack p_233655_3_) {
 
     }
 }
