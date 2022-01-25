@@ -39,6 +39,10 @@ public class SpellTriggers {
         return source.isProjectile();
     }
 
+    public static boolean isNonMKProjectileDamage(DamageSource source) {
+        return isProjectileDamage(source) && !isMKDamage(source);
+    }
+
 
     public static final FallTriggers FALL = new FallTriggers();
     public static final PlayerHurtEntityTriggers PLAYER_HURT_ENTITY = new PlayerHurtEntityTriggers();
