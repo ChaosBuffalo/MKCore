@@ -2,6 +2,7 @@ package com.chaosbuffalo.mkcore.client.rendering;
 
 import com.chaosbuffalo.mkcore.MKConfig;
 import com.chaosbuffalo.mkcore.MKCore;
+import com.chaosbuffalo.mkcore.entities.LineEffectEntity;
 import com.chaosbuffalo.mkcore.entities.MKAreaEffectEntity;
 import com.chaosbuffalo.mkcore.fx.particles.IndicatorParticle;
 import com.chaosbuffalo.mkcore.fx.particles.MKParticle;
@@ -20,6 +21,7 @@ public class MKRenderers {
     @SubscribeEvent
     public static void registerModels(ModelRegistryEvent evt) {
         RenderingRegistry.registerEntityRenderingHandler(MKAreaEffectEntity.TYPE, EntityMKAreaEffectRenderer::new);
+        RenderingRegistry.registerEntityRenderingHandler(LineEffectEntity.TYPE, EntityLineEffectRenderer::new);
     }
 
     public static void registerPlayerRenderers() {

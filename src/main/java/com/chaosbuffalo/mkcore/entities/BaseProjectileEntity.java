@@ -9,6 +9,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.IPacket;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.EntityPredicates;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.shapes.VoxelShape;
@@ -17,6 +18,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.event.ForgeEventFactory;
+import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.network.NetworkHooks;
 
 import javax.annotation.Nonnull;
@@ -25,7 +27,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public abstract class BaseProjectileEntity extends ProjectileEntity implements IClientUpdatable {
+public abstract class BaseProjectileEntity extends ProjectileEntity implements IClientUpdatable, IEntityAdditionalSpawnData {
 
     @Nullable
     private BlockState inBlockState;
@@ -56,6 +58,17 @@ public abstract class BaseProjectileEntity extends ProjectileEntity implements I
         this.setAmplifier(0);
         this.setSkillLevel(0.0f);
         setup();
+    }
+
+
+    @Override
+    public void writeSpawnData(PacketBuffer buffer) {
+        buffer.writeInt(field_234610_c_);
+    }
+
+    @Override
+    public void readSpawnData(PacketBuffer additionalData) {
+        field_234610_c_ = additionalData.readInt();
     }
 
     public void setup() {
@@ -445,7 +458,7 @@ public abstract class BaseProjectileEntity extends ProjectileEntity implements I
 
             this.rotationPitch = this.prevRotationPitch + (this.rotationPitch - this.prevRotationPitch) * 0.2F;
             this.rotationYaw = this.prevRotationYaw + (this.rotationYaw - this.prevRotationYaw) * 0.2F;
-            if (!this.inGround && !world.isRemote) {
+            if (!this.inGround) {
                 setMotion(motion.subtract(new Vector3d(0.0, getGravityVelocity(), 0.0)));
             }
             this.setPosition(getPosX() + motion.getX(), getPosY() + motion.getY(), getPosZ() + motion.getZ());

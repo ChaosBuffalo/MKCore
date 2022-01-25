@@ -1,5 +1,7 @@
 package com.chaosbuffalo.mkcore.mixins;
 
+import com.chaosbuffalo.mkcore.core.damage.MKDamageSource;
+import com.chaosbuffalo.mkcore.effects.SpellTriggers;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -8,13 +10,16 @@ import net.minecraft.item.UseAction;
 import net.minecraft.util.DamageSource;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Constant;
-import org.spongepowered.asm.mixin.injection.ModifyConstant;
-import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.*;
+
+import javax.annotation.Nullable;
 
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixins {
+
+    @Unique
+    private DamageSource damageSource;
 
     @Shadow protected abstract boolean canBlockDamageSource(DamageSource damageSourceIn);
 
@@ -23,6 +28,8 @@ public abstract class LivingEntityMixins {
     @Shadow protected ItemStack activeItemStack;
 
     @Shadow protected int activeItemStackUseCount;
+
+    @Shadow @Nullable public abstract DamageSource getLastDamageSource();
 
     // disable player blocking as we handle it ourselves
     @Redirect(at = @At(value = "INVOKE", target="Lnet/minecraft/entity/LivingEntity;canBlockDamageSource(Lnet/minecraft/util/DamageSource;)Z"),
@@ -35,21 +42,27 @@ public abstract class LivingEntityMixins {
         }
     }
 
-    @ModifyConstant(method = "Lnet/minecraft/entity/LivingEntity;attackEntityFrom(Lnet/minecraft/util/DamageSource;F)Z", constant = @Constant(floatValue = 10.0f))
-    private float injected(float value) {
-        return 100.0f;
+    @ModifyVariable(
+            method = "Lnet/minecraft/entity/LivingEntity;attackEntityFrom(Lnet/minecraft/util/DamageSource;F)Z",
+            at = @At("HEAD"),
+            index = 1,
+            ordinal = 0
+    )
+    private DamageSource captureSource(DamageSource source) {
+        this.damageSource = source;
+        return source;
     }
 
-    public boolean isActiveItemStackBlocking() {
-        if (isHandActive() && !activeItemStack.isEmpty()) {
-            Item item = this.activeItemStack.getItem();
-            if (item.getUseAction(this.activeItemStack) != UseAction.BLOCK) {
-                return false;
-            } else {
-                return item.getUseDuration(this.activeItemStack) - activeItemStackUseCount >= 1;
-            }
-        } else {
-            return false;
+    @ModifyConstant(method = "Lnet/minecraft/entity/LivingEntity;attackEntityFrom(Lnet/minecraft/util/DamageSource;F)Z", constant = @Constant(floatValue = 10.0f))
+    private float calculateInvulnerability(float value) {
+        if (damageSource instanceof MKDamageSource || SpellTriggers.isMinecraftPhysicalDamage(damageSource) || SpellTriggers.isProjectileDamage(damageSource)){
+            return 100.0f;
         }
+        return value;
+    }
+
+    @ModifyConstant(method = "Lnet/minecraft/entity/LivingEntity;isActiveItemStackBlocking()Z", constant = @Constant(intValue = 5))
+    private int calculateBlockDelay(int value) {
+        return 1;
     }
 }
