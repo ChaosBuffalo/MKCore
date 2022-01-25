@@ -45,12 +45,11 @@ public class CombatEventHandler {
             SpellTriggers.FALL.onLivingFall(event, source, livingTarget);
         }
 
-        // Player is the source
-        if (trueSource instanceof ServerPlayerEntity) {
-            ServerPlayerEntity playerSource = (ServerPlayerEntity) trueSource;
-            playerSource.getCapability(CoreCapabilities.PLAYER_CAPABILITY).ifPresent(
-                    (sourceData) -> SpellTriggers.PLAYER_HURT_ENTITY.onPlayerHurtEntity(event, source, livingTarget,
-                            playerSource, sourceData)
+        // Living is source
+        if (trueSource instanceof LivingEntity) {
+            MKCore.getEntityData(trueSource).ifPresent(
+                    (sourceData) -> SpellTriggers.LIVING_HURT_ENTITY.onLivingHurtEntity(event, source, livingTarget,
+                            (LivingEntity) trueSource, sourceData)
             );
         }
 

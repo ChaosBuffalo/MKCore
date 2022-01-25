@@ -45,7 +45,7 @@ public class SpellTriggers {
 
 
     public static final FallTriggers FALL = new FallTriggers();
-    public static final PlayerHurtEntityTriggers PLAYER_HURT_ENTITY = new PlayerHurtEntityTriggers();
+    public static final LivingHurtEntityTriggers LIVING_HURT_ENTITY = new LivingHurtEntityTriggers();
     public static final EntityHurtPlayerTriggers ENTITY_HURT_PLAYER = new EntityHurtPlayerTriggers();
     public static final AttackEntityTriggers ATTACK_ENTITY = new AttackEntityTriggers();
     public static final PlayerAttackEntityTriggers PLAYER_ATTACK_ENTITY = new PlayerAttackEntityTriggers();

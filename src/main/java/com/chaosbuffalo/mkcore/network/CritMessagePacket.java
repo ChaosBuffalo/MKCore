@@ -27,24 +27,28 @@ public class CritMessagePacket {
     }
 
     private final int targetId;
-    private final UUID sourceUUID;
     private ResourceLocation abilityName;
     private ResourceLocation damageType;
     private final float critDamage;
     private final CritType type;
     private int projectileId;
     private String typeName;
+    private LivingEntity source;
+    private UUID sourceUUID;
+    private int sourceId;
+    private boolean decodedPlayer;
 
-    public CritMessagePacket(int targetId, UUID sourceUUID, float critDamage) {
+
+    public CritMessagePacket(int targetId, LivingEntity source, float critDamage) {
         this.targetId = targetId;
-        this.sourceUUID = sourceUUID;
+        this.source = source;
         this.critDamage = critDamage;
         this.type = CritType.MELEE_CRIT;
     }
 
-    public CritMessagePacket(int targetId, UUID sourceUUID, float critDamage, MKDamageType damageType, String typeName) {
+    public CritMessagePacket(int targetId, LivingEntity source, float critDamage, MKDamageType damageType, String typeName) {
         this.targetId = targetId;
-        this.sourceUUID = sourceUUID;
+        this.source = source;
         this.critDamage = critDamage;
         this.type = CritType.TYPED_CRIT;
         this.typeName = typeName;
@@ -52,20 +56,20 @@ public class CritMessagePacket {
     }
 
 
-    public CritMessagePacket(int targetId, UUID sourceUUID, float critDamage, ResourceLocation abilityName,
+    public CritMessagePacket(int targetId, LivingEntity source, float critDamage, ResourceLocation abilityName,
                              MKDamageType damageType) {
         this.targetId = targetId;
-        this.sourceUUID = sourceUUID;
+        this.source = source;
         this.critDamage = critDamage;
         this.type = CritType.MK_CRIT;
         this.abilityName = abilityName;
         this.damageType = damageType.getRegistryName();
     }
 
-    public CritMessagePacket(int targetId, UUID sourceUUID, float critDamage, int projectileId) {
+    public CritMessagePacket(int targetId, LivingEntity source, float critDamage, int projectileId) {
         this.type = CritType.PROJECTILE_CRIT;
         this.targetId = targetId;
-        this.sourceUUID = sourceUUID;
+        this.source = source;
         this.critDamage = critDamage;
         this.projectileId = projectileId;
     }
@@ -73,7 +77,12 @@ public class CritMessagePacket {
     public CritMessagePacket(PacketBuffer pb) {
         this.type = pb.readEnumValue(CritType.class);
         this.targetId = pb.readInt();
-        this.sourceUUID = pb.readUniqueId();
+        decodedPlayer = pb.readBoolean();
+        if (decodedPlayer){
+            sourceUUID = pb.readUniqueId();
+        } else {
+            sourceId = pb.readInt();
+        }
         this.critDamage = pb.readFloat();
         if (type == CritType.MK_CRIT) {
             this.abilityName = pb.readResourceLocation();
@@ -91,7 +100,13 @@ public class CritMessagePacket {
     public void toBytes(PacketBuffer pb) {
         pb.writeEnumValue(type);
         pb.writeInt(targetId);
-        pb.writeUniqueId(sourceUUID);
+        boolean isPlayer = source instanceof PlayerEntity;
+        pb.writeBoolean(isPlayer);
+        if (isPlayer){
+            pb.writeUniqueId(source.getUniqueID());
+        } else {
+            pb.writeInt(source.getEntityId());
+        }
         pb.writeFloat(critDamage);
         if (type == CritType.MK_CRIT) {
             pb.writeResourceLocation(this.abilityName);
@@ -118,12 +133,12 @@ public class CritMessagePacket {
             if (player == null) {
                 return;
             }
-            boolean isSelf = player.getUniqueID().equals(packet.sourceUUID);
-            PlayerEntity playerSource = player.getEntityWorld().getPlayerByUuid(packet.sourceUUID);
+            Entity source = packet.decodedPlayer ? player.getEntityWorld().getPlayerByUuid(packet.sourceUUID) : player.getEntityWorld().getEntityByID(packet.sourceId);
             Entity target = player.getEntityWorld().getEntityByID(packet.targetId);
-            if (target == null || playerSource == null) {
+            if (target == null || source == null) {
                 return;
             }
+            boolean isSelf = player.isEntityEqual(source);
             boolean isSelfTarget = player.getEntityId() == packet.targetId;
             if (isSelf || isSelfTarget) {
                 if (!MKConfig.CLIENT.showMyCrits.get()) {
@@ -134,19 +149,23 @@ public class CritMessagePacket {
                     return;
                 }
             }
+            if (!(source instanceof LivingEntity)){
+                return;
+            }
+            LivingEntity livingSource = (LivingEntity) source;
             switch (packet.type) {
                 case MELEE_CRIT:
                     if (isSelf) {
                         player.sendMessage(new TranslationTextComponent("mkcore.crit.melee.self",
                                 target.getDisplayName(),
-                                playerSource.getHeldItemMainhand().getDisplayName(),
+                                livingSource.getHeldItemMainhand().getDisplayName(),
                                 Math.round(packet.critDamage)
                         ).mergeStyle(TextFormatting.DARK_RED), Util.DUMMY_UUID);
                     } else {
                         player.sendMessage(new TranslationTextComponent("mkcore.crit.melee.other",
-                                playerSource.getDisplayName(),
+                                livingSource.getDisplayName(),
                                 target.getDisplayName(),
-                                playerSource.getHeldItemMainhand().getDisplayName(),
+                                livingSource.getHeldItemMainhand().getDisplayName(),
                                 Math.round(packet.critDamage)
                         ).mergeStyle(TextFormatting.DARK_RED), Util.DUMMY_UUID);
                     }
@@ -158,7 +177,7 @@ public class CritMessagePacket {
                     if (ability == null || mkDamageType == null) {
                         break;
                     }
-                    player.sendMessage(mkDamageType.getAbilityCritMessage(playerSource, (LivingEntity) target, packet.critDamage, ability, isSelf), Util.DUMMY_UUID);
+                    player.sendMessage(mkDamageType.getAbilityCritMessage(livingSource, (LivingEntity) target, packet.critDamage, ability, isSelf), Util.DUMMY_UUID);
                     break;
                 case PROJECTILE_CRIT:
                     Entity projectile = player.getEntityWorld().getEntityByID(packet.projectileId);
@@ -171,7 +190,7 @@ public class CritMessagePacket {
                             ).mergeStyle(TextFormatting.LIGHT_PURPLE), Util.DUMMY_UUID);
                         } else {
                             player.sendMessage(new TranslationTextComponent("mkcore.crit.projectile.other",
-                                    playerSource.getDisplayName(),
+                                    livingSource.getDisplayName(),
                                     target.getDisplayName(),
                                     projectile.getDisplayName(),
                                     Math.round(packet.critDamage)
@@ -184,7 +203,7 @@ public class CritMessagePacket {
                     if (mkDamageType == null) {
                         break;
                     }
-                    player.sendMessage(mkDamageType.getEffectCritMessage(playerSource, (LivingEntity) target, packet.critDamage, packet.typeName, isSelf), Util.DUMMY_UUID);
+                    player.sendMessage(mkDamageType.getEffectCritMessage(livingSource, (LivingEntity) target, packet.critDamage, packet.typeName, isSelf), Util.DUMMY_UUID);
                     break;
             }
         }
