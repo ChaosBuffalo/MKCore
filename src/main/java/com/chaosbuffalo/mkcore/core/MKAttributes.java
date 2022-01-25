@@ -198,6 +198,31 @@ public class MKAttributes {
             .setRegistryName(MKCore.makeRL("marksmanship"))
             .setShouldWatch(true);
 
+    public static final Attribute TWO_HAND_SLASH = new MKRangedAttribute("attribute.name.mk.two_hand_slash", 0, 0, GameConstants.SKILL_MAX)
+            .setRegistryName(MKCore.makeRL("two_hand_slash"))
+            .setShouldWatch(true);
+
+    public static final Attribute ONE_HAND_SLASH = new MKRangedAttribute("attribute.name.mk.one_hand_slash", 0, 0, GameConstants.SKILL_MAX)
+            .setRegistryName(MKCore.makeRL("one_hand_slash"))
+            .setShouldWatch(true);
+
+    public static final Attribute TWO_HAND_BLUNT = new MKRangedAttribute("attribute.name.mk.two_hand_blunt", 0, 0, GameConstants.SKILL_MAX)
+            .setRegistryName(MKCore.makeRL("two_hand_blunt"))
+            .setShouldWatch(true);
+
+    public static final Attribute ONE_HAND_BLUNT = new MKRangedAttribute("attribute.name.mk.one_hand_blunt", 0, 0, GameConstants.SKILL_MAX)
+            .setRegistryName(MKCore.makeRL("one_hand_blunt"))
+            .setShouldWatch(true);
+
+    public static final Attribute TWO_HAND_PIERCE = new MKRangedAttribute("attribute.name.mk.two_hand_pierce", 0, 0, GameConstants.SKILL_MAX)
+            .setRegistryName(MKCore.makeRL("two_hand_pierce"))
+            .setShouldWatch(true);
+
+    public static final Attribute ONE_HAND_PIERCE = new MKRangedAttribute("attribute.name.mk.one_hand_pierce", 0, 0, GameConstants.SKILL_MAX)
+            .setRegistryName(MKCore.makeRL("one_hand_pierce"))
+            .setShouldWatch(true);
+
+
     public static final Attribute MAX_POISE = new MKRangedAttribute("attribute.name.mk.max_poise", 0, 0, 2048)
             .setRegistryName(MKCore.makeRL("max_poise"))
             .setShouldWatch(true);
@@ -231,6 +256,12 @@ public class MKAttributes {
         COMBAT_SKILLS.add(PANKRATION);
         COMBAT_SKILLS.add(ARETE);
         COMBAT_SKILLS.add(MARKSMANSHIP);
+        COMBAT_SKILLS.add(TWO_HAND_BLUNT);
+        COMBAT_SKILLS.add(ONE_HAND_BLUNT);
+        COMBAT_SKILLS.add(TWO_HAND_PIERCE);
+        COMBAT_SKILLS.add(ONE_HAND_PIERCE);
+        COMBAT_SKILLS.add(TWO_HAND_SLASH);
+        COMBAT_SKILLS.add(ONE_HAND_SLASH);
     }
 
 
@@ -272,6 +303,12 @@ public class MKAttributes {
         consumer.accept(PANKRATION);
         consumer.accept(EVOCATION);
         consumer.accept(MARKSMANSHIP);
+        consumer.accept(TWO_HAND_BLUNT);
+        consumer.accept(ONE_HAND_BLUNT);
+        consumer.accept(TWO_HAND_PIERCE);
+        consumer.accept(ONE_HAND_PIERCE);
+        consumer.accept(TWO_HAND_SLASH);
+        consumer.accept(ONE_HAND_SLASH);
 
         consumer.accept(MAX_POISE);
         consumer.accept(POISE_REGEN);

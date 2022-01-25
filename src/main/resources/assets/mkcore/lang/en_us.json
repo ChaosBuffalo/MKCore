@@ -208,5 +208,11 @@
   "attribute.name.mk.block_efficiency": "Block Efficiency",
   "mkcore.subtitle.attack_cd_reset": "The sound of you swiftly readying your weapon for another strike",
   "mkcore.subtitle.stun": "The sound of someone getting stunned",
-  "mkcore.skill.increase": "Your %s Skill Increased to %.0f"
+  "mkcore.skill.increase": "Your %s Skill Increased to %.0f",
+  "attribute.name.mk.two_hand_slash": "2H Slash",
+  "attribute.name.mk.one_hand_slash": "1H Slash",
+  "attribute.name.mk.two_hand_blunt": "2H Blunt",
+  "attribute.name.mk.one_hand_blunt": "1H Blunt",
+  "attribute.name.mk.two_hand_pierce": "2H Pierce",
+  "attribute.name.mk.one_hand_pierce": "1H Pierce"
 }

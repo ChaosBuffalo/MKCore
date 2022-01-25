@@ -30,6 +30,7 @@ public class StatsPage extends StatPageBase {
         STAT_PANEL_ATTRIBUTES.add(Attributes.ARMOR);
         STAT_PANEL_ATTRIBUTES.add(Attributes.ARMOR_TOUGHNESS);
         STAT_PANEL_ATTRIBUTES.add(Attributes.ATTACK_DAMAGE);
+        STAT_PANEL_ATTRIBUTES.add(MKAttributes.RANGED_DAMAGE);
         STAT_PANEL_ATTRIBUTES.add(MKAttributes.HEAL_BONUS);
         STAT_PANEL_ATTRIBUTES.add(MKAttributes.BUFF_DURATION);
         STAT_PANEL_ATTRIBUTES.add(Attributes.ATTACK_SPEED);
@@ -55,6 +56,12 @@ public class StatsPage extends StatPageBase {
         STAT_PANEL_ATTRIBUTES.add(MKAttributes.PNEUMA);
         STAT_PANEL_ATTRIBUTES.add(MKAttributes.PANKRATION);
         STAT_PANEL_ATTRIBUTES.add(MKAttributes.MARKSMANSHIP);
+        STAT_PANEL_ATTRIBUTES.add(MKAttributes.ONE_HAND_SLASH);
+        STAT_PANEL_ATTRIBUTES.add(MKAttributes.ONE_HAND_BLUNT);
+        STAT_PANEL_ATTRIBUTES.add(MKAttributes.ONE_HAND_PIERCE);
+        STAT_PANEL_ATTRIBUTES.add(MKAttributes.TWO_HAND_SLASH);
+        STAT_PANEL_ATTRIBUTES.add(MKAttributes.TWO_HAND_BLUNT);
+        STAT_PANEL_ATTRIBUTES.add(MKAttributes.TWO_HAND_PIERCE);
         STAT_PANEL_ATTRIBUTES.add(MKAttributes.BLOCK_EFFICIENCY);
         STAT_PANEL_ATTRIBUTES.add(MKAttributes.MAX_POISE);
         STAT_PANEL_ATTRIBUTES.add(MKAttributes.POISE_REGEN);

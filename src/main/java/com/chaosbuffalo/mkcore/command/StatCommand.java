@@ -83,6 +83,12 @@ public class StatCommand {
                 .then(createAttributeStat("max_poise", MKAttributes.MAX_POISE))
                 .then(createAttributeStat("poise_regen", MKAttributes.POISE_REGEN))
                 .then(createAttributeStat("poise_break_cd", MKAttributes.POISE_BREAK_CD))
+                .then(createAttributeStat("two_hand_slash", MKAttributes.TWO_HAND_SLASH))
+                .then(createAttributeStat("one_hand_slash", MKAttributes.ONE_HAND_SLASH))
+                .then(createAttributeStat("one_hand_blunt", MKAttributes.ONE_HAND_BLUNT))
+                .then(createAttributeStat("two_hand_blunt", MKAttributes.TWO_HAND_BLUNT))
+                .then(createAttributeStat("one_hand_pierce", MKAttributes.ONE_HAND_PIERCE))
+                .then(createAttributeStat("two_hand_pierce", MKAttributes.TWO_HAND_PIERCE))
                 ;
     }
 

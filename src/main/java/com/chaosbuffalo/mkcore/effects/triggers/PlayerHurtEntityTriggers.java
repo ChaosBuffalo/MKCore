@@ -157,15 +157,22 @@ public class PlayerHurtEntityTriggers extends SpellTriggers.TriggerCollectionBas
                                   ServerPlayerEntity playerSource, IMKEntityData sourceData) {
 
         Entity projectile = source.getImmediateSource();
+        float damage = event.getAmount();
+        if (SpellTriggers.isNonMKProjectileDamage(source)){
+            damage += playerSource.getAttribute(MKAttributes.RANGED_DAMAGE).getValue();
+        }
+        boolean wasCrit = false;
         if (projectile != null && CoreDamageTypes.RangedDamage.rollCrit(playerSource, livingTarget, projectile)) {
-            float newDamage = CoreDamageTypes.RangedDamage.applyCritDamage(playerSource, livingTarget, projectile, event.getAmount());
-            event.setAmount(newDamage);
+            damage = CoreDamageTypes.RangedDamage.applyCritDamage(playerSource, livingTarget, projectile, damage);
+            wasCrit = true;
+        }
+        damage = (float) (damage * (1.0 - livingTarget.getAttribute(MKAttributes.RANGED_RESISTANCE).getValue()));
+        event.setAmount(damage);
+        if (wasCrit){
             sendCritPacket(livingTarget, playerSource,
-                    new CritMessagePacket(livingTarget.getEntityId(), playerSource.getUniqueID(), newDamage,
+                    new CritMessagePacket(livingTarget.getEntityId(), playerSource.getUniqueID(), damage,
                             projectile.getEntityId()));
         }
-        float damage = (float) (event.getAmount() * (1.0 - livingTarget.getAttribute(MKAttributes.RANGED_RESISTANCE).getValue()));
-        event.setAmount(damage);
         if (playerHurtEntityProjectileTriggers.size() == 0 || startTrigger(playerSource, PROJECTILE_TAG))
             return;
         playerHurtEntityProjectileTriggers.forEach(f -> f.apply(event, source, livingTarget, playerSource, sourceData));
