@@ -1,29 +1,38 @@
-package com.chaosbuffalo.mkcore.entities;
+package com.chaosbuffalo.mkcore.effects;
 
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
-import com.chaosbuffalo.mkcore.effects.MKEffectBuilder;
 import com.chaosbuffalo.targeting_api.Targeting;
 import com.chaosbuffalo.targeting_api.TargetingContext;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.potion.EffectInstance;
 
-public abstract class EffectEntry {
+public abstract class WorldAreaEffectEntry {
 
     protected final TargetingContext targetContext;
 
-    private EffectEntry(TargetingContext context) {
+    protected WorldAreaEffectEntry(TargetingContext context) {
         this.targetContext = context;
     }
+
     public abstract void apply(IMKEntityData casterData, IMKEntityData targetData);
 
+    public static WorldAreaEffectEntry forEffect(Entity directSource, EffectInstance effect,
+                                                 TargetingContext targetContext) {
+        return new VanillaEffectEntry(directSource, effect, targetContext);
+    }
 
-    public static class MKEffectEntry extends EffectEntry {
+    public static WorldAreaEffectEntry forEffect(Entity directSource, MKEffectBuilder<?> builder,
+                                                 TargetingContext targetingContext) {
+        return new MKEffectEntry(directSource, builder, targetingContext);
+    }
+
+    private static class MKEffectEntry extends WorldAreaEffectEntry {
         protected final MKEffectBuilder<?> newEffect;
 
-        public MKEffectEntry(MKEffectBuilder<?> instance, TargetingContext targetingContext) {
+        public MKEffectEntry(Entity directEntity, MKEffectBuilder<?> builder, TargetingContext targetingContext) {
             super(targetingContext);
-            this.newEffect = instance;
+            this.newEffect = builder.directEntity(directEntity);
         }
 
         @Override
@@ -37,7 +46,7 @@ public abstract class EffectEntry {
         }
     }
 
-    public static class VanillaEffectEntry extends EffectEntry {
+    private static class VanillaEffectEntry extends WorldAreaEffectEntry {
         protected final EffectInstance effect;
         protected final Entity directSource;
 
@@ -63,5 +72,4 @@ public abstract class EffectEntry {
             }
         }
     }
-
 }

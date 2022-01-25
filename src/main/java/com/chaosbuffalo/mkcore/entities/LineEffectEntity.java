@@ -3,6 +3,7 @@ package com.chaosbuffalo.mkcore.entities;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.effects.MKEffectBuilder;
+import com.chaosbuffalo.mkcore.effects.WorldAreaEffectEntry;
 import com.chaosbuffalo.mkcore.fx.particles.ParticleAnimation;
 import com.chaosbuffalo.mkcore.fx.particles.ParticleAnimationManager;
 import com.chaosbuffalo.mkcore.utils.EntityCollectionRayTraceResult;
@@ -37,7 +38,7 @@ public class LineEffectEntity extends Entity implements IEntityAdditionalSpawnDa
     @ObjectHolder(MKCore.MOD_ID + ":mk_line_effect")
     public static EntityType<LineEffectEntity> TYPE;
 
-    private final List<EffectEntry> effects;
+    private final List<WorldAreaEffectEntry> effects;
     protected int duration = 600;
     protected int waitTime = 20;
     protected int tickRate = 5;
@@ -97,17 +98,16 @@ public class LineEffectEntity extends Entity implements IEntityAdditionalSpawnDa
         this.getDataManager().register(WAITING, false);
     }
 
-
-    @Override
-    protected void readAdditional(CompoundNBT compound) {
-    }
-
     public void addEffect(EffectInstance effect, TargetingContext targetContext) {
-        this.effects.add(new EffectEntry.VanillaEffectEntry(this, effect, targetContext));
+        this.effects.add(WorldAreaEffectEntry.forEffect(this, effect, targetContext));
     }
 
     public void addEffect(MKEffectBuilder<?> effect, TargetingContext targetContext) {
-        this.effects.add(new EffectEntry.MKEffectEntry(effect, targetContext));
+        this.effects.add(WorldAreaEffectEntry.forEffect(this, effect, targetContext));
+    }
+
+    @Override
+    protected void readAdditional(CompoundNBT compound) {
     }
 
     @Override

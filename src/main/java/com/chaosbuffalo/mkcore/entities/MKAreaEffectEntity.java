@@ -30,7 +30,7 @@ public class MKAreaEffectEntity extends AreaEffectCloudEntity implements IEntity
     private static final float DEFAULT_RADIUS = 3.0f;
     private static final float DEFAULT_HEIGHT = 1.0f;
 
-    private final List<EffectEntry> effects;
+    private final List<WorldAreaEffectEntry> effects;
     private boolean particlesDisabled;
     private IMKEntityData ownerData;
 
@@ -120,11 +120,11 @@ public class MKAreaEffectEntity extends AreaEffectCloudEntity implements IEntity
     }
 
     public void addEffect(EffectInstance effect, TargetingContext targetContext) {
-        this.effects.add(new EffectEntry.VanillaEffectEntry(this, effect, targetContext));
+        this.effects.add(WorldAreaEffectEntry.forEffect(this, effect, targetContext));
     }
 
     public void addEffect(MKEffectBuilder<?> effect, TargetingContext targetContext) {
-        this.effects.add(new EffectEntry.MKEffectEntry(effect, targetContext));
+        this.effects.add(WorldAreaEffectEntry.forEffect(this, effect, targetContext));
     }
 
     private boolean entityCheck(LivingEntity e) {
@@ -175,7 +175,7 @@ public class MKAreaEffectEntity extends AreaEffectCloudEntity implements IEntity
         }
 
         // Copy in case callbacks try to add more effects
-        List<EffectEntry> targetEffects = new ArrayList<>(effects);
+        List<WorldAreaEffectEntry> targetEffects = new ArrayList<>(effects);
         List<LivingEntity> potentialTargets = this.world.getLoadedEntitiesWithinAABB(LivingEntity.class,
                 getBoundingBox(), this::entityCheck);
         if (potentialTargets.isEmpty()) {
