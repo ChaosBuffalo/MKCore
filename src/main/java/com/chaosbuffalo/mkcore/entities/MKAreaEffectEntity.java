@@ -86,8 +86,10 @@ public class MKAreaEffectEntity extends AreaEffectCloudEntity implements IEntity
     public void tick() {
         entityTick();
 
-        if (this.world.isRemote && !particlesDisabled) {
-            clientUpdate();
+        if (this.world.isRemote()) {
+            if (!particlesDisabled) {
+                clientUpdate();
+            }
         } else {
             if (serverUpdate()) {
                 remove();
