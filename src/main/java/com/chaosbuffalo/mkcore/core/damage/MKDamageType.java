@@ -5,6 +5,7 @@ import com.chaosbuffalo.mkcore.core.MKCombatFormulas;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.Attribute;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.ITextComponent;
@@ -143,13 +144,21 @@ public class MKDamageType extends ForgeRegistryEntry<MKDamageType> {
         return (float) (originalDamage - (originalDamage * target.getAttribute(getResistanceAttribute()).getValue()));
     }
 
+    protected boolean canCrit(LivingEntity source){
+        return source instanceof PlayerEntity;
+    }
+
     public boolean rollCrit(LivingEntity source, LivingEntity target) {
         return rollCrit(source, target, source);
     }
 
     public boolean rollCrit(LivingEntity source, LivingEntity target, Entity immediate) {
-        float critChance = getCritChance(source, target, immediate);
-        return MKCombatFormulas.checkCrit(source, critChance);
+        if (canCrit(source)){
+            float critChance = getCritChance(source, target, immediate);
+            return MKCombatFormulas.checkCrit(source, critChance);
+        } else {
+            return false;
+        }
     }
 
     public float applyCritDamage(LivingEntity source, LivingEntity target, float originalDamage) {

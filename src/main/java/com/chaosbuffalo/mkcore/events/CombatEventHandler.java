@@ -1,6 +1,5 @@
 package com.chaosbuffalo.mkcore.events;
 
-import com.chaosbuffalo.mkcore.CoreCapabilities;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.CastInterruptReason;
 import com.chaosbuffalo.mkcore.core.damage.MKDamageSource;
@@ -13,7 +12,6 @@ import com.chaosbuffalo.mkcore.utils.SoundUtils;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.entity.projectile.AbstractArrowEntity;
 import net.minecraft.item.SwordItem;
 import net.minecraft.util.DamageSource;
@@ -45,23 +43,15 @@ public class CombatEventHandler {
             SpellTriggers.FALL.onLivingFall(event, source, livingTarget);
         }
 
-        // Player is the source
-        if (trueSource instanceof ServerPlayerEntity) {
-            ServerPlayerEntity playerSource = (ServerPlayerEntity) trueSource;
-            playerSource.getCapability(CoreCapabilities.PLAYER_CAPABILITY).ifPresent(
-                    (sourceData) -> SpellTriggers.PLAYER_HURT_ENTITY.onPlayerHurtEntity(event, source, livingTarget,
-                            playerSource, sourceData)
-            );
+        // Living is source
+        if (trueSource instanceof LivingEntity) {
+            MKCore.getEntityData(trueSource).ifPresent(sourceData ->
+                    SpellTriggers.LIVING_HURT_ENTITY.onLivingHurtEntity(event, source, livingTarget, sourceData));
         }
 
-        // Player is the victim
-        if (livingTarget instanceof ServerPlayerEntity) {
-            ServerPlayerEntity playerTarget = (ServerPlayerEntity) livingTarget;
-            playerTarget.getCapability(CoreCapabilities.PLAYER_CAPABILITY).ifPresent(
-                    (targetData) -> SpellTriggers.ENTITY_HURT_PLAYER.onEntityHurtPlayer(event, source,
-                            playerTarget, targetData)
-            );
-        }
+        // Living is victim
+        MKCore.getEntityData(livingTarget).ifPresent(targetData ->
+                SpellTriggers.ENTITY_HURT.onEntityHurtLiving(event, source, livingTarget, targetData));
     }
 
     @SubscribeEvent
@@ -205,10 +195,8 @@ public class CombatEventHandler {
             }
             SpellTriggers.LIVING_KILL_ENTITY.onEntityDeath(event, source, killer);
         }
-        if (event.getEntityLiving() instanceof PlayerEntity) {
-            PlayerEntity player = (PlayerEntity) event.getEntityLiving();
-            SpellTriggers.PLAYER_DEATH.onEntityDeath(event, source, player);
-        }
+
+        SpellTriggers.LIVING_DEATH.onEntityDeath(event, source, event.getEntityLiving());
     }
 
 

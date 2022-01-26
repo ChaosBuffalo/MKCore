@@ -7,6 +7,7 @@ import com.chaosbuffalo.mkcore.effects.SpellTriggers;
 import com.chaosbuffalo.mkcore.utils.ItemUtils;
 import net.minecraft.entity.ai.attributes.Attribute;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.Item;
@@ -48,14 +49,19 @@ public class ItemEventHandler {
 
     @SubscribeEvent
     public static void onEquipmentChange(LivingEquipmentChangeEvent event) {
-        if (!(event.getEntityLiving() instanceof ServerPlayerEntity))
+        if (event.getEntityLiving().getEntityWorld().isRemote()){
             return;
-
-        ServerPlayerEntity player = (ServerPlayerEntity) event.getEntityLiving();
-        player.getCapability(CoreCapabilities.PLAYER_CAPABILITY).ifPresent((playerData) -> {
-            playerData.getEquipment().onEquipmentChange(event.getSlot(), event.getFrom(), event.getTo());
-            SpellTriggers.PLAYER_EQUIPMENT_CHANGE.onEquipmentChange(event, playerData, player);
-        });
+        }
+        if (event.getEntityLiving() instanceof PlayerEntity){
+            MKCore.getPlayer(event.getEntityLiving()).ifPresent((playerData) -> {
+                playerData.getEquipment().onEquipmentChange(event.getSlot(), event.getFrom(), event.getTo());
+                SpellTriggers.LIVING_EQUIPMENT_CHANGE.onEquipmentChange(event, playerData, playerData.getEntity());
+            });
+        } else {
+            MKCore.getEntityData(event.getEntityLiving()).ifPresent(entityData -> {
+                SpellTriggers.LIVING_EQUIPMENT_CHANGE.onEquipmentChange(event, entityData, entityData.getEntity());
+            });
+        }
     }
 
     private static AttributeModifier createDefaultSlotModifier(UUID uuid, double amount, AttributeModifier.Operation mod) {
