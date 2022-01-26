@@ -197,10 +197,8 @@ public class CombatEventHandler {
             }
             SpellTriggers.LIVING_KILL_ENTITY.onEntityDeath(event, source, killer);
         }
-        if (event.getEntityLiving() instanceof PlayerEntity) {
-            PlayerEntity player = (PlayerEntity) event.getEntityLiving();
-            SpellTriggers.PLAYER_DEATH.onEntityDeath(event, source, player);
-        }
+
+        SpellTriggers.LIVING_DEATH.onEntityDeath(event, source, event.getEntityLiving());
     }
 
 
