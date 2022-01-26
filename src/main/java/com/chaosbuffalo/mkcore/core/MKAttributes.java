@@ -222,6 +222,10 @@ public class MKAttributes {
             .setRegistryName(MKCore.makeRL("one_hand_pierce"))
             .setShouldWatch(true);
 
+    public static final Attribute BLOCK = new MKRangedAttribute("attribute.name.mk.block", 0, 0, GameConstants.SKILL_MAX)
+            .setRegistryName(MKCore.makeRL("block"))
+            .setShouldWatch(true);
+
 
     public static final Attribute MAX_POISE = new MKRangedAttribute("attribute.name.mk.max_poise", 0, 0, 2048)
             .setRegistryName(MKCore.makeRL("max_poise"))
@@ -309,6 +313,7 @@ public class MKAttributes {
         consumer.accept(ONE_HAND_PIERCE);
         consumer.accept(TWO_HAND_SLASH);
         consumer.accept(ONE_HAND_SLASH);
+        consumer.accept(BLOCK);
 
         consumer.accept(MAX_POISE);
         consumer.accept(POISE_REGEN);

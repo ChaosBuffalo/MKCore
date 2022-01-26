@@ -214,5 +214,6 @@
   "attribute.name.mk.two_hand_blunt": "2H Blunt",
   "attribute.name.mk.one_hand_blunt": "1H Blunt",
   "attribute.name.mk.two_hand_pierce": "2H Pierce",
-  "attribute.name.mk.one_hand_pierce": "1H Pierce"
+  "attribute.name.mk.one_hand_pierce": "1H Pierce",
+  "attribute.name.mk.block": "Block"
 }

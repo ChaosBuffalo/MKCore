@@ -2,28 +2,74 @@ package com.chaosbuffalo.mkcore.core.player;
 
 import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
+import com.chaosbuffalo.mkcore.core.MKAttributes;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
+import com.chaosbuffalo.mkcore.item.IReceivesSkillChange;
+import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.sync.IMKSerializable;
+import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
 import it.unimi.dsi.fastutil.objects.Object2DoubleOpenCustomHashMap;
 import net.minecraft.entity.ai.attributes.Attribute;
+import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.play.server.SEntityEquipmentPacket;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Util;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.registries.ForgeRegistries;
 
-import java.util.Objects;
+import java.util.*;
 
 public class PlayerSkills implements IMKSerializable<CompoundNBT> {
+    private static final UUID blockScalerUUID = UUID.fromString("8cabfe08-4ad3-4b8a-9b94-cb146f743c36");
+
+
+    protected interface SkillHandler {
+        void onSkillChange(MKPlayerData playerData, double value);
+    }
+
+
     private final MKPlayerData playerData;
     private final Object2DoubleMap<Attribute> skillValues = new Object2DoubleOpenCustomHashMap<>(Util.identityHashStrategy());
+    private static final Map<Attribute, SkillHandler> skillHandlers = Util.make(() -> {
+        Map<Attribute, SkillHandler> map = new HashMap<>();
+        map.put(MKAttributes.BLOCK, PlayerSkills::onBlockChange);
+        map.put(MKAttributes.ONE_HAND_BLUNT, PlayerSkills::onWeaponSkillChange);
+        map.put(MKAttributes.TWO_HAND_BLUNT, PlayerSkills::onWeaponSkillChange);
+        map.put(MKAttributes.ONE_HAND_SLASH, PlayerSkills::onWeaponSkillChange);
+        map.put(MKAttributes.TWO_HAND_SLASH, PlayerSkills::onWeaponSkillChange);
+        map.put(MKAttributes.ONE_HAND_PIERCE, PlayerSkills::onWeaponSkillChange);
+        map.put(MKAttributes.TWO_HAND_PIERCE, PlayerSkills::onWeaponSkillChange);
+        map.put(MKAttributes.MARKSMANSHIP, PlayerSkills::onWeaponSkillChange);
+        return map;
+    });
 
     public PlayerSkills(MKPlayerData playerData) {
         this.playerData = playerData;
+
+    }
+
+    private static void onBlockChange(MKPlayerData playerData, double value) {
+        ModifiableAttributeInstance inst = playerData.getEntity().getAttribute(MKAttributes.MAX_POISE);
+        if (inst != null){
+            inst.removeModifier(blockScalerUUID);
+            inst.applyNonPersistentModifier(new AttributeModifier(blockScalerUUID, "block skill",
+                    MKAbility.convertSkillToMultiplier(value), AttributeModifier.Operation.MULTIPLY_TOTAL));
+        }
+    }
+
+    private static  void onWeaponSkillChange(MKPlayerData playerData, double value) {
+        ItemStack mainHand = playerData.getEntity().getItemStackFromSlot(EquipmentSlotType.MAINHAND);
+        if (mainHand.getItem() instanceof IReceivesSkillChange){
+            ((IReceivesSkillChange) mainHand.getItem()).onSkillChange(mainHand, playerData.getEntity());
+        }
     }
 
     public void onCastAbility(MKAbility cast) {
@@ -35,20 +81,24 @@ public class PlayerSkills implements IMKSerializable<CompoundNBT> {
     public void onPersonaActivated() {
         PlayerEntity player = playerData.getEntity();
         for (Object2DoubleMap.Entry<Attribute> entry : skillValues.object2DoubleEntrySet()) {
-            ModifiableAttributeInstance attrInst = player.getAttribute(entry.getKey());
-            if (attrInst != null) {
-                attrInst.setBaseValue(entry.getDoubleValue());
-            }
+            setSkill(entry.getKey(), entry.getDoubleValue());
+        }
+    }
+
+    public void setSkill(Attribute attribute, double skillLevel){
+        ModifiableAttributeInstance attrInst = playerData.getEntity().getAttribute(attribute);
+        if (attrInst != null) {
+            attrInst.setBaseValue(skillLevel);
+        }
+        if (skillHandlers.containsKey(attribute)){
+            skillHandlers.get(attribute).onSkillChange(playerData, skillLevel);
         }
     }
 
     public void onPersonaDeactivated() {
         PlayerEntity player = playerData.getEntity();
         for (Attribute key : skillValues.keySet()) {
-            ModifiableAttributeInstance attrInst = player.getAttribute(key);
-            if (attrInst != null) {
-                attrInst.setBaseValue(0.0);
-            }
+            setSkill(key, 0.0);
         }
     }
 
@@ -62,6 +112,12 @@ public class PlayerSkills implements IMKSerializable<CompoundNBT> {
         tryIncreaseSkill(attribute, chance);
     }
 
+    public void tryScaledIncreaseSkill(Attribute attribute, double scale){
+        double currentSkill = getSkillValue(attribute);
+        double chance = getChanceToIncreaseSkill(currentSkill) * scale;
+        tryIncreaseSkill(attribute, chance);
+    }
+
     public void tryIncreaseSkill(Attribute attribute, double chance) {
         double currentSkill = getSkillValue(attribute);
         if (currentSkill < GameConstants.NATURAL_SKILL_MAX) {
@@ -71,10 +127,7 @@ public class PlayerSkills implements IMKSerializable<CompoundNBT> {
                 player.sendMessage(new TranslationTextComponent("mkcore.skill.increase",
                         new TranslationTextComponent(attribute.getAttributeName()), currentSkill + 1.0)
                         .mergeStyle(TextFormatting.AQUA), Util.DUMMY_UUID);
-                ModifiableAttributeInstance attrInst = player.getAttribute(attribute);
-                if (attrInst != null) {
-                    attrInst.setBaseValue(currentSkill + 1.0);
-                }
+                setSkill(attribute, currentSkill +1.0);
             }
         }
     }
