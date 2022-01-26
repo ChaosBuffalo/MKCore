@@ -38,21 +38,25 @@ public class PlayerSkills implements IMKSerializable<CompoundNBT> {
 
     private final MKPlayerData playerData;
     private final Object2DoubleMap<Attribute> skillValues = new Object2DoubleOpenCustomHashMap<>(Util.identityHashStrategy());
-    private final Map<Attribute, SkillHandler> skillHandlers = new HashMap<>();
+    private static final Map<Attribute, SkillHandler> skillHandlers = Util.make(() -> {
+        Map<Attribute, SkillHandler> map = new HashMap<>();
+        map.put(MKAttributes.BLOCK, PlayerSkills::onBlockChange);
+        map.put(MKAttributes.ONE_HAND_BLUNT, PlayerSkills::onWeaponSkillChange);
+        map.put(MKAttributes.TWO_HAND_BLUNT, PlayerSkills::onWeaponSkillChange);
+        map.put(MKAttributes.ONE_HAND_SLASH, PlayerSkills::onWeaponSkillChange);
+        map.put(MKAttributes.TWO_HAND_SLASH, PlayerSkills::onWeaponSkillChange);
+        map.put(MKAttributes.ONE_HAND_PIERCE, PlayerSkills::onWeaponSkillChange);
+        map.put(MKAttributes.TWO_HAND_PIERCE, PlayerSkills::onWeaponSkillChange);
+        map.put(MKAttributes.MARKSMANSHIP, PlayerSkills::onWeaponSkillChange);
+        return map;
+    });
 
     public PlayerSkills(MKPlayerData playerData) {
         this.playerData = playerData;
-        skillHandlers.put(MKAttributes.BLOCK, this::onBlockChange);
-        skillHandlers.put(MKAttributes.ONE_HAND_BLUNT, this::onWeaponSkillChange);
-        skillHandlers.put(MKAttributes.TWO_HAND_BLUNT, this::onWeaponSkillChange);
-        skillHandlers.put(MKAttributes.ONE_HAND_SLASH, this::onWeaponSkillChange);
-        skillHandlers.put(MKAttributes.TWO_HAND_SLASH, this::onWeaponSkillChange);
-        skillHandlers.put(MKAttributes.ONE_HAND_PIERCE, this::onWeaponSkillChange);
-        skillHandlers.put(MKAttributes.TWO_HAND_PIERCE, this::onWeaponSkillChange);
-        skillHandlers.put(MKAttributes.MARKSMANSHIP, this::onWeaponSkillChange);
+
     }
 
-    private void onBlockChange(MKPlayerData playerData, double value) {
+    private static void onBlockChange(MKPlayerData playerData, double value) {
         ModifiableAttributeInstance inst = playerData.getEntity().getAttribute(MKAttributes.MAX_POISE);
         if (inst != null){
             inst.removeModifier(blockScalerUUID);
@@ -61,7 +65,7 @@ public class PlayerSkills implements IMKSerializable<CompoundNBT> {
         }
     }
 
-    protected void onWeaponSkillChange(MKPlayerData playerData, double value) {
+    private static  void onWeaponSkillChange(MKPlayerData playerData, double value) {
         ItemStack mainHand = playerData.getEntity().getItemStackFromSlot(EquipmentSlotType.MAINHAND);
         if (mainHand.getItem() instanceof IReceivesSkillChange){
             ((IReceivesSkillChange) mainHand.getItem()).onSkillChange(mainHand, playerData.getEntity());
