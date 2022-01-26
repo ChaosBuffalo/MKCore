@@ -2,6 +2,7 @@ package com.chaosbuffalo.mkcore.events;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.CastInterruptReason;
+import com.chaosbuffalo.mkcore.core.MKAttributes;
 import com.chaosbuffalo.mkcore.core.damage.MKDamageSource;
 import com.chaosbuffalo.mkcore.effects.SpellTriggers;
 import com.chaosbuffalo.mkcore.init.CoreDamageTypes;
@@ -142,21 +143,26 @@ public class CombatEventHandler {
                     if (event.getEntityLiving().getItemInUseMaxCount() <= 6){
                         SoundUtils.serverPlaySoundAtEntity(event.getEntityLiving(),
                                 CoreSounds.parry, event.getEntityLiving().getSoundCategory());
-                    }
-                    else if (dmgSource.getImmediateSource() instanceof AbstractArrowEntity){
-                        SoundUtils.serverPlaySoundAtEntity(event.getEntityLiving(),
-                                CoreSounds.arrow_block, event.getEntityLiving().getSoundCategory());
-                    } else if (source instanceof LivingEntity){
-                        if (((LivingEntity) source).getHeldItem(Hand.MAIN_HAND).getItem() instanceof SwordItem){
+                        playerData.getSkills().tryIncreaseSkill(MKAttributes.BLOCK);
+                    } else {
+                        playerData.getSkills().tryScaledIncreaseSkill(MKAttributes.BLOCK, 0.5);
+                        if (dmgSource.getImmediateSource() instanceof AbstractArrowEntity){
                             SoundUtils.serverPlaySoundAtEntity(event.getEntityLiving(),
-                                    CoreSounds.weapon_block, event.getEntityLiving().getSoundCategory());
+                                    CoreSounds.arrow_block, event.getEntityLiving().getSoundCategory());
+                        } else if (source instanceof LivingEntity){
+                            if (((LivingEntity) source).getHeldItem(Hand.MAIN_HAND).getItem() instanceof SwordItem){
+                                SoundUtils.serverPlaySoundAtEntity(event.getEntityLiving(),
+                                        CoreSounds.weapon_block, event.getEntityLiving().getSoundCategory());
+                            } else {
+                                SoundUtils.serverPlaySoundAtEntity(event.getEntityLiving(),
+                                        CoreSounds.fist_block, event.getEntityLiving().getSoundCategory());
+                            }
                         } else {
                             SoundUtils.serverPlaySoundAtEntity(event.getEntityLiving(),
                                     CoreSounds.fist_block, event.getEntityLiving().getSoundCategory());
                         }
                     }
                 }
-
             });
         }
         if (dmgSource instanceof MKDamageSource) {

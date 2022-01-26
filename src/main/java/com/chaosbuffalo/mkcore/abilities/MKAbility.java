@@ -388,6 +388,10 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
         return skill != null ? (float) (skill.getValue() / 20.0) : 0.0f;
     }
 
+    public static double convertSkillToMultiplier(double value){
+        return value / 20.0;
+    }
+
     protected MKAbility addSkillAttribute(Attribute attribute) {
         this.skillAttributes.add(attribute);
         return this;
