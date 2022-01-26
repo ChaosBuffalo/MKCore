@@ -33,22 +33,19 @@ public class CritMessagePacket {
     private final CritType type;
     private int projectileId;
     private String typeName;
-    private LivingEntity source;
-    private UUID sourceUUID;
     private int sourceId;
-    private boolean decodedPlayer;
 
 
-    public CritMessagePacket(int targetId, LivingEntity source, float critDamage) {
+    public CritMessagePacket(int targetId, int sourceId, float critDamage) {
         this.targetId = targetId;
-        this.source = source;
+        this.sourceId = sourceId;
         this.critDamage = critDamage;
         this.type = CritType.MELEE_CRIT;
     }
 
-    public CritMessagePacket(int targetId, LivingEntity source, float critDamage, MKDamageType damageType, String typeName) {
+    public CritMessagePacket(int targetId, int sourceId, float critDamage, MKDamageType damageType, String typeName) {
         this.targetId = targetId;
-        this.source = source;
+        this.sourceId = sourceId;
         this.critDamage = critDamage;
         this.type = CritType.TYPED_CRIT;
         this.typeName = typeName;
@@ -56,20 +53,20 @@ public class CritMessagePacket {
     }
 
 
-    public CritMessagePacket(int targetId, LivingEntity source, float critDamage, ResourceLocation abilityName,
+    public CritMessagePacket(int targetId, int sourceId, float critDamage, ResourceLocation abilityName,
                              MKDamageType damageType) {
         this.targetId = targetId;
-        this.source = source;
+        this.sourceId = sourceId;
         this.critDamage = critDamage;
         this.type = CritType.MK_CRIT;
         this.abilityName = abilityName;
         this.damageType = damageType.getRegistryName();
     }
 
-    public CritMessagePacket(int targetId, LivingEntity source, float critDamage, int projectileId) {
+    public CritMessagePacket(int targetId, int sourceId, float critDamage, int projectileId) {
         this.type = CritType.PROJECTILE_CRIT;
         this.targetId = targetId;
-        this.source = source;
+        this.sourceId = sourceId;
         this.critDamage = critDamage;
         this.projectileId = projectileId;
     }
@@ -77,12 +74,7 @@ public class CritMessagePacket {
     public CritMessagePacket(PacketBuffer pb) {
         this.type = pb.readEnumValue(CritType.class);
         this.targetId = pb.readInt();
-        decodedPlayer = pb.readBoolean();
-        if (decodedPlayer){
-            sourceUUID = pb.readUniqueId();
-        } else {
-            sourceId = pb.readInt();
-        }
+        sourceId = pb.readInt();
         this.critDamage = pb.readFloat();
         if (type == CritType.MK_CRIT) {
             this.abilityName = pb.readResourceLocation();
@@ -100,13 +92,7 @@ public class CritMessagePacket {
     public void toBytes(PacketBuffer pb) {
         pb.writeEnumValue(type);
         pb.writeInt(targetId);
-        boolean isPlayer = source instanceof PlayerEntity;
-        pb.writeBoolean(isPlayer);
-        if (isPlayer){
-            pb.writeUniqueId(source.getUniqueID());
-        } else {
-            pb.writeInt(source.getEntityId());
-        }
+        pb.writeInt(sourceId);
         pb.writeFloat(critDamage);
         if (type == CritType.MK_CRIT) {
             pb.writeResourceLocation(this.abilityName);
@@ -133,7 +119,7 @@ public class CritMessagePacket {
             if (player == null) {
                 return;
             }
-            Entity source = packet.decodedPlayer ? player.getEntityWorld().getPlayerByUuid(packet.sourceUUID) : player.getEntityWorld().getEntityByID(packet.sourceId);
+            Entity source =  player.getEntityWorld().getEntityByID(packet.sourceId);
             Entity target = player.getEntityWorld().getEntityByID(packet.targetId);
             if (target == null || source == null) {
                 return;

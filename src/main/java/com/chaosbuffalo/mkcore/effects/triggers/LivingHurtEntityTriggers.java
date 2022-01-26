@@ -130,7 +130,7 @@ public class LivingHurtEntityTriggers extends SpellTriggers.TriggerCollectionBas
         if (source instanceof MKDamageSource.EffectDamage) {
             MKDamageSource.EffectDamage effectDamage = (MKDamageSource.EffectDamage) source;
             sendCritPacket(livingTarget, livingSource,
-                    new CritMessagePacket(livingTarget.getEntityId(), livingSource, newDamage,
+                    new CritMessagePacket(livingTarget.getEntityId(), livingSource.getEntityId(), newDamage,
                             source.getMKDamageType(), effectDamage.getDamageTypeName()));
         }
     }
@@ -147,7 +147,7 @@ public class LivingHurtEntityTriggers extends SpellTriggers.TriggerCollectionBas
                 abilityName = MKCoreRegistry.INVALID_ABILITY;
             }
             sendCritPacket(livingTarget, livingSource,
-                    new CritMessagePacket(livingTarget.getEntityId(), livingSource, newDamage,
+                    new CritMessagePacket(livingTarget.getEntityId(), livingSource.getEntityId(), newDamage,
                             abilityName, source.getMKDamageType()));
         }
     }
@@ -169,7 +169,7 @@ public class LivingHurtEntityTriggers extends SpellTriggers.TriggerCollectionBas
         event.setAmount(damage);
         if (wasCrit){
             sendCritPacket(livingTarget, livingSource,
-                    new CritMessagePacket(livingTarget.getEntityId(), livingSource, damage,
+                    new CritMessagePacket(livingTarget.getEntityId(), livingSource.getEntityId(), damage,
                             projectile.getEntityId()));
         }
         if (livingHurtEntityProjectileTriggers.size() == 0 || startTrigger(livingSource, PROJECTILE_TAG))
@@ -192,7 +192,7 @@ public class LivingHurtEntityTriggers extends SpellTriggers.TriggerCollectionBas
                 float newDamage = CoreDamageTypes.MeleeDamage.applyCritDamage(livingSource, livingTarget, event.getAmount());
                 event.setAmount(newDamage);
                 sendCritPacket(livingTarget, livingSource,
-                        new CritMessagePacket(livingTarget.getEntityId(), livingSource, newDamage));
+                        new CritMessagePacket(livingTarget.getEntityId(), livingSource.getEntityId(), newDamage));
             }
         }
 
