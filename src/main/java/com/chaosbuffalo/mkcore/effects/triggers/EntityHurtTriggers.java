@@ -10,7 +10,7 @@ import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EntityHurtLivingTriggers extends SpellTriggers.TriggerCollectionBase {
+public class EntityHurtTriggers extends SpellTriggers.TriggerCollectionBase {
     @FunctionalInterface
     public interface Trigger {
         void apply(LivingHurtEvent event, DamageSource source, LivingEntity livingTarget, IMKEntityData targetData);
