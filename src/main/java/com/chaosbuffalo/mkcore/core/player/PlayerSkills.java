@@ -17,7 +17,6 @@ import net.minecraft.util.Util;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.registries.ForgeRegistries;
-import org.spongepowered.asm.mixin.injection.At;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -63,15 +62,15 @@ public class PlayerSkills implements IMKSerializable<CompoundNBT> {
     public void onPersonaActivated() {
         PlayerEntity player = playerData.getEntity();
         for (Object2DoubleMap.Entry<Attribute> entry : skillValues.object2DoubleEntrySet()) {
-            ModifiableAttributeInstance attrInst = player.getAttribute(entry.getKey());
-            if (attrInst != null) {
-                attrInst.setBaseValue(entry.getDoubleValue());
-                onSetSkill(entry.getKey(), entry.getDoubleValue());
-            }
+            doSetSkill(entry.getKey(), entry.getDoubleValue());
         }
     }
 
-    public void onSetSkill(Attribute attribute, double skillLevel){
+    public void doSetSkill(Attribute attribute, double skillLevel){
+        ModifiableAttributeInstance attrInst = playerData.getEntity().getAttribute(attribute);
+        if (attrInst != null) {
+            attrInst.setBaseValue(skillLevel);
+        }
         if (skillHandlers.containsKey(attribute)){
             skillHandlers.get(attribute).onSkillChange(playerData, skillLevel);
         }
@@ -80,11 +79,7 @@ public class PlayerSkills implements IMKSerializable<CompoundNBT> {
     public void onPersonaDeactivated() {
         PlayerEntity player = playerData.getEntity();
         for (Attribute key : skillValues.keySet()) {
-            ModifiableAttributeInstance attrInst = player.getAttribute(key);
-            if (attrInst != null) {
-                attrInst.setBaseValue(0.0);
-                onSetSkill(key, 0.0);
-            }
+            doSetSkill(key, 0.0);
         }
     }
 
@@ -113,12 +108,7 @@ public class PlayerSkills implements IMKSerializable<CompoundNBT> {
                 player.sendMessage(new TranslationTextComponent("mkcore.skill.increase",
                         new TranslationTextComponent(attribute.getAttributeName()), currentSkill + 1.0)
                         .mergeStyle(TextFormatting.AQUA), Util.DUMMY_UUID);
-                ModifiableAttributeInstance attrInst = player.getAttribute(attribute);
-                if (attrInst != null) {
-                    double newValue = currentSkill + 1.0;
-                    attrInst.setBaseValue(newValue);
-                    onSetSkill(attribute, newValue);
-                }
+                doSetSkill(attribute, currentSkill +1.0);
             }
         }
     }

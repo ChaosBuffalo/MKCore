@@ -140,7 +140,7 @@ public class StatCommand {
             ModifiableAttributeInstance instance = playerEntity.getAttribute(attribute);
             if (instance != null) {
                 instance.setBaseValue(value);
-                MKCore.getPlayer(playerEntity).ifPresent(x -> x.getSkills().onSetSkill(attribute, value));
+                MKCore.getPlayer(playerEntity).ifPresent(x -> x.getSkills().doSetSkill(attribute, value));
                 ChatUtils.sendMessageWithBrackets(playerEntity, "%s is now %f (%f base)", name, instance.getValue(), instance.getBaseValue());
             } else {
                 ChatUtils.sendMessageWithBrackets(playerEntity, "Attribute %s not found", name);
