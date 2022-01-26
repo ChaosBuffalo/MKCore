@@ -41,7 +41,12 @@ public class EntityHurtLivingTriggers extends SpellTriggers.TriggerCollectionBas
 
         if (SpellTriggers.isMKDamage(source)) {
             MKDamageSource mkDamageSource = (MKDamageSource) source;
-            event.setAmount(mkDamageSource.getMKDamageType().applyResistance(livingTarget, event.getAmount()));
+            // we check unblockable here because if it is blockable than the armor calculation will already be applied
+            // by vanilla mc, we don't want to apply armor reduction twice
+            if (mkDamageSource.isUnblockable()){
+                event.setAmount(mkDamageSource.getMKDamageType().applyResistance(livingTarget, event.getAmount()));
+            }
+
         }
 
         entityHurtLivingPostTriggers.forEach(f -> f.apply(event, source, livingTarget, targetData));
