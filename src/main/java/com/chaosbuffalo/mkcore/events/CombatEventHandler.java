@@ -1,6 +1,5 @@
 package com.chaosbuffalo.mkcore.events;
 
-import com.chaosbuffalo.mkcore.CoreCapabilities;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.CastInterruptReason;
 import com.chaosbuffalo.mkcore.core.damage.MKDamageSource;
@@ -13,7 +12,6 @@ import com.chaosbuffalo.mkcore.utils.SoundUtils;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.entity.projectile.AbstractArrowEntity;
 import net.minecraft.item.SwordItem;
 import net.minecraft.util.DamageSource;
@@ -53,14 +51,9 @@ public class CombatEventHandler {
             );
         }
 
-        // Player is the victim
-        if (livingTarget instanceof ServerPlayerEntity) {
-            ServerPlayerEntity playerTarget = (ServerPlayerEntity) livingTarget;
-            playerTarget.getCapability(CoreCapabilities.PLAYER_CAPABILITY).ifPresent(
-                    (targetData) -> SpellTriggers.ENTITY_HURT_PLAYER.onEntityHurtPlayer(event, source,
-                            playerTarget, targetData)
-            );
-        }
+        // Living is victim
+        MKCore.getEntityData(livingTarget).ifPresent(targetData ->
+                SpellTriggers.ENTITY_HURT_LIVING.onEntityHurtLiving(event, source, livingTarget, targetData));
     }
 
     @SubscribeEvent

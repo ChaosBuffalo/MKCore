@@ -31,10 +31,10 @@ public class LivingHurtEntityTriggers extends SpellTriggers.TriggerCollectionBas
                    LivingEntity livingSource, IMKEntityData sourceData);
     }
 
-    private static final String MELEE_TAG = "PLAYER_HURT_ENTITY.melee";
-    private static final String MAGIC_TAG = "PLAYER_HURT_ENTITY.magic";
-    private static final String POST_TAG = "PLAYER_HURT_ENTITY.post";
-    private static final String PROJECTILE_TAG = "PLAYER_HURT_ENTITY.projectile";
+    private static final String MELEE_TAG = "LIVING_HURT_ENTITY.melee";
+    private static final String MAGIC_TAG = "LIVING_HURT_ENTITY.magic";
+    private static final String POST_TAG = "LIVING_HURT_ENTITY.post";
+    private static final String PROJECTILE_TAG = "LIVING_HURT_ENTITY.projectile";
     private static final List<Trigger> livingHurtEntityMeleeTriggers = new ArrayList<>();
     private static final List<Trigger> livingHurtEntityMagicTriggers = new ArrayList<>();
     private static final List<Trigger> livingHurtEntityPostTriggers = new ArrayList<>();
