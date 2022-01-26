@@ -13,7 +13,7 @@ public class EntityAttackedTriggers extends SpellTriggers.EffectBasedTriggerColl
 
     private static final String TAG = "ATTACK_ENTITY";
 
-    public void onAttackEntity(LivingEntity attacker, Entity target) {
+    public void onAttacked(LivingEntity attacker, Entity target) {
         runTrigger(attacker, TAG, (trigger, instance) -> trigger.apply(attacker, target, instance));
     }
 }

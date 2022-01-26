@@ -164,7 +164,7 @@ public class CombatEventHandler {
                 return;
         }
         if (source instanceof LivingEntity) {
-            SpellTriggers.LIVING_ATTACKED.onAttackEntity((LivingEntity) source, target);
+            SpellTriggers.LIVING_ATTACKED.onAttacked((LivingEntity) source, target);
         }
     }
 
