@@ -33,7 +33,7 @@ public class CritMessagePacket {
     private final CritType type;
     private int projectileId;
     private String typeName;
-    private int sourceId;
+    private final int sourceId;
 
 
     public CritMessagePacket(int targetId, int sourceId, float critDamage) {
