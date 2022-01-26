@@ -90,6 +90,7 @@ public class StatCommand {
                 .then(createAttributeStat("one_hand_pierce", MKAttributes.ONE_HAND_PIERCE))
                 .then(createAttributeStat("two_hand_pierce", MKAttributes.TWO_HAND_PIERCE))
                 .then(createAttributeStat("block", MKAttributes.BLOCK))
+                .then(createAttributeStat("attack_damage", Attributes.ATTACK_DAMAGE))
                 ;
     }
 
@@ -140,7 +141,7 @@ public class StatCommand {
             ModifiableAttributeInstance instance = playerEntity.getAttribute(attribute);
             if (instance != null) {
                 instance.setBaseValue(value);
-                MKCore.getPlayer(playerEntity).ifPresent(x -> x.getSkills().doSetSkill(attribute, value));
+                MKCore.getPlayer(playerEntity).ifPresent(x -> x.getSkills().setSkill(attribute, value));
                 ChatUtils.sendMessageWithBrackets(playerEntity, "%s is now %f (%f base)", name, instance.getValue(), instance.getBaseValue());
             } else {
                 ChatUtils.sendMessageWithBrackets(playerEntity, "Attribute %s not found", name);

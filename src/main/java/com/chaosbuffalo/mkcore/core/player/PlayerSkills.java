@@ -4,43 +4,35 @@ import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.core.MKAttributes;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
+import com.chaosbuffalo.mkcore.item.IReceivesSkillChange;
+import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.sync.IMKSerializable;
+import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
 import it.unimi.dsi.fastutil.objects.Object2DoubleOpenCustomHashMap;
 import net.minecraft.entity.ai.attributes.Attribute;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.play.server.SEntityEquipmentPacket;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Util;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.registries.ForgeRegistries;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 public class PlayerSkills implements IMKSerializable<CompoundNBT> {
     private static final UUID blockScalerUUID = UUID.fromString("8cabfe08-4ad3-4b8a-9b94-cb146f743c36");
 
-    protected abstract static class SkillHandler {
-        protected abstract void onSkillChange(MKPlayerData playerData, double value);
 
-        protected static class BlockHandler extends SkillHandler {
-
-            @Override
-            protected void onSkillChange(MKPlayerData playerData, double value) {
-                ModifiableAttributeInstance inst = playerData.getEntity().getAttribute(MKAttributes.MAX_POISE);
-                if (inst != null){
-                    inst.removeModifier(blockScalerUUID);
-                    inst.applyNonPersistentModifier(new AttributeModifier(blockScalerUUID, "block skill",
-                            MKAbility.convertSkillToMultiplier(value), AttributeModifier.Operation.MULTIPLY_TOTAL));
-                }
-            }
-        }
+    protected interface SkillHandler {
+        void onSkillChange(MKPlayerData playerData, double value);
     }
 
 
@@ -50,7 +42,30 @@ public class PlayerSkills implements IMKSerializable<CompoundNBT> {
 
     public PlayerSkills(MKPlayerData playerData) {
         this.playerData = playerData;
-        skillHandlers.put(MKAttributes.BLOCK, new SkillHandler.BlockHandler());
+        skillHandlers.put(MKAttributes.BLOCK, this::onBlockChange);
+        skillHandlers.put(MKAttributes.ONE_HAND_BLUNT, this::onWeaponSkillChange);
+        skillHandlers.put(MKAttributes.TWO_HAND_BLUNT, this::onWeaponSkillChange);
+        skillHandlers.put(MKAttributes.ONE_HAND_SLASH, this::onWeaponSkillChange);
+        skillHandlers.put(MKAttributes.TWO_HAND_SLASH, this::onWeaponSkillChange);
+        skillHandlers.put(MKAttributes.ONE_HAND_PIERCE, this::onWeaponSkillChange);
+        skillHandlers.put(MKAttributes.TWO_HAND_PIERCE, this::onWeaponSkillChange);
+        skillHandlers.put(MKAttributes.MARKSMANSHIP, this::onWeaponSkillChange);
+    }
+
+    private void onBlockChange(MKPlayerData playerData, double value) {
+        ModifiableAttributeInstance inst = playerData.getEntity().getAttribute(MKAttributes.MAX_POISE);
+        if (inst != null){
+            inst.removeModifier(blockScalerUUID);
+            inst.applyNonPersistentModifier(new AttributeModifier(blockScalerUUID, "block skill",
+                    MKAbility.convertSkillToMultiplier(value), AttributeModifier.Operation.MULTIPLY_TOTAL));
+        }
+    }
+
+    protected void onWeaponSkillChange(MKPlayerData playerData, double value) {
+        ItemStack mainHand = playerData.getEntity().getItemStackFromSlot(EquipmentSlotType.MAINHAND);
+        if (mainHand.getItem() instanceof IReceivesSkillChange){
+            ((IReceivesSkillChange) mainHand.getItem()).onSkillChange(mainHand, playerData.getEntity());
+        }
     }
 
     public void onCastAbility(MKAbility cast) {
@@ -62,11 +77,11 @@ public class PlayerSkills implements IMKSerializable<CompoundNBT> {
     public void onPersonaActivated() {
         PlayerEntity player = playerData.getEntity();
         for (Object2DoubleMap.Entry<Attribute> entry : skillValues.object2DoubleEntrySet()) {
-            doSetSkill(entry.getKey(), entry.getDoubleValue());
+            setSkill(entry.getKey(), entry.getDoubleValue());
         }
     }
 
-    public void doSetSkill(Attribute attribute, double skillLevel){
+    public void setSkill(Attribute attribute, double skillLevel){
         ModifiableAttributeInstance attrInst = playerData.getEntity().getAttribute(attribute);
         if (attrInst != null) {
             attrInst.setBaseValue(skillLevel);
@@ -79,7 +94,7 @@ public class PlayerSkills implements IMKSerializable<CompoundNBT> {
     public void onPersonaDeactivated() {
         PlayerEntity player = playerData.getEntity();
         for (Attribute key : skillValues.keySet()) {
-            doSetSkill(key, 0.0);
+            setSkill(key, 0.0);
         }
     }
 
@@ -108,7 +123,7 @@ public class PlayerSkills implements IMKSerializable<CompoundNBT> {
                 player.sendMessage(new TranslationTextComponent("mkcore.skill.increase",
                         new TranslationTextComponent(attribute.getAttributeName()), currentSkill + 1.0)
                         .mergeStyle(TextFormatting.AQUA), Util.DUMMY_UUID);
-                doSetSkill(attribute, currentSkill +1.0);
+                setSkill(attribute, currentSkill +1.0);
             }
         }
     }
