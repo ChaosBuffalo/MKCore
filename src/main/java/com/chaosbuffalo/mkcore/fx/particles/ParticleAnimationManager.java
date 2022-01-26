@@ -119,6 +119,7 @@ public class ParticleAnimationManager extends JsonReloadListener {
         putSpawnPatternDeserializer(SpiralSpawnPattern.TYPE, SpiralSpawnPattern::new);
         putSpawnPatternDeserializer(LineSpawnPattern.TYPE, LineSpawnPattern::new);
         putSpawnPatternDeserializer(SinglePositionSpawnPattern.TYPE, SinglePositionSpawnPattern::new);
+        putSpawnPatternDeserializer(AdvancedLineSpawnPattern.TYPE, AdvancedLineSpawnPattern::new);
 
         putEffectInstanceDeserializer(BoneEffectInstance.TYPE, BoneEffectInstance::new);
     }
