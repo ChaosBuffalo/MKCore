@@ -45,15 +45,13 @@ public class CombatEventHandler {
 
         // Living is source
         if (trueSource instanceof LivingEntity) {
-            MKCore.getEntityData(trueSource).ifPresent(
-                    (sourceData) -> SpellTriggers.LIVING_HURT_ENTITY.onLivingHurtEntity(event, source, livingTarget,
-                            (LivingEntity) trueSource, sourceData)
-            );
+            MKCore.getEntityData(trueSource).ifPresent(sourceData ->
+                    SpellTriggers.LIVING_HURT_ENTITY.onLivingHurtEntity(event, source, livingTarget, sourceData));
         }
 
         // Living is victim
         MKCore.getEntityData(livingTarget).ifPresent(targetData ->
-                SpellTriggers.ENTITY_HURT_LIVING.onEntityHurtLiving(event, source, livingTarget, targetData));
+                SpellTriggers.ENTITY_HURT.onEntityHurtLiving(event, source, livingTarget, targetData));
     }
 
     @SubscribeEvent

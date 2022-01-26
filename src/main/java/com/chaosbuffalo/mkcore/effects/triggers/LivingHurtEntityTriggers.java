@@ -67,30 +67,30 @@ public class LivingHurtEntityTriggers extends SpellTriggers.TriggerCollectionBas
     }
 
     public void onLivingHurtEntity(LivingHurtEvent event, DamageSource source,
-                                   LivingEntity livingTarget, LivingEntity LivingSource,
-                                   IMKEntityData sourceData) {
+                                   LivingEntity livingTarget, IMKEntityData sourceData) {
+        LivingEntity livingSource = sourceData.getEntity();
         if (SpellTriggers.isMKDamage(source)) {
             MKDamageSource mkSource = (MKDamageSource) source;
             if (mkSource.isMeleeDamage()) {
-                handleMKMelee(event, mkSource, livingTarget, LivingSource, sourceData);
+                handleMKMelee(event, mkSource, livingTarget, livingSource, sourceData);
             } else {
-                handleMKDamage(event, mkSource, livingTarget, LivingSource, sourceData);
+                handleMKDamage(event, mkSource, livingTarget, livingSource, sourceData);
             }
         }
 
         // If this is a weapon swing
         if (SpellTriggers.isMinecraftPhysicalDamage(source)) {
-            handleVanillaMelee(event, source, livingTarget, LivingSource, sourceData);
+            handleVanillaMelee(event, source, livingTarget, livingSource, sourceData);
         }
 
         if (SpellTriggers.isProjectileDamage(source)) {
-            handleProjectile(event, source, livingTarget, LivingSource, sourceData);
+            handleProjectile(event, source, livingTarget, livingSource, sourceData);
         }
 
-        if (livingHurtEntityPostTriggers.size() == 0 || startTrigger(LivingSource, POST_TAG))
+        if (livingHurtEntityPostTriggers.size() == 0 || startTrigger(livingSource, POST_TAG))
             return;
-        livingHurtEntityPostTriggers.forEach(f -> f.apply(event, source, livingTarget, LivingSource, sourceData));
-        endTrigger(LivingSource, POST_TAG);
+        livingHurtEntityPostTriggers.forEach(f -> f.apply(event, source, livingTarget, livingSource, sourceData));
+        endTrigger(livingSource, POST_TAG);
     }
 
     private void handleMKDamage(LivingHurtEvent event, MKDamageSource source, LivingEntity livingTarget,
