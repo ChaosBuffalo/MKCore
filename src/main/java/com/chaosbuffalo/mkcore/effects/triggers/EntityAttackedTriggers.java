@@ -5,7 +5,7 @@ import com.chaosbuffalo.mkcore.effects.SpellTriggers;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 
-public class AttackEntityTriggers extends SpellTriggers.EffectBasedTriggerCollection<AttackEntityTriggers.Trigger> {
+public class EntityAttackedTriggers extends SpellTriggers.EffectBasedTriggerCollection<EntityAttackedTriggers.Trigger> {
     @FunctionalInterface
     public interface Trigger {
         void apply(LivingEntity player, Entity target, MKActiveEffect effect);
