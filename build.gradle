@@ -2,7 +2,7 @@ buildscript {
     repositories {
         maven { url = 'https://maven.minecraftforge.net' }
         mavenCentral()
-        jcenter()
+//        jcenter()
         maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
     }
     dependencies {
@@ -10,20 +10,20 @@ buildscript {
         classpath group: 'org.spongepowered', name: 'mixingradle', version: '0.7-SNAPSHOT'
     }
 }
-
-plugins {
-    // this version works on gradle 5
-    // more recent versions of shadow work on more recent versions of gradle
-    id 'com.github.johnrengelman.shadow' version '6.0.0'
-}
+//
+//plugins {
+//    // this version works on gradle 5
+//    // more recent versions of shadow work on more recent versions of gradle
+//    id 'com.github.johnrengelman.shadow' version '6.0.0'
+//}
 
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'org.spongepowered.mixin'
 // Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
-apply plugin: 'com.github.johnrengelman.shadow'
-apply plugin: 'java' // java plugin is needed for the shadow plugin to work
+//apply plugin: 'com.github.johnrengelman.shadow'
+//apply plugin: 'java' // java plugin is needed for the shadow plugin to work
 
 version = "${mod_version}"
 group = "${mod_group}" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
@@ -44,9 +44,9 @@ repositories {
     mavenCentral()
 }
 
-configurations {
-    shade
-}
+//configurations {
+//    shade
+//}
 
 minecraft {
     // The mappings can be changed at any time, and must be in the following format.
@@ -148,9 +148,9 @@ dependencies {
     }
 
 
-    compileOnly(group: 'org.joml', name: 'joml', version: '1.9.22')
-    runtimeOnly(group: 'org.joml', name: 'joml', version: '1.9.22')
-    shade(group: 'org.joml', name: 'joml', version: '1.9.22')
+//    compileOnly(group: 'org.joml', name: 'joml', version: '1.9.22')
+//    runtimeOnly(group: 'org.joml', name: 'joml', version: '1.9.22')
+//    shade(group: 'org.joml', name: 'joml', version: '1.9.22')
 
     // You may put jars on which you depend on in ./libs or you may define them like so..
     // compile "some.group:artifact:version:classifier"
@@ -172,15 +172,15 @@ dependencies {
 
 }
 
-shadowJar {
-    classifier = ''
-    configurations = [project.configurations.shade]
-    relocate "org.joml", "com.chaosbuffalo.mkcore.repack.org.joml"
-}
+//shadowJar {
+//    classifier = ''
+//    configurations = [project.configurations.shade]
+//    relocate "org.joml", "com.chaosbuffalo.mkcore.repack.org.joml"
+//}
 
-reobf {
-    shadowJar { }
-}
+//reobf {
+//    shadowJar { }
+//}
 
 // Updated version of toml property injection from JEI
 def replaceResources = tasks.register("replaceResources", Copy) {
@@ -221,9 +221,9 @@ jar {
 
 // Example configuration to allow publishing using the maven-publish task
 // This is the preferred method to reobfuscate your jar file
-//jar.finalizedBy('reobfJar')
-tasks.build.dependsOn reobfShadowJar
-jar.finalizedBy('reobfShadowJar')
+jar.finalizedBy('reobfJar')
+//tasks.build.dependsOn reobfShadowJar
+//jar.finalizedBy('reobfShadowJar')
 // However if you are in a multi-project build, dev time needs unobfed jar files, so you can delay the obfuscation until publishing by doing
 //publish.dependsOn('reobfJar')
 

@@ -1,6 +1,7 @@
 package com.chaosbuffalo.mkcore.fx.particles.spawn_patterns;
 
 import com.chaosbuffalo.mkcore.MKCore;
+import com.chaosbuffalo.mkcore.fx.particles.MKParticleData;
 import com.chaosbuffalo.mkcore.serialization.attributes.DoubleAttribute;
 import com.chaosbuffalo.mkcore.serialization.attributes.IntAttribute;
 import net.minecraft.util.ResourceLocation;
@@ -10,6 +11,7 @@ import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.function.Function;
 
 public class SphereSpawnPattern extends ParticleSpawnPattern {
     public final static ResourceLocation TYPE = new ResourceLocation(MKCore.MOD_ID, "particle_spawn_pattern.sphere");
@@ -44,7 +46,9 @@ public class SphereSpawnPattern extends ParticleSpawnPattern {
     }
 
     @Override
-    public Tuple<Vector3d, Vector3d> getParticleStart(Vector3d position, int particleNumber, @Nullable List<Vector3d> additionalLocs, World world) {
+    public void produceParticlesForIndex(Vector3d origin, int particleNumber, @Nullable List<Vector3d> additionalLocs,
+                                         World world, Function<Vector3d, MKParticleData> particleDataSupplier,
+                                         List<ParticleSpawnEntry> finalParticles) {
         int perLayer = count.value() / layers.value();
         particleNumber = particleNumber % (perLayer * layers.value());
         int currentLayer = particleNumber / perLayer;
@@ -54,10 +58,10 @@ public class SphereSpawnPattern extends ParticleSpawnPattern {
         double realDegrees = (360.0 / perLayer) * realNum;
         double inverseScale = 1.0 - Math.pow(scaledRatio, 2.0);
         Vector3d posVec = new Vector3d(
-                position.x + (xRadius.value() * inverseScale * Math.cos(Math.toRadians(realDegrees))),
-                scaledRatio * yRadius.value() + position.y,
-                position.z + (zRadius.value() * inverseScale * Math.sin(Math.toRadians(realDegrees))));
-        Vector3d diffVec = posVec.subtract(position).normalize();
-        return new Tuple<>(posVec, diffVec.scale(speed.value()));
+                origin.x + (xRadius.value() * inverseScale * Math.cos(Math.toRadians(realDegrees))),
+                scaledRatio * yRadius.value() + origin.y,
+                origin.z + (zRadius.value() * inverseScale * Math.sin(Math.toRadians(realDegrees))));
+        Vector3d diffVec = posVec.subtract(origin).normalize();
+        finalParticles.add(new ParticleSpawnEntry(particleDataSupplier.apply(origin), posVec, diffVec.scale(speed.value())));
     }
 }

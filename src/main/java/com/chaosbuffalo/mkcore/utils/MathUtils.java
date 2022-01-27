@@ -59,4 +59,15 @@ public class MathUtils {
         }
         return value;
     }
+
+    public static double cosFromSin(double sin, double angle) {
+        double cos = Math.sqrt(1.0 - sin * sin);
+        double a = angle + (Math.PI / 2.0);
+        double b = a - (int)(a / (2.0 * Math.PI)) * 2.0 * Math.PI;
+        if (b < 0.0)
+            b = 2.0 * Math.PI + b;
+        if (b >= Math.PI)
+            return -cos;
+        return cos;
+    }
 }
