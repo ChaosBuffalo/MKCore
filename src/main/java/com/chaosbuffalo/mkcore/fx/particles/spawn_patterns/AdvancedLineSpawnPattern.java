@@ -24,7 +24,6 @@ public class AdvancedLineSpawnPattern extends ParticleSpawnPattern{
     protected final DoubleAttribute offset = new DoubleAttribute("offset", 0.0);
     protected final DoubleAttribute motion = new DoubleAttribute("motion", 0.0);
     protected final IntAttribute perPosCount = new IntAttribute("per_pos_count", 10);
-    protected final Vector3d EMPTY_VEC = new Vector3d(0.0, 0.0, 0.0);
 
     public AdvancedLineSpawnPattern(){
         super(TYPE);
@@ -47,29 +46,57 @@ public class AdvancedLineSpawnPattern extends ParticleSpawnPattern{
 
     @Override
     public void produceParticlesForIndex(Vector3d origin, int particleNumber, @Nullable List<Vector3d> additionalLocs,
-                                         World world, Function<Vector3d, MKParticleData> particleDataSupplier, List<ParticleSpawnEntry> finalParticles) {
+                                         World world, Function<Vector3d, MKParticleData> particleDataSupplier,
+                                         List<ParticleSpawnEntry> finalParticles) {
 
+        if (additionalLocs != null) {
+            Vector3d direction = additionalLocs.get(0);
+            Vector3d data = additionalLocs.get(1);
+            for (int i = 0; i < perPosCount.value(); i++) {
+                AxisAngle axis = new AxisAngle(Math.PI * 2 * i / perPosCount.value(), direction.getX(), direction.getY(), direction.getZ());
+                Vector3d mcOffset = axis.transform(new Vector3d(1.0, 0.0, 0.0));
+                double perParticle = data.getY();
+                Vector3d finalOrigin = origin.add(direction.scale(perParticle * particleNumber));
+                Vector3d spawnPos = finalOrigin.add(mcOffset.scale(this.offset.value()));
+                Vector3d motion = finalOrigin.subtract(spawnPos).normalize().scale(this.motion.value());
+                finalParticles.add(new ParticleSpawnEntry(particleDataSupplier.apply(finalOrigin), spawnPos, motion));
+            }
+        }
     }
 
-//    @Override
-//    public Tuple<Vector3d, Vector3d> getParticleStart(Vector3d position, int particleNumber, @Nullable List<Vector3d> additionalLocs, World world) {
-//        return getParticleStart(position, particleNumber, additionalLocs, world, 0);
-//    }
-//
-//
-//    public Tuple<Vector3d, Vector3d> getParticleStart(Vector3d position, int particleNumber, @Nullable List<Vector3d> additionalLocs, World world, int radialCount) {
-//        if (additionalLocs != null){
-//            Vector3d direction = additionalLocs.get(0);
-//            Vector3d data = additionalLocs.get(1);
-//            double perParticle = data.getY();
-//            AxisAngle axis = new AxisAngle(Math.PI * 2 * radialCount / perPosCount.value(), direction.getX(), direction.getY(), direction.getZ());
-////            org.joml.Vector3d offset = axis.transform(new org.joml.Vector3d(1.0, 0.0, 0.0));
-//            Vector3d mcOffset = axis.transform(new Vector3d(1.0, 0.0, 0.0));
-//
-//            return new Tuple<>(position.add(direction.scale(perParticle * particleNumber)).add(mcOffset.scale(this.offset.value())), EMPTY_VEC);
-//        }
-//        return new Tuple<>(position, EMPTY_VEC);
-//    }
+    @Override
+    public void spawn(ParticleType<MKParticleData> particleType,
+                      Vector3d position, World world, ParticleAnimation anim, @Nullable List<Vector3d> additionalLocs){
+        List<ParticleSpawnEntry> finalParticles = new ArrayList<>();
+        Tuple<List<Vector3d>, Double> spawnData = getSpawnData(position, additionalLocs);
+        long particleCount = Math.round(spawnData.getB() * count.value());
+        for (int i = 0; i < particleCount; i++) {
+            produceParticlesForIndex(position, i, spawnData.getA(), world,
+                    (pos) -> new MKParticleData(particleType, pos, anim),
+                    finalParticles);
+        }
+        for (ParticleSpawnEntry entry : finalParticles){
+            spawnParticle(world, entry);
+        }
+    }
+
+    @Override
+    public void spawnOffsetFromEntity(ParticleType<MKParticleData> particleType,
+                                      Vector3d offset, World world,
+                                      ParticleAnimation anim, Entity entity, List<Vector3d> additionalLocs){
+        Vector3d position = offset.add(entity.getPositionVec());
+        Tuple<List<Vector3d>, Double> spawnData = getSpawnData(position, additionalLocs);
+        long particleCount = Math.round(spawnData.getB() * count.value());
+        List<ParticleSpawnEntry> finalParticles = new ArrayList<>();
+        for (int i = 0; i < particleCount; i++) {
+            produceParticlesForIndex(position, i, spawnData.getA(), world,
+                    (pos) -> new MKParticleData(particleType, offset, anim, entity.getEntityId()),
+                    finalParticles);
+        }
+        for (ParticleSpawnEntry entry : finalParticles){
+            spawnParticle(world, entry);
+        }
+    }
 
     public Vector3d getEndpoint(Vector3d position, @Nullable List<Vector3d> additionalLocs){
         if (additionalLocs != null && !additionalLocs.isEmpty()){
@@ -89,39 +116,4 @@ public class AdvancedLineSpawnPattern extends ParticleSpawnPattern{
         spawnData.add(lineData);
         return new Tuple<>(spawnData, distance);
     }
-
-//    @Override
-//    public void spawn(ParticleType<MKParticleData> particleType, Vector3d position, World world, ParticleAnimation anim, @Nullable List<Vector3d> additionalLocs) {
-//        Tuple<List<Vector3d>, Double> spawnData = getSpawnData(position, additionalLocs);
-//
-//        long particleCount = Math.round(spawnData.getB() * count.value());
-//        MKParticleData particleData = new MKParticleData(particleType, position, anim);
-//        for (int i = 0; i < particleCount; i++) {
-//            for (int c = 0; c < perPosCount.value(); c++){
-//                Tuple<Vector3d, Vector3d> posAndMotion = getParticleStart(position, i, spawnData.getA(), world, c);
-//                Vector3d pos = posAndMotion.getA();
-//                Vector3d mot = posAndMotion.getB();
-//                world.addOptionalParticle(particleData, true, pos.getX(), pos.getY(), pos.getZ(),
-//                        mot.getX(), mot.getY(), mot.getZ());
-//            }
-//
-//        }
-//
-//
-//    }
-//
-//    @Override
-//    public void spawnOffsetFromEntity(ParticleType<MKParticleData> particleType, Vector3d offset, World world, ParticleAnimation anim, Entity entity, List<Vector3d> additionalLocs) {
-//        MKParticleData particleData = new MKParticleData(particleType, offset, anim, entity.getEntityId());
-//        Vector3d position = offset.add(entity.getPositionVec());
-//        Tuple<List<Vector3d>, Double> spawnData = getSpawnData(position, additionalLocs);
-//        long particleCount = Math.round(spawnData.getB() * count.value());
-//        for (int i = 0; i < particleCount; i++) {
-//            Tuple<Vector3d, Vector3d> posAndMotion = getParticleStart(position, i, spawnData.getA(), world);
-//            Vector3d pos = posAndMotion.getA();
-//            Vector3d mot = posAndMotion.getB();
-//            world.addOptionalParticle(particleData, true, pos.getX(), pos.getY(), pos.getZ(),
-//                    mot.getX(), mot.getY(), mot.getZ());
-//        }
-//    }
 }
