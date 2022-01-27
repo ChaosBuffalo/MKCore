@@ -10,36 +10,37 @@ import net.minecraft.util.math.MathHelper;
 
 import java.util.*;
 import java.util.function.ObjIntConsumer;
+import java.util.function.Predicate;
 
 public class AbilityTracker implements ISyncObject {
 
     private int ticks;
     private final Map<ResourceLocation, TimerEntry> timers = new HashMap<>();
 
-    public boolean hasCooldown(ResourceLocation id) {
-        return getCooldownTicks(id) > 0;
+    public boolean hasTimer(ResourceLocation timerId) {
+        return getTimerTicksRemaining(timerId) > 0;
     }
 
-    public float getCooldownPercent(ResourceLocation id, float partialTicks) {
-        TimerEntry cd = timers.get(id);
+    public float getTimerProgressPercent(ResourceLocation timerId, float partialTicks) {
+        TimerEntry timer = timers.get(timerId);
 
-        if (cd != null) {
-            float totalCooldown = cd.getMaxTicks();
-            float currentCooldown = (float) cd.expireTicks - ((float) this.ticks + partialTicks);
+        if (timer != null) {
+            float totalCooldown = timer.getMaxTicks();
+            float currentCooldown = (float) timer.expireTicks - ((float) this.ticks + partialTicks);
             return MathHelper.clamp(currentCooldown / totalCooldown, 0.0F, 1.0F);
         } else {
             return 0.0F;
         }
     }
 
-    public int getCooldownTicks(ResourceLocation id) {
-        TimerEntry cd = timers.get(id);
-        return cd != null ? cd.getRemainingTicks(ticks) : 0;
+    public int getTimerTicksRemaining(ResourceLocation timerId) {
+        TimerEntry timer = timers.get(timerId);
+        return timer != null ? timer.getRemainingTicks(ticks) : 0;
     }
 
-    public int getMaxCooldownTicks(ResourceLocation id) {
-        TimerEntry cd = timers.get(id);
-        return cd != null ? cd.getMaxTicks() : 0;
+    public int getTimerMaxTicks(ResourceLocation timerId) {
+        TimerEntry timer = timers.get(timerId);
+        return timer != null ? timer.getMaxTicks() : 0;
     }
 
     public void tick() {
@@ -51,53 +52,102 @@ public class AbilityTracker implements ISyncObject {
         Iterator<Map.Entry<ResourceLocation, TimerEntry>> iterator = timers.entrySet().iterator();
         while (iterator.hasNext()) {
             Map.Entry<ResourceLocation, TimerEntry> entry = iterator.next();
-
-            if (entry.getValue().isExpired(ticks)) {
+            TimerEntry timerEntry = entry.getValue();
+            if (timerEntry.isExpired(ticks)) {
                 iterator.remove();
-                onTimerRemoved(entry.getKey());
+                onTimerRemoved(entry.getKey(), timerEntry.isLocal());
             }
         }
     }
 
-    public void setCooldown(ResourceLocation id, int ticksIn) {
-        setCooldownInternal(id, ticksIn);
-        onTimerAdded(id, ticksIn);
+    public void setTimer(ResourceLocation timerId, int ticks) {
+        setTimer(timerId, ticks, false);
     }
 
-    protected void setCooldownInternal(ResourceLocation id, int timerTicks) {
-        timers.put(id, new TimerEntry(ticks, ticks + timerTicks));
+    public void setLocalTimer(ResourceLocation timerId, int ticks) {
+        setTimer(timerId, ticks, true);
     }
 
-    public void removeCooldown(ResourceLocation id) {
-        timers.remove(id);
-        onTimerRemoved(id);
+    private void setTimer(ResourceLocation timerId, int timerTicks, boolean local) {
+        if (timerTicks > 0) {
+            timers.put(timerId, new TimerEntry(ticks, ticks + timerTicks, local));
+            onTimerAdded(timerId, timerTicks, local);
+        } else {
+            removeTimer(timerId);
+        }
     }
 
-    protected void onTimerAdded(ResourceLocation id, int ticksIn) {
+    public void removeTimer(ResourceLocation timerId) {
+        TimerEntry entry = timers.remove(timerId);
+        if (entry != null) {
+            onTimerRemoved(timerId, entry.isLocal());
+        }
     }
 
-    protected void onTimerRemoved(ResourceLocation id) {
+    protected void onTimerAdded(ResourceLocation timerId, int ticksIn, boolean local) {
+    }
+
+    protected void onTimerRemoved(ResourceLocation timerId, boolean local) {
     }
 
     public CompoundNBT serialize() {
         CompoundNBT root = new CompoundNBT();
-        iterateActive((id, cd) -> root.putInt(id.toString(), cd));
+        CompoundNBT sync = new CompoundNBT();
+        CompoundNBT local = new CompoundNBT();
+
+        iterateActiveEntries(e -> true, (entry, remaining) -> {
+            ResourceLocation timerId = entry.getKey();
+            if (entry.getValue().isLocal()) {
+                local.putInt(timerId.toString(), remaining);
+            } else {
+                sync.putInt(timerId.toString(), remaining);
+            }
+        });
+
+        if (!sync.isEmpty()) {
+            root.put("sync", sync);
+        }
+
+        if (!local.isEmpty()) {
+            root.put("local", local);
+        }
         return root;
     }
 
     public void deserialize(CompoundNBT root) {
+        if (root.contains("sync")) {
+            deserializeList(root.getCompound("sync"), false);
+        }
+        if (root.contains("local")) {
+            deserializeList(root.getCompound("local"), true);
+        }
+    }
+
+    private void deserializeList(CompoundNBT root, boolean local) {
         for (String key : root.keySet()) {
-            setCooldownInternal(new ResourceLocation(key), root.getInt(key));
+            setTimer(new ResourceLocation(key), root.getInt(key), local);
         }
     }
 
     public void iterateActive(ObjIntConsumer<ResourceLocation> consumer) {
         for (ResourceLocation id : timers.keySet()) {
-            int cd = getCooldownTicks(id);
+            int cd = getTimerTicksRemaining(id);
             if (cd > 0) {
                 consumer.accept(id, cd);
             }
         }
+    }
+
+    protected void iterateActiveEntries(Predicate<Map.Entry<ResourceLocation, TimerEntry>> filter,
+                                        ObjIntConsumer<Map.Entry<ResourceLocation, TimerEntry>> consumer) {
+        timers.entrySet().stream()
+                .filter(filter)
+                .forEach(e -> {
+                    int cd = getTimerTicksRemaining(e.getKey());
+                    if (cd > 0) {
+                        consumer.accept(e, cd);
+                    }
+                });
     }
 
     public void removeAll() {
@@ -105,17 +155,23 @@ public class AbilityTracker implements ISyncObject {
         while (iterator.hasNext()) {
             Map.Entry<ResourceLocation, TimerEntry> entry = iterator.next();
             iterator.remove();
-            onTimerRemoved(entry.getKey());
+            onTimerRemoved(entry.getKey(), entry.getValue().isLocal());
         }
     }
 
-    static class TimerEntry {
-        final int createTicks;
-        final int expireTicks;
+    private static class TimerEntry {
+        private final int createTicks;
+        private final int expireTicks;
+        private final boolean local;
 
-        private TimerEntry(int startTime, int expiration) {
+        private TimerEntry(int startTime, int expiration, boolean local) {
             createTicks = startTime;
             expireTicks = expiration;
+            this.local = local;
+        }
+
+        public boolean isLocal() {
+            return local;
         }
 
         public int getRemainingTicks(int currentTicks) {
@@ -140,22 +196,27 @@ public class AbilityTracker implements ISyncObject {
         }
 
         @Override
-        protected void onTimerAdded(ResourceLocation id, int ticksIn) {
-            super.onTimerAdded(id, ticksIn);
-            dirty.add(id);
-            parentNotifier.notifyUpdate(this);
+        protected void onTimerAdded(ResourceLocation timerId, int ticksIn, boolean local) {
+            super.onTimerAdded(timerId, ticksIn, local);
+            markDirty(timerId, local);
         }
 
         @Override
-        protected void onTimerRemoved(ResourceLocation id) {
-            super.onTimerRemoved(id);
-            dirty.add(id);
-            parentNotifier.notifyUpdate(this);
+        protected void onTimerRemoved(ResourceLocation timerId, boolean local) {
+            super.onTimerRemoved(timerId, local);
+            markDirty(timerId, local);
         }
 
         @Override
         public void setNotifier(ISyncNotifier notifier) {
             parentNotifier = notifier;
+        }
+
+        private void markDirty(ResourceLocation timerId, boolean local) {
+            if (!local) {
+                dirty.add(timerId);
+                parentNotifier.notifyUpdate(this);
+            }
         }
 
         @Override
@@ -166,14 +227,20 @@ public class AbilityTracker implements ISyncObject {
         @Override
         public void serializeUpdate(CompoundNBT tag) {
             CompoundNBT root = new CompoundNBT();
-            dirty.forEach(id -> root.putInt(id.toString(), getCooldownTicks(id)));
+            dirty.forEach(id -> root.putInt(id.toString(), getTimerTicksRemaining(id)));
             tag.put("cooldowns", root);
             dirty.clear();
         }
 
         @Override
         public void serializeFull(CompoundNBT tag) {
-            tag.put("cooldowns", serialize());
+            CompoundNBT root = new CompoundNBT();
+            iterateActiveEntries(e -> {
+                return !e.getValue().isLocal();
+            }, (entry, cd) -> {
+                root.putInt(entry.getKey().toString(), cd);
+            });
+            tag.put("cooldowns", root);
             dirty.clear();
         }
     }
@@ -199,7 +266,7 @@ public class AbilityTracker implements ISyncObject {
 
     @Override
     public void deserializeUpdate(CompoundNBT tag) {
-        deserialize(tag.getCompound("cooldowns"));
+        deserializeList(tag.getCompound("cooldowns"), false);
     }
 
     @Override

@@ -72,21 +72,22 @@ public class EntityStats implements IMKEntityStats {
 
     @Override
     public void setTimer(ResourceLocation id, int cooldown) {
-        if (cooldown > 0) {
-            abilityTracker.setCooldown(id, cooldown);
-        } else {
-            abilityTracker.removeCooldown(id);
-        }
+        abilityTracker.setTimer(id, cooldown);
+    }
+
+    @Override
+    public void setLocalTimer(ResourceLocation id, int cooldown) {
+        abilityTracker.setLocalTimer(id, cooldown);
     }
 
     @Override
     public int getTimer(ResourceLocation id) {
-        return abilityTracker.getCooldownTicks(id);
+        return abilityTracker.getTimerTicksRemaining(id);
     }
 
     @Override
     public float getTimerPercent(ResourceLocation timerId, float partialTick) {
-        return abilityTracker.getCooldownPercent(timerId, partialTick);
+        return abilityTracker.getTimerProgressPercent(timerId, partialTick);
     }
 
     @Override

@@ -273,7 +273,7 @@ public class PlayerStats extends EntityStats implements IPlayerSyncComponentProv
         ChatUtils.sendMessageWithBrackets(getPlayer(), "All Active Cooldowns");
         abilityTracker.iterateActive((abilityId, current) -> {
             String name = abilityId.toString();
-            int max = abilityTracker.getMaxCooldownTicks(abilityId);
+            int max = abilityTracker.getTimerMaxTicks(abilityId);
             ChatUtils.sendMessage(getPlayer(), "%s: %d / %d", name, current, max);
         });
     }

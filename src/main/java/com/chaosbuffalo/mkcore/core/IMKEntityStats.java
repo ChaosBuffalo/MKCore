@@ -27,6 +27,8 @@ public interface IMKEntityStats {
 
     void setTimer(ResourceLocation id, int cooldown);
 
+    void setLocalTimer(ResourceLocation id, int cooldown);
+
     int getTimer(ResourceLocation id);
 
     float getTimerPercent(ResourceLocation id, float partialTick);

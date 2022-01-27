@@ -174,7 +174,7 @@ public class AbilityExecutor {
     }
 
     public void startGlobalCooldown() {
-        entityData.getStats().setTimer(GCD_TIMER, GameConstants.GLOBAL_COOLDOWN_TICKS);
+        entityData.getStats().setLocalTimer(GCD_TIMER, GameConstants.GLOBAL_COOLDOWN_TICKS);
     }
 
     public boolean isOnGlobalCooldown() {
