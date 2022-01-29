@@ -96,26 +96,20 @@ public class RayTraceUtils {
                                                                                            final Predicate<E> filter) {
 
         Predicate<E> predicate = input -> defaultFilter.test(input) && filter.test(input);
-        E nearest = null;
-        double distance = 0;
         AxisAlignedBB bb = new AxisAlignedBB(new BlockPos(from), new BlockPos(to))
                 .expand(aaExpansion.x, aaExpansion.y, aaExpansion.z)
                 .grow(aaGrowth);
         List<E> entities = world.getEntitiesWithinAABB(clazz, bb, predicate);
-        List<E> ret = new ArrayList<>();
+        List<EntityCollectionRayTraceResult.TraceEntry<E>> finalEnt = new ArrayList<>();
         for (E entity : entities) {
             AxisAlignedBB entityBB = entity.getBoundingBox().grow(entityExpansion);
             Optional<Vector3d> intercept = entityBB.rayTrace(from, to);
             if (intercept.isPresent()) {
                 double dist = from.distanceTo(intercept.get());
-                if (dist < distance || distance == 0.0D) {
-                    nearest = entity;
-                    distance = dist;
-                }
-                ret.add(entity);
+                finalEnt.add(new EntityCollectionRayTraceResult.TraceEntry<>(entity, dist, intercept.get()));
             }
         }
-        return new EntityCollectionRayTraceResult<>(nearest, ret);
+        return new EntityCollectionRayTraceResult<>(finalEnt);
     }
 
     private static <E extends Entity> RayTraceResult rayTraceBlocksAndEntities(Class<E> clazz, Entity mainEntity,

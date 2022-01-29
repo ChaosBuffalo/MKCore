@@ -28,6 +28,7 @@ public class MKParticle extends SpriteTexturedParticle {
     private float mkMinV;
     private float mkMaxU;
     private float mkMaxV;
+    private int ticksSinceRender;
     @Nullable
     private final Entity source;
     private static final Vector3d EMPTY_VECTOR_3D = new Vector3d(0.0, 0.0, 0.0);
@@ -71,6 +72,7 @@ public class MKParticle extends SpriteTexturedParticle {
         this.onExpire = null;
         this.age = 0;
         this.source = source;
+        this.ticksSinceRender = 0;
         this.canCollide = false;
         this.currentFrame = new ParticleKeyFrame();
         this.particleAnimation = animation;
@@ -138,6 +140,7 @@ public class MKParticle extends SpriteTexturedParticle {
 //        if (renderInfo.pos.squareDistanceTo(particlePos) < 1.0){
 //            return;
 //        }
+        ticksSinceRender = 0;
         super.renderParticle(buffer, renderInfo, partialTicks);
     }
 
@@ -249,6 +252,10 @@ public class MKParticle extends SpriteTexturedParticle {
 
     public void tick() {
         particleAnimation.tick(this);
+        ticksSinceRender++;
+        if (ticksSinceRender > 1){
+            particleAnimation.tickAnimation(this, 0.0f);
+        }
         this.prevPosX = this.posX;
         this.prevPosY = this.posY;
         this.prevPosZ = this.posZ;

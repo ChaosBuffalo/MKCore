@@ -1,28 +1,32 @@
 package com.chaosbuffalo.mkcore.utils;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.util.math.EntityRayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
 
-import javax.annotation.Nullable;
 import java.util.List;
 
-public class EntityCollectionRayTraceResult<E extends Entity> extends EntityRayTraceResult {
+public class EntityCollectionRayTraceResult<E extends Entity> {
 
-    private final List<E> entities;
+    public static class TraceEntry<E>{
+        public E entity;
+        public double distance;
+        public Vector3d intercept;
 
-    public EntityCollectionRayTraceResult(E nearest, List<E> entities) {
-        super(nearest, nearest == null ? new Vector3d(0.0, 0.0, 0.0) : nearest.getPositionVec());
+        public TraceEntry(E entity, double distance, Vector3d intercept){
+            this.entity = entity;
+            this.distance = distance;
+            this.intercept = intercept;
+        }
+    }
+
+    private final List<TraceEntry<E>> entities;
+
+    public EntityCollectionRayTraceResult(List<TraceEntry<E>> entities) {
         this.entities = entities;
     }
 
-    public List<E> getEntities() {
+    public List<TraceEntry<E>> getEntities() {
         return entities;
     }
 
-    @Nullable
-    @Override
-    public Entity getEntity() {
-        return super.getEntity();
-    }
 }

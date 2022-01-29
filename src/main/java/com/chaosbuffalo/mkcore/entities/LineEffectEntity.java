@@ -185,14 +185,14 @@ public class LineEffectEntity extends Entity implements IEntityAdditionalSpawnDa
     }
 
     private boolean serverUpdate() {
-        if (ticksExisted >= waitTime + duration) {
+        if (ticksExisted > waitTime + duration) {
             return true;
         }
         IMKEntityData entityData = getOwnerData();
         if (entityData == null)
             return true;
 
-        boolean stillWaiting = ticksExisted < waitTime;
+        boolean stillWaiting = ticksExisted <= waitTime;
 
         if (isInWaitPhase() != stillWaiting) {
             setInWaitPhase(stillWaiting);
@@ -209,14 +209,14 @@ public class LineEffectEntity extends Entity implements IEntityAdditionalSpawnDa
         EntityCollectionRayTraceResult<LivingEntity> result = RayTraceUtils.rayTraceAllEntities(
                 LivingEntity.class, getEntityWorld(),
                 startPoint, endPoint, Vector3d.ZERO,
-                1.0f, 0.5f, this::entityCheck);
+                1.0f, 0.0f, this::entityCheck);
 
         if (result.getEntities().isEmpty()){
             return false;
         }
 
-        for (LivingEntity target : result.getEntities()){
-            MKCore.getEntityData(target).ifPresent(targetData ->
+        for (EntityCollectionRayTraceResult.TraceEntry<LivingEntity> target : result.getEntities()){
+            MKCore.getEntityData(target.entity).ifPresent(targetData ->
                     effects.forEach(entry -> entry.apply(entityData, targetData)));
         }
 
@@ -246,24 +246,34 @@ public class LineEffectEntity extends Entity implements IEntityAdditionalSpawnDa
         writeVector(buffer, startPoint);
         writeVector(buffer, endPoint);
         buffer.writeInt(visualTickRate);
+        buffer.writeInt(tickRate);
         buffer.writeBoolean(particles != null);
-        if (particles != null){
+        if (particles != null) {
             buffer.writeResourceLocation(particles);
+        }
+        buffer.writeBoolean(waitingParticles != null);
+        if (waitingParticles != null) {
+            buffer.writeResourceLocation(waitingParticles);
         }
     }
 
     @Override
     public void readSpawnData(PacketBuffer additionalData) {
         Entity ent = getEntityWorld().getEntityByID(additionalData.readInt());
-        if (ent instanceof LivingEntity){
+        if (ent instanceof LivingEntity) {
             owner = (LivingEntity) ent;
         }
         startPoint = readVector(additionalData);
         endPoint = readVector(additionalData);
         visualTickRate = additionalData.readInt();
+        tickRate = additionalData.readInt();
         boolean hasParticles = additionalData.readBoolean();
-        if (hasParticles){
+        if (hasParticles) {
             particles = additionalData.readResourceLocation();
+        }
+        boolean hasWaiting = additionalData.readBoolean();
+        if (hasWaiting) {
+            waitingParticles = additionalData.readResourceLocation();
         }
     }
 

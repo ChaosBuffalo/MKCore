@@ -51,6 +51,11 @@ public abstract class ParticleAnimationTrack implements ISerializableAttributeCo
                 getTypeName().getNamespace(), getTypeName().getPath()));
     }
 
+    public static ITextComponent getDescriptionFromType(ResourceLocation type){
+        return new TranslationTextComponent(String.format("%s.anim_track.%s.name",
+                type.getNamespace(), type.getPath()));
+    }
+
     public AnimationTrackType getTrackType() {
         return trackType;
     }

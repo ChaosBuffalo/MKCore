@@ -318,6 +318,10 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
         });
     }
 
+    public static float convertDurationToSeconds(int dur){
+        return ((float) dur) / GameConstants.TICKS_PER_SECOND;
+    }
+
     @Nullable
     public SoundEvent getCastingSoundEvent() {
         return CoreSounds.casting_default;
