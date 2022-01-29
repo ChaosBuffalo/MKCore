@@ -5,10 +5,7 @@ import com.chaosbuffalo.mkcore.fx.particles.animation_tracks.ParticleAnimationTr
 import com.chaosbuffalo.mkcore.fx.particles.animation_tracks.ParticleRenderScaleAnimationTrack;
 import com.chaosbuffalo.mkcore.fx.particles.animation_tracks.colors.ParticleLerpColorAnimationTrack;
 import com.chaosbuffalo.mkcore.fx.particles.animation_tracks.colors.ParticleStaticColorAnimationTrack;
-import com.chaosbuffalo.mkcore.fx.particles.animation_tracks.motions.BrownianMotionTrack;
-import com.chaosbuffalo.mkcore.fx.particles.animation_tracks.motions.InheritMotionTrack;
-import com.chaosbuffalo.mkcore.fx.particles.animation_tracks.motions.LinearMotionTrack;
-import com.chaosbuffalo.mkcore.fx.particles.animation_tracks.motions.OrbitingInPlaneMotionTrack;
+import com.chaosbuffalo.mkcore.fx.particles.animation_tracks.motions.*;
 import com.chaosbuffalo.mkcore.fx.particles.effect_instances.BoneEffectInstance;
 import com.chaosbuffalo.mkcore.fx.particles.effect_instances.ParticleEffectInstance;
 import com.chaosbuffalo.mkcore.fx.particles.spawn_patterns.*;
@@ -112,6 +109,8 @@ public class ParticleAnimationManager extends JsonReloadListener {
                 ParticleAnimationTrack.AnimationTrackType.MOTION);
         putTrackDeserializer(ParticleStaticColorAnimationTrack.TYPE_NAME, ParticleStaticColorAnimationTrack::new,
                 ParticleAnimationTrack.AnimationTrackType.COLOR);
+        putTrackDeserializer(FlipMotionTrack.TYPE_NAME, FlipMotionTrack::new,
+                ParticleAnimationTrack.AnimationTrackType.MOTION);
 
         putSpawnPatternDeserializer(CircleSpawnPattern.TYPE, CircleSpawnPattern::new);
         putSpawnPatternDeserializer(SphereSpawnPattern.TYPE, SphereSpawnPattern::new);
@@ -119,6 +118,7 @@ public class ParticleAnimationManager extends JsonReloadListener {
         putSpawnPatternDeserializer(SpiralSpawnPattern.TYPE, SpiralSpawnPattern::new);
         putSpawnPatternDeserializer(LineSpawnPattern.TYPE, LineSpawnPattern::new);
         putSpawnPatternDeserializer(SinglePositionSpawnPattern.TYPE, SinglePositionSpawnPattern::new);
+        putSpawnPatternDeserializer(AdvancedLineSpawnPattern.TYPE, AdvancedLineSpawnPattern::new);
 
         putEffectInstanceDeserializer(BoneEffectInstance.TYPE, BoneEffectInstance::new);
     }

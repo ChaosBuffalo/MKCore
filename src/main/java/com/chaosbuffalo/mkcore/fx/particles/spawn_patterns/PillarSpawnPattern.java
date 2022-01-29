@@ -1,6 +1,7 @@
 package com.chaosbuffalo.mkcore.fx.particles.spawn_patterns;
 
 import com.chaosbuffalo.mkcore.MKCore;
+import com.chaosbuffalo.mkcore.fx.particles.MKParticleData;
 import com.chaosbuffalo.mkcore.serialization.attributes.DoubleAttribute;
 import com.chaosbuffalo.mkcore.serialization.attributes.IntAttribute;
 import net.minecraft.util.ResourceLocation;
@@ -10,6 +11,7 @@ import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.function.Function;
 
 public class PillarSpawnPattern extends ParticleSpawnPattern {
     public final static ResourceLocation TYPE = new ResourceLocation(MKCore.MOD_ID, "particle_spawn_pattern.pillar");
@@ -44,16 +46,18 @@ public class PillarSpawnPattern extends ParticleSpawnPattern {
     }
 
     @Override
-    public Tuple<Vector3d, Vector3d> getParticleStart(Vector3d position, int particleNumber, @Nullable List<Vector3d> additionalLocs, World world) {
+    public void produceParticlesForIndex(Vector3d origin, int particleNumber, @Nullable List<Vector3d> additionalLocs,
+                                         World world, Function<Vector3d, MKParticleData> particleDataSupplier,
+                                         List<ParticleSpawnEntry> finalParticles) {
         int perLayer = count.value() / layers.value();
         int currentLayer = particleNumber / perLayer;
         int inLayer = particleNumber % perLayer;
         double height = currentLayer * layerHeight.value();
         double degrees = (360.0 / perLayer) * inLayer;
-        Vector3d posVec = new Vector3d(position.x + xRadius.value() * Math.cos(Math.toRadians(degrees)),
-                position.y + yRadius.value() + height, position.z + zRadius.value() * Math.sin(Math.toRadians(degrees)));
-        Vector3d diffVec = posVec.subtract(position).normalize();
-        return new Tuple<>(posVec, diffVec.scale(speed.value()));
+        Vector3d posVec = new Vector3d(origin.x + xRadius.value() * Math.cos(Math.toRadians(degrees)),
+                origin.y + yRadius.value() + height, origin.z + zRadius.value() * Math.sin(Math.toRadians(degrees)));
+        Vector3d diffVec = posVec.subtract(origin).normalize();
+        finalParticles.add(new ParticleSpawnEntry(particleDataSupplier.apply(origin), posVec, diffVec.scale(speed.value())));
     }
 
 }

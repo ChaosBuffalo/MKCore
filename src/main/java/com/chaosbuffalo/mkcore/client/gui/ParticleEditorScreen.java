@@ -284,7 +284,7 @@ public class ParticleEditorScreen extends MKScreen {
         names.setMargins(2, 2, 2, 2);
         names.doSetChildWidth(true);
         ParticleAnimationManager.getTypeNamesForTrackType(trackType).forEach(x -> {
-            MKButton button = new MKButton(0, 0, new StringTextComponent(x.toString()));
+            MKButton button = new MKButton(0, 0, ParticleAnimationTrack.getDescriptionFromType(x));
             button.setPressedCallback((but, click) -> {
                 setTrackForType(trackType, x);
                 closeModal(popup);

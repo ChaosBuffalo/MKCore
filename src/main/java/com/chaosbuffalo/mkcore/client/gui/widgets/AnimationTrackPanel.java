@@ -10,6 +10,7 @@ import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKRectangle;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKText;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 
 public class AnimationTrackPanel extends MKStackLayoutVertical {
@@ -74,7 +75,7 @@ public class AnimationTrackPanel extends MKStackLayoutVertical {
     }
 
     ITextComponent getTrackName(){
-        String trackName = track == null ? "Empty" : track.getTypeName().toString();
+        ITextComponent trackName = track == null ? new StringTextComponent("Empty") : track.getDescription();
         switch (trackType){
             case COLOR:
                 return new TranslationTextComponent("mkcore.particle_editor.track_type.color", trackName);

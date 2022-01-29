@@ -13,7 +13,6 @@ import com.mojang.serialization.DynamicOps;
 import net.minecraft.entity.Entity;
 import net.minecraft.particles.ParticleType;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Tuple;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -28,6 +27,18 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public abstract class ParticleSpawnPattern implements ISerializableAttributeContainer {
+    public static class ParticleSpawnEntry {
+        public Vector3d position;
+        public Vector3d motion;
+        public MKParticleData particleData;
+
+        public ParticleSpawnEntry(MKParticleData particleData, Vector3d position, Vector3d motion){
+            this.position = position;
+            this.motion = motion;
+            this.particleData = particleData;
+        }
+
+    }
     protected final List<ISerializableAttribute<?>> attributes;
     public final static ResourceLocation INVALID_OPTION = new ResourceLocation(MKCore.MOD_ID, "particle_spawn_pattern.invalid");
     private final ResourceLocation type;
@@ -85,32 +96,80 @@ public abstract class ParticleSpawnPattern implements ISerializableAttributeCont
         this.attributes.addAll(Arrays.asList(attributes));
     }
 
-    public abstract Tuple<Vector3d, Vector3d> getParticleStart(Vector3d position, int particleNumber, @Nullable List<Vector3d> additionalLocs, World world);
+//    public abstract Tuple<Vector3d, Vector3d> getParticleStart(Vector3d position, int particleNumber, @Nullable List<Vector3d> additionalLocs, World world);
+
+//    public void spawn(ParticleType<MKParticleData> particleType,
+//                      Vector3d position, World world, ParticleAnimation anim, @Nullable List<Vector3d> additionalLocs){
+//        MKParticleData particleData = new MKParticleData(particleType, position, anim);
+//        for (int i = 0; i < count.value(); i++) {
+//            Tuple<Vector3d, Vector3d> posAndMotion = getParticleStart(position, i, additionalLocs, world);
+//            Vector3d pos = posAndMotion.getA();
+//            Vector3d mot = posAndMotion.getB();
+//            spawnParticle(world, particleData, pos, mot);
+//        }
+//    }
+
+//    protected void spawnParticle(World world, ParticleSpawnEntry entry){
+//        world.addOptionalParticle(entry.particleData, true,
+//                entry.position.getX(), entry.position.getY(), entry.position.getZ(),
+//                entry.motion.getX(), entry.motion.getY(), entry.motion.getZ());
+//    }
+//
+//    protected void spawnParticle(World world, MKParticleData particleData, Vector3d pos, Vector3d motion){
+//        world.addOptionalParticle(particleData, true, pos.getX(), pos.getY(), pos.getZ(),
+//                motion.getX(), motion.getY(), motion.getZ());
+//    }
+//
+//    public void spawnOffsetFromEntity(ParticleType<MKParticleData> particleType,
+//                                      Vector3d offset, World world,
+//                                      ParticleAnimation anim, Entity entity, List<Vector3d> additionalLocs){
+//        MKParticleData particleData = new MKParticleData(particleType, offset, anim, entity.getEntityId());
+//        Vector3d position = offset.add(entity.getPositionVec());
+//        for (int i = 0; i < count.value(); i++) {
+//            Tuple<Vector3d, Vector3d> posAndMotion = getParticleStart(position, i, additionalLocs, world);
+//            Vector3d pos = posAndMotion.getA();
+//            Vector3d mot = posAndMotion.getB();
+//            spawnParticle(world, particleData, pos, mot);
+//        }
+//    }
 
     public void spawn(ParticleType<MKParticleData> particleType,
                       Vector3d position, World world, ParticleAnimation anim, @Nullable List<Vector3d> additionalLocs){
-        MKParticleData particleData = new MKParticleData(particleType, position, anim);
+        List<ParticleSpawnEntry> finalParticles = new ArrayList<>();
         for (int i = 0; i < count.value(); i++) {
-            Tuple<Vector3d, Vector3d> posAndMotion = getParticleStart(position, i, additionalLocs, world);
-            Vector3d pos = posAndMotion.getA();
-            Vector3d mot = posAndMotion.getB();
-            world.addOptionalParticle(particleData, true, pos.getX(), pos.getY(), pos.getZ(),
-                    mot.getX(), mot.getY(), mot.getZ());
+            produceParticlesForIndex(position, i, additionalLocs, world,
+                    (pos) -> new MKParticleData(particleType, pos, anim),
+                    finalParticles);
+        }
+        for (ParticleSpawnEntry entry : finalParticles){
+            spawnParticle(world, entry);
         }
     }
+
+    public abstract void produceParticlesForIndex(Vector3d origin, int particleNumber,
+                                                  @Nullable List<Vector3d> additionalLocs, World world,
+                                                  Function<Vector3d, MKParticleData> particleDataSupplier,
+                                                  List<ParticleSpawnEntry> finalParticles);
+
+    protected void spawnParticle(World world, ParticleSpawnEntry entry){
+        world.addOptionalParticle(entry.particleData, true,
+                entry.position.getX(), entry.position.getY(), entry.position.getZ(),
+                entry.motion.getX(), entry.motion.getY(), entry.motion.getZ());
+    }
+
 
     public void spawnOffsetFromEntity(ParticleType<MKParticleData> particleType,
                                       Vector3d offset, World world,
                                       ParticleAnimation anim, Entity entity, List<Vector3d> additionalLocs){
-        MKParticleData particleData = new MKParticleData(particleType, offset, anim, entity.getEntityId());
         Vector3d position = offset.add(entity.getPositionVec());
+        List<ParticleSpawnEntry> finalParticles = new ArrayList<>();
         for (int i = 0; i < count.value(); i++) {
-            Tuple<Vector3d, Vector3d> posAndMotion = getParticleStart(position, i, additionalLocs, world);
-            Vector3d pos = posAndMotion.getA();
-            Vector3d mot = posAndMotion.getB();
-            world.addOptionalParticle(particleData, true, pos.getX(), pos.getY(), pos.getZ(),
-                    mot.getX(), mot.getY(), mot.getZ());
+            produceParticlesForIndex(position, i, additionalLocs, world,
+                    (pos) -> new MKParticleData(particleType, offset, anim, entity.getEntityId()),
+                    finalParticles);
         }
-
+        for (ParticleSpawnEntry entry : finalParticles){
+            spawnParticle(world, entry);
+        }
     }
 }
