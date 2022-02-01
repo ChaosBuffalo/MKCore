@@ -18,6 +18,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class AdvancedLineSpawnPattern extends ParticleSpawnPattern{
     public final static ResourceLocation TYPE = new ResourceLocation(MKCore.MOD_ID, "particle_spawn_pattern.advanced_line");
@@ -85,7 +86,9 @@ public class AdvancedLineSpawnPattern extends ParticleSpawnPattern{
                                       Vector3d offset, World world,
                                       ParticleAnimation anim, Entity entity, List<Vector3d> additionalLocs){
         Vector3d position = offset.add(entity.getPositionVec());
-        Tuple<List<Vector3d>, Double> spawnData = getSpawnData(position, additionalLocs);
+        List<Vector3d> finalLocs = additionalLocs.stream().map(
+                x -> x.add(entity.getPositionVec())).collect(Collectors.toList());
+        Tuple<List<Vector3d>, Double> spawnData = getSpawnData(position, finalLocs);
         long particleCount = Math.round(spawnData.getB() * count.value());
         List<ParticleSpawnEntry> finalParticles = new ArrayList<>();
         for (int i = 0; i < particleCount; i++) {

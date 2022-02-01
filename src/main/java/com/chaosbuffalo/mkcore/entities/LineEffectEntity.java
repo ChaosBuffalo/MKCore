@@ -209,7 +209,7 @@ public class LineEffectEntity extends Entity implements IEntityAdditionalSpawnDa
         EntityCollectionRayTraceResult<LivingEntity> result = RayTraceUtils.rayTraceAllEntities(
                 LivingEntity.class, getEntityWorld(),
                 startPoint, endPoint, Vector3d.ZERO,
-                1.0f, 0.0f, this::entityCheck);
+                1.5f, 0.0f, this::entityCheck);
 
         if (result.getEntities().isEmpty()){
             return false;
