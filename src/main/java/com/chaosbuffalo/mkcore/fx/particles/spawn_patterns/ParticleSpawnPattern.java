@@ -162,9 +162,11 @@ public abstract class ParticleSpawnPattern implements ISerializableAttributeCont
                                       Vector3d offset, World world,
                                       ParticleAnimation anim, Entity entity, List<Vector3d> additionalLocs){
         Vector3d position = offset.add(entity.getPositionVec());
+        List<Vector3d> finalLocs = additionalLocs.stream().map(
+                x -> x.add(entity.getPositionVec())).collect(Collectors.toList());
         List<ParticleSpawnEntry> finalParticles = new ArrayList<>();
         for (int i = 0; i < count.value(); i++) {
-            produceParticlesForIndex(position, i, additionalLocs, world,
+            produceParticlesForIndex(position, i, finalLocs, world,
                     (pos) -> new MKParticleData(particleType, offset, anim, entity.getEntityId()),
                     finalParticles);
         }
