@@ -9,6 +9,7 @@ import com.chaosbuffalo.mkcore.fx.particles.ParticleAnimationManager;
 import com.chaosbuffalo.mkcore.utils.EntityCollectionRayTraceResult;
 import com.chaosbuffalo.mkcore.utils.RayTraceUtils;
 import com.chaosbuffalo.targeting_api.TargetingContext;
+import com.google.common.collect.Maps;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -29,10 +30,7 @@ import net.minecraftforge.fml.network.NetworkHooks;
 import net.minecraftforge.registries.ObjectHolder;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class LineEffectEntity extends Entity implements IEntityAdditionalSpawnData {
     @ObjectHolder(MKCore.MOD_ID + ":mk_line_effect")
@@ -43,7 +41,9 @@ public class LineEffectEntity extends Entity implements IEntityAdditionalSpawnDa
     protected int waitTime = 20;
     protected int tickRate = 5;
     protected int visualTickRate = 5;
+    protected final int WAIT_LAG = 5;
     private static final DataParameter<Boolean> WAITING = EntityDataManager.createKey(LineEffectEntity.class, DataSerializers.BOOLEAN);
+    protected final Map<Entity, Integer> reapplicationDelayMap = Maps.newHashMap();
 
     @Nullable
     private ResourceLocation particles;
@@ -185,7 +185,7 @@ public class LineEffectEntity extends Entity implements IEntityAdditionalSpawnDa
     }
 
     private boolean serverUpdate() {
-        if (ticksExisted > waitTime + duration) {
+        if (ticksExisted > waitTime + duration + WAIT_LAG) {
             return true;
         }
         IMKEntityData entityData = getOwnerData();
@@ -194,15 +194,22 @@ public class LineEffectEntity extends Entity implements IEntityAdditionalSpawnDa
 
         boolean stillWaiting = ticksExisted <= waitTime;
 
+        // this syncs waiting with client + server
         if (isInWaitPhase() != stillWaiting) {
             setInWaitPhase(stillWaiting);
         }
+
+        // lets recalc waiting to include a wait lag so that the server isnt damaging before the client responds
+        stillWaiting = ticksExisted <= waitTime + WAIT_LAG;
 
         if (stillWaiting) {
             return false;
         }
 
-        if (ticksExisted % tickRate != 0) {
+        reapplicationDelayMap.entrySet().removeIf(entry -> ticksExisted >= entry.getValue());
+
+        if (effects.isEmpty()) {
+            reapplicationDelayMap.clear();
             return false;
         }
 
@@ -216,6 +223,7 @@ public class LineEffectEntity extends Entity implements IEntityAdditionalSpawnDa
         }
 
         for (EntityCollectionRayTraceResult.TraceEntry<LivingEntity> target : result.getEntities()){
+            reapplicationDelayMap.put(target.entity, ticksExisted + tickRate);
             MKCore.getEntityData(target.entity).ifPresent(targetData ->
                     effects.forEach(entry -> entry.apply(entityData, targetData)));
         }
@@ -228,6 +236,7 @@ public class LineEffectEntity extends Entity implements IEntityAdditionalSpawnDa
         return e != null &&
                 EntityPredicates.NOT_SPECTATING.test(e) &&
                 EntityPredicates.IS_LIVING_ALIVE.test(e) &&
+                !reapplicationDelayMap.containsKey(e) &&
                 e.canBeHitWithPotion();
     }
 
