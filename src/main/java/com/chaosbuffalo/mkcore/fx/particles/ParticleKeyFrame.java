@@ -96,10 +96,7 @@ public class ParticleKeyFrame implements ISerializableAttributeContainer {
 
     public <D> D serialize(DynamicOps<D> ops){
         ImmutableMap.Builder<D, D> builder = ImmutableMap.builder();
-        builder.put(ops.createString("attributes"),
-                ops.createMap(attributes.stream().map(attr ->
-                        Pair.of(ops.createString(attr.getName()), attr.serialize(ops))
-                ).collect(Collectors.toMap(Pair::getFirst, Pair::getSecond))));
+        builder.put(ops.createString("attributes"), serializeAttributeMap(ops));
         if (hasMotionTrack()){
             builder.put(ops.createString("motionTrack"), motionTrack.serialize(ops));
         }
@@ -113,13 +110,7 @@ public class ParticleKeyFrame implements ISerializableAttributeContainer {
     }
 
     public <D> void deserialize(Dynamic<D> dynamic){
-        Map<String, Dynamic<D>> map = dynamic.get("attributes").asMap(d -> d.asString(""), Function.identity());
-        getAttributes().forEach(attr -> {
-            Dynamic<D> attrValue = map.get(attr.getName());
-            if (attrValue != null) {
-                attr.deserialize(attrValue);
-            }
-        });
+        deserializeAttributeMap(dynamic, "attributes");
         motionTrack = (ParticleMotionAnimationTrack) dynamic.get("motionTrack").map(d -> {
             ResourceLocation type = ParticleAnimationTrack.getType(d);
             ParticleAnimationTrack track = ParticleAnimationManager.getAnimationTrack(type);

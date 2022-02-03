@@ -8,6 +8,7 @@ import com.chaosbuffalo.mkcore.core.*;
 import com.chaosbuffalo.mkcore.core.damage.MKDamageType;
 import com.chaosbuffalo.mkcore.entities.BaseProjectileEntity;
 import com.chaosbuffalo.mkcore.init.CoreSounds;
+import com.chaosbuffalo.mkcore.serialization.ISerializableAttributeContainer;
 import com.chaosbuffalo.mkcore.serialization.attributes.ISerializableAttribute;
 import com.chaosbuffalo.mkcore.serialization.attributes.ResourceLocationAttribute;
 import com.chaosbuffalo.mkcore.utils.EntityUtils;
@@ -39,7 +40,7 @@ import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
+public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> implements ISerializableAttributeContainer {
 
     private int castTime;
     private int cooldown;
@@ -163,23 +164,23 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
         this.useCondition = useCondition;
     }
 
-
-    public List<ISerializableAttribute<?>> getAttributes() {
-        return Collections.unmodifiableList(attributes);
-    }
-
     public AbilityUseCondition getUseCondition() {
         return useCondition;
     }
 
-    public MKAbility addAttribute(ISerializableAttribute<?> attr) {
-        attributes.add(attr);
-        return this;
+    @Override
+    public List<ISerializableAttribute<?>> getAttributes() {
+        return Collections.unmodifiableList(attributes);
     }
 
-    public MKAbility addAttributes(ISerializableAttribute<?>... attrs) {
+    @Override
+    public void addAttribute(ISerializableAttribute<?> attr) {
+        attributes.add(attr);
+    }
+
+    @Override
+    public void addAttributes(ISerializableAttribute<?>... attrs) {
         attributes.addAll(Arrays.asList(attrs));
-        return this;
     }
 
     public ResourceLocation getAbilityId() {
@@ -295,10 +296,7 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
                         ops.createString("cooldown"), ops.createInt(getBaseCooldown()),
                         ops.createString("manaCost"), ops.createFloat(getBaseManaCost()),
                         ops.createString("castTime"), ops.createInt(getBaseCastTime()),
-                        ops.createString("attributes"),
-                        ops.createMap(attributes.stream().map(attr ->
-                                Pair.of(ops.createString(attr.getName()), attr.serialize(ops))
-                        ).collect(Collectors.toMap(Pair::getFirst, Pair::getSecond)))
+                        ops.createString("attributes"), serializeAttributeMap(ops)
                 )
         );
     }
@@ -308,14 +306,7 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> {
         setCooldownTicks(dynamic.get("cooldown").asInt(getBaseCooldown()));
         setManaCost(dynamic.get("manaCost").asFloat(getBaseManaCost()));
         setCastTime(dynamic.get("castTime").asInt(getBaseCastTime()));
-
-        Map<String, Dynamic<T>> map = dynamic.get("attributes").asMap(d -> d.asString(""), Function.identity());
-        getAttributes().forEach(attr -> {
-            Dynamic<T> attrValue = map.get(attr.getName());
-            if (attrValue != null) {
-                attr.deserialize(attrValue);
-            }
-        });
+        deserializeAttributeMap(dynamic, "attributes");
     }
 
     public static float convertDurationToSeconds(int dur){

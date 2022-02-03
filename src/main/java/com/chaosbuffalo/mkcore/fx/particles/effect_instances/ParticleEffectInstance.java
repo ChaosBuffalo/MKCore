@@ -85,22 +85,13 @@ public abstract class ParticleEffectInstance implements ISerializableAttributeCo
         ImmutableMap.Builder<D, D> builder = ImmutableMap.builder();
         builder.put(ops.createString("type"), ops.createString(instanceType.toString()));
         builder.put(ops.createString("instanceUUID"), ops.createString(instanceUUID.toString()));
-        builder.put(ops.createString("attributes"),
-                ops.createMap(attributes.stream().map(attr ->
-                        Pair.of(ops.createString(attr.getName()), attr.serialize(ops))
-                ).collect(Collectors.toMap(Pair::getFirst, Pair::getSecond))));
+        builder.put(ops.createString("attributes"), serializeAttributeMap(ops));
         return ops.createMap(builder.build());
     }
 
     public <D> void deserialize(Dynamic<D> dynamic){
         this.instanceUUID = UUID.fromString(dynamic.get("instanceUUID").asString(UUID.randomUUID().toString()));
-        Map<String, Dynamic<D>> map = dynamic.get("attributes").asMap(d -> d.asString(""), Function.identity());
-        getAttributes().forEach(attr -> {
-            Dynamic<D> attrValue = map.get(attr.getName());
-            if (attrValue != null) {
-                attr.deserialize(attrValue);
-            }
-        });
+        deserializeAttributeMap(dynamic, "attributes");
     }
 
     public static <D> ResourceLocation getType(Dynamic<D> dynamic){

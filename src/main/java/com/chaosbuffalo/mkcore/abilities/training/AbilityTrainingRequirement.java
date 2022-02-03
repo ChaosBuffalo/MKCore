@@ -59,20 +59,11 @@ public abstract class AbilityTrainingRequirement implements ISerializableAttribu
     public abstract IFormattableTextComponent describe(MKPlayerData playerData);
 
     public <D> void readAdditionalData(Dynamic<D> dynamic) {
-        Map<String, Dynamic<D>> map = dynamic.get("attributes").asMap(d -> d.asString(""), Function.identity());
-        getAttributes().forEach(attr -> {
-            Dynamic<D> attrValue = map.get(attr.getName());
-            if (attrValue != null) {
-                attr.deserialize(attrValue);
-            }
-        });
+        deserializeAttributeMap(dynamic, "attributes");
     }
 
     public <D> void writeAdditionalData(DynamicOps<D> ops, ImmutableMap.Builder<D, D> builder) {
-        builder.put(ops.createString("attributes"),
-                ops.createMap(attributes.stream().map(attr ->
-                        Pair.of(ops.createString(attr.getName()), attr.serialize(ops))
-                ).collect(Collectors.toMap(Pair::getFirst, Pair::getSecond))));
+        builder.put(ops.createString("attributes"), serializeAttributeMap(ops));
     }
 
     @Override

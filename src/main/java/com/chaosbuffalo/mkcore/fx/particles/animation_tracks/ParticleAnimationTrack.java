@@ -94,10 +94,7 @@ public abstract class ParticleAnimationTrack implements ISerializableAttributeCo
     public <D> D serialize(DynamicOps<D> ops){
         return ops.createMap(ImmutableMap.of(
                 ops.createString("trackType"), ops.createString(getTypeName().toString()),
-                ops.createString("attributes"),
-                ops.createMap(attributes.stream().map(attr ->
-                        Pair.of(ops.createString(attr.getName()), attr.serialize(ops))
-                ).collect(Collectors.toMap(Pair::getFirst, Pair::getSecond)))
+                ops.createString("attributes"), serializeAttributeMap(ops)
         ));
     }
 
@@ -105,14 +102,8 @@ public abstract class ParticleAnimationTrack implements ISerializableAttributeCo
         return new ResourceLocation(dynamic.get("trackType").asString().result().orElse(INVALID_OPTION.toString()));
     }
 
-    public <D> void deserialize(Dynamic<D> dynamic){
-        Map<String, Dynamic<D>> map = dynamic.get("attributes").asMap(d -> d.asString(""), Function.identity());
-        getAttributes().forEach(attr -> {
-            Dynamic<D> attrValue = map.get(attr.getName());
-            if (attrValue != null) {
-                attr.deserialize(attrValue);
-            }
-        });
+    public <D> void deserialize(Dynamic<D> dynamic) {
+        deserializeAttributeMap(dynamic, "attributes");
     }
 
     public float generateVariance(MKParticle particle){
