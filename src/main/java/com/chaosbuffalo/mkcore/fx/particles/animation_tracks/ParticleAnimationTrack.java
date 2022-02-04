@@ -2,6 +2,7 @@ package com.chaosbuffalo.mkcore.fx.particles.animation_tracks;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.fx.particles.MKParticle;
+import com.chaosbuffalo.mkcore.serialization.IDynamicMapTypedSerializer;
 import com.chaosbuffalo.mkcore.serialization.ISerializableAttributeContainer;
 import com.chaosbuffalo.mkcore.serialization.attributes.ISerializableAttribute;
 import com.google.common.collect.ImmutableMap;
@@ -20,9 +21,11 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public abstract class ParticleAnimationTrack implements ISerializableAttributeContainer {
-    private final ResourceLocation typeName;
+public abstract class ParticleAnimationTrack implements ISerializableAttributeContainer, IDynamicMapTypedSerializer {
+    private static final String TYPE_NAME_FIELD = "trackType";
     public final static ResourceLocation INVALID_OPTION = new ResourceLocation(MKCore.MOD_ID, "particle_anim.invalid");
+
+    private final ResourceLocation typeName;
     private final List<ISerializableAttribute<?>> attributes;
     private final AnimationTrackType trackType;
     protected int keyCount = 0;
@@ -79,31 +82,16 @@ public abstract class ParticleAnimationTrack implements ISerializableAttributeCo
         this.attributes.addAll(Arrays.asList(attributes));
     }
 
-    public void end(MKParticle particle){
-
-    }
-
-    public ResourceLocation getTypeName() {
-        return typeName;
-    }
-
     public void begin(MKParticle particle, int duration){
 
     }
 
-    public <D> D serialize(DynamicOps<D> ops){
-        return ops.createMap(ImmutableMap.of(
-                ops.createString("trackType"), ops.createString(getTypeName().toString()),
-                ops.createString("attributes"), serializeAttributeMap(ops)
-        ));
+    public void update(MKParticle particle, int tick, float time) {
+
     }
 
-    public static <D> ResourceLocation getType(Dynamic<D> dynamic){
-        return new ResourceLocation(dynamic.get("trackType").asString().result().orElse(INVALID_OPTION.toString()));
-    }
+    public void end(MKParticle particle){
 
-    public <D> void deserialize(Dynamic<D> dynamic) {
-        deserializeAttributeMap(dynamic, "attributes");
     }
 
     public float generateVariance(MKParticle particle){
@@ -114,7 +102,28 @@ public abstract class ParticleAnimationTrack implements ISerializableAttributeCo
         return new Vector3d(generateVariance(particle), generateVariance(particle), generateVariance(particle));
     }
 
-    public void update(MKParticle particle, int tick, float time) {
 
+    @Override
+    public <D> void writeAdditionalData(DynamicOps<D> ops, ImmutableMap.Builder<D, D> builder) {
+        builder.put(ops.createString("attributes"), serializeAttributeMap(ops));
+    }
+
+    @Override
+    public <D> void readAdditionalData(Dynamic<D> dynamic) {
+        deserializeAttributeMap(dynamic, "attributes");
+    }
+
+    @Override
+    public String getTypeEntryName() {
+        return TYPE_NAME_FIELD;
+    }
+
+    @Override
+    public ResourceLocation getTypeName() {
+        return typeName;
+    }
+
+    public static <D> ResourceLocation getType(Dynamic<D> dynamic) {
+        return IDynamicMapTypedSerializer.getType(dynamic, TYPE_NAME_FIELD).orElse(INVALID_OPTION);
     }
 }

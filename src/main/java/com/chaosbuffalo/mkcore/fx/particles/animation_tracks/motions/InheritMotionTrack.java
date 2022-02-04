@@ -16,9 +16,4 @@ public class InheritMotionTrack extends BaseMotionTrack {
     public InheritMotionTrack copy() {
         return new InheritMotionTrack();
     }
-
-    @Override
-    public <D> void deserialize(Dynamic<D> dynamic) {
-
-    }
 }

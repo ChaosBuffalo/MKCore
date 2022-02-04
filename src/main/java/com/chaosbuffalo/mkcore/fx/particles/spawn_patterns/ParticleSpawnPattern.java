@@ -3,6 +3,7 @@ package com.chaosbuffalo.mkcore.fx.particles.spawn_patterns;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.fx.particles.MKParticleData;
 import com.chaosbuffalo.mkcore.fx.particles.ParticleAnimation;
+import com.chaosbuffalo.mkcore.serialization.IDynamicMapTypedSerializer;
 import com.chaosbuffalo.mkcore.serialization.ISerializableAttributeContainer;
 import com.chaosbuffalo.mkcore.serialization.attributes.ISerializableAttribute;
 import com.chaosbuffalo.mkcore.serialization.attributes.IntAttribute;
@@ -26,7 +27,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public abstract class ParticleSpawnPattern implements ISerializableAttributeContainer {
+public abstract class ParticleSpawnPattern implements ISerializableAttributeContainer, IDynamicMapTypedSerializer {
     public static class ParticleSpawnEntry {
         public Vector3d position;
         public Vector3d motion;
@@ -39,8 +40,10 @@ public abstract class ParticleSpawnPattern implements ISerializableAttributeCont
         }
 
     }
-    protected final List<ISerializableAttribute<?>> attributes;
+
+    private static final String TYPE_NAME_FIELD = "type";
     public final static ResourceLocation INVALID_OPTION = new ResourceLocation(MKCore.MOD_ID, "particle_spawn_pattern.invalid");
+    protected final List<ISerializableAttribute<?>> attributes;
     private final ResourceLocation type;
     protected final IntAttribute count = new IntAttribute("count", 10);
 
@@ -51,22 +54,7 @@ public abstract class ParticleSpawnPattern implements ISerializableAttributeCont
         addAttributes(count);
     }
 
-    public <D> D serialize(DynamicOps<D> ops){
-        ImmutableMap.Builder<D, D> builder = ImmutableMap.builder();
-        builder.put(ops.createString("type"), ops.createString(type.toString()));
-        builder.put(ops.createString("attributes"), serializeAttributeMap(ops));
-        return ops.createMap(builder.build());
-    }
-
-    public <D> void deserialize(Dynamic<D> dynamic) {
-        deserializeAttributeMap(dynamic, "attributes");
-    }
-
     public abstract ParticleSpawnPattern copy();
-
-    public static <D> ResourceLocation getType(Dynamic<D> dynamic){
-        return new ResourceLocation(dynamic.get("type").asString().result().orElse(INVALID_OPTION.toString()));
-    }
 
     public ITextComponent getDescription(){
         return new TranslationTextComponent(String.format("%s.spawn_pattern.%s.name", type.getNamespace(), type.getPath()));
@@ -85,6 +73,30 @@ public abstract class ParticleSpawnPattern implements ISerializableAttributeCont
     @Override
     public void addAttributes(ISerializableAttribute<?>... attributes) {
         this.attributes.addAll(Arrays.asList(attributes));
+    }
+
+    @Override
+    public <D> void writeAdditionalData(DynamicOps<D> ops, ImmutableMap.Builder<D, D> builder) {
+        builder.put(ops.createString("attributes"), serializeAttributeMap(ops));
+    }
+
+    @Override
+    public <D> void readAdditionalData(Dynamic<D> dynamic) {
+        deserializeAttributeMap(dynamic, "attributes");
+    }
+
+    @Override
+    public ResourceLocation getTypeName() {
+        return type;
+    }
+
+    @Override
+    public String getTypeEntryName() {
+        return TYPE_NAME_FIELD;
+    }
+
+    public static <D> ResourceLocation getType(Dynamic<D> dynamic) {
+        return IDynamicMapTypedSerializer.getType(dynamic, TYPE_NAME_FIELD).orElse(INVALID_OPTION);
     }
 
 //    public abstract Tuple<Vector3d, Vector3d> getParticleStart(Vector3d position, int particleNumber, @Nullable List<Vector3d> additionalLocs, World world);

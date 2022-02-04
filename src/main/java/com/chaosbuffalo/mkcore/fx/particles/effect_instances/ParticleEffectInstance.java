@@ -4,6 +4,7 @@ import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.client.rendering.skeleton.MCSkeleton;
 import com.chaosbuffalo.mkcore.fx.particles.ParticleAnimation;
 import com.chaosbuffalo.mkcore.fx.particles.ParticleAnimationManager;
+import com.chaosbuffalo.mkcore.serialization.IDynamicMapTypedSerializer;
 import com.chaosbuffalo.mkcore.serialization.ISerializableAttributeContainer;
 import com.chaosbuffalo.mkcore.serialization.attributes.ISerializableAttribute;
 import com.chaosbuffalo.mkcore.serialization.attributes.ResourceLocationAttribute;
@@ -19,10 +20,12 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public abstract class ParticleEffectInstance implements ISerializableAttributeContainer {
-    protected final List<ISerializableAttribute<?>> attributes;
+public abstract class ParticleEffectInstance implements ISerializableAttributeContainer, IDynamicMapTypedSerializer {
+    private static final String TYPE_NAME_FIELD = "type";
     public final static ResourceLocation INVALID_OPTION = new ResourceLocation(MKCore.MOD_ID,
             "particle_effect_instance.invalid");
+
+    protected final List<ISerializableAttribute<?>> attributes;
     protected final ResourceLocationAttribute particleAnimName = new ResourceLocationAttribute("particleAnimName",
             INVALID_OPTION);
     private UUID instanceUUID;
@@ -81,21 +84,29 @@ public abstract class ParticleEffectInstance implements ISerializableAttributeCo
         this.attributes.addAll(Arrays.asList(attributes));
     }
 
-    public <D> D serialize(DynamicOps<D> ops){
-        ImmutableMap.Builder<D, D> builder = ImmutableMap.builder();
-        builder.put(ops.createString("type"), ops.createString(instanceType.toString()));
+    @Override
+    public <D> void writeAdditionalData(DynamicOps<D> ops, ImmutableMap.Builder<D, D> builder) {
         builder.put(ops.createString("instanceUUID"), ops.createString(instanceUUID.toString()));
         builder.put(ops.createString("attributes"), serializeAttributeMap(ops));
-        return ops.createMap(builder.build());
     }
 
-    public <D> void deserialize(Dynamic<D> dynamic){
+    @Override
+    public <D> void readAdditionalData(Dynamic<D> dynamic) {
         this.instanceUUID = UUID.fromString(dynamic.get("instanceUUID").asString(UUID.randomUUID().toString()));
         deserializeAttributeMap(dynamic, "attributes");
     }
 
-    public static <D> ResourceLocation getType(Dynamic<D> dynamic){
-        return new ResourceLocation(dynamic.get("type").asString().result().orElse(INVALID_OPTION.toString()));
+    @Override
+    public ResourceLocation getTypeName() {
+        return instanceType;
     }
 
+    @Override
+    public String getTypeEntryName() {
+        return TYPE_NAME_FIELD;
+    }
+
+    public static <D> ResourceLocation getType(Dynamic<D> dynamic) {
+        return IDynamicMapTypedSerializer.getType(dynamic, TYPE_NAME_FIELD).orElse(INVALID_OPTION);
+    }
 }

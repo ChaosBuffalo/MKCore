@@ -40,12 +40,6 @@ public class LinearMotionTrack extends ParticleMotionAnimationTrack {
     }
 
     @Override
-    public <D> void deserialize(Dynamic<D> dynamic) {
-        super.deserialize(dynamic);
-        motionVec = new Vector3d(xSpeed.value(), ySpeed.value(), zSpeed.value());
-    }
-
-    @Override
     public void apply(MKParticle particle) {
         particle.setMotion(xSpeed.value(), ySpeed.value(), zSpeed.value());
     }
@@ -71,4 +65,9 @@ public class LinearMotionTrack extends ParticleMotionAnimationTrack {
         );
     }
 
+    @Override
+    public <D> void readAdditionalData(Dynamic<D> dynamic) {
+        super.readAdditionalData(dynamic);
+        motionVec = new Vector3d(xSpeed.value(), ySpeed.value(), zSpeed.value());
+    }
 }

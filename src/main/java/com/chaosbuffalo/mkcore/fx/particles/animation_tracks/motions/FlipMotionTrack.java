@@ -24,9 +24,4 @@ public class FlipMotionTrack extends BaseMotionTrack {
         Vector3d newMotion = particle.getMotion().scale(-1);
         particle.setMotion(newMotion.getX(), newMotion.getY(), newMotion.getZ());
     }
-
-    @Override
-    public <D> void deserialize(Dynamic<D> dynamic) {
-
-    }
 }
