@@ -13,6 +13,8 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.StringTextComponent;
 
+import java.util.NoSuchElementException;
+
 public class HasEntitlementRequirement extends AbilityTrainingRequirement {
     public final static ResourceLocation TYPE_NAME = new ResourceLocation(MKCore.MOD_ID, "training_req.has_entitlement");
     private MKEntitlement entitlement;
@@ -22,7 +24,7 @@ public class HasEntitlementRequirement extends AbilityTrainingRequirement {
         this.entitlement = entitlement;
     }
 
-    public <D> HasEntitlementRequirement(Dynamic<D> dynamic){
+    public <D> HasEntitlementRequirement(Dynamic<D> dynamic) {
         super(TYPE_NAME, dynamic);
     }
 
@@ -46,10 +48,15 @@ public class HasEntitlementRequirement extends AbilityTrainingRequirement {
     public <D> void readAdditionalData(Dynamic<D> dynamic) {
         super.readAdditionalData(dynamic);
         ResourceLocation entitlementId = dynamic.get("entitlement").asString()
-                .resultOrPartial(MKCore.LOGGER::error)
+                .resultOrPartial(error -> {
+                    throw new IllegalArgumentException(String.format("Failed to parse entitlement requirement: %s", error));
+                })
                 .map(ResourceLocation::new)
-                .orElse(INVALID_OPTION);
+                .orElseThrow(IllegalStateException::new);
         entitlement = MKCoreRegistry.getEntitlement(entitlementId);
+        if (entitlement == null) {
+            throw new NoSuchElementException(String.format("The entitlement '%s' does not exist", entitlementId));
+        }
     }
 
     @Override
@@ -57,5 +64,4 @@ public class HasEntitlementRequirement extends AbilityTrainingRequirement {
         return new StringTextComponent("You must have earned: ")
                 .appendSibling(entitlement.getDescription());
     }
-
 }

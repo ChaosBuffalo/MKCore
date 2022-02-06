@@ -27,13 +27,12 @@ import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 public class AbilityManager extends JsonReloadListener {
     public static final String DEFINITION_FOLDER = "player_abilities";
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
-    public static final Map<ResourceLocation, Function<Dynamic<?>, AbilityTrainingRequirement>> REQ_DESERIALIZERS = new HashMap<>();
+    public static final Map<ResourceLocation, AbilityTrainingRequirement.Deserializer> REQ_DESERIALIZERS = new HashMap<>();
 
     public AbilityManager() {
         super(GSON, DEFINITION_FOLDER);
@@ -54,12 +53,13 @@ public class AbilityManager extends JsonReloadListener {
         }
     }
 
-    public static void putAbilityTrainingReqDeserializer(ResourceLocation name, Function<Dynamic<?>, AbilityTrainingRequirement> supplier){
+    public static void setTrainingRequirementDeserializer(ResourceLocation name,
+                                                          AbilityTrainingRequirement.Deserializer supplier) {
         REQ_DESERIALIZERS.put(name, supplier);
     }
 
     @Nullable
-    public static Function<Dynamic<?>, AbilityTrainingRequirement> getAbilityTrainingReqDeserializer(ResourceLocation name){
+    public static AbilityTrainingRequirement.Deserializer getTrainingRequirementDeserializer(ResourceLocation name) {
         return REQ_DESERIALIZERS.get(name);
     }
 
@@ -77,10 +77,10 @@ public class AbilityManager extends JsonReloadListener {
         }
     }
 
-    public static void setupDeserializers(){
-        putAbilityTrainingReqDeserializer(ExperienceLevelRequirement.TYPE_NAME, ExperienceLevelRequirement::new);
-        putAbilityTrainingReqDeserializer(HasEntitlementRequirement.TYPE_NAME, HasEntitlementRequirement::new);
-        putAbilityTrainingReqDeserializer(HeldItemRequirement.TYPE_NAME, HeldItemRequirement::new);
+    public static void setupDeserializers() {
+        setTrainingRequirementDeserializer(ExperienceLevelRequirement.TYPE_NAME, ExperienceLevelRequirement::new);
+        setTrainingRequirementDeserializer(HasEntitlementRequirement.TYPE_NAME, HasEntitlementRequirement::new);
+        setTrainingRequirementDeserializer(HeldItemRequirement.TYPE_NAME, HeldItemRequirement::new);
     }
 
     private boolean parse(ResourceLocation loc, JsonObject json) {

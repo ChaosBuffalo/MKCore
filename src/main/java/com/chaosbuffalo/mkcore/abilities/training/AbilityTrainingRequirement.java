@@ -1,13 +1,14 @@
 package com.chaosbuffalo.mkcore.abilities.training;
 
 import com.chaosbuffalo.mkcore.MKCore;
+import com.chaosbuffalo.mkcore.abilities.AbilityManager;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.serialization.IDynamicMapTypedSerializer;
 import com.chaosbuffalo.mkcore.serialization.ISerializableAttributeContainer;
 import com.chaosbuffalo.mkcore.serialization.attributes.ISerializableAttribute;
 import com.google.common.collect.ImmutableMap;
-import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.DynamicOps;
 import net.minecraft.util.ResourceLocation;
@@ -15,13 +16,15 @@ import net.minecraft.util.text.IFormattableTextComponent;
 
 import java.util.*;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public abstract class AbilityTrainingRequirement implements ISerializableAttributeContainer, IDynamicMapTypedSerializer {
-    public final static ResourceLocation INVALID_OPTION = new ResourceLocation(MKCore.MOD_ID, "ability_training_req.invalid");
     private static final String TYPE_ENTRY_NAME = "reqType";
     private final List<ISerializableAttribute<?>> attributes = new ArrayList<>();
     private final ResourceLocation typeName;
+
+    public interface Deserializer extends Function<Dynamic<?>, AbilityTrainingRequirement> {
+
+    }
 
     public AbilityTrainingRequirement(ResourceLocation typeName) {
         this.typeName = typeName;
@@ -75,7 +78,26 @@ public abstract class AbilityTrainingRequirement implements ISerializableAttribu
         return typeName;
     }
 
-    public static <D> ResourceLocation getType(Dynamic<D> dynamic) {
-        return IDynamicMapTypedSerializer.getType(dynamic, TYPE_ENTRY_NAME).orElse(INVALID_OPTION);
+    public static <D> Optional<ResourceLocation> getType(Dynamic<D> dynamic) {
+        return IDynamicMapTypedSerializer.getType(dynamic, TYPE_ENTRY_NAME);
+    }
+
+    public static <D> DataResult<AbilityTrainingRequirement> fromDynamic(Dynamic<D> dynamic) {
+        Optional<ResourceLocation> optType = getType(dynamic);
+        if (!optType.isPresent()) {
+            return DataResult.error(String.format("Unable to determine AbilityTrainingRequirement type (Raw: '%s')", dynamic));
+        }
+        ResourceLocation typeName = optType.get();
+        AbilityTrainingRequirement.Deserializer deserializer = AbilityManager.getTrainingRequirementDeserializer(typeName);
+        if (deserializer != null) {
+            AbilityTrainingRequirement requirement = deserializer.apply(dynamic);
+            if (requirement != null) {
+                return DataResult.success(requirement);
+            } else {
+                return DataResult.error(String.format("Failed to decode AbilityTrainingRequirement of type '%s' (Raw: '%s')", typeName, dynamic));
+            }
+        } else {
+            return DataResult.error(String.format("Failed to find AbilityTrainingRequirement decoder for type '%s'", typeName));
+        }
     }
 }
