@@ -123,7 +123,7 @@ public class MKDamageType extends ForgeRegistryEntry<MKDamageType> {
                     target.getDisplayName(),
                     Math.round(damage));
         } else {
-            msg = new TranslationTextComponent("mkcore.crit.ability.self",
+            msg = new TranslationTextComponent("mkcore.crit.ability.other",
                     source.getDisplayName(),
                     ability.getAbilityName(),
                     target.getDisplayName(),
