@@ -9,6 +9,7 @@ import com.chaosbuffalo.mkcore.init.CoreDamageTypes;
 import com.chaosbuffalo.mkcore.init.CoreSounds;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.PlayerLeftClickEmptyPacket;
+import com.chaosbuffalo.mkcore.utils.DamageUtils;
 import com.chaosbuffalo.mkcore.utils.SoundUtils;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -123,7 +124,7 @@ public class CombatEventHandler {
                 float left = breakResult.getA();
                 if (!(dmgSource instanceof MKDamageSource)){
                     // correct for if we're a vanilla damage source and we're going to bypass armor so pre-apply armor
-                    if (SpellTriggers.isProjectileDamage(dmgSource)){
+                    if (DamageUtils.isProjectileDamage(dmgSource)) {
                         left = CoreDamageTypes.RangedDamage.applyResistance(event.getEntityLiving(), left);
                     } else {
                         left = CoreDamageTypes.MeleeDamage.applyResistance(event.getEntityLiving(), left);

@@ -3,6 +3,7 @@ package com.chaosbuffalo.mkcore.effects;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.damage.MKDamageSource;
 import com.chaosbuffalo.mkcore.effects.triggers.*;
+import com.chaosbuffalo.mkcore.utils.DamageUtils;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -14,35 +15,10 @@ import java.util.function.BiConsumer;
 
 public class SpellTriggers {
 
-
-    public static boolean isMKDamage(DamageSource source) {
-        return source instanceof MKDamageSource;
-    }
-
+    @Deprecated // Still used by MKWeapons. Delete once moved
     public static boolean isMinecraftPhysicalDamage(DamageSource source) {
-        return !source.isFireDamage() &&
-                !source.isExplosion() &&
-                !source.isMagicDamage() &&
-                (source.getDamageType().equals("player") || source.getDamageType().equals("mob"));
+        return DamageUtils.isMinecraftPhysicalDamage(source);
     }
-
-    public static boolean isMeleeDamage(DamageSource source){
-        return isMinecraftPhysicalDamage(source) ||
-                (source instanceof MKDamageSource && ((MKDamageSource) source).isMeleeDamage());
-    }
-
-    public static boolean isSpellDamage(DamageSource source){
-        return source instanceof MKDamageSource && !((MKDamageSource) source).isMeleeDamage();
-    }
-
-    public static boolean isProjectileDamage(DamageSource source) {
-        return source.isProjectile();
-    }
-
-    public static boolean isNonMKProjectileDamage(DamageSource source) {
-        return isProjectileDamage(source) && !isMKDamage(source);
-    }
-
 
     public static final FallTriggers FALL = new FallTriggers();
     public static final LivingHurtEntityTriggers LIVING_HURT_ENTITY = new LivingHurtEntityTriggers();

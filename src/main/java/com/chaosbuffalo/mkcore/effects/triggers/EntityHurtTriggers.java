@@ -3,6 +3,7 @@ package com.chaosbuffalo.mkcore.effects.triggers;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.core.damage.MKDamageSource;
 import com.chaosbuffalo.mkcore.effects.SpellTriggers;
+import com.chaosbuffalo.mkcore.utils.DamageUtils;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.DamageSource;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
@@ -39,7 +40,7 @@ public class EntityHurtTriggers extends SpellTriggers.TriggerCollectionBase {
             return;
         entityHurtLivingPreTriggers.forEach(f -> f.apply(event, source, livingTarget, targetData));
 
-        if (SpellTriggers.isMKDamage(source)) {
+        if (DamageUtils.isMKDamage(source)) {
             MKDamageSource mkDamageSource = (MKDamageSource) source;
             // we check unblockable here because if it is blockable than the armor calculation will already be applied
             // by vanilla mc, we don't want to apply armor reduction twice

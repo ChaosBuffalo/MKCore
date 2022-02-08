@@ -12,6 +12,7 @@ import com.chaosbuffalo.mkcore.init.CoreDamageTypes;
 import com.chaosbuffalo.mkcore.network.CritMessagePacket;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.ParticleEffectSpawnPacket;
+import com.chaosbuffalo.mkcore.utils.DamageUtils;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.particles.ParticleTypes;
@@ -69,7 +70,7 @@ public class LivingHurtEntityTriggers extends SpellTriggers.TriggerCollectionBas
     public void onLivingHurtEntity(LivingHurtEvent event, DamageSource source,
                                    LivingEntity livingTarget, IMKEntityData sourceData) {
         LivingEntity livingSource = sourceData.getEntity();
-        if (SpellTriggers.isMKDamage(source)) {
+        if (DamageUtils.isMKDamage(source)) {
             MKDamageSource mkSource = (MKDamageSource) source;
             if (mkSource.isMeleeDamage()) {
                 handleMKMelee(event, mkSource, livingTarget, livingSource, sourceData);
@@ -79,11 +80,11 @@ public class LivingHurtEntityTriggers extends SpellTriggers.TriggerCollectionBas
         }
 
         // If this is a weapon swing
-        if (SpellTriggers.isMinecraftPhysicalDamage(source)) {
+        if (DamageUtils.isMinecraftPhysicalDamage(source)) {
             handleVanillaMelee(event, source, livingTarget, livingSource, sourceData);
         }
 
-        if (SpellTriggers.isProjectileDamage(source)) {
+        if (DamageUtils.isProjectileDamage(source)) {
             handleProjectile(event, source, livingTarget, livingSource, sourceData);
         }
 
@@ -157,7 +158,7 @@ public class LivingHurtEntityTriggers extends SpellTriggers.TriggerCollectionBas
 
         Entity projectile = source.getImmediateSource();
         float damage = event.getAmount();
-        if (SpellTriggers.isNonMKProjectileDamage(source)){
+        if (DamageUtils.isNonMKProjectileDamage(source)) {
             damage += livingSource.getAttribute(MKAttributes.RANGED_DAMAGE).getValue();
         }
         boolean wasCrit = false;
