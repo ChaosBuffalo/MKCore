@@ -22,8 +22,8 @@ public class MKHealing {
                 float healDamageMultiplier = MKConfig.SERVER.undeadHealDamageMultiplier.get().floatValue();
                 target.attackEntityFrom(convertHealingToDamage(healSource), healDamageMultiplier * event.getAmount());
             } else {
-                float afterEfficiency = MKCore.getEntityData(target).map(x ->
-                        MKCombatFormulas.applyHealEfficiency(x, event.getAmount())).orElse(event.getAmount());
+                float afterEfficiency = MKCore.getEntityData(target).map(targetData ->
+                        MKCombatFormulas.applyHealEfficiency(targetData, event.getAmount())).orElse(event.getAmount());
                 target.heal(afterEfficiency);
             }
         }
