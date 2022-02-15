@@ -11,6 +11,8 @@ public interface IMKEntityStats {
 
     float getHealBonus();
 
+    float getHealEfficiency();
+
     float getBuffDurationModifier();
 
     float getHealth();

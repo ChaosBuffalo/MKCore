@@ -243,6 +243,10 @@ public class MKAttributes {
             .setRegistryName(MKCore.makeRL("block_efficiency"))
             .setShouldWatch(true);
 
+    public static final Attribute HEAL_EFFICIENCY = new MKRangedAttribute("attribute.name.mk.heal_efficiency", 1.0, 0, 1000.0)
+            .setRegistryName(MKCore.makeRL("heal_efficiency"))
+            .setShouldWatch(true);
+
     public static final List<Attribute> SPELL_SKILLS = new ArrayList<>();
     public static final List<Attribute> COMBAT_SKILLS = new ArrayList<>();
 
@@ -319,6 +323,7 @@ public class MKAttributes {
         consumer.accept(POISE_REGEN);
         consumer.accept(POISE_BREAK_CD);
         consumer.accept(BLOCK_EFFICIENCY);
+        consumer.accept(HEAL_EFFICIENCY);
     }
 
     public static void iteratePlayerAttributes(Consumer<Attribute> consumer) {
