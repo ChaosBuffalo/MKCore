@@ -91,6 +91,7 @@ public class StatCommand {
                 .then(createAttributeStat("two_hand_pierce", MKAttributes.TWO_HAND_PIERCE))
                 .then(createAttributeStat("block", MKAttributes.BLOCK))
                 .then(createAttributeStat("attack_damage", Attributes.ATTACK_DAMAGE))
+                .then(createAttributeStat("heal_efficiency", MKAttributes.HEAL_EFFICIENCY))
                 ;
     }
 
