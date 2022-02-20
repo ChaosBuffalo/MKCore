@@ -31,6 +31,11 @@ public class MKCombatFormulas {
         return amount + mod * modifierScaling;
     }
 
+    public static float applyHealEfficiency(IMKEntityData entityData, float amount){
+        float mult = entityData.getStats().getHealEfficiency();
+        return amount * mult;
+    }
+
     public static int applyBuffDurationModifier(IMKEntityData entityData, float amount) {
         float mod = entityData.getStats().getBuffDurationModifier();
         return (int) (amount * mod);

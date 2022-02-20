@@ -32,6 +32,11 @@ public class EntityStats implements IMKEntityStats {
     }
 
     @Override
+    public float getHealEfficiency() {
+        return (float) getEntity().getAttribute(MKAttributes.HEAL_EFFICIENCY).getValue();
+    }
+
+    @Override
     public float getBuffDurationModifier() {
         return (float) getEntity().getAttribute(MKAttributes.BUFF_DURATION).getValue();
     }
