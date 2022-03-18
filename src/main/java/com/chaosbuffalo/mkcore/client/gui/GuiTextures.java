@@ -37,6 +37,8 @@ public class GuiTextures {
     public static final String XP_BAR_ON_SCREEN_YELLOW = "xp_bar_on_screen_yellow";
     public static final String XP_BAR_ON_SCREEN_BACKGROUND = "xp_bar_on_screen_background";
     public static final String XP_BAR_ON_SCREEN_BLUE = "xp_bar_on_screen_blue";
+    public static final String PLAYER_BAR_OUTLINE = "player_bar_outline";
+    public static final String SHORT_BAR_OUTLINE = "short_bar_outline";
 
 
     static {
@@ -71,6 +73,8 @@ public class GuiTextures {
         CORE_TEXTURES.addTextureRegion(XP_BAR_ON_SCREEN_BACKGROUND, 391,100,63, 5);
         CORE_TEXTURES.addTextureRegion(XP_BAR_ON_SCREEN_BLUE, 393,92,59, 5);
         CORE_TEXTURES.addTextureRegion(ABSORPTON_BAR, 378, 45, 50, 5);
+        CORE_TEXTURES.addTextureRegion(PLAYER_BAR_OUTLINE, 455, 54, 75, 5);
+        CORE_TEXTURES.addTextureRegion(SHORT_BAR_OUTLINE, 455, 45, 50, 5);
 
 
     }
