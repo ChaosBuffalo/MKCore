@@ -80,7 +80,6 @@ public class ItemEventHandler {
         if (event.getSlotType().getSlotType() == EquipmentSlotType.Group.HAND) {
             int handIndex = event.getSlotType().getIndex();
             if (from instanceof SwordItem && event.getSlotType() == EquipmentSlotType.MAINHAND) {
-
                 addDefaultAttribute(event, MKAttributes.MAX_POISE,
                         () -> createDefaultSlotModifier(SWORD_POISE_MOD_UUID[handIndex],
                                 20.0,
@@ -101,7 +100,7 @@ public class ItemEventHandler {
                                 ItemUtils.getCritMultiplierForItem(event.getItemStack()),
                                 AttributeModifier.Operation.ADDITION));
             }
-            if (from instanceof ShieldItem && event.getSlotType() == EquipmentSlotType.OFFHAND) {
+            if (from instanceof ShieldItem && (event.getSlotType() == EquipmentSlotType.OFFHAND || event.getSlotType() == EquipmentSlotType.MAINHAND)) {
                 addDefaultAttribute(event, MKAttributes.MAX_POISE,
                         () -> createDefaultSlotModifier(SHIELD_POISE_MOD_UUID[handIndex],
                                 50.0,

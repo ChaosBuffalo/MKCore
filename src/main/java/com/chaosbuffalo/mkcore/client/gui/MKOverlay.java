@@ -98,6 +98,7 @@ public class MKOverlay {
         GuiTextures.CORE_TEXTURES.bind(mc);
         RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
         GuiTextures.CORE_TEXTURES.drawRegionAtPosPartialWidth(matrixStack, textureName, x, y, barSize);
+        GuiTextures.CORE_TEXTURES.drawRegionAtPos(matrixStack, GuiTextures.SHORT_BAR_OUTLINE, x, y - 1);
         if (absorption > 0.0f){
             float absorpPercentage = absorption / maxHp;
             if (absorpPercentage > 1.0f){
@@ -129,6 +130,7 @@ public class MKOverlay {
         GuiTextures.CORE_TEXTURES.bind(mc);
         RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
         GuiTextures.CORE_TEXTURES.drawRegionAtPosPartialWidth(matrixStack, textureName, x, y, barSize);
+        GuiTextures.CORE_TEXTURES.drawRegionAtPos(matrixStack, GuiTextures.SHORT_BAR_OUTLINE, x, y - 1);
     }
 
     private void drawMana(MatrixStack matrixStack, MKPlayerData data) {
@@ -151,6 +153,7 @@ public class MKOverlay {
         GuiTextures.CORE_TEXTURES.bind(mc);
         RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
         GuiTextures.CORE_TEXTURES.drawRegionAtPosPartialWidth(matrixStack, textureName, castStartX, castStartY, barSize);
+        GuiTextures.CORE_TEXTURES.drawRegionAtPos(matrixStack, GuiTextures.PLAYER_BAR_OUTLINE, castStartX, castStartY - 1);
     }
 
     private void drawXpBar(MatrixStack matrixStack, MKPlayerData data, float partialTick){
@@ -169,31 +172,33 @@ public class MKOverlay {
     private void drawPoise(MatrixStack matrixStack, MKPlayerData data, float partialTick) {
         float percentage;
         boolean isBroken = data.getStats().isPoiseBroke();
-        if (isBroken) {
-            percentage = data.getStats().getPoiseBreakPercent(partialTick);
-        } else {
-            percentage = data.getStats().getPoise() / data.getStats().getMaxPoise();
-        }
-        if (percentage > 1.0f){
-            percentage = 1.0f;
-        }
-        int width = 50;
-        int barSize = Math.round(width * percentage);
-        int castStartX;
-        int height = mc.getMainWindow().getScaledHeight();
-        int castStartY;
-        if (data.getEntity().isActiveItemStackBlocking()) {
-            castStartY = height / 2 + 8;
-            castStartX = mc.getMainWindow().getScaledWidth() / 2 - barSize / 2;
-        } else {
-            castStartX = (mc.getMainWindow().getScaledWidth() / 2) - 89 - 100;
-            castStartY = height - 14;
-        }
+        if (data.getStats().getMaxPoise() > 0){
+            if (isBroken) {
+                percentage = data.getStats().getPoiseBreakPercent(partialTick);
+            } else {
+                percentage = data.getStats().getPoise() / data.getStats().getMaxPoise();
+            }
+            if (percentage > 1.0f){
+                percentage = 1.0f;
+            }
+            int width = 50;
+            int barSize = Math.round(width * percentage);
+            int castStartX;
+            int height = mc.getMainWindow().getScaledHeight();
+            int castStartY;
+            if (data.getEntity().isActiveItemStackBlocking()) {
+                castStartY = height / 2 + 8;
+                castStartX = mc.getMainWindow().getScaledWidth() / 2 - barSize / 2;
+            } else {
+                castStartX = (mc.getMainWindow().getScaledWidth() / 2) - 89 - 100;
+                castStartY = height - 14;
+            }
 
-        GuiTextures.CORE_TEXTURES.bind(mc);
-        RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
-        GuiTextures.CORE_TEXTURES.drawRegionAtPosPartialWidth(matrixStack, isBroken ? GuiTextures.POISE_BREAK : GuiTextures.POISE_BAR, castStartX, castStartY, barSize);
-
+            GuiTextures.CORE_TEXTURES.bind(mc);
+            RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
+            GuiTextures.CORE_TEXTURES.drawRegionAtPosPartialWidth(matrixStack, isBroken ? GuiTextures.POISE_BREAK : GuiTextures.POISE_BAR, castStartX, castStartY, barSize);
+            GuiTextures.CORE_TEXTURES.drawRegionAtPos(matrixStack, GuiTextures.SHORT_BAR_OUTLINE, castStartX, castStartY - 1);
+        }
     }
 
     private void drawHP(MatrixStack matrixStack, MKPlayerData data, float partialTick) {
@@ -218,6 +223,7 @@ public class MKOverlay {
         GuiTextures.CORE_TEXTURES.bind(mc);
         RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
         GuiTextures.CORE_TEXTURES.drawRegionAtPosPartialWidth(matrixStack, textureName, castStartX, castStartY, barSize);
+        GuiTextures.CORE_TEXTURES.drawRegionAtPos(matrixStack, GuiTextures.PLAYER_BAR_OUTLINE, castStartX, castStartY - 1);
         if (absorption > 0.0f){
             float absorpPercentage = absorption / maxHp;
             if (absorpPercentage > 1.0f){
