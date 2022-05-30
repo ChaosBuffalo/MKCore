@@ -19,4 +19,7 @@ public class GameConstants {
     public static final int MAX_ABILITY_POOL_SIZE = 20;
     public static final double SKILL_MAX = 200.0;
     public static final double NATURAL_SKILL_MAX = 100.0;
+
+    public static final double MAX_DIFFICULTY = 200.0;
+    public static final double MIN_DIFFICULTY = 0.0;
 }
