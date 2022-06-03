@@ -16,7 +16,9 @@ buildscript {
 //    // more recent versions of shadow work on more recent versions of gradle
 //    id 'com.github.johnrengelman.shadow' version '6.0.0'
 //}
-
+plugins {
+    id "com.google.cloud.artifactregistry.gradle-plugin" version "2.1.5"
+}
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'org.spongepowered.mixin'
 // Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
@@ -36,6 +38,9 @@ mixin {
 }
 
 repositories {
+    maven {
+        url "artifactregistry://us-central1-maven.pkg.dev/secure-garden-352216/chaosbuffalo-maven-repo"
+    }
     mavenLocal()
     maven {
         name = 'CurseForge'
