@@ -15,8 +15,9 @@ buildscript {
 plugins {
     id "com.google.cloud.artifactregistry.gradle-plugin" version "2.1.5"
 }
-apply plugin: "com.dipien.semantic-version"
 apply plugin: 'net.minecraftforge.gradle'
+apply plugin: "com.dipien.semantic-version"
+
 apply plugin: 'org.spongepowered.mixin'
 // Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 apply plugin: 'eclipse'
@@ -24,6 +25,10 @@ apply plugin: 'maven-publish'
 
 
 version = "0.19.0"
+if (System.getenv().RELEASE_MODE == null) {
+    version += '-SNAPSHOT'
+}
+
 group = "${mod_group}" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "${mod_id}-${mc_version}"
 
@@ -125,7 +130,7 @@ minecraft {
             property 'forge.logging.console.level', 'debug'
 
             // Specify the modid for data generation, where to output the resulting resource, and where to look for existing resources.
-            args '--mod', mod_id, '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
+            args '--mod', 'mkcore', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
 
             mods {
                 "${mod_id}" {
