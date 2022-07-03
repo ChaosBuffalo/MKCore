@@ -127,6 +127,19 @@ public class MKAreaEffectEntity extends AreaEffectCloudEntity implements IEntity
         this.effects.add(WorldAreaEffectEntry.forEffect(this, effect, targetContext));
     }
 
+    public void addDelayedEffect(EffectInstance effect, TargetingContext targetContext, int delayTicks) {
+        WorldAreaEffectEntry entry = WorldAreaEffectEntry.forEffect(this, effect, targetContext);
+        entry.setTickStart(delayTicks);
+        this.effects.add(entry);
+    }
+
+    public void addDelayedEffect(MKEffectBuilder<?> effect, TargetingContext targetContext, int delayTicks) {
+        WorldAreaEffectEntry entry = WorldAreaEffectEntry.forEffect(this, effect, targetContext);
+        entry.setTickStart(delayTicks);
+        this.effects.add(entry);
+
+    }
+
     private boolean entityCheck(LivingEntity e) {
         return e != null &&
                 EntityPredicates.NOT_SPECTATING.test(e) &&
@@ -196,7 +209,11 @@ public class MKAreaEffectEntity extends AreaEffectCloudEntity implements IEntity
 
             reapplicationDelayMap.put(target, ticksExisted + reapplicationDelay);
             MKCore.getEntityData(target).ifPresent(targetData ->
-                    targetEffects.forEach(entry -> entry.apply(entityData, targetData)));
+                    targetEffects.forEach(entry -> {
+                        if (entry.getTickStart() >= ticksExisted - waitTime) {
+                            entry.apply(entityData, targetData);
+                        }
+                    }));
         }
         return false;
     }
