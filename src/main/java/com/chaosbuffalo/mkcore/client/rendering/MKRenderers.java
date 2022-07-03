@@ -4,8 +4,10 @@ import com.chaosbuffalo.mkcore.MKConfig;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.entities.LineEffectEntity;
 import com.chaosbuffalo.mkcore.entities.MKAreaEffectEntity;
+import com.chaosbuffalo.mkcore.entities.PointEffectEntity;
 import com.chaosbuffalo.mkcore.fx.particles.IndicatorParticle;
 import com.chaosbuffalo.mkcore.fx.particles.MKParticle;
+import com.chaosbuffalo.mkcore.fx.particles.ParticleRenderTypes;
 import com.chaosbuffalo.mkcore.init.CoreParticles;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
@@ -21,7 +23,8 @@ public class MKRenderers {
     @SubscribeEvent
     public static void registerModels(ModelRegistryEvent evt) {
         RenderingRegistry.registerEntityRenderingHandler(MKAreaEffectEntity.TYPE, EntityMKAreaEffectRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(LineEffectEntity.TYPE, EntityLineEffectRenderer::new);
+        RenderingRegistry.registerEntityRenderingHandler(LineEffectEntity.TYPE, BaseEffectEntityRenderer::new);
+        RenderingRegistry.registerEntityRenderingHandler(PointEffectEntity.TYPE, BaseEffectEntityRenderer::new);
     }
 
     public static void registerPlayerRenderers() {
@@ -73,5 +76,30 @@ public class MKRenderers {
                         null));
         Minecraft.getInstance().particles.registerFactory(CoreParticles.INDICATOR_PARTICLE,
                 IndicatorParticle.IndicatorFactory::new);
+        Minecraft.getInstance().particles.registerFactory(CoreParticles.BLACK_MAGIC_CROSS,
+                (spriteSet) -> new MKParticle.MKParticleFactory(
+                        spriteSet, -0.0001f, 0.05f,
+                        0.05f, 80, true, ParticleRenderTypes.BLACK_MAGIC_RENDERER,
+                        null));
+        Minecraft.getInstance().particles.registerFactory(CoreParticles.BLACK_MAGIC_CLOVER,
+                (spriteSet) -> new MKParticle.MKParticleFactory(
+                        spriteSet, -0.0001f, 0.05f,
+                        0.05f, 80, true, ParticleRenderTypes.BLACK_MAGIC_RENDERER,
+                        null));
+        Minecraft.getInstance().particles.registerFactory(CoreParticles.BLACK_MAGIC_CIRCLE,
+                (spriteSet) -> new MKParticle.MKParticleFactory(
+                        spriteSet, -0.0001f, 0.05f,
+                        0.05f, 80, true, ParticleRenderTypes.BLACK_MAGIC_RENDERER,
+                        null));
+        Minecraft.getInstance().particles.registerFactory(CoreParticles.BLACK_MAGIC_LINE,
+                (spriteSet) -> new MKParticle.MKParticleFactory(
+                        spriteSet, -0.0001f, 0.05f,
+                        0.05f, 80, true, ParticleRenderTypes.BLACK_MAGIC_RENDERER,
+                        null));
+        Minecraft.getInstance().particles.registerFactory(CoreParticles.BLACK_MAGIC_GRADIENT_SQUARE,
+                (spriteSet) -> new MKParticle.MKParticleFactory(
+                        spriteSet, -0.0001f, 0.05f,
+                        0.05f, 80, true, ParticleRenderTypes.BLACK_MAGIC_RENDERER,
+                        null));
     }
 }

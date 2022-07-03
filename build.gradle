@@ -23,8 +23,11 @@ apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
-
+ext {
+    base_version = "default"
+}
 version = "0.19.1"
+base_version = version;
 if (System.getenv().RELEASE_MODE == null) {
     version += '-SNAPSHOT'
 }

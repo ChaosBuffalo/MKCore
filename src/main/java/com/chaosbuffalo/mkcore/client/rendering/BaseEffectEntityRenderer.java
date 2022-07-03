@@ -1,6 +1,6 @@
 package com.chaosbuffalo.mkcore.client.rendering;
 
-import com.chaosbuffalo.mkcore.entities.LineEffectEntity;
+import com.chaosbuffalo.mkcore.entities.BaseEffectEntity;
 import net.minecraft.client.renderer.culling.ClippingHelper;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
@@ -9,20 +9,20 @@ import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nonnull;
 
-public class EntityLineEffectRenderer extends EntityRenderer<LineEffectEntity> {
-    public EntityLineEffectRenderer(EntityRendererManager manager) {
+public class BaseEffectEntityRenderer extends EntityRenderer<BaseEffectEntity> {
+    public BaseEffectEntityRenderer(EntityRendererManager manager) {
         super(manager);
     }
 
     @Nonnull
     @Override
-    public ResourceLocation getEntityTexture(LineEffectEntity entity) {
+    public ResourceLocation getEntityTexture(BaseEffectEntity entity) {
         return AtlasTexture.LOCATION_BLOCKS_TEXTURE;
     }
 
 
     @Override
-    public boolean shouldRender(@Nonnull LineEffectEntity entity, @Nonnull ClippingHelper clippingHelper, double x, double y, double z) {
+    public boolean shouldRender(@Nonnull BaseEffectEntity entity, @Nonnull ClippingHelper clippingHelper, double x, double y, double z) {
         return false;
     }
 }

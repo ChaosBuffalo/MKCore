@@ -3,6 +3,7 @@ package com.chaosbuffalo.mkcore.init;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.entities.LineEffectEntity;
 import com.chaosbuffalo.mkcore.entities.MKAreaEffectEntity;
+import com.chaosbuffalo.mkcore.entities.PointEffectEntity;
 import net.minecraft.entity.EntityClassification;
 import net.minecraft.entity.EntityType;
 import net.minecraftforge.event.RegistryEvent;
@@ -35,5 +36,16 @@ public class CoreEntities {
                 .disableSerialization()
                 .build("mk_line_effect")
                 .setRegistryName(MKCore.makeRL("mk_line_effect")));
+
+        evt.getRegistry().register(EntityType.Builder.<PointEffectEntity>create(PointEffectEntity::new, EntityClassification.MISC)
+                .immuneToFire()
+                .size(0, 0)
+                .setTrackingRange(5)
+                .setUpdateInterval(10)
+                .setShouldReceiveVelocityUpdates(true)
+                .disableSummoning()
+                .disableSerialization()
+                .build("mk_point_effect")
+                .setRegistryName(MKCore.makeRL("mk_point_effect")));
     }
 }
