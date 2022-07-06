@@ -210,7 +210,7 @@ public class MKAreaEffectEntity extends AreaEffectCloudEntity implements IEntity
             reapplicationDelayMap.put(target, ticksExisted + reapplicationDelay);
             MKCore.getEntityData(target).ifPresent(targetData ->
                     targetEffects.forEach(entry -> {
-                        if (entry.getTickStart() >= ticksExisted - waitTime) {
+                        if (entry.getTickStart() <= ticksExisted - waitTime) {
                             entry.apply(entityData, targetData);
                         }
                     }));

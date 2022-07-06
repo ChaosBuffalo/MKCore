@@ -2,6 +2,7 @@ package com.chaosbuffalo.mkcore.entities;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import net.minecraft.entity.*;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
@@ -32,6 +33,34 @@ public class PointEffectEntity extends BaseEffectEntity{
         }
 
     }
+
+    @Override
+    public void notifyDataManagerChange(DataParameter<?> key) {
+        if (RADIUS.equals(key)) {
+            this.recalculateSize();
+//            this.recenterBoundingBox();
+            this.setBoundingBox(this.size.func_242285_a(getPosX(), getPosY()-getRadius(), getPosZ()));
+        }
+
+        super.notifyDataManagerChange(key);
+    }
+
+    @Override
+    public void recalculateSize() {
+        super.recalculateSize();
+    }
+
+//    @Override
+//    public void writeSpawnData(PacketBuffer buffer) {
+//        super.writeSpawnData(buffer);
+//        buffer.writeFloat(getRadius());
+//    }
+//
+//    @Override
+//    public void readSpawnData(PacketBuffer additionalData) {
+//        super.readSpawnData(additionalData);
+//        setRadius(additionalData.readFloat());
+//    }
 
     public float getRadius() {
         return this.getDataManager().get(RADIUS);

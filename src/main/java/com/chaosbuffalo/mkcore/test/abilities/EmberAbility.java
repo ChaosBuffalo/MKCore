@@ -3,7 +3,7 @@ package com.chaosbuffalo.mkcore.test.abilities;
 import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.abilities.*;
-import com.chaosbuffalo.mkcore.effects.LineEffectBuilder;
+import com.chaosbuffalo.mkcore.effects.EntityEffectBuilder;
 import com.chaosbuffalo.mkcore.serialization.attributes.FloatAttribute;
 import com.chaosbuffalo.mkcore.serialization.attributes.IntAttribute;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
@@ -80,7 +80,7 @@ public class EmberAbility extends MKAbility {
             targetEntity.attackEntityFrom(MKDamageSource.causeAbilityDamage(CoreDamageTypes.FireDamage,
                     getAbilityId(), castingEntity, castingEntity), amount);
 //            SoundUtils.playSoundAtEntity(targetEntity, ModSounds.spell_fire_6);
-            LineEffectBuilder lineBuilder = LineEffectBuilder.createOnEntity(castingEntity, targetEntity,
+            EntityEffectBuilder.LineEffectBuilder lineBuilder = EntityEffectBuilder.createLineEffectOnEntity(castingEntity, targetEntity,
                     new Vector3d(targetEntity.getPosX(), targetEntity.getPosYHeight(0.5), targetEntity.getPosZ()),
                     new Vector3d(castingEntity.getPosX(), castingEntity.getPosY() + castingEntity.getEyeHeight(), castingEntity.getPosZ()));
             lineBuilder.setParticles(TEST_PARTICLES);

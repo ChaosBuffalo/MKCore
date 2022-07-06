@@ -38,6 +38,11 @@ public class AbilityTargeting {
             .setDescriptionKey("mkcore.ability_target.pbaoe")
             .addDynamicDescription(AbilityDescriptions::getRangeDescription);
 
+    public static final AbilityTargetSelector POSITION_INCLUDE_ENTITIES = new AbilityTargetSelector(AbilityTargeting::selectPositionIncludeEntities)
+            .setRequiredMemories(ImmutableSet.of(MKAbilityMemories.ABILITY_POSITION_TARGET))
+            .setDescriptionKey("mkcore.ability_target.position_include_entities")
+            .addDynamicDescription(AbilityDescriptions::getRangeDescription);
+
     static AbilityContext noTarget(IMKEntityData entityData, MKAbility ability) {
         return AbilityContext.EMPTY;
     }
@@ -62,5 +67,13 @@ public class AbilityTargeting {
         MKCore.LOGGER.debug("AbilityTargeting.SINGLE_TARGET_OR_SELF {} {} {}", ability.getAbilityId(),
                 entityData.getEntity(), targetEntity);
         return AbilityContext.singleTarget(targetEntity);
+    }
+
+    private static AbilityContext selectPositionIncludeEntities(IMKEntityData entityData, MKAbility ability) {
+        TargetUtil.LivingOrPosition targetPos = TargetUtil.getPositionTarget(entityData.getEntity(), ability.getDistance(entityData.getEntity()),
+                ability::isValidTarget);
+        MKCore.LOGGER.debug("AbilityTargeting.POSITION_INCLUDE_ENTITIES {} {} {}", ability.getAbilityId(),
+                entityData.getEntity(), targetPos != null ? targetPos : "EMPTY");
+        return AbilityContext.singleOrPositionTarget(targetPos);
     }
 }

@@ -6,7 +6,6 @@ import com.chaosbuffalo.mkcore.effects.MKEffectBuilder;
 import com.chaosbuffalo.mkcore.effects.WorldAreaEffectEntry;
 import com.chaosbuffalo.mkcore.fx.particles.ParticleAnimation;
 import com.chaosbuffalo.mkcore.fx.particles.ParticleAnimationManager;
-import com.chaosbuffalo.mkcore.utils.EntityCollectionRayTraceResult;
 import com.chaosbuffalo.targeting_api.TargetingContext;
 import com.google.common.collect.Maps;
 import net.minecraft.entity.Entity;
@@ -15,9 +14,6 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.IPacket;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.network.datasync.DataSerializers;
-import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.util.EntityPredicates;
 import net.minecraft.util.ResourceLocation;
@@ -31,22 +27,73 @@ import javax.annotation.Nullable;
 import java.util.*;
 
 public abstract class BaseEffectEntity extends Entity implements IEntityAdditionalSpawnData {
-
-    private static final DataParameter<Boolean> WAITING = EntityDataManager.createKey(LineEffectEntity.class, DataSerializers.BOOLEAN);
     protected final List<WorldAreaEffectEntry> effects;
     protected final int WAIT_LAG = 5;
+    protected final int DEFAULT_VISUAL_TICK_RATE = 5;
     protected final Map<Entity, Integer> reapplicationDelayMap = Maps.newHashMap();
     protected int duration = 600;
     protected int waitTime = 20;
     protected int tickRate = 5;
-    protected int visualTickRate = 5;
     @Nullable
-    protected ResourceLocation particles;
+    protected ParticleDisplay particles;
     @Nullable
-    protected ResourceLocation waitingParticles;
+    protected ParticleDisplay waitingParticles;
     protected LivingEntity owner;
     protected UUID ownerUniqueId;
     private IMKEntityData ownerData;
+
+    public static class ParticleDisplay {
+        public enum DisplayType {
+            CONTINUOUS,
+            ONCE
+        }
+
+        protected ResourceLocation particles;
+        protected int tickRate;
+        protected DisplayType type;
+
+        public ParticleDisplay(ResourceLocation particleName, int tickRate, DisplayType type) {
+            particles = particleName;
+            this.tickRate = tickRate;
+            this.type = type;
+        }
+
+        public ResourceLocation getParticles() {
+            return particles;
+        }
+
+        public DisplayType getType() {
+            return type;
+        }
+
+        public int getTickRate() {
+            return tickRate;
+        }
+
+        public boolean shouldTick(int ticksExisted, int offset) {
+            switch (type) {
+                case ONCE:
+                    return ticksExisted - offset == 0;
+                case CONTINUOUS:
+                default:
+                    return ticksExisted % getTickRate() == 0;
+
+            }
+        }
+
+        public void write(PacketBuffer buffer) {
+            buffer.writeResourceLocation(particles);
+            buffer.writeInt(tickRate);
+            buffer.writeEnumValue(type);
+        }
+
+        public static ParticleDisplay read(PacketBuffer buffer){
+            ResourceLocation loc = buffer.readResourceLocation();
+            int tickRate = buffer.readInt();
+            DisplayType type = buffer.readEnumValue(DisplayType.class);
+            return new ParticleDisplay(loc, tickRate, type);
+        }
+    }
 
     public BaseEffectEntity(EntityType<? extends BaseEffectEntity> entityType, World world) {
         super(entityType, world);
@@ -54,26 +101,33 @@ public abstract class BaseEffectEntity extends Entity implements IEntityAddition
         particles = null;
     }
 
-    public void setParticles(@Nullable ResourceLocation particles) {
-        this.particles = particles;
+    @Override
+    protected void registerData() {
+
     }
 
-    public void setWaitingParticles(@Nullable ResourceLocation waitingParticles) {
-        this.waitingParticles = waitingParticles;
+    public void setParticles(ResourceLocation particles) {
+        this.particles = new ParticleDisplay(particles, DEFAULT_VISUAL_TICK_RATE, ParticleDisplay.DisplayType.CONTINUOUS);
     }
+
+    public void setWaitingParticles(ResourceLocation waitingParticles) {
+        this.waitingParticles = new ParticleDisplay(waitingParticles,
+                DEFAULT_VISUAL_TICK_RATE, ParticleDisplay.DisplayType.CONTINUOUS);
+    }
+
+    public void setParticles(@Nullable ParticleDisplay display) {
+        this.particles = display;
+    }
+
+    public void setWaitingParticles(@Nullable ParticleDisplay display) {
+        this.waitingParticles = display;
+    }
+
 
     public void setTickRate(int tickRate) {
         this.tickRate = tickRate;
     }
 
-    public void setVisualTickRate(int visualTickRate) {
-        this.visualTickRate = visualTickRate;
-    }
-
-    @Override
-    protected void registerData() {
-        this.getDataManager().register(WAITING, false);
-    }
 
     public void addEffect(EffectInstance effect, TargetingContext targetContext) {
         this.effects.add(WorldAreaEffectEntry.forEffect(this, effect, targetContext));
@@ -121,34 +175,33 @@ public abstract class BaseEffectEntity extends Entity implements IEntityAddition
         }
     }
 
-    protected void spawnClientParticles() {
-        ResourceLocation animName = isWaiting() ? waitingParticles : particles;
-        if (animName != null){
-            ParticleAnimation anim = ParticleAnimationManager.getAnimation(animName);
-            if (anim != null){
-                anim.spawn(getEntityWorld(), getPositionVec(), null);
-            }
+    protected void spawnClientParticles(ParticleDisplay display) {
+        ParticleAnimation anim = ParticleAnimationManager.getAnimation(display.getParticles());
+        if (anim != null){
+            anim.spawn(getEntityWorld(), getPositionVec(), null);
         }
     }
 
     private void clientUpdate() {
-        if (ticksExisted % visualTickRate == 0){
-            spawnClientParticles();
+        ParticleDisplay display = isWaiting() ? waitingParticles : particles;
+        if (display != null && display.shouldTick(ticksExisted, isWaiting() ? 0 : waitTime) ){
+            spawnClientParticles(display);
         }
     }
 
     @Override
     public void writeSpawnData(PacketBuffer buffer) {
         buffer.writeInt(owner.getEntityId());
-        buffer.writeInt(visualTickRate);
         buffer.writeInt(tickRate);
+        buffer.writeInt(waitTime);
+        buffer.writeInt(ticksExisted);
         buffer.writeBoolean(particles != null);
         if (particles != null) {
-            buffer.writeResourceLocation(particles);
+            particles.write(buffer);
         }
         buffer.writeBoolean(waitingParticles != null);
         if (waitingParticles != null) {
-            buffer.writeResourceLocation(waitingParticles);
+            waitingParticles.write(buffer);
         }
     }
 
@@ -158,15 +211,16 @@ public abstract class BaseEffectEntity extends Entity implements IEntityAddition
         if (ent instanceof LivingEntity) {
             owner = (LivingEntity) ent;
         }
-        visualTickRate = additionalData.readInt();
         tickRate = additionalData.readInt();
+        waitTime = additionalData.readInt();
+        ticksExisted = additionalData.readInt();
         boolean hasParticles = additionalData.readBoolean();
         if (hasParticles) {
-            particles = additionalData.readResourceLocation();
+            particles = ParticleDisplay.read(additionalData);
         }
         boolean hasWaiting = additionalData.readBoolean();
         if (hasWaiting) {
-            waitingParticles = additionalData.readResourceLocation();
+            waitingParticles = ParticleDisplay.read(additionalData);
         }
     }
 
@@ -188,19 +242,7 @@ public abstract class BaseEffectEntity extends Entity implements IEntityAddition
     }
 
     public boolean isWaiting() {
-        return this.getDataManager().get(WAITING);
-    }
-
-    private boolean isInWaitPhase() {
-        return isWaiting();
-    }
-
-    protected void setWaiting(boolean waiting) {
-        this.getDataManager().set(WAITING, waiting);
-    }
-
-    private void setInWaitPhase(boolean waitPhase) {
-        setWaiting(waitPhase);
+        return ticksExisted < waitTime;
     }
 
     @Nullable
@@ -214,22 +256,15 @@ public abstract class BaseEffectEntity extends Entity implements IEntityAddition
     protected abstract Collection<LivingEntity> getEntitiesInBounds();
 
     private boolean serverUpdate() {
-        if (ticksExisted > waitTime + duration + WAIT_LAG) {
+        if (ticksExisted > waitTime + duration + WAIT_LAG + 1) {
             return true;
         }
         IMKEntityData entityData = getOwnerData();
         if (entityData == null)
             return true;
 
-        boolean stillWaiting = ticksExisted <= waitTime;
-
-        // this syncs waiting with client + server
-        if (isInWaitPhase() != stillWaiting) {
-            setInWaitPhase(stillWaiting);
-        }
-
         // lets recalc waiting to include a wait lag so that the server isnt damaging before the client responds
-        stillWaiting = ticksExisted <= waitTime + WAIT_LAG;
+        boolean stillWaiting = ticksExisted <= waitTime + WAIT_LAG;
 
         if (stillWaiting) {
             return false;
@@ -252,7 +287,7 @@ public abstract class BaseEffectEntity extends Entity implements IEntityAddition
             reapplicationDelayMap.put(target, ticksExisted + tickRate);
             MKCore.getEntityData(target).ifPresent(targetData ->
                     effects.forEach(entry -> {
-                        if (entry.getTickStart() >= ticksExisted - waitTime - WAIT_LAG) {
+                        if (entry.getTickStart() <= ticksExisted - waitTime - WAIT_LAG) {
                             entry.apply(entityData, targetData);
                         }
                     }));

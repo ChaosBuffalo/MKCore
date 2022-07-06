@@ -39,7 +39,7 @@ public class CoreEntities {
 
         evt.getRegistry().register(EntityType.Builder.<PointEffectEntity>create(PointEffectEntity::new, EntityClassification.MISC)
                 .immuneToFire()
-                .size(0, 0)
+                .size(1, 1)
                 .setTrackingRange(5)
                 .setUpdateInterval(10)
                 .setShouldReceiveVelocityUpdates(true)

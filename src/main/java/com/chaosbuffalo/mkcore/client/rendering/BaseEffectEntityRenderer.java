@@ -23,6 +23,6 @@ public class BaseEffectEntityRenderer extends EntityRenderer<BaseEffectEntity> {
 
     @Override
     public boolean shouldRender(@Nonnull BaseEffectEntity entity, @Nonnull ClippingHelper clippingHelper, double x, double y, double z) {
-        return false;
+        return true;
     }
 }

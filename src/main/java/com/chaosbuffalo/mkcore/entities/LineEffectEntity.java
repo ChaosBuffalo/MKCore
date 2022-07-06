@@ -7,7 +7,6 @@ import com.chaosbuffalo.mkcore.utils.RayTraceUtils;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraftforge.registries.ObjectHolder;
@@ -48,13 +47,10 @@ public class LineEffectEntity extends BaseEffectEntity {
     }
 
     @Override
-    protected void spawnClientParticles() {
-        ResourceLocation animName = isWaiting() ? waitingParticles : particles;
-        if (animName != null){
-            ParticleAnimation anim = ParticleAnimationManager.getAnimation(animName);
-            if (anim != null){
-                anim.spawn(getEntityWorld(), startPoint, Collections.singletonList(endPoint));
-            }
+    protected void spawnClientParticles(ParticleDisplay display) {
+        ParticleAnimation anim = ParticleAnimationManager.getAnimation(display.getParticles());
+        if (anim != null){
+            anim.spawn(getEntityWorld(), startPoint, Collections.singletonList(endPoint));
         }
     }
 
