@@ -10,9 +10,19 @@ import net.minecraft.potion.EffectInstance;
 public abstract class WorldAreaEffectEntry {
 
     protected final TargetingContext targetContext;
+    protected int tickStart;
 
     protected WorldAreaEffectEntry(TargetingContext context) {
         this.targetContext = context;
+        this.tickStart = 0;
+    }
+
+    public void setTickStart(int tickStart) {
+        this.tickStart = tickStart;
+    }
+
+    public int getTickStart() {
+        return tickStart;
     }
 
     public abstract void apply(IMKEntityData casterData, IMKEntityData targetData);

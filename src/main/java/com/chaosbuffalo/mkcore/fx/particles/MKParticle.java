@@ -24,6 +24,7 @@ public class MKParticle extends SpriteTexturedParticle {
     private final Map<ParticleDataKey, Float> floatData;
     private final Map<ParticleDataKey, Vector3d> vector3dData;
     private final Map<ParticleDataKey, Vector3f> vector3fData;
+    private final IParticleRenderType renderType;
     private float mkMinU;
     private float mkMinV;
     private float mkMaxU;
@@ -62,7 +63,7 @@ public class MKParticle extends SpriteTexturedParticle {
                        float gravity,
                        float particleWidth, float particleHeight,
                        int maxAge, boolean expireOnGround, ParticleAnimation animation,
-                       Vector3d origin, Entity source) {
+                       Vector3d origin, Entity source, IParticleRenderType renderType) {
         super(world, posX, posY, posZ);
         this.origin = origin;
         this.setSize(particleWidth, particleHeight);
@@ -80,6 +81,7 @@ public class MKParticle extends SpriteTexturedParticle {
         this.vector3dData = new HashMap<>();
         this.vector3fData = new HashMap<>();
         this.maxAge = animation.getTickLength();
+        this.renderType = renderType;
         animation.tick(this);
         animation.tickAnimation(this, 0.0f);
     }
@@ -209,7 +211,7 @@ public class MKParticle extends SpriteTexturedParticle {
 
     @Override
     public IParticleRenderType getRenderType() {
-        return ParticleRenderTypes.MAGIC_RENDERER;
+        return renderType;
     }
 
     protected void expire() {
@@ -274,11 +276,12 @@ public class MKParticle extends SpriteTexturedParticle {
         private final float particleHeight;
         private final int maxAge;
         private final boolean expireOnGround;
+        private final IParticleRenderType renderType;
         private final Consumer<MKParticle> onExpire;
 
         public MKParticleFactory(IAnimatedSprite spriteSet,
                                  float gravity, float particleWidth, float particleHeight, int maxAge,
-                                 boolean expireOnGround, Consumer<MKParticle> onExpire) {
+                                 boolean expireOnGround, IParticleRenderType renderType, Consumer<MKParticle> onExpire) {
             this.spriteSet = spriteSet;
             this.maxAge = maxAge;
             this.gravity = gravity;
@@ -286,6 +289,14 @@ public class MKParticle extends SpriteTexturedParticle {
             this.particleWidth = particleWidth;
             this.expireOnGround = expireOnGround;
             this.onExpire = onExpire;
+            this.renderType = renderType;
+        }
+
+        public MKParticleFactory(IAnimatedSprite spriteSet,
+                                 float gravity, float particleWidth, float particleHeight, int maxAge,
+                                 boolean expireOnGround, Consumer<MKParticle> onExpire) {
+            this(spriteSet, gravity, particleWidth, particleHeight, maxAge, expireOnGround,
+                    ParticleRenderTypes.MAGIC_RENDERER, onExpire);
         }
 
 
@@ -294,7 +305,7 @@ public class MKParticle extends SpriteTexturedParticle {
         public Particle makeParticle(MKParticleData typeIn, ClientWorld worldIn, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
             MKParticle particle = new MKParticle(worldIn, x, y, z,
                     gravity, particleWidth, particleHeight, maxAge, expireOnGround, typeIn.animation, typeIn.origin,
-                    typeIn.hasSource() ? worldIn.getEntityByID(typeIn.getEntityId()) : null);
+                    typeIn.hasSource() ? worldIn.getEntityByID(typeIn.getEntityId()) : null, renderType);
             particle.setMotion(xSpeed, ySpeed, zSpeed);
             particle.selectSpriteRandomly(this.spriteSet);
             particle.fixUV();

@@ -3,14 +3,13 @@ package com.chaosbuffalo.mkcore.utils;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.EntityPredicates;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.EntityRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.*;
 import net.minecraft.util.math.vector.Vector3d;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
@@ -31,6 +30,51 @@ public class TargetUtil {
     public static LivingEntity getSingleLivingTarget(LivingEntity caster, float distance,
                                                      BiPredicate<LivingEntity, LivingEntity> validTargetChecker) {
         return getSingleLivingTarget(LivingEntity.class, caster, distance, validTargetChecker);
+    }
+
+    public static class LivingOrPosition {
+        @Nullable
+        private final LivingEntity entity;
+        @Nullable
+        private final Vector3d position;
+
+        public LivingOrPosition(Vector3d loc) {
+            position = loc;
+            entity = null;
+        }
+
+        public LivingOrPosition(LivingEntity entity) {
+            this.entity = entity;
+            this.position = null;
+        }
+
+        public Optional<Vector3d> getPosition() {
+            if (entity != null) {
+                return Optional.of(entity.getPositionVec());
+            }
+            return Optional.ofNullable(position);
+        }
+
+    }
+
+    @Nullable
+    public static LivingOrPosition getPositionTarget(LivingEntity caster, float distance, BiPredicate<LivingEntity, LivingEntity> validTargetChecker) {
+        RayTraceResult lookingAt = RayTraceUtils.getLookingAt(LivingEntity.class, caster, distance,
+                e -> validTargetChecker == null || (e != null && validTargetChecker.test(caster, e)));
+
+        if (lookingAt != null && lookingAt.getType() == RayTraceResult.Type.ENTITY) {
+            EntityRayTraceResult traceResult = (EntityRayTraceResult) lookingAt;
+            Entity entityHit = traceResult.getEntity();
+            if (entityHit instanceof LivingEntity) {
+                if (validTargetChecker != null && !validTargetChecker.test(caster, (LivingEntity) entityHit)) {
+                    return null;
+                }
+                return new LivingOrPosition((LivingEntity) entityHit);
+            }
+        } else if (lookingAt != null && lookingAt.getType() == RayTraceResult.Type.BLOCK) {
+            return new LivingOrPosition(lookingAt.getHitVec());
+        }
+        return null;
     }
 
     public static <E extends LivingEntity> E getSingleLivingTarget(Class<E> clazz, LivingEntity caster, float distance,

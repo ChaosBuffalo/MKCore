@@ -1,9 +1,11 @@
 package com.chaosbuffalo.mkcore.abilities;
 
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
+import com.chaosbuffalo.mkcore.utils.TargetUtil;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
+import net.minecraft.util.math.vector.Vector3d;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -55,5 +57,9 @@ public class AbilityContext {
 
     public static AbilityContext selfTarget(IMKEntityData targetData) {
         return singleTarget(targetData.getEntity());
+    }
+
+    public static AbilityContext singleOrPositionTarget(TargetUtil.LivingOrPosition position) {
+        return new AbilityContext().withMemory(MKAbilityMemories.ABILITY_POSITION_TARGET, Optional.ofNullable(position));
     }
 }
