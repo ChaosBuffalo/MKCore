@@ -82,6 +82,7 @@ public class MKCore {
     private void setup(final FMLCommonSetupEvent event) {
         // some preinit code
         PacketHandler.setupHandler();
+        CoreTargetingHooks.registerHooks();
         CoreCapabilities.registerCapabilities();
         MKCommand.registerArguments();
         ParticleAnimationManager.setupDeserializers();

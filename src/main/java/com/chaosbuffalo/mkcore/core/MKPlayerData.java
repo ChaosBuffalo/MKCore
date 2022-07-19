@@ -5,6 +5,7 @@ import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.core.editor.PlayerEditorModule;
 import com.chaosbuffalo.mkcore.core.persona.IPersonaExtension;
 import com.chaosbuffalo.mkcore.core.persona.PersonaManager;
+import com.chaosbuffalo.mkcore.core.pets.EntityPetModule;
 import com.chaosbuffalo.mkcore.core.player.*;
 import com.chaosbuffalo.mkcore.core.talents.PlayerTalentKnowledge;
 import com.chaosbuffalo.mkcore.sync.PlayerUpdateEngine;
@@ -26,6 +27,7 @@ public class MKPlayerData implements IMKEntityData {
     private final PlayerCombatExtensionModule combatExtensionModule;
     private final PlayerEditorModule editorModule;
     private final PlayerEffectHandler effectHandler;
+    private final EntityPetModule pets;
 
     public MKPlayerData(PlayerEntity playerEntity) {
         player = Objects.requireNonNull(playerEntity);
@@ -47,6 +49,7 @@ public class MKPlayerData implements IMKEntityData {
         editorModule = new PlayerEditorModule(this);
         editorModule.getSyncComponent().attach(updateEngine);
         effectHandler = new PlayerEffectHandler(this);
+        pets = new EntityPetModule(this);
     }
 
     @Override
@@ -219,6 +222,11 @@ public class MKPlayerData implements IMKEntityData {
         tag.put("editor", getEditor().serialize());
         tag.put("effects", getEffects().serialize());
         return tag;
+    }
+
+    @Override
+    public EntityPetModule getPets() {
+        return pets;
     }
 
     public PlayerEditorModule getEditor() {

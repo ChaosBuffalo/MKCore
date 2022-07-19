@@ -3,6 +3,7 @@ package com.chaosbuffalo.mkcore.core;
 import com.chaosbuffalo.mkcore.core.entity.EntityAbilityKnowledge;
 import com.chaosbuffalo.mkcore.core.entity.EntityEffectHandler;
 import com.chaosbuffalo.mkcore.core.entity.EntityStats;
+import com.chaosbuffalo.mkcore.core.pets.EntityPetModule;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
@@ -18,6 +19,7 @@ public class MKEntityData implements IMKEntityData {
     private final EntityAbilityKnowledge knowledge;
     private final CombatExtensionModule combatExtensionModule;
     private final EntityEffectHandler effectHandler;
+    private final EntityPetModule pets;
 
     public MKEntityData(LivingEntity livingEntity) {
         entity = Objects.requireNonNull(livingEntity);
@@ -26,6 +28,7 @@ public class MKEntityData implements IMKEntityData {
         stats = new EntityStats(this);
         combatExtensionModule = new CombatExtensionModule(this);
         effectHandler = new EntityEffectHandler(this);
+        pets = new EntityPetModule(this);
     }
 
     @Nonnull
@@ -86,6 +89,11 @@ public class MKEntityData implements IMKEntityData {
         tag.put("knowledge", getKnowledge().serialize());
         tag.put("effects", effectHandler.serialize());
         return tag;
+    }
+
+    @Override
+    public EntityPetModule getPets() {
+        return pets;
     }
 
     @Override

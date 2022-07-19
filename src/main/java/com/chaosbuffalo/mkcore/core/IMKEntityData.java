@@ -1,6 +1,7 @@
 package com.chaosbuffalo.mkcore.core;
 
 import com.chaosbuffalo.mkcore.core.entity.EntityEffectHandler;
+import com.chaosbuffalo.mkcore.core.pets.EntityPetModule;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
@@ -27,6 +28,8 @@ public interface IMKEntityData {
     EntityEffectHandler getEffects();
 
     CompoundNBT serialize();
+
+    EntityPetModule getPets();
 
     void deserialize(CompoundNBT nbt);
 
