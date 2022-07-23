@@ -68,6 +68,7 @@ public class MKOverlay {
         int teamX = winWidth - 55;
 
         int perMember = 18;
+        int perPet = 14;
 
         List<PlayerEntity> players = data.getEntity().getEntityWorld().getPlayers().stream()
                 .filter(otherPlayer ->
@@ -79,7 +80,7 @@ public class MKOverlay {
                 .sorted(Comparator.comparing(x -> x.getName().toString())).collect(Collectors.toList());
 
         int memberCount = players.size();
-        int totalSize = perMember * (memberCount + ownerPets.size());
+        int totalSize = perMember * memberCount + ownerPets.size() * perPet;
         int teamY = (height / 2) - (totalSize / 2);
 
 
@@ -95,7 +96,7 @@ public class MKOverlay {
                     MKCore.getEntityData(pet.getEntity()).ifPresent(x -> {
                         drawTeamHP(matrixStack, x, partialTicks, teamX, finalTeamY + 10);
                     });
-                    teamY += 14;
+                    teamY += perPet;
                 }
 
             }
@@ -108,7 +109,7 @@ public class MKOverlay {
                     drawTeamHP(matrixStack, x, partialTicks, teamX, finalTeamY + 10);
                     drawTeamMana(matrixStack, x, teamX, finalTeamY + 16);
                 });
-                teamY += 18;
+                teamY += perMember;
 
             }
         }
