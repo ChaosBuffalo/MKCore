@@ -29,6 +29,6 @@ public class CoreTargetingHooks {
     }
 
     public static void registerHooks() {
-        Targeting.registerRelationCallback(CoreTargetingHooks::targetHook);
+        Targeting.registerRelationCallback(CoreTargetingHooks::targetHook, 0);
     }
 }

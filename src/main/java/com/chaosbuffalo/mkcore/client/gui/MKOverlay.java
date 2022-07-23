@@ -4,9 +4,10 @@ package com.chaosbuffalo.mkcore.client.gui;
 import com.chaosbuffalo.mkcore.*;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.client.gui.widgets.OnScreenXpBarWidget;
-import com.chaosbuffalo.mkcore.client.gui.widgets.XpBarWidget;
 import com.chaosbuffalo.mkcore.core.AbilityGroupId;
+import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
+import com.chaosbuffalo.mkcore.core.pets.MKPet;
 import com.chaosbuffalo.mkcore.core.player.AbilityGroup;
 import com.chaosbuffalo.mkcore.core.player.PlayerAbilityExecutor;
 import com.chaosbuffalo.mkcore.events.ClientEventHandler;
@@ -25,8 +26,9 @@ import net.minecraftforge.client.gui.ForgeIngameGui;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class MKOverlay {
@@ -45,42 +47,76 @@ public class MKOverlay {
         mc = Minecraft.getInstance();
     }
 
+    public static class StringComparator implements Comparator<String> {
+        public int compare(String obj1, String obj2) {
+            if (obj1 == obj2) {
+                return 0;
+            }
+            if (obj1 == null) {
+                return -1;
+            }
+            if (obj2 == null) {
+                return 1;
+            }
+            return obj1.compareTo(obj2);
+        }
+    }
+
     private void drawTeam(MatrixStack matrixStack, MKPlayerData data, float partialTicks){
-        Team team = data.getEntity().getTeam();
         int height = mc.getMainWindow().getScaledHeight();
         int winWidth = mc.getMainWindow().getScaledWidth();
         int teamX = winWidth - 55;
-        if (team != null){
-            List<PlayerEntity> players = data.getEntity().getEntityWorld().getPlayers().stream()
-                    .filter(otherPlayer ->
-                            !data.getEntity().isEntityEqual(otherPlayer) &&
-                                    data.getEntity().isOnSameTeam(otherPlayer))
-                    .collect(Collectors.toList());
-            int memberCount = players.size();
-            int perMember = 18;
-            int totalSize = perMember * memberCount;
-            int teamY = (height / 2) - (totalSize / 2);
-            if (memberCount > 0){
-                MKRectangle teamBg = new MKRectangle(teamX - 2, teamY - 4, 54, totalSize + 8, 0xaa333333);
-                teamBg.drawWidget(matrixStack, mc, 0, 0, partialTicks);
-                for (PlayerEntity teamMember : players){
-                    MKText text = new MKText(mc.fontRenderer, teamMember.getDisplayName(), teamX, teamY);
+
+        int perMember = 18;
+
+        List<PlayerEntity> players = data.getEntity().getEntityWorld().getPlayers().stream()
+                .filter(otherPlayer ->
+                        !data.getEntity().isEntityEqual(otherPlayer) &&
+                                data.getEntity().isOnSameTeam(otherPlayer))
+                .collect(Collectors.toList());
+        Map<ResourceLocation, MKPet.ClientMKPet> ownerPets = data.getPets().getClientPets();
+        List<MKPet.ClientMKPet> sortedPets = ownerPets.values().stream()
+                .sorted(Comparator.comparing(x -> x.getName().toString())).collect(Collectors.toList());
+
+        int memberCount = players.size();
+        int totalSize = perMember * (memberCount + ownerPets.size());
+        int teamY = (height / 2) - (totalSize / 2);
+
+
+        if (memberCount + sortedPets.size() > 0){
+            MKRectangle teamBg = new MKRectangle(teamX - 2, teamY - 4, 54, totalSize + 8, 0xaa333333);
+            teamBg.drawWidget(matrixStack, mc, 0, 0, partialTicks);
+            for (MKPet.ClientMKPet pet : sortedPets) {
+                if (pet.getEntity() != null) {
+                    MKText text = new MKText(mc.fontRenderer, pet.getEntity().getName(), teamX, teamY);
                     text.setColor(0xffffffff);
                     text.drawWidget(matrixStack, mc, 0, 0, partialTicks);
                     int finalTeamY = teamY;
-                    MKCore.getPlayer(teamMember).ifPresent(x -> {
+                    MKCore.getEntityData(pet.getEntity()).ifPresent(x -> {
                         drawTeamHP(matrixStack, x, partialTicks, teamX, finalTeamY + 10);
-                        drawTeamMana(matrixStack, x, teamX, finalTeamY + 16);
                     });
-                    teamY += 18;
-
+                    teamY += 14;
                 }
+
+            }
+            for (PlayerEntity teamMember : players){
+                MKText text = new MKText(mc.fontRenderer, teamMember.getDisplayName(), teamX, teamY);
+                text.setColor(0xffffffff);
+                text.drawWidget(matrixStack, mc, 0, 0, partialTicks);
+                int finalTeamY = teamY;
+                MKCore.getPlayer(teamMember).ifPresent(x -> {
+                    drawTeamHP(matrixStack, x, partialTicks, teamX, finalTeamY + 10);
+                    drawTeamMana(matrixStack, x, teamX, finalTeamY + 16);
+                });
+                teamY += 18;
+
             }
         }
 
+
     }
 
-    private void drawTeamHP(MatrixStack matrixStack, MKPlayerData data, float partialTick, int x, int y) {
+    private void drawTeamHP(MatrixStack matrixStack, IMKEntityData data, float partialTick, int x, int y) {
         boolean isWithered = data.getEntity().getActivePotionEffect(Effects.WITHER) != null;
         float absorption = data.getEntity().getAbsorptionAmount();
         float maxHp = data.getEntity().getMaxHealth();

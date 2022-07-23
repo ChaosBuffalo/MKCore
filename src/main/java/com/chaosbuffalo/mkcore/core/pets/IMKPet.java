@@ -4,8 +4,16 @@ import net.minecraft.entity.LivingEntity;
 
 public interface IMKPet {
 
-    void addThreat(LivingEntity source, float threatValue);
+    void addThreat(LivingEntity source, float threatValue, boolean propagate);
 
-    void setFollow(LivingEntity toFollower);
+    void setNoncombatBehavior(PetNonCombatBehavior behavior);
+
+    float getHighestThreat();
+
+    void clearThreat();
+
+    void enterCombatMovementState(LivingEntity target);
+
+    void enterNonCombatMovementState();
 
 }
