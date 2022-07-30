@@ -5,9 +5,11 @@ import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.core.editor.PlayerEditorModule;
 import com.chaosbuffalo.mkcore.core.persona.IPersonaExtension;
 import com.chaosbuffalo.mkcore.core.persona.PersonaManager;
+import com.chaosbuffalo.mkcore.core.pets.EntityPetModule;
 import com.chaosbuffalo.mkcore.core.player.*;
 import com.chaosbuffalo.mkcore.core.talents.PlayerTalentKnowledge;
 import com.chaosbuffalo.mkcore.sync.PlayerUpdateEngine;
+import com.chaosbuffalo.mkcore.sync.UpdateEngine;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
@@ -26,6 +28,7 @@ public class MKPlayerData implements IMKEntityData {
     private final PlayerCombatExtensionModule combatExtensionModule;
     private final PlayerEditorModule editorModule;
     private final PlayerEffectHandler effectHandler;
+    private final EntityPetModule pets;
 
     public MKPlayerData(PlayerEntity playerEntity) {
         player = Objects.requireNonNull(playerEntity);
@@ -33,20 +36,18 @@ public class MKPlayerData implements IMKEntityData {
         personaManager = PersonaManager.getPersonaManager(this);
         abilityExecutor = new PlayerAbilityExecutor(this);
         combatExtensionModule = new PlayerCombatExtensionModule(this);
-        combatExtensionModule.getSyncComponent().attach(updateEngine);
         stats = new PlayerStats(this);
-        stats.getSyncComponent().attach(updateEngine);
 
         animationModule = new PlayerAnimationModule(this);
         abilityExecutor.setStartCastCallback(animationModule::startCast);
         abilityExecutor.setCompleteAbilityCallback(this::completeAbility);
         abilityExecutor.setInterruptCastCallback(animationModule::interruptCast);
-        animationModule.getSyncComponent().attach(updateEngine);
 
         equipment = new PlayerEquipment(this);
         editorModule = new PlayerEditorModule(this);
-        editorModule.getSyncComponent().attach(updateEngine);
         effectHandler = new PlayerEffectHandler(this);
+        pets = new EntityPetModule(this);
+        attachUpdateEngine(updateEngine);
     }
 
     @Override
@@ -145,6 +146,7 @@ public class MKPlayerData implements IMKEntityData {
 
     private void onDeath() {
         getEffects().onDeath();
+        getPets().onDeath();
     }
 
     public void update() {
@@ -195,6 +197,15 @@ public class MKPlayerData implements IMKEntityData {
         getEffects().sendAllEffectsToPlayer(otherPlayer);
     }
 
+    @Override
+    public void attachUpdateEngine(UpdateEngine engine) {
+        animationModule.getSyncComponent().attach(engine);
+        combatExtensionModule.getSyncComponent().attach(engine);
+        stats.getSyncComponent().attach(engine);
+        editorModule.getSyncComponent().attach(engine);
+        pets.getSyncComponent().attach(engine);
+    }
+
     public void onPersonaActivated() {
         getEquipment().onPersonaActivated();
         getAbilityExecutor().onPersonaActivated();
@@ -219,6 +230,11 @@ public class MKPlayerData implements IMKEntityData {
         tag.put("editor", getEditor().serialize());
         tag.put("effects", getEffects().serialize());
         return tag;
+    }
+
+    @Override
+    public EntityPetModule getPets() {
+        return pets;
     }
 
     public PlayerEditorModule getEditor() {

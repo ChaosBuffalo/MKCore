@@ -3,6 +3,8 @@ package com.chaosbuffalo.mkcore.core;
 import com.chaosbuffalo.mkcore.core.entity.EntityAbilityKnowledge;
 import com.chaosbuffalo.mkcore.core.entity.EntityEffectHandler;
 import com.chaosbuffalo.mkcore.core.entity.EntityStats;
+import com.chaosbuffalo.mkcore.core.pets.EntityPetModule;
+import com.chaosbuffalo.mkcore.sync.UpdateEngine;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
@@ -18,6 +20,7 @@ public class MKEntityData implements IMKEntityData {
     private final EntityAbilityKnowledge knowledge;
     private final CombatExtensionModule combatExtensionModule;
     private final EntityEffectHandler effectHandler;
+    private final EntityPetModule pets;
 
     public MKEntityData(LivingEntity livingEntity) {
         entity = Objects.requireNonNull(livingEntity);
@@ -26,6 +29,7 @@ public class MKEntityData implements IMKEntityData {
         stats = new EntityStats(this);
         combatExtensionModule = new CombatExtensionModule(this);
         effectHandler = new EntityEffectHandler(this);
+        pets = new EntityPetModule(this);
     }
 
     @Nonnull
@@ -89,6 +93,11 @@ public class MKEntityData implements IMKEntityData {
     }
 
     @Override
+    public EntityPetModule getPets() {
+        return pets;
+    }
+
+    @Override
     public void deserialize(CompoundNBT tag) {
         getKnowledge().deserialize(tag.getCompound("knowledge"));
         effectHandler.deserialize(tag.getCompound("effects"));
@@ -97,5 +106,10 @@ public class MKEntityData implements IMKEntityData {
     @Override
     public void onPlayerStartTracking(ServerPlayerEntity playerEntity) {
         getEffects().sendAllEffectsToPlayer(playerEntity);
+    }
+
+    @Override
+    public void attachUpdateEngine(UpdateEngine engine) {
+        pets.getSyncComponent().attach(engine);
     }
 }

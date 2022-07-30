@@ -2,7 +2,6 @@ package com.chaosbuffalo.mkcore.entities;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import net.minecraft.entity.*;
-import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;

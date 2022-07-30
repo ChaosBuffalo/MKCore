@@ -29,6 +29,12 @@ public class MKHealSource {
         this.modifierScaling = modifierScaling;
     }
 
+    public static MKHealSource getShadowHeal(ResourceLocation abilityId, @Nullable Entity directEntity,
+                                             @Nullable LivingEntity sourceEntity, float modifierScaling) {
+        return new MKHealSource(abilityId, directEntity, sourceEntity, CoreDamageTypes.ShadowDamage, modifierScaling)
+                .setDamageUndead(false);
+    }
+
     public static MKHealSource getHolyHeal(ResourceLocation abilityId, @Nullable Entity directEntity,
                                            @Nullable LivingEntity sourceEntity, float modifierScaling) {
         return new MKHealSource(abilityId, directEntity, sourceEntity, CoreDamageTypes.HolyDamage, modifierScaling);

@@ -7,17 +7,20 @@ import net.minecraft.nbt.CompoundNBT;
 
 import java.util.IdentityHashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class Persona implements IMKSerializable<CompoundNBT> {
     private final String name;
     private final PlayerKnowledge knowledge;
     private final MKPlayerData data;
     private final Map<Class<? extends IPersonaExtension>, IPersonaExtension> extensions = new IdentityHashMap<>();
+    private UUID personaId;
 
     public Persona(MKPlayerData playerData, String name) {
         this.name = name;
         knowledge = new PlayerKnowledge(playerData);
         data = playerData;
+        personaId = UUID.randomUUID();
     }
 
     public String getName() {
@@ -30,6 +33,10 @@ public class Persona implements IMKSerializable<CompoundNBT> {
 
     public MKPlayerData getPlayerData() {
         return data;
+    }
+
+    public UUID getPersonaId() {
+        return personaId;
     }
 
     void registerExtension(IPersonaExtension extension) {
@@ -84,6 +91,7 @@ public class Persona implements IMKSerializable<CompoundNBT> {
         CompoundNBT tag = new CompoundNBT();
         tag.put("knowledge", knowledge.serialize());
         tag.put("extensions", serializeExtensions());
+        tag.putUniqueId("personaId", personaId);
         return tag;
     }
 
@@ -91,6 +99,9 @@ public class Persona implements IMKSerializable<CompoundNBT> {
     public boolean deserialize(CompoundNBT tag) {
         knowledge.deserialize(tag.getCompound("knowledge"));
         deserializeExtensions(tag.getCompound("extensions"));
+        if (tag.contains("personaId")) {
+            personaId = tag.getUniqueId("personaId");
+        }
         return true;
     }
 }

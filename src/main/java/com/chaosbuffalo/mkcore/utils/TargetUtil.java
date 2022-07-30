@@ -48,6 +48,10 @@ public class TargetUtil {
             this.position = null;
         }
 
+        public Optional<LivingEntity> getEntity() {
+            return Optional.ofNullable(entity);
+        }
+
         public Optional<Vector3d> getPosition() {
             if (entity != null) {
                 return Optional.of(entity.getPositionVec());

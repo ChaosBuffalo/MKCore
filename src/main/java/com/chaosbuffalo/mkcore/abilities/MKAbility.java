@@ -310,7 +310,7 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> implements
     }
 
     public static float convertDurationToSeconds(int dur){
-        return ((float) dur) / GameConstants.TICKS_PER_SECOND;
+        return dur / GameConstants.FTICKS_PER_SECOND;
     }
 
     @Nullable
@@ -380,7 +380,7 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> implements
             return 0.0f;
         }
         ModifiableAttributeInstance skill = castingEntity.getAttribute(skillAttribute);
-        return skill != null ? (float) (skill.getValue() / 20.0) : 0.0f;
+        return skill != null ? (float) (skill.getValue() / GameConstants.SKILL_POINTS_PER_LEVEL) : 0.0f;
     }
 
     public static double convertSkillToMultiplier(double value){

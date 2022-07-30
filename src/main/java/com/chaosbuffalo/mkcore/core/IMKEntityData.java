@@ -1,6 +1,8 @@
 package com.chaosbuffalo.mkcore.core;
 
 import com.chaosbuffalo.mkcore.core.entity.EntityEffectHandler;
+import com.chaosbuffalo.mkcore.core.pets.EntityPetModule;
+import com.chaosbuffalo.mkcore.sync.UpdateEngine;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
@@ -28,9 +30,13 @@ public interface IMKEntityData {
 
     CompoundNBT serialize();
 
+    EntityPetModule getPets();
+
     void deserialize(CompoundNBT nbt);
 
     void onJoinWorld();
 
     void onPlayerStartTracking(ServerPlayerEntity playerEntity);
+
+    void attachUpdateEngine(UpdateEngine engine);
 }
