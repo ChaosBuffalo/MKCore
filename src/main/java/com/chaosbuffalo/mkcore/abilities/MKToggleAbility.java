@@ -20,12 +20,8 @@ public abstract class MKToggleAbility extends MKAbility {
     public static final ResourceLocation TOGGLE_EFFECT = MKCore.makeRL("textures/abilities/ability_toggle.png");
     private final AbilityRenderer renderer = new ToggleRenderer();
 
-    public MKToggleAbility(ResourceLocation abilityId) {
-        super(abilityId);
-    }
-
-    public MKToggleAbility(String namespace, String path) {
-        super(namespace, path);
+    public MKToggleAbility() {
+        super();
     }
 
     public ResourceLocation getToggleGroupId() {

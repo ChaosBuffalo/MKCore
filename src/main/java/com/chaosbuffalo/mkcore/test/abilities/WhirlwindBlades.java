@@ -1,7 +1,6 @@
 package com.chaosbuffalo.mkcore.test.abilities;
 
 import com.chaosbuffalo.mkcore.GameConstants;
-import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.abilities.AbilityContext;
 import com.chaosbuffalo.mkcore.abilities.AbilityTargetSelector;
 import com.chaosbuffalo.mkcore.abilities.AbilityTargeting;
@@ -23,20 +22,15 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 
 import javax.annotation.Nullable;
 
 public class WhirlwindBlades extends MKAbility {
-    public static WhirlwindBlades INSTANCE = new WhirlwindBlades();
-
     public static float BASE_DAMAGE = 2.0f;
     public static float DAMAGE_SCALE = 1.0f;
 
-    private WhirlwindBlades() {
-        super(MKCore.makeRL("ability.test_whirlwind_blades"));
+    public WhirlwindBlades() {
+        super();
         setCastTime(GameConstants.TICKS_PER_SECOND * 3);
         setCooldownSeconds(20);
         setManaCost(6);
@@ -120,20 +114,11 @@ public class WhirlwindBlades extends MKAbility {
                     .spawn();
 
             PacketHandler.sendToTrackingAndSelf(new ParticleEffectSpawnPacket(
-                                ParticleTypes.SWEEP_ATTACK,
-                                ParticleEffects.SPHERE_MOTION, 16, 4,
-                                castingEntity.getPosX(), castingEntity.getPosY() + 1.0,
-                                castingEntity.getPosZ(), 1.0, 1.0, 1.0, 1.5,
-                                castingEntity.getLookVec()), castingEntity);
-        }
-    }
-
-    @SuppressWarnings("unused")
-    @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
-    private static class RegisterMe {
-        @SubscribeEvent
-        public static void register(RegistryEvent.Register<MKAbility> event) {
-            event.getRegistry().register(INSTANCE);
+                    ParticleTypes.SWEEP_ATTACK,
+                    ParticleEffects.SPHERE_MOTION, 16, 4,
+                    castingEntity.getPosX(), castingEntity.getPosY() + 1.0,
+                    castingEntity.getPosZ(), 1.0, 1.0, 1.0, 1.5,
+                    castingEntity.getLookVec()), castingEntity);
         }
     }
 }

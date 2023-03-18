@@ -2,7 +2,6 @@ package com.chaosbuffalo.mkcore.test.abilities;
 
 import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.MKCore;
-import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.abilities.MKSongAbility;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.effects.AreaEffectBuilder;
@@ -17,10 +16,8 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 public class NewHealSong extends MKSongAbility {
-    public static final NewHealSong INSTANCE = new NewHealSong();
-
     public NewHealSong() {
-        super(MKCore.makeRL("ability.v2.heal_song"));
+        super();
     }
 
     @Override
@@ -72,10 +69,6 @@ public class NewHealSong extends MKSongAbility {
     @SuppressWarnings("unused")
     @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
     private static class RegisterMe {
-        @SubscribeEvent
-        public static void register(RegistryEvent.Register<MKAbility> event) {
-            event.getRegistry().register(INSTANCE);
-        }
 
         @SubscribeEvent
         public static void registerEffects(RegistryEvent.Register<MKEffect> event) {

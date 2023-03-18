@@ -8,6 +8,7 @@ import com.chaosbuffalo.mkcore.core.talents.MKTalent;
 import com.chaosbuffalo.mkcore.core.talents.talent_types.PassiveTalent;
 import com.chaosbuffalo.mkcore.core.talents.talent_types.EntitlementGrantTalent;
 import com.chaosbuffalo.mkcore.core.talents.talent_types.UltimateTalent;
+import com.chaosbuffalo.mkcore.test.MKTestAbilities;
 import com.chaosbuffalo.mkcore.test.abilities.HealingRain;
 import com.chaosbuffalo.mkcore.test.abilities.NewBurningSoul;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
@@ -132,14 +133,14 @@ public class CoreTalents {
     private static void registerPassiveTalents(RegistryEvent.Register<MKTalent> event) {
         PassiveTalent burningSoul = new PassiveTalent(
                 MKCore.makeRL("talent.burning_soul"),
-                NewBurningSoul.INSTANCE);
+                MKTestAbilities.TEST_NEW_BURNING_SOUL);
         event.getRegistry().register(burningSoul);
     }
 
     private static void registerUltimateTalents(RegistryEvent.Register<MKTalent> event) {
         UltimateTalent healingRain = new UltimateTalent(
                 MKCore.makeRL("talent.healing_rain"),
-                HealingRain.INSTANCE);
+                MKTestAbilities.TEST_HEALING_RAN);
         event.getRegistry().register(healingRain);
     }
 

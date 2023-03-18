@@ -1,7 +1,6 @@
 package com.chaosbuffalo.mkcore.test.abilities;
 
 import com.chaosbuffalo.mkcore.GameConstants;
-import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.abilities.AbilityContext;
 import com.chaosbuffalo.mkcore.abilities.AbilityTargetSelector;
 import com.chaosbuffalo.mkcore.abilities.AbilityTargeting;
@@ -21,18 +20,13 @@ import com.chaosbuffalo.targeting_api.TargetingContexts;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 
 public class HealingRain extends MKAbility {
-    public static final HealingRain INSTANCE = new HealingRain();
-
     public static float BASE_AMOUNT = 2.0f;
     public static float AMOUNT_SCALE = 1.0f;
 
     public HealingRain() {
-        super(MKCore.makeRL("ability.test_healing_rain"));
+        super();
         setCastTime(2 * GameConstants.TICKS_PER_SECOND);
         setManaCost(10);
         setCooldownSeconds(20);
@@ -93,20 +87,11 @@ public class HealingRain extends MKAbility {
                     .spawn();
 
             PacketHandler.sendToTrackingAndSelf(new ParticleEffectSpawnPacket(
-                                ParticleTypes.BUBBLE,
-                                ParticleEffects.RAIN_EFFECT, 30, 4,
-                                castingEntity.getPosX(), castingEntity.getPosY() + 3.0,
-                                castingEntity.getPosZ(), dist, 0.5, dist, 1.0,
-                                castingEntity.getLookVec()), castingEntity);
-        }
-    }
-
-    @SuppressWarnings("unused")
-    @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
-    private static class RegisterMe {
-        @SubscribeEvent
-        public static void register(RegistryEvent.Register<MKAbility> event) {
-            event.getRegistry().register(INSTANCE);
+                    ParticleTypes.BUBBLE,
+                    ParticleEffects.RAIN_EFFECT, 30, 4,
+                    castingEntity.getPosX(), castingEntity.getPosY() + 3.0,
+                    castingEntity.getPosZ(), dist, 0.5, dist, 1.0,
+                    castingEntity.getLookVec()), castingEntity);
         }
     }
 }

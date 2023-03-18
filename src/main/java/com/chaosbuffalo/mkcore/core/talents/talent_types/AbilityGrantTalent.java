@@ -4,19 +4,22 @@ import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.core.talents.MKTalent;
 import com.chaosbuffalo.mkcore.core.talents.TalentType;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.RegistryObject;
+
+import java.util.function.Supplier;
 
 public class AbilityGrantTalent extends MKTalent {
-    private final MKAbility ability;
+    private final Supplier<? extends MKAbility> ability;
     private final TalentType<?> talentType;
 
-    public AbilityGrantTalent(ResourceLocation name, MKAbility ability, TalentType<?> talentType) {
+    public AbilityGrantTalent(ResourceLocation name, Supplier<? extends MKAbility> ability, TalentType<?> talentType) {
         super(name);
         this.ability = ability;
         this.talentType = talentType;
     }
 
     public MKAbility getAbility() {
-        return ability;
+        return ability.get();
     }
 
     @Override
@@ -27,7 +30,7 @@ public class AbilityGrantTalent extends MKTalent {
     @Override
     public String toString() {
         return "AbilityGrantTalent{" +
-                "ability=" + ability +
+                "ability=" + ability.get() +
                 ", talentType=" + talentType +
                 '}';
     }
