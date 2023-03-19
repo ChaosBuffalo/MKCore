@@ -56,12 +56,7 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> implements
     public static final NumberFormat NUMBER_FORMATTER = NumberFormat.getNumberInstance();
 
 
-    public MKAbility(String domain, String id) {
-        this(new ResourceLocation(domain, id));
-    }
-
-    public MKAbility(ResourceLocation abilityId) {
-        setRegistryName(abilityId);
+    public MKAbility() {
         this.cooldown = GameConstants.TICKS_PER_SECOND;
         this.castTime = 0;
         this.manaCost = 1;

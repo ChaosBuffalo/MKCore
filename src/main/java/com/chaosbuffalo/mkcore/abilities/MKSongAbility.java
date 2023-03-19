@@ -17,8 +17,8 @@ import net.minecraft.particles.ParticleTypes;
 import net.minecraft.util.ResourceLocation;
 
 public abstract class MKSongAbility extends MKToggleAbility {
-    public MKSongAbility(ResourceLocation abilityId) {
-        super(abilityId);
+    public MKSongAbility() {
+        super();
     }
 
     @Override

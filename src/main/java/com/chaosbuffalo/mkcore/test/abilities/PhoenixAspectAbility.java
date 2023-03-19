@@ -1,7 +1,6 @@
 package com.chaosbuffalo.mkcore.test.abilities;
 
 import com.chaosbuffalo.mkcore.GameConstants;
-import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.abilities.AbilityContext;
 import com.chaosbuffalo.mkcore.abilities.AbilityTargetSelector;
 import com.chaosbuffalo.mkcore.abilities.AbilityTargeting;
@@ -12,27 +11,22 @@ import com.chaosbuffalo.mkcore.effects.AreaEffectBuilder;
 import com.chaosbuffalo.mkcore.effects.MKEffectBuilder;
 import com.chaosbuffalo.mkcore.effects.utility.MKOldParticleEffect;
 import com.chaosbuffalo.mkcore.fx.ParticleEffects;
-import com.chaosbuffalo.mkcore.test.effects.FeatherFallEffect;
-import com.chaosbuffalo.mkcore.test.effects.PhoenixAspectEffect;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.ParticleEffectSpawnPacket;
+import com.chaosbuffalo.mkcore.test.effects.FeatherFallEffect;
+import com.chaosbuffalo.mkcore.test.effects.PhoenixAspectEffect;
 import com.chaosbuffalo.targeting_api.TargetingContext;
 import com.chaosbuffalo.targeting_api.TargetingContexts;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 
 public class PhoenixAspectAbility extends MKAbility {
-    public static PhoenixAspectAbility INSTANCE = new PhoenixAspectAbility();
-
     public static int BASE_DURATION = 60;
     public static int DURATION_SCALE = 60;
 
-    private PhoenixAspectAbility() {
-        super(MKCore.makeRL("ability.test_phoenix_aspect"));
+    public PhoenixAspectAbility() {
+        super();
         setCastTime(GameConstants.TICKS_PER_SECOND * 3);
         setCooldownSeconds(400);
         setManaCost(15);
@@ -96,14 +90,5 @@ public class PhoenixAspectAbility extends MKAbility {
                 castingEntity.getPosX(), castingEntity.getPosY() + 1.5,
                 castingEntity.getPosZ(), 1.0, 1.0, 1.0, 1.0f,
                 castingEntity.getLookVec()), castingEntity);
-    }
-
-    @SuppressWarnings("unused")
-    @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
-    private static class RegisterMe {
-        @SubscribeEvent
-        public static void register(RegistryEvent.Register<MKAbility> event) {
-            event.getRegistry().register(INSTANCE);
-        }
     }
 }

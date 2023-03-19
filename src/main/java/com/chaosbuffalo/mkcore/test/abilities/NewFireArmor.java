@@ -28,13 +28,12 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 public class NewFireArmor extends MKAbility {
-    public static final NewFireArmor INSTANCE = new NewFireArmor();
 
     public static int BASE_DURATION = 60;
     public static int DURATION_SCALE = 30;
 
-    private NewFireArmor() {
-        super(MKCore.makeRL("ability.v2.fire_armor"));
+    public NewFireArmor() {
+        super();
         setCastTime(GameConstants.TICKS_PER_SECOND);
         setCooldownSeconds(135);
         setManaCost(12);
@@ -78,8 +77,8 @@ public class NewFireArmor extends MKAbility {
                 .amplify(level);
 
         MKEffectBuilder<?> particleEffect = MKOldParticleEffect.from(castingEntity, ParticleTypes.FLAME,
-                        ParticleEffects.CIRCLE_PILLAR_MOTION, false, new Vector3d(1.0, 1.0, 1.0),
-                        new Vector3d(0.0, 1.0, 0.0), 40, 5, .1f)
+                ParticleEffects.CIRCLE_PILLAR_MOTION, false, new Vector3d(1.0, 1.0, 1.0),
+                new Vector3d(0.0, 1.0, 0.0), 40, 5, .1f)
                 .ability(this)
                 .amplify(level);
 
@@ -100,14 +99,5 @@ public class NewFireArmor extends MKAbility {
                 castingEntity.getPosX(), castingEntity.getPosY() + 1.0,
                 castingEntity.getPosZ(), 1.0, 1.0, 1.0, .1f,
                 castingEntity.getLookVec()), castingEntity);
-    }
-
-    @SuppressWarnings("unused")
-    @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
-    private static class RegisterMe {
-        @SubscribeEvent
-        public static void register(RegistryEvent.Register<MKAbility> event) {
-            event.getRegistry().register(INSTANCE);
-        }
     }
 }

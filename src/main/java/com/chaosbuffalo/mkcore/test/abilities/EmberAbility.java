@@ -3,15 +3,15 @@ package com.chaosbuffalo.mkcore.test.abilities;
 import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.abilities.*;
-import com.chaosbuffalo.mkcore.effects.EntityEffectBuilder;
-import com.chaosbuffalo.mkcore.serialization.attributes.FloatAttribute;
-import com.chaosbuffalo.mkcore.serialization.attributes.IntAttribute;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.core.damage.MKDamageSource;
+import com.chaosbuffalo.mkcore.effects.EntityEffectBuilder;
 import com.chaosbuffalo.mkcore.fx.ParticleEffects;
 import com.chaosbuffalo.mkcore.init.CoreDamageTypes;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.ParticleEffectSpawnPacket;
+import com.chaosbuffalo.mkcore.serialization.attributes.FloatAttribute;
+import com.chaosbuffalo.mkcore.serialization.attributes.IntAttribute;
 import com.chaosbuffalo.targeting_api.TargetingContext;
 import com.chaosbuffalo.targeting_api.TargetingContexts;
 import com.google.common.collect.ImmutableSet;
@@ -20,22 +20,21 @@ import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.*;
-import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.TranslationTextComponent;
 
 import java.util.Random;
 import java.util.Set;
 
 public class EmberAbility extends MKAbility {
     private static final ResourceLocation TEST_PARTICLES = new ResourceLocation(MKCore.MOD_ID, "beam_effect");
-    public static final EmberAbility INSTANCE = new EmberAbility();
     protected final FloatAttribute damage = new FloatAttribute("damage", 6.0f);
     protected final IntAttribute burnTime = new IntAttribute("burnTime", 5);
 
-    private EmberAbility() {
-        super(MKCore.makeRL("ability.test_ember"));
+    public EmberAbility() {
+        super();
         setCastTime(GameConstants.TICKS_PER_SECOND / 2);
         setCooldownSeconds(4);
         setManaCost(6);
@@ -87,11 +86,11 @@ public class EmberAbility extends MKAbility {
             lineBuilder.duration(40);
             lineBuilder.spawn();
             PacketHandler.sendToTrackingAndSelf(new ParticleEffectSpawnPacket(
-                                ParticleTypes.FLAME,
-                                ParticleEffects.CIRCLE_PILLAR_MOTION, 60, 10,
-                                targetEntity.getPosX(), targetEntity.getPosY() + 1.0,
-                                targetEntity.getPosZ(), 1.0, 1.0, 1.0, .25,
-                                castingEntity.getLookVec()), targetEntity);
+                    ParticleTypes.FLAME,
+                    ParticleEffects.CIRCLE_PILLAR_MOTION, 60, 10,
+                    targetEntity.getPosX(), targetEntity.getPosY() + 1.0,
+                    targetEntity.getPosZ(), 1.0, 1.0, 1.0, .25,
+                    castingEntity.getLookVec()), targetEntity);
         });
     }
 
@@ -103,14 +102,5 @@ public class EmberAbility extends MKAbility {
     @Override
     public AbilityTargetSelector getTargetSelector() {
         return AbilityTargeting.SINGLE_TARGET;
-    }
-
-    @SuppressWarnings("unused")
-    @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
-    private static class RegisterMe {
-        @SubscribeEvent
-        public static void register(RegistryEvent.Register<MKAbility> event) {
-            event.getRegistry().register(INSTANCE);
-        }
     }
 }

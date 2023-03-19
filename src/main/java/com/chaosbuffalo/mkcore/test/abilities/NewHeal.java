@@ -21,21 +21,16 @@ import net.minecraft.particles.ParticleTypes;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 
 import java.util.Set;
 
 public class NewHeal extends MKAbility {
-    public static NewHeal INSTANCE = new NewHeal();
-
     protected final FloatAttribute base = new FloatAttribute("base", 5.0f);
     protected final FloatAttribute scale = new FloatAttribute("scale", 5.0f);
     protected final FloatAttribute modifierScaling = new FloatAttribute("modifierScaling", 1.0f);
 
     public NewHeal() {
-        super(MKCore.MOD_ID, "ability.new_heal");
+        super();
         setCooldownSeconds(6);
         setManaCost(4);
         setCastTime(GameConstants.TICKS_PER_SECOND / 4);
@@ -105,14 +100,5 @@ public class NewHeal extends MKAbility {
                             1.0, 1.0, 1.0, 1.5, lookVec),
                     targetEntity);
         });
-    }
-
-    @SuppressWarnings("unused")
-    @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
-    private static class RegisterMe {
-        @SubscribeEvent
-        public static void register(RegistryEvent.Register<MKAbility> event) {
-            event.getRegistry().register(INSTANCE);
-        }
     }
 }
