@@ -5,7 +5,7 @@ import com.chaosbuffalo.mkcore.core.records.IRecordType;
 import com.chaosbuffalo.mkcore.core.records.IRecordTypeHandler;
 import com.chaosbuffalo.mkcore.core.talents.handlers.*;
 import com.chaosbuffalo.mkcore.init.CoreEntitlements;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.function.Function;
 
@@ -50,12 +50,12 @@ public class TalentType<T extends IRecordTypeHandler<TalentRecord>> implements I
         return this;
     }
 
-    public TranslationTextComponent getName() {
-        return new TranslationTextComponent(name);
+    public TranslatableComponent getName() {
+        return new TranslatableComponent(name);
     }
 
-    public TranslationTextComponent getDisplayName() {
-        return new TranslationTextComponent(displayNameKey, getName());
+    public TranslatableComponent getDisplayName() {
+        return new TranslatableComponent(displayNameKey, getName());
     }
 
     public T createTypeHandler(MKPlayerData playerData) {

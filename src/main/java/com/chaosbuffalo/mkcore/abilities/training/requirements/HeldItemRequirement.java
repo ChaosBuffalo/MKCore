@@ -7,21 +7,21 @@ import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.DynamicOps;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Hand;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.registries.ForgeRegistries;
 
 public class HeldItemRequirement extends AbilityTrainingRequirement {
     public final static ResourceLocation TYPE_NAME = new ResourceLocation(MKCore.MOD_ID, "training_req.held_item");
     private Item item;
-    private Hand hand;
+    private InteractionHand hand;
 
-    public HeldItemRequirement(Item item, Hand hand) {
+    public HeldItemRequirement(Item item, InteractionHand hand) {
         super(TYPE_NAME);
         this.item = item;
         this.hand = hand;
@@ -33,7 +33,7 @@ public class HeldItemRequirement extends AbilityTrainingRequirement {
 
     @Override
     public boolean check(MKPlayerData playerData, MKAbility ability) {
-        ItemStack stack = playerData.getEntity().getHeldItem(hand);
+        ItemStack stack = playerData.getEntity().getItemInHand(hand);
         if (stack.isEmpty())
             return false;
 
@@ -58,15 +58,15 @@ public class HeldItemRequirement extends AbilityTrainingRequirement {
         dynamic.get("item").asString().result().ifPresent(x -> {
             this.item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(x));
         });
-        this.hand = Hand.values()[dynamic.get("hand").asInt(0)];
+        this.hand = InteractionHand.values()[dynamic.get("hand").asInt(0)];
 
     }
 
     @Override
-    public IFormattableTextComponent describe(MKPlayerData playerData) {
-        String handName = hand == Hand.MAIN_HAND ? "Main" : "Off";
-        return new StringTextComponent("You must be holding a ")
-                .appendSibling(new TranslationTextComponent(item.getTranslationKey())) // Item.getName is client-only
-                .appendSibling(new StringTextComponent(String.format(" in your %s hand", handName)));
+    public MutableComponent describe(MKPlayerData playerData) {
+        String handName = hand == InteractionHand.MAIN_HAND ? "Main" : "Off";
+        return new TextComponent("You must be holding a ")
+                .append(new TranslatableComponent(item.getDescriptionId())) // Item.getName is client-only
+                .append(new TextComponent(String.format(" in your %s hand", handName)));
     }
 }

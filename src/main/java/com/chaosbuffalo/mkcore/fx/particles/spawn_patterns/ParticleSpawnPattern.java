@@ -11,13 +11,13 @@ import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.DynamicOps;
-import net.minecraft.entity.Entity;
-import net.minecraft.particles.ParticleType;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.core.particles.ParticleType;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.level.Level;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -29,11 +29,11 @@ import java.util.stream.Collectors;
 
 public abstract class ParticleSpawnPattern implements ISerializableAttributeContainer, IDynamicMapTypedSerializer {
     public static class ParticleSpawnEntry {
-        public Vector3d position;
-        public Vector3d motion;
+        public Vec3 position;
+        public Vec3 motion;
         public MKParticleData particleData;
 
-        public ParticleSpawnEntry(MKParticleData particleData, Vector3d position, Vector3d motion){
+        public ParticleSpawnEntry(MKParticleData particleData, Vec3 position, Vec3 motion){
             this.position = position;
             this.motion = motion;
             this.particleData = particleData;
@@ -56,8 +56,8 @@ public abstract class ParticleSpawnPattern implements ISerializableAttributeCont
 
     public abstract ParticleSpawnPattern copy();
 
-    public ITextComponent getDescription(){
-        return new TranslationTextComponent(String.format("%s.spawn_pattern.%s.name", type.getNamespace(), type.getPath()));
+    public Component getDescription(){
+        return new TranslatableComponent(String.format("%s.spawn_pattern.%s.name", type.getNamespace(), type.getPath()));
     }
 
     @Override
@@ -137,7 +137,7 @@ public abstract class ParticleSpawnPattern implements ISerializableAttributeCont
 //    }
 
     public void spawn(ParticleType<MKParticleData> particleType,
-                      Vector3d position, World world, ParticleAnimation anim, @Nullable List<Vector3d> additionalLocs){
+                      Vec3 position, Level world, ParticleAnimation anim, @Nullable List<Vec3> additionalLocs){
         List<ParticleSpawnEntry> finalParticles = new ArrayList<>();
         for (int i = 0; i < count.value(); i++) {
             produceParticlesForIndex(position, i, additionalLocs, world,
@@ -149,28 +149,28 @@ public abstract class ParticleSpawnPattern implements ISerializableAttributeCont
         }
     }
 
-    public abstract void produceParticlesForIndex(Vector3d origin, int particleNumber,
-                                                  @Nullable List<Vector3d> additionalLocs, World world,
-                                                  Function<Vector3d, MKParticleData> particleDataSupplier,
+    public abstract void produceParticlesForIndex(Vec3 origin, int particleNumber,
+                                                  @Nullable List<Vec3> additionalLocs, Level world,
+                                                  Function<Vec3, MKParticleData> particleDataSupplier,
                                                   List<ParticleSpawnEntry> finalParticles);
 
-    protected void spawnParticle(World world, ParticleSpawnEntry entry){
-        world.addOptionalParticle(entry.particleData, true,
-                entry.position.getX(), entry.position.getY(), entry.position.getZ(),
-                entry.motion.getX(), entry.motion.getY(), entry.motion.getZ());
+    protected void spawnParticle(Level world, ParticleSpawnEntry entry){
+        world.addAlwaysVisibleParticle(entry.particleData, true,
+                entry.position.x(), entry.position.y(), entry.position.z(),
+                entry.motion.x(), entry.motion.y(), entry.motion.z());
     }
 
 
     public void spawnOffsetFromEntity(ParticleType<MKParticleData> particleType,
-                                      Vector3d offset, World world,
-                                      ParticleAnimation anim, Entity entity, List<Vector3d> additionalLocs){
-        Vector3d position = offset.add(entity.getPositionVec());
-        List<Vector3d> finalLocs = additionalLocs.stream().map(
-                x -> x.add(entity.getPositionVec())).collect(Collectors.toList());
+                                      Vec3 offset, Level world,
+                                      ParticleAnimation anim, Entity entity, List<Vec3> additionalLocs){
+        Vec3 position = offset.add(entity.position());
+        List<Vec3> finalLocs = additionalLocs.stream().map(
+                x -> x.add(entity.position())).collect(Collectors.toList());
         List<ParticleSpawnEntry> finalParticles = new ArrayList<>();
         for (int i = 0; i < count.value(); i++) {
             produceParticlesForIndex(position, i, finalLocs, world,
-                    (pos) -> new MKParticleData(particleType, offset, anim, entity.getEntityId()),
+                    (pos) -> new MKParticleData(particleType, offset, anim, entity.getId()),
                     finalParticles);
         }
         for (ParticleSpawnEntry entry : finalParticles){

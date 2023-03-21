@@ -2,32 +2,32 @@ package com.chaosbuffalo.mkcore.client.sound;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.AbilityExecutor;
-import net.minecraft.client.audio.TickableSound;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
+import net.minecraft.client.resources.sounds.AbstractTickableSoundInstance;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvent;
 
 
-public class MovingSoundCasting extends TickableSound {
+public class MovingSoundCasting extends AbstractTickableSoundInstance {
     private final LivingEntity caster;
     private final int castTime;
 
     public MovingSoundCasting(LivingEntity caster, SoundEvent event, int castTime) {
-        this(caster, event, caster.getSoundCategory(), castTime);
+        this(caster, event, caster.getSoundSource(), castTime);
     }
 
-    public MovingSoundCasting(LivingEntity caster, SoundEvent event, SoundCategory category, int castTime) {
+    public MovingSoundCasting(LivingEntity caster, SoundEvent event, SoundSource category, int castTime) {
         super(event, category);
         this.caster = caster;
-        this.repeat = true;
-        this.repeatDelay = 0;
+        this.looping = true;
+        this.delay = 0;
         this.castTime = castTime;
     }
 
     @Override
     public void tick() {
         if (!caster.isAlive()) {
-            finishPlaying();
+            stop();
             return;
         }
 
@@ -53,13 +53,13 @@ public class MovingSoundCasting extends TickableSound {
         }).orElse(true);
 
         if (donePlaying) {
-            finishPlaying();
+            stop();
             return;
         }
 
-        x = (float) caster.getPosX();
-        y = (float) caster.getPosY();
-        z = (float) caster.getPosZ();
+        x = (float) caster.getX();
+        y = (float) caster.getY();
+        z = (float) caster.getZ();
     }
 
     public static float lerp(float v0, float v1, float t) {

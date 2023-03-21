@@ -5,8 +5,8 @@ import com.chaosbuffalo.mkcore.fx.particles.MKParticle;
 import com.chaosbuffalo.mkcore.fx.particles.animation_tracks.ParticleColorAnimationTrack;
 import com.chaosbuffalo.mkcore.serialization.attributes.ColorFloatAttribute;
 import com.chaosbuffalo.mkcore.utils.MathUtils;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.resources.ResourceLocation;
+import com.mojang.math.Vector3f;
 
 
 public class ParticleLerpColorAnimationTrack extends ParticleColorAnimationTrack {
@@ -62,7 +62,7 @@ public class ParticleLerpColorAnimationTrack extends ParticleColorAnimationTrack
     @Override
     public void apply(MKParticle particle) {
         Vector3f color = getColor(particle);
-        particle.setColor(color.getX(), color.getY(), color.getZ());
+        particle.setColor(color.x(), color.y(), color.z());
     }
 
     @Override
@@ -71,9 +71,9 @@ public class ParticleLerpColorAnimationTrack extends ParticleColorAnimationTrack
         Vector3f from = current.getColor(particle);
         Vector3f to = getColor(particle);
         particle.setColor(
-                MathUtils.lerp(from.getX(), to.getX(), time),
-                MathUtils.lerp(from.getY(), to.getY(), time),
-                MathUtils.lerp(from.getZ(), to.getZ(), time)
+                MathUtils.lerp(from.x(), to.x(), time),
+                MathUtils.lerp(from.y(), to.y(), time),
+                MathUtils.lerp(from.z(), to.z(), time)
         );
     }
 }

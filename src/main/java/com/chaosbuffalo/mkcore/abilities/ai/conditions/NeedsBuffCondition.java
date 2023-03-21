@@ -5,20 +5,20 @@ import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.abilities.ai.AbilityDecisionContext;
 import com.chaosbuffalo.mkcore.abilities.ai.AbilityTargetingDecision;
 import com.chaosbuffalo.mkcore.effects.MKEffect;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.potion.Effect;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.effect.MobEffect;
 
 import javax.annotation.Nonnull;
 
 public class NeedsBuffCondition extends AbilityUseCondition {
 
-    private final Effect buffEffect;
+    private final MobEffect buffEffect;
     private final MKEffect buffMKEffect;
     private final AbilityTargetingDecision.MovementSuggestion movementSuggestion;
     private boolean selfOnly;
 
 
-    public NeedsBuffCondition(MKAbility ability, Effect buffEffect) {
+    public NeedsBuffCondition(MKAbility ability, MobEffect buffEffect) {
         super(ability);
         this.buffEffect = buffEffect;
         buffMKEffect = null;
@@ -41,7 +41,7 @@ public class NeedsBuffCondition extends AbilityUseCondition {
 
     private boolean needsBuff(LivingEntity entity) {
         if (buffEffect != null) {
-            return entity.getActivePotionEffect(buffEffect) == null;
+            return entity.getEffect(buffEffect) == null;
         } else if (buffMKEffect != null) {
             return MKCore.getEntityData(entity)
                     .map(entityData -> !entityData.getEffects().isEffectActive(buffMKEffect))

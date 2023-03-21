@@ -1,6 +1,6 @@
 package com.chaosbuffalo.mkcore.sync;
 
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
 
 public class SyncFloat implements ISyncObject {
     private final String name;
@@ -44,14 +44,14 @@ public class SyncFloat implements ISyncObject {
     }
 
     @Override
-    public void deserializeUpdate(CompoundNBT tag) {
+    public void deserializeUpdate(CompoundTag tag) {
         if (tag.contains(name)) {
             this.value = tag.getFloat(name);
         }
     }
 
     @Override
-    public void serializeUpdate(CompoundNBT tag) {
+    public void serializeUpdate(CompoundTag tag) {
         if (dirty) {
             serializeFull(tag);
             dirty = false;
@@ -59,7 +59,7 @@ public class SyncFloat implements ISyncObject {
     }
 
     @Override
-    public void serializeFull(CompoundNBT tag) {
+    public void serializeFull(CompoundTag tag) {
         tag.putFloat(name, value);
         dirty = false;
     }

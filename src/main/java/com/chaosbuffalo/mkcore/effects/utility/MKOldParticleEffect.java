@@ -5,11 +5,11 @@ import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.effects.*;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.ParticleEffectSpawnPacket;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.particles.IParticleData;
-import net.minecraft.potion.EffectType;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -20,12 +20,12 @@ public class MKOldParticleEffect extends MKEffect {
     public static final MKOldParticleEffect INSTANCE = new MKOldParticleEffect();
 
     public MKOldParticleEffect() {
-        super(EffectType.NEUTRAL);
+        super(MobEffectCategory.NEUTRAL);
         setRegistryName("effect.old_particle");
     }
 
-    public static MKEffectBuilder<?> from(LivingEntity source, IParticleData particleId, int motionType, boolean includeSelf,
-                                          Vector3d radius, Vector3d offsets, int particleCount, int particleData,
+    public static MKEffectBuilder<?> from(LivingEntity source, ParticleOptions particleId, int motionType, boolean includeSelf,
+                                          Vec3 radius, Vec3 offsets, int particleCount, int particleData,
                                           double particleSpeed) {
         return INSTANCE.builder(source).state(s ->
                 s.setup(source, particleId, motionType, radius, offsets, particleCount, particleData, particleSpeed, includeSelf));
@@ -48,17 +48,17 @@ public class MKOldParticleEffect extends MKEffect {
 
     public static class State extends MKEffectState {
         Entity source;
-        IParticleData particleId;
+        ParticleOptions particleId;
         int motionType;
-        Vector3d radius;
-        Vector3d offsets;
+        Vec3 radius;
+        Vec3 offsets;
         int particleCount;
         int particleData;
         double particleSpeed;
         boolean includeSelf;
 
-        public void setup(Entity source, IParticleData particleId, int motionType,
-                            Vector3d radius, Vector3d offsets, int particleCount, int particleData,
+        public void setup(Entity source, ParticleOptions particleId, int motionType,
+                            Vec3 radius, Vec3 offsets, int particleCount, int particleData,
                             double particleSpeed, boolean includeSelf) {
             this.source = source;
             this.particleId = particleId;
@@ -86,14 +86,14 @@ public class MKOldParticleEffect extends MKEffect {
         public ParticleEffectSpawnPacket createPacket(Entity target) {
             return new ParticleEffectSpawnPacket(particleId,
                     motionType, particleCount, particleData,
-                    target.getPosX() + offsets.x,
-                    target.getPosY() + offsets.y,
-                    target.getPosZ() + offsets.z,
+                    target.getX() + offsets.x,
+                    target.getY() + offsets.y,
+                    target.getZ() + offsets.z,
                     radius.x,
                     radius.y,
                     radius.z,
                     particleSpeed,
-                    source.getPositionVec().subtract(target.getPositionVec()).normalize());
+                    source.position().subtract(target.position()).normalize());
         }
     }
 

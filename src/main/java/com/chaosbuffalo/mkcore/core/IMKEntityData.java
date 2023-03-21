@@ -3,9 +3,9 @@ package com.chaosbuffalo.mkcore.core;
 import com.chaosbuffalo.mkcore.core.entity.EntityEffectHandler;
 import com.chaosbuffalo.mkcore.core.pets.EntityPetModule;
 import com.chaosbuffalo.mkcore.sync.UpdateEngine;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.nbt.CompoundTag;
 
 import javax.annotation.Nonnull;
 
@@ -15,7 +15,7 @@ public interface IMKEntityData {
     LivingEntity getEntity();
 
     default boolean isServerSide() {
-        return !getEntity().getEntityWorld().isRemote();
+        return !getEntity().getCommandSenderWorld().isClientSide();
     }
 
     AbilityExecutor getAbilityExecutor();
@@ -28,15 +28,15 @@ public interface IMKEntityData {
 
     EntityEffectHandler getEffects();
 
-    CompoundNBT serialize();
+    CompoundTag serialize();
 
     EntityPetModule getPets();
 
-    void deserialize(CompoundNBT nbt);
+    void deserialize(CompoundTag nbt);
 
     void onJoinWorld();
 
-    void onPlayerStartTracking(ServerPlayerEntity playerEntity);
+    void onPlayerStartTracking(ServerPlayer playerEntity);
 
     void attachUpdateEngine(UpdateEngine engine);
 }

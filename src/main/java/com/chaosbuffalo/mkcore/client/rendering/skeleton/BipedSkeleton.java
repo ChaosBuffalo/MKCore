@@ -1,14 +1,14 @@
 package com.chaosbuffalo.mkcore.client.rendering.skeleton;
 
-import net.minecraft.client.renderer.entity.model.BipedModel;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class BipedSkeleton<T extends LivingEntity, M extends BipedModel<T>> extends MCSkeleton {
+public class BipedSkeleton<T extends LivingEntity, M extends HumanoidModel<T>> extends MCSkeleton {
     public static final String ROOT_BONE_NAME = "root";
     public static final String RIGHT_ARM_BONE_NAME = "rightArm";
     public static final String LEFT_ARM_BONE_NAME = "leftArm";
@@ -45,41 +45,41 @@ public class BipedSkeleton<T extends LivingEntity, M extends BipedModel<T>> exte
     public BipedSkeleton(M model){
         this.model = model;
         this.boneMap = new HashMap<>();
-        MCBone rootBone = new ManualBone(ROOT_BONE_NAME, new Vector3d(0, 0, 0), null);
+        MCBone rootBone = new ManualBone(ROOT_BONE_NAME, new Vec3(0, 0, 0), null);
         root = rootBone;
         addBone(rootBone);
-        this.body = new ModelRendererBone(BODY_BONE_NAME, model.bipedBody, root, true, true, true);
+        this.body = new ModelRendererBone(BODY_BONE_NAME, model.body, root, true, true, true);
         addBone(body);
-        this.pelvis = new ManualBone(PELVIS_BONE_NAME, new Vector3d(0.0, 12.0 / 16.0, 0.0), root);
+        this.pelvis = new ManualBone(PELVIS_BONE_NAME, new Vec3(0.0, 12.0 / 16.0, 0.0), root);
         addBone(pelvis);
-        this.chest = new ManualBone(CHEST_BONE_NAME, new Vector3d(0.0, 12.0 / 16.0, 0.0), pelvis);
+        this.chest = new ManualBone(CHEST_BONE_NAME, new Vec3(0.0, 12.0 / 16.0, 0.0), pelvis);
         addBone(chest);
-        MCBone rightArm = new ModelRendererBone(RIGHT_ARM_BONE_NAME, model.bipedRightArm, chest, true, false, false);
+        MCBone rightArm = new ModelRendererBone(RIGHT_ARM_BONE_NAME, model.rightArm, chest, true, false, false);
         addBone(rightArm);
         this.rightArm = rightArm;
-        MCBone leftArm = new ModelRendererBone(LEFT_ARM_BONE_NAME, model.bipedLeftArm, chest, true, false, false);
+        MCBone leftArm = new ModelRendererBone(LEFT_ARM_BONE_NAME, model.leftArm, chest, true, false, false);
         addBone(leftArm);
         this.leftArm = leftArm;
-        MCBone rightLeg = new ModelRendererBone(RIGHT_LEG_BONE_NAME, model.bipedRightLeg, root, false, false, true);
+        MCBone rightLeg = new ModelRendererBone(RIGHT_LEG_BONE_NAME, model.rightLeg, root, false, false, true);
         addBone(rightLeg);
         this.rightLeg = rightLeg;
-        MCBone leftLeg = new ModelRendererBone(LEFT_LEG_BONE_NAME, model.bipedLeftLeg, root, false, false, true);
+        MCBone leftLeg = new ModelRendererBone(LEFT_LEG_BONE_NAME, model.leftLeg, root, false, false, true);
         addBone(leftLeg);
         this.leftLeg = leftLeg;
-        MCBone leftHand = new ManualBone(LEFT_HAND_BONE_NAME, new Vector3d(1.0 / 16.0, -10.0 / 16.0, 0), leftArm);
+        MCBone leftHand = new ManualBone(LEFT_HAND_BONE_NAME, new Vec3(1.0 / 16.0, -10.0 / 16.0, 0), leftArm);
         addBone(leftHand);
         this.leftHand = leftHand;
-        MCBone rightHand = new ManualBone(RIGHT_HAND_BONE_NAME, new Vector3d(-1.0 / 16.0, -10.0 / 16.0, 0), rightArm);
+        MCBone rightHand = new ManualBone(RIGHT_HAND_BONE_NAME, new Vec3(-1.0 / 16.0, -10.0 / 16.0, 0), rightArm);
         addBone(rightHand);
         this.rightHand = rightHand;
 
-        this.leftFoot = new ManualBone(LEFT_FOOT_BONE_NAME, new Vector3d(0.0, -12.0 / 16.0, 0.0), leftLeg);
+        this.leftFoot = new ManualBone(LEFT_FOOT_BONE_NAME, new Vec3(0.0, -12.0 / 16.0, 0.0), leftLeg);
         addBone(leftFoot);
-        this.rightFoot = new ManualBone(RIGHT_FOOT_BONE_NAME, new Vector3d(0.0, -12.0 / 16.0, 0.0), rightLeg);
+        this.rightFoot = new ManualBone(RIGHT_FOOT_BONE_NAME, new Vec3(0.0, -12.0 / 16.0, 0.0), rightLeg);
         addBone(rightFoot);
-        this.neck = new ModelRendererBone(NECK_BONE_NAME, model.bipedHead, chest, true, false, false);
+        this.neck = new ModelRendererBone(NECK_BONE_NAME, model.head, chest, true, false, false);
         addBone(neck);
-        this.head = new ManualBone(HEAD_BONE_NAME, new Vector3d(0.0, 0.25, 0.0), neck);
+        this.head = new ManualBone(HEAD_BONE_NAME, new Vec3(0.0, 0.25, 0.0), neck);
         addBone(head);
     }
 

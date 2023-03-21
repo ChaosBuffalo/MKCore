@@ -17,9 +17,9 @@ import com.chaosbuffalo.mkcore.test.effects.FeatherFallEffect;
 import com.chaosbuffalo.mkcore.test.effects.PhoenixAspectEffect;
 import com.chaosbuffalo.targeting_api.TargetingContext;
 import com.chaosbuffalo.targeting_api.TargetingContexts;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.world.phys.Vec3;
 
 public class PhoenixAspectAbility extends MKAbility {
     public static int BASE_DURATION = 60;
@@ -70,8 +70,8 @@ public class PhoenixAspectAbility extends MKAbility {
                 .amplify(level);
         MKEffectBuilder<?> particlePotion = MKOldParticleEffect.from(castingEntity,
                 ParticleTypes.FIREWORK,
-                ParticleEffects.DIRECTED_SPOUT, false, new Vector3d(1.0, 1.5, 1.0),
-                new Vector3d(0.0, 1.0, 0.0), 40, 5, 1.0)
+                ParticleEffects.DIRECTED_SPOUT, false, new Vec3(1.0, 1.5, 1.0),
+                new Vec3(0.0, 1.0, 0.0), 40, 5, 1.0)
                 .ability(this);
 
         AreaEffectBuilder.createOnCaster(castingEntity)
@@ -87,8 +87,8 @@ public class PhoenixAspectAbility extends MKAbility {
         PacketHandler.sendToTrackingAndSelf(new ParticleEffectSpawnPacket(
                 ParticleTypes.FIREWORK,
                 ParticleEffects.CIRCLE_MOTION, 50, 0,
-                castingEntity.getPosX(), castingEntity.getPosY() + 1.5,
-                castingEntity.getPosZ(), 1.0, 1.0, 1.0, 1.0f,
-                castingEntity.getLookVec()), castingEntity);
+                castingEntity.getX(), castingEntity.getY() + 1.5,
+                castingEntity.getZ(), 1.0, 1.0, 1.0, 1.0f,
+                castingEntity.getLookAngle()), castingEntity);
     }
 }

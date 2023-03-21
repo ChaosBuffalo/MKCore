@@ -10,12 +10,12 @@ import com.chaosbuffalo.mkwidgets.client.gui.layouts.MKStackLayoutVertical;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKScrollView;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKText;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKWidget;
-import net.minecraft.client.resources.I18n;
-import net.minecraft.entity.ai.attributes.Attribute;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.network.play.client.CClientStatusPacket;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.client.resources.language.I18n;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.network.protocol.game.ServerboundClientCommandPacket;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.TextComponent;
 
 import java.util.ArrayList;
 
@@ -73,7 +73,7 @@ public class StatsPage extends StatPageBase {
     protected MKScrollView scrollView;
 
     public StatsPage(MKPlayerData playerData) {
-        super(playerData, new StringTextComponent("Stats"));
+        super(playerData, new TextComponent("Stats"));
     }
 
     @Override
@@ -97,7 +97,7 @@ public class StatsPage extends StatPageBase {
     protected void init() {
         super.init();
         if (minecraft != null && minecraft.getConnection() != null) {
-            minecraft.getConnection().sendPacket(new CClientStatusPacket(CClientStatusPacket.State.REQUEST_STATS));
+            minecraft.getConnection().send(new ServerboundClientCommandPacket(ServerboundClientCommandPacket.Action.REQUEST_STATS));
         }
     }
 
@@ -122,25 +122,25 @@ public class StatsPage extends StatPageBase {
         stackLayout.setPaddingTop(2);
         stackLayout.setPaddingBot(2);
         layout.addWidget(stackLayout);
-        String personaNameText = I18n.format("mkcore.gui.character.persona_name",
+        String personaNameText = I18n.get("mkcore.gui.character.persona_name",
                 playerData.getPersonaManager().getActivePersona().getName());
         MKText personaName = new MKText(font, personaNameText);
         stackLayout.addWidget(personaName);
-        String healthText = I18n.format("mkcore.gui.character.current_health",
+        String healthText = I18n.get("mkcore.gui.character.current_health",
                 String.format("%.0f", playerData.getStats().getHealth()),
                 String.format("%.0f", playerData.getStats().getMaxHealth()));
         MKText health = new MKText(font, healthText);
-        String manaText = I18n.format("mkcore.gui.character.current_mana",
+        String manaText = I18n.get("mkcore.gui.character.current_mana",
                 String.format("%.0f", playerData.getStats().getMana()),
                 String.format("%.0f", playerData.getStats().getMaxMana()));
         MKText mana = new MKText(font, manaText);
         addPreDrawRunnable(() -> {
-            mana.setText(I18n.format("mkcore.gui.character.current_mana",
+            mana.setText(I18n.get("mkcore.gui.character.current_mana",
                     String.format("%.0f", playerData.getStats().getMana()),
                     String.format("%.0f", playerData.getStats().getMaxMana())));
         });
         addPreDrawRunnable(() -> {
-            health.setText(I18n.format("mkcore.gui.character.current_health",
+            health.setText(I18n.get("mkcore.gui.character.current_health",
                     String.format("%.0f", playerData.getStats().getHealth()),
                     String.format("%.0f", playerData.getStats().getMaxHealth())));
         });

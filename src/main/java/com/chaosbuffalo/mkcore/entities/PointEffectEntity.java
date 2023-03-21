@@ -2,51 +2,56 @@ package com.chaosbuffalo.mkcore.entities;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import net.minecraft.entity.*;
-import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.network.datasync.DataSerializers;
-import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.world.World;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.registries.ObjectHolder;
 
 import javax.annotation.Nonnull;
 import java.util.Collection;
 
+import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Pose;
+
 public class PointEffectEntity extends BaseEffectEntity{
     @ObjectHolder(MKCore.MOD_ID + ":mk_point_effect")
     public static EntityType<PointEffectEntity> TYPE;
-    private static final DataParameter<Float> RADIUS = EntityDataManager.createKey(PointEffectEntity.class, DataSerializers.FLOAT);
+    private static final EntityDataAccessor<Float> RADIUS = SynchedEntityData.defineId(PointEffectEntity.class, EntityDataSerializers.FLOAT);
 
-    public PointEffectEntity(EntityType<? extends PointEffectEntity> entityType, World world) {
+    public PointEffectEntity(EntityType<? extends PointEffectEntity> entityType, Level world) {
         super(entityType, world);
     }
 
     @Nonnull
     @Override
-    public EntitySize getSize(@Nonnull Pose poseIn) {
-        return EntitySize.flexible(this.getRadius() * 2.0F, this.getRadius() * 2.0F);
+    public EntityDimensions getDimensions(@Nonnull Pose poseIn) {
+        return EntityDimensions.scalable(this.getRadius() * 2.0F, this.getRadius() * 2.0F);
     }
 
     public void setRadius(float radiusIn) {
-        if (!this.world.isRemote) {
-            this.getDataManager().set(RADIUS, radiusIn);
+        if (!this.level.isClientSide) {
+            this.getEntityData().set(RADIUS, radiusIn);
         }
 
     }
 
     @Override
-    public void notifyDataManagerChange(DataParameter<?> key) {
+    public void onSyncedDataUpdated(EntityDataAccessor<?> key) {
         if (RADIUS.equals(key)) {
-            this.recalculateSize();
+            this.refreshDimensions();
 //            this.recenterBoundingBox();
-            this.setBoundingBox(this.size.func_242285_a(getPosX(), getPosY()-getRadius(), getPosZ()));
+            this.setBoundingBox(this.dimensions.makeBoundingBox(getX(), getY()-getRadius(), getZ()));
         }
 
-        super.notifyDataManagerChange(key);
+        super.onSyncedDataUpdated(key);
     }
 
     @Override
-    public void recalculateSize() {
-        super.recalculateSize();
+    public void refreshDimensions() {
+        super.refreshDimensions();
     }
 
 //    @Override
@@ -62,23 +67,23 @@ public class PointEffectEntity extends BaseEffectEntity{
 //    }
 
     public float getRadius() {
-        return this.getDataManager().get(RADIUS);
+        return this.getEntityData().get(RADIUS);
     }
 
     @Override
-    protected void registerData() {
-        super.registerData();
-        this.getDataManager().register(RADIUS, 1.0F);
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        this.getEntityData().define(RADIUS, 1.0F);
     }
 
-    public PointEffectEntity(World worldIn, double x, double y, double z) {
+    public PointEffectEntity(Level worldIn, double x, double y, double z) {
         this(TYPE, worldIn);
-        this.setPosition(x, y, z);
+        this.setPos(x, y, z);
     }
 
     @Override
     protected Collection<LivingEntity> getEntitiesInBounds() {
-        return this.world.getLoadedEntitiesWithinAABB(LivingEntity.class,
+        return this.level.getLoadedEntitiesOfClass(LivingEntity.class,
                 getBoundingBox(), this::entityCheck);
     }
 }

@@ -18,12 +18,12 @@ import com.chaosbuffalo.mkcore.init.CoreItems;
 import com.chaosbuffalo.mkcore.init.CoreParticles;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.test.MKTestAbilities;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.LazyOptional;
@@ -104,7 +104,7 @@ public class MKCore {
     }
 
     private void registerAttributes() {
-        Attributes.ATTACK_DAMAGE.setShouldWatch(true);
+        Attributes.ATTACK_DAMAGE.setSyncable(true);
     }
 
     @SubscribeEvent
@@ -177,7 +177,7 @@ public class MKCore {
     }
 
     public static LazyOptional<? extends IMKEntityData> getEntityData(@Nullable Entity entity) {
-        if (entity instanceof PlayerEntity) {
+        if (entity instanceof Player) {
             return entity.getCapability(CoreCapabilities.PLAYER_CAPABILITY);
         } else if (entity instanceof LivingEntity) {
             return entity.getCapability(CoreCapabilities.ENTITY_CAPABILITY);

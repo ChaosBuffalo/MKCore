@@ -6,18 +6,18 @@ import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.utils.MKNBTUtil;
 import com.google.common.reflect.TypeToken;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
-import net.minecraft.client.gui.AbstractGui;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.Attribute;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -29,7 +29,7 @@ public class MKActiveEffect {
 
     private final UUID sourceId;
     private final MKEffect effect;
-    private final Lazy<EffectInstance> displayEffectInstance = Lazy.of(() -> createDisplayEffectInstance(this));
+    private final Lazy<MobEffectInstance> displayEffectInstance = Lazy.of(() -> createDisplayEffectInstance(this));
     private final MKEffectState state;
     private final MKEffectBehaviour behaviour;
     private final Object2FloatMap<Attribute> attributeSkillSnapshot;
@@ -65,7 +65,7 @@ public class MKActiveEffect {
             }
         }
         if (directEntity != null) {
-            directUUID = directEntity.getUniqueID();
+            directUUID = directEntity.getUUID();
         }
     }
 
@@ -174,20 +174,20 @@ public class MKActiveEffect {
     protected Entity findEntity(Entity entity, UUID entityId, IMKEntityData targetData) {
         if (entity != null)
             return entity;
-        World world = targetData.getEntity().getEntityWorld();
-        if (!world.isRemote()) {
-            return ((ServerWorld) world).getEntityByUuid(entityId);
+        Level world = targetData.getEntity().getCommandSenderWorld();
+        if (!world.isClientSide()) {
+            return ((ServerLevel) world).getEntity(entityId);
         }
         return null;
     }
 
-    public CompoundNBT serializeClient() {
-        CompoundNBT stateTag = new CompoundNBT();
+    public CompoundTag serializeClient() {
+        CompoundTag stateTag = new CompoundTag();
         stateTag.put("state", serializeState());
         return stateTag;
     }
 
-    public static MKActiveEffect deserializeClient(ResourceLocation effectId, UUID sourceId, CompoundNBT tag) {
+    public static MKActiveEffect deserializeClient(ResourceLocation effectId, UUID sourceId, CompoundTag tag) {
         MKEffect effect = MKCoreRegistry.EFFECTS.getValue(effectId);
         if (effect == null) {
             return null;
@@ -198,8 +198,8 @@ public class MKActiveEffect {
         return active;
     }
 
-    public CompoundNBT serializeState() {
-        CompoundNBT stateTag = new CompoundNBT();
+    public CompoundTag serializeState() {
+        CompoundTag stateTag = new CompoundTag();
         stateTag.put("behaviour", behaviour.serialize());
         stateTag.putInt("stacks", getStackCount());
         stateTag.putFloat("skillLevel", getSkillLevel());
@@ -207,10 +207,10 @@ public class MKActiveEffect {
             stateTag.putString("abilityId", abilityId.toString());
         }
         if (directUUID != null) {
-            stateTag.putUniqueId("directEntity", directUUID);
+            stateTag.putUUID("directEntity", directUUID);
         }
         if (!attributeSkillSnapshot.isEmpty()) {
-            CompoundNBT attrTag = new CompoundNBT();
+            CompoundTag attrTag = new CompoundTag();
             attributeSkillSnapshot.object2FloatEntrySet().forEach(entry -> {
                 ResourceLocation attrId = entry.getKey().getRegistryName();
                 if (attrId != null) {
@@ -227,22 +227,22 @@ public class MKActiveEffect {
         return attributeSkillSnapshot.getOrDefault(skill, 0f);
     }
 
-    public void deserializeState(CompoundNBT stateTag) {
+    public void deserializeState(CompoundTag stateTag) {
         stackCount = stateTag.getInt("stacks");
         skillLevel = stateTag.getFloat("skillLevel");
         behaviour.deserializeState(stateTag.getCompound("behaviour"));
         if (stateTag.contains("abilityId")) {
-            abilityId = ResourceLocation.tryCreate(stateTag.getString("abilityId"));
+            abilityId = ResourceLocation.tryParse(stateTag.getString("abilityId"));
         }
         if (stateTag.contains("state")) {
             state.deserializeStorage(stateTag.getCompound("state"));
         }
         if (stateTag.contains("directEntity")) {
-            directUUID = stateTag.getUniqueId("directEntity");
+            directUUID = stateTag.getUUID("directEntity");
         }
         if (stateTag.contains("attrSkills")) {
-            CompoundNBT attrTag = stateTag.getCompound("attrSkills");
-            for (String key : attrTag.keySet()) {
+            CompoundTag attrTag = stateTag.getCompound("attrSkills");
+            for (String key : attrTag.getAllKeys()) {
                 ResourceLocation attrLoc = new ResourceLocation(key);
                 Attribute attribute = ForgeRegistries.ATTRIBUTES.getValue(attrLoc);
                 if (attribute != null) {
@@ -253,10 +253,10 @@ public class MKActiveEffect {
         }
     }
 
-    public CompoundNBT serializeStorage() {
-        CompoundNBT tag = serializeState();
+    public CompoundTag serializeStorage() {
+        CompoundTag tag = serializeState();
         serializeId(tag);
-        CompoundNBT stateTag = new CompoundNBT();
+        CompoundTag stateTag = new CompoundTag();
         state.serializeStorage(stateTag);
         if (!stateTag.isEmpty()) {
             tag.put("state", stateTag);
@@ -264,7 +264,7 @@ public class MKActiveEffect {
         return tag;
     }
 
-    public static MKActiveEffect deserializeStorage(UUID sourceId, CompoundNBT tag) {
+    public static MKActiveEffect deserializeStorage(UUID sourceId, CompoundTag tag) {
         ResourceLocation effectId = deserializeId(tag);
 
         MKEffect effect = MKCoreRegistry.EFFECTS.getValue(effectId);
@@ -281,11 +281,11 @@ public class MKActiveEffect {
         return active;
     }
 
-    private void serializeId(CompoundNBT nbt) {
+    private void serializeId(CompoundTag nbt) {
         MKNBTUtil.writeResourceLocation(nbt, "effectId", effect.getId());
     }
 
-    private static ResourceLocation deserializeId(CompoundNBT tag) {
+    private static ResourceLocation deserializeId(CompoundTag tag) {
         return MKNBTUtil.readResourceLocation(tag, "effectId");
     }
 
@@ -302,15 +302,15 @@ public class MKActiveEffect {
     }
 
     // Only called for the local player on the client
-    public EffectInstance getClientDisplayEffectInstance() {
+    public MobEffectInstance getClientDisplayEffectInstance() {
         return displayEffectInstance.get();
     }
 
-    private static EffectInstance createDisplayEffectInstance(MKActiveEffect effectInstance) {
-        return new EffectInstance(effectInstance.getEffect().getVanillaWrapper()) {
+    private static MobEffectInstance createDisplayEffectInstance(MKActiveEffect effectInstance) {
+        return new MobEffectInstance(effectInstance.getEffect().getVanillaWrapper()) {
 
             @Override
-            public boolean getIsPotionDurationMax() {
+            public boolean isNoCounter() {
                 return effectInstance.getBehaviour().isInfinite();
             }
 
@@ -318,7 +318,7 @@ public class MKActiveEffect {
             public int getDuration() {
                 // Even though we override getIsPotionDurationMax we still need a large number so the
                 // in-game GUI doesn't flash continuously
-                if (getIsPotionDurationMax())
+                if (isNoCounter())
                     return Integer.MAX_VALUE;
                 return effectInstance.getBehaviour().getDuration();
             }
@@ -330,7 +330,7 @@ public class MKActiveEffect {
             }
 
             @Override
-            public void renderHUDEffect(AbstractGui gui, MatrixStack mStack, int x, int y, float z, float alpha) {
+            public void renderHUDEffect(GuiComponent gui, PoseStack mStack, int x, int y, float z, float alpha) {
                 super.renderHUDEffect(gui, mStack, x, y, z, alpha);
             }
 

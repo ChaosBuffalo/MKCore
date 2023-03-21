@@ -1,9 +1,9 @@
 package com.chaosbuffalo.mkcore.math;
 
 import com.chaosbuffalo.mkcore.utils.MathUtils;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.phys.Vec3;
 
-public class AxisAngle extends Vector3d {
+public class AxisAngle extends Vec3 {
     protected double angle;
 
     public AxisAngle(double angle, double xIn, double yIn, double zIn) {
@@ -15,14 +15,14 @@ public class AxisAngle extends Vector3d {
         return angle;
     }
 
-    public Vector3d transform(Vector3d vector) {
+    public Vec3 transform(Vec3 vector) {
         double sin = Math.sin(angle);
         double cos = MathUtils.cosFromSin(sin, angle);
-        double dot = x * vector.getX() + y * vector.getY() + z * vector.getZ();
-        return new Vector3d(
-                vector.getX() * cos + sin * (y * vector.getZ() - z * vector.getY()) + (1.0 - cos) * dot * x,
-                vector.getY() * cos + sin * (z * vector.getX() - x * vector.getZ()) + (1.0 - cos) * dot * y,
-                vector.getZ() * cos + sin * (x * vector.getY() - y * vector.getX()) + (1.0 - cos) * dot * z
+        double dot = x * vector.x() + y * vector.y() + z * vector.z();
+        return new Vec3(
+                vector.x() * cos + sin * (y * vector.z() - z * vector.y()) + (1.0 - cos) * dot * x,
+                vector.y() * cos + sin * (z * vector.x() - x * vector.z()) + (1.0 - cos) * dot * y,
+                vector.z() * cos + sin * (x * vector.y() - y * vector.x()) + (1.0 - cos) * dot * z
         );
     }
 }

@@ -4,10 +4,10 @@ import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.fx.particles.MKParticleData;
 import com.chaosbuffalo.mkcore.serialization.attributes.DoubleAttribute;
 import com.chaosbuffalo.mkcore.serialization.attributes.IntAttribute;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Tuple;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -27,7 +27,7 @@ public class SphereSpawnPattern extends ParticleSpawnPattern {
         this.count.setValue(40);
     }
 
-    public SphereSpawnPattern(int count, Vector3d radii, double speed, int layers){
+    public SphereSpawnPattern(int count, Vec3 radii, double speed, int layers){
         this();
         xRadius.setValue(radii.x);
         yRadius.setValue(radii.y);
@@ -40,14 +40,14 @@ public class SphereSpawnPattern extends ParticleSpawnPattern {
     @Override
     public ParticleSpawnPattern copy() {
         return new SphereSpawnPattern(count.value(),
-                new Vector3d(xRadius.value(), yRadius.value(), zRadius.value()),
+                new Vec3(xRadius.value(), yRadius.value(), zRadius.value()),
                 speed.value(),
                 layers.value());
     }
 
     @Override
-    public void produceParticlesForIndex(Vector3d origin, int particleNumber, @Nullable List<Vector3d> additionalLocs,
-                                         World world, Function<Vector3d, MKParticleData> particleDataSupplier,
+    public void produceParticlesForIndex(Vec3 origin, int particleNumber, @Nullable List<Vec3> additionalLocs,
+                                         Level world, Function<Vec3, MKParticleData> particleDataSupplier,
                                          List<ParticleSpawnEntry> finalParticles) {
         int perLayer = count.value() / layers.value();
         particleNumber = particleNumber % (perLayer * layers.value());
@@ -57,11 +57,11 @@ public class SphereSpawnPattern extends ParticleSpawnPattern {
         double scaledRatio = 2.0 * (ratio - 0.5);
         double realDegrees = (360.0 / perLayer) * realNum;
         double inverseScale = 1.0 - Math.pow(scaledRatio, 2.0);
-        Vector3d posVec = new Vector3d(
+        Vec3 posVec = new Vec3(
                 origin.x + (xRadius.value() * inverseScale * Math.cos(Math.toRadians(realDegrees))),
                 scaledRatio * yRadius.value() + origin.y,
                 origin.z + (zRadius.value() * inverseScale * Math.sin(Math.toRadians(realDegrees))));
-        Vector3d diffVec = posVec.subtract(origin).normalize();
+        Vec3 diffVec = posVec.subtract(origin).normalize();
         finalParticles.add(new ParticleSpawnEntry(particleDataSupplier.apply(origin), posVec, diffVec.scale(speed.value())));
     }
 }

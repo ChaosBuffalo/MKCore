@@ -23,14 +23,14 @@ import com.chaosbuffalo.mkwidgets.client.gui.math.IntColor;
 import com.chaosbuffalo.mkwidgets.client.gui.screens.MKScreen;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.*;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.I18n;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.particles.ParticleType;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.resources.language.I18n;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.core.particles.ParticleType;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 
 import javax.annotation.Nullable;
 import java.util.Map;
@@ -50,12 +50,12 @@ public class ParticleEditorScreen extends MKScreen {
     private boolean dirty;
 
     public ParticleEditorScreen() {
-        super(new TranslationTextComponent("mk.editors.particle_editor.name"));
+        super(new TranslatableComponent("mk.editors.particle_editor.name"));
         editing = ParticleAnimationManager.ANIMATIONS.get(
                 new ResourceLocation(MKCore.MOD_ID, "particle_anim.blue_magic")).copy();
         currentFrame = null;
         dirty = false;
-        PlayerEntity player = Minecraft.getInstance().player;
+        Player player = Minecraft.getInstance().player;
         if (player != null){
             MKCore.getPlayer(player).ifPresent(x -> {
                 if (x.getEditor().getParticleEditorData().getAnimation() != null){
@@ -167,7 +167,7 @@ public class ParticleEditorScreen extends MKScreen {
             background.setColor(new IntColor(0x99555555));
             popup.addWidget(background);
         }
-        String promptText = I18n.format("mkcore.particle_editor.choose_particle_type");
+        String promptText = I18n.get("mkcore.particle_editor.choose_particle_type");
         MKText prompt = new MKText(font, promptText, xPos + 6, yPos + 6);
         prompt.setColor(0xffffffff);
         prompt.setWidth(POPUP_WIDTH - 10);
@@ -182,7 +182,7 @@ public class ParticleEditorScreen extends MKScreen {
         names.setMargins(2, 2, 2, 2);
         names.doSetChildWidth(true);
         ParticleAnimationManager.PARTICLE_TYPES_FOR_EDITOR.forEach((key, value) -> {
-            MKButton button = new MKButton(0, 0, new StringTextComponent(key.toString()));
+            MKButton button = new MKButton(0, 0, new TextComponent(key.toString()));
             button.setPressedCallback((but, click) -> {
                 setParticleType(key, value);
                 closeModal(popup);
@@ -206,7 +206,7 @@ public class ParticleEditorScreen extends MKScreen {
             background.setColor(new IntColor(0x99555555));
             popup.addWidget(background);
         }
-        String promptText = I18n.format("mkcore.particle_editor.choose_spawn_pattern");
+        String promptText = I18n.get("mkcore.particle_editor.choose_spawn_pattern");
         MKText prompt = new MKText(font, promptText, xPos + 6, yPos + 6);
         prompt.setColor(0xffffffff);
         prompt.setWidth(POPUP_WIDTH - 10);
@@ -239,13 +239,13 @@ public class ParticleEditorScreen extends MKScreen {
     }
 
     public void requestSpawn(){
-        PlayerEntity player = Minecraft.getInstance().player;
+        Player player = Minecraft.getInstance().player;
         if (player != null){
-            Vector3d eyePos = player.getEyePosition(1.0f);
-            Vector3d to = eyePos.add(player.getLookVec().scale(4.0));
-            RayTraceResult result = RayTraceUtils.rayTraceBlocks(player, eyePos, to, true);
-            if (result.getType() == RayTraceResult.Type.BLOCK){
-                to = result.getHitVec();
+            Vec3 eyePos = player.getEyePosition(1.0f);
+            Vec3 to = eyePos.add(player.getLookAngle().scale(4.0));
+            HitResult result = RayTraceUtils.rayTraceBlocks(player, eyePos, to, true);
+            if (result.getType() == HitResult.Type.BLOCK){
+                to = result.getLocation();
             }
             if (editing != null && editing.hasSpawnPattern()){
                 PacketHandler.sendMessageToServer(new MKParticleEffectEditorSpawnPacket(to, editing));
@@ -269,7 +269,7 @@ public class ParticleEditorScreen extends MKScreen {
             background.setColor(new IntColor(0x99555555));
             popup.addWidget(background);
         }
-        String promptText = I18n.format("mkcore.particle_editor.choose_track");
+        String promptText = I18n.get("mkcore.particle_editor.choose_track");
         MKText prompt = new MKText(font, promptText, xPos + 6, yPos + 6);
         prompt.setColor(0xffffffff);
         prompt.setWidth(POPUP_WIDTH - 10);
@@ -360,15 +360,15 @@ public class ParticleEditorScreen extends MKScreen {
         MKStackLayoutVertical layout = new MKStackLayoutVertical(xPos, yPos, POPUP_WIDTH);
         layout.setMargins(5, 5, 5, 5);
         layout.setPaddings(0, 0, 5, 5);
-        String promptText = I18n.format("mkcore.particle_editor.prompt_save");
+        String promptText = I18n.get("mkcore.particle_editor.prompt_save");
         MKText prompt = new MKText(font, promptText, 0, 0);
         prompt.setColor(0xffffffff);
         prompt.setWidth(POPUP_WIDTH - 10);
         prompt.setMultiline(true);
         layout.addWidget(prompt);
         MKTextFieldWidget textFieldWidget = new MKTextFieldWidget(font, xPos + 2, yPos + 24,
-                POPUP_WIDTH - 10, font.FONT_HEIGHT + 2, new StringTextComponent(promptText));
-        textFieldWidget.getContainedWidget().setMaxStringLength(500);
+                POPUP_WIDTH - 10, font.lineHeight + 2, new TextComponent(promptText));
+        textFieldWidget.getContainedWidget().setMaxLength(500);
         layout.addWidget(textFieldWidget);
         MKButton button = new MKButton(0, 0, "Save"){
             @Override
@@ -458,7 +458,7 @@ public class ParticleEditorScreen extends MKScreen {
     public void tick() {
         super.tick();
         if (dirty){
-            PlayerEntity player = Minecraft.getInstance().player;
+            Player player = Minecraft.getInstance().player;
             if (player != null){
                 MKCore.getPlayer(player).ifPresent(data -> {
                     data.getEditor().getParticleEditorData().update(editing, 0, true);

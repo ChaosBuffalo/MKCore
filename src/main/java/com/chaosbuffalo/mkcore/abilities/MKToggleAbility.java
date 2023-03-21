@@ -7,12 +7,12 @@ import com.chaosbuffalo.mkcore.core.AbilityType;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.effects.MKEffect;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.AbstractGui;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
 
 import java.util.function.Consumer;
 
@@ -41,7 +41,7 @@ public abstract class MKToggleAbility extends MKAbility {
     }
 
     @Override
-    public void buildDescription(IMKEntityData casterData, Consumer<ITextComponent> consumer) {
+    public void buildDescription(IMKEntityData casterData, Consumer<Component> consumer) {
         super.buildDescription(casterData, consumer);
         AbilityDescriptions.getEffectModifiers(getToggleEffect(), casterData, false).forEach(consumer);
     }
@@ -94,12 +94,12 @@ public abstract class MKToggleAbility extends MKAbility {
 
     public class ToggleRenderer extends AbilityRenderer {
         @Override
-        public void drawAbilityBarEffect(MKPlayerData playerData, MatrixStack matrixStack, Minecraft mc, int slotX, int slotY) {
+        public void drawAbilityBarEffect(MKPlayerData playerData, PoseStack matrixStack, Minecraft mc, int slotX, int slotY) {
             if (isEffectActive(playerData)) {
                 int iconSize = MKOverlay.ABILITY_ICON_SIZE + 2;
-                mc.getTextureManager().bindTexture(TOGGLE_EFFECT);
+                mc.getTextureManager().bind(TOGGLE_EFFECT);
 
-                AbstractGui.blit(matrixStack, slotX - 1, slotY - 1, 0, 0, iconSize, iconSize, iconSize, iconSize);
+                GuiComponent.blit(matrixStack, slotX - 1, slotY - 1, 0, 0, iconSize, iconSize, iconSize, iconSize);
             }
         }
     }

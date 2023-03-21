@@ -15,12 +15,12 @@ import com.chaosbuffalo.mkcore.test.effects.NewHealEffect;
 import com.chaosbuffalo.targeting_api.TargetingContext;
 import com.chaosbuffalo.targeting_api.TargetingContexts;
 import com.google.common.collect.ImmutableSet;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.Set;
 
@@ -40,12 +40,12 @@ public class NewHeal extends MKAbility {
     }
 
     @Override
-    protected ITextComponent getAbilityDescription(IMKEntityData casterData) {
+    protected Component getAbilityDescription(IMKEntityData casterData) {
         float level = getSkillLevel(casterData.getEntity(), MKAttributes.RESTORATION);
-        ITextComponent valueStr = getHealDescription(casterData, base.value(),
+        Component valueStr = getHealDescription(casterData, base.value(),
                 scale.value(), level,
                 modifierScaling.value());
-        return new TranslationTextComponent(getDescriptionTranslationKey(), valueStr);
+        return new TranslatableComponent(getDescriptionTranslationKey(), valueStr);
     }
 
     @Override
@@ -89,14 +89,14 @@ public class NewHeal extends MKAbility {
             });
 
             //            SoundUtils.playSoundAtEntity(targetEntity, ModSounds.spell_heal_3);
-            Vector3d lookVec = castingEntity.getLookVec();
+            Vec3 lookVec = castingEntity.getLookAngle();
             PacketHandler.sendToTrackingAndSelf(
                     new ParticleEffectSpawnPacket(
                             ParticleTypes.HAPPY_VILLAGER,
                             ParticleEffects.SPHERE_MOTION, 50, 10,
-                            targetEntity.getPosX(),
-                            targetEntity.getPosY() + 1.0f,
-                            targetEntity.getPosZ(),
+                            targetEntity.getX(),
+                            targetEntity.getY() + 1.0f,
+                            targetEntity.getZ(),
                             1.0, 1.0, 1.0, 1.5, lookVec),
                     targetEntity);
         });

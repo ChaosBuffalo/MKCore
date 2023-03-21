@@ -1,6 +1,6 @@
 package com.chaosbuffalo.mkcore.sync;
 
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
 
 public interface ISyncObject {
 
@@ -8,9 +8,9 @@ public interface ISyncObject {
 
     boolean isDirty();
 
-    void deserializeUpdate(CompoundNBT tag);
+    void deserializeUpdate(CompoundTag tag);
 
-    void serializeUpdate(CompoundNBT tag);
+    void serializeUpdate(CompoundTag tag);
 
-    void serializeFull(CompoundNBT tag);
+    void serializeFull(CompoundTag tag);
 }

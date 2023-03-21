@@ -7,8 +7,8 @@ import com.chaosbuffalo.mkcore.serialization.attributes.BooleanAttribute;
 import com.chaosbuffalo.mkcore.serialization.attributes.FloatAttribute;
 import com.chaosbuffalo.mkcore.serialization.attributes.IntAttribute;
 import com.chaosbuffalo.mkcore.utils.MathUtils;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.Vec3;
 
 public class BrownianMotionTrack extends ParticleMotionAnimationTrack {
     protected final IntAttribute tickInterval = new IntAttribute("tickInterval", 5);
@@ -76,10 +76,10 @@ public class BrownianMotionTrack extends ParticleMotionAnimationTrack {
             if (doGravity.value()){
                 motionY += particle.getParticleGravity() * tickInterval.value();
             }
-            particle.setTrackVector3dData(VARIANCE_VECTOR, new Vector3d(motionX, motionY, motionZ));
+            particle.setTrackVector3dData(VARIANCE_VECTOR, new Vec3(motionX, motionY, motionZ));
         }
         float tickTime = Math.min(1.0f, ((tick % tickInterval.value()) + 1.0f) / tickInterval.value());
-        Vector3d goalVec = particle.getTrackVector3dData(VARIANCE_VECTOR);
+        Vec3 goalVec = particle.getTrackVector3dData(VARIANCE_VECTOR);
         particle.setMotion(
                 MathUtils.lerpDouble(particle.getMotionX(), goalVec.x, tickTime),
                 MathUtils.lerpDouble(particle.getMotionY(), goalVec.y, tickTime),
@@ -88,7 +88,7 @@ public class BrownianMotionTrack extends ParticleMotionAnimationTrack {
     }
 
     @Override
-    public Vector3d getMotion(MKParticle particle) {
+    public Vec3 getMotion(MKParticle particle) {
         return particle.getTrackVector3dData(VARIANCE_VECTOR);
     }
 }

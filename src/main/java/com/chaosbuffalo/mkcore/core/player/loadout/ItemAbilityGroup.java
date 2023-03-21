@@ -7,7 +7,7 @@ import com.chaosbuffalo.mkcore.abilities.MKAbilityInfo;
 import com.chaosbuffalo.mkcore.core.AbilityGroupId;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.player.AbilityGroup;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nullable;
 
@@ -37,7 +37,7 @@ public class ItemAbilityGroup extends AbilityGroup {
             MKAbility ability = MKCoreRegistry.getAbility(abilityId);
             if (ability != null) {
                 info = ability.createAbilityInfo();
-                info.addSource(AbilitySource.forItem(playerData.getEntity().getHeldItemMainhand()));
+                info.addSource(AbilitySource.forItem(playerData.getEntity().getMainHandItem()));
             }
         }
         return info;

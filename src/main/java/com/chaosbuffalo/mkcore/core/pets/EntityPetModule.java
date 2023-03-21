@@ -7,8 +7,8 @@ import com.chaosbuffalo.mkcore.core.player.SyncComponent;
 import com.chaosbuffalo.mkcore.sync.SyncBool;
 import com.chaosbuffalo.mkcore.sync.SyncEntity;
 import com.chaosbuffalo.mkcore.sync.SyncMapUpdater;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
@@ -24,7 +24,7 @@ public class EntityPetModule implements IPlayerSyncComponentProvider {
     protected final Map<ResourceLocation, MKPet<?>> pets = new HashMap<>();
     protected final Map<ResourceLocation, MKPet.ClientMKPet> clientPetMap = new HashMap<>();
     protected final SyncMapUpdater<ResourceLocation, MKPet.ClientMKPet> clientPets = new SyncMapUpdater<>("clientPets",
-            () -> clientPetMap, ResourceLocation::toString, ResourceLocation::tryCreate, EntityPetModule::createClientPet);
+            () -> clientPetMap, ResourceLocation::toString, ResourceLocation::tryParse, EntityPetModule::createClientPet);
 
     private static MKPet.ClientMKPet createClientPet(ResourceLocation petId) {
         return new MKPet.ClientMKPet(petId, null);

@@ -1,7 +1,7 @@
 package com.chaosbuffalo.mkcore.core.pets;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
@@ -16,7 +16,7 @@ public class PetNonCombatBehavior {
     @Nullable
     private final LivingEntity entity;
     @Nullable
-    private final Vector3d pos;
+    private final Vec3 pos;
 
     public PetNonCombatBehavior(LivingEntity entity) {
         behaviorType = Behavior.FOLLOW;
@@ -24,13 +24,13 @@ public class PetNonCombatBehavior {
         pos = null;
     }
 
-    public PetNonCombatBehavior(Vector3d pos) {
+    public PetNonCombatBehavior(Vec3 pos) {
         behaviorType = Behavior.GUARD;
         this.pos = pos;
         entity = null;
     }
 
-    public Optional<Vector3d> getPos() {
+    public Optional<Vec3> getPos() {
         return Optional.ofNullable(pos);
     }
 

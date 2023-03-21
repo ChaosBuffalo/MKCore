@@ -12,9 +12,9 @@ import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.DynamicOps;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.*;
 import java.util.function.Function;
@@ -48,7 +48,7 @@ public abstract class ParticleEffectInstance implements ISerializableAttributeCo
         this.instanceUUID = instanceUUID;
     }
 
-    public abstract void update(Entity entity, MCSkeleton skeleton, float partialTicks, Vector3d offset);
+    public abstract void update(Entity entity, MCSkeleton skeleton, float partialTicks, Vec3 offset);
 
     public ResourceLocation getParticleAnimName() {
         return particleAnimName.getValue();

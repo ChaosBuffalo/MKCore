@@ -8,8 +8,8 @@ import com.chaosbuffalo.mkcore.effects.MKEffectBuilder;
 import com.chaosbuffalo.targeting_api.TargetingContext;
 import com.chaosbuffalo.targeting_api.TargetingContexts;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.function.Consumer;
 
@@ -31,8 +31,8 @@ public abstract class MKPassiveAbility extends MKAbility {
     public abstract MKEffect getPassiveEffect();
 
     @Override
-    public void buildDescription(IMKEntityData casterData, Consumer<ITextComponent> consumer) {
-        consumer.accept(new TranslationTextComponent("mkcore.ability.description.passive"));
+    public void buildDescription(IMKEntityData casterData, Consumer<Component> consumer) {
+        consumer.accept(new TranslatableComponent("mkcore.ability.description.passive"));
         consumer.accept(getTargetContextLocalization());
         consumer.accept(getAbilityDescription(casterData));
         AbilityDescriptions.getEffectModifiers(getPassiveEffect(), casterData, false).forEach(consumer);

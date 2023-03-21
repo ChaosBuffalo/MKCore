@@ -18,10 +18,10 @@ import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.ParticleEffectSpawnPacket;
 import com.chaosbuffalo.targeting_api.TargetingContext;
 import com.chaosbuffalo.targeting_api.TargetingContexts;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 
@@ -95,8 +95,8 @@ public class WhirlwindBlades extends MKAbility {
             MKEffectBuilder<?> particlePotion = MKOldParticleEffect.from(castingEntity,
                     ParticleTypes.SWEEP_ATTACK,
                     ParticleEffects.CIRCLE_MOTION, false,
-                    new Vector3d(1.0, 1.0, 1.0),
-                    new Vector3d(0.0, 1.0, 0.0),
+                    new Vec3(1.0, 1.0, 1.0),
+                    new Vec3(0.0, 1.0, 0.0),
                     4, 0, 1.0)
                     .ability(this)
                     .amplify(level);
@@ -116,9 +116,9 @@ public class WhirlwindBlades extends MKAbility {
             PacketHandler.sendToTrackingAndSelf(new ParticleEffectSpawnPacket(
                     ParticleTypes.SWEEP_ATTACK,
                     ParticleEffects.SPHERE_MOTION, 16, 4,
-                    castingEntity.getPosX(), castingEntity.getPosY() + 1.0,
-                    castingEntity.getPosZ(), 1.0, 1.0, 1.0, 1.5,
-                    castingEntity.getLookVec()), castingEntity);
+                    castingEntity.getX(), castingEntity.getY() + 1.0,
+                    castingEntity.getZ(), 1.0, 1.0, 1.0, 1.5,
+                    castingEntity.getLookAngle()), castingEntity);
         }
     }
 }

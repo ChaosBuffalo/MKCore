@@ -18,11 +18,11 @@ import com.chaosbuffalo.mkcore.network.ParticleEffectSpawnPacket;
 import com.chaosbuffalo.mkcore.test.effects.NewFireArmorEffect;
 import com.chaosbuffalo.targeting_api.TargetingContext;
 import com.chaosbuffalo.targeting_api.TargetingContexts;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.potion.Effects;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -37,7 +37,7 @@ public class NewFireArmor extends MKAbility {
         setCastTime(GameConstants.TICKS_PER_SECOND);
         setCooldownSeconds(135);
         setManaCost(12);
-        setUseCondition(new NeedsBuffCondition(this, Effects.FIRE_RESISTANCE));
+        setUseCondition(new NeedsBuffCondition(this, MobEffects.FIRE_RESISTANCE));
     }
 
     @Override
@@ -67,9 +67,9 @@ public class NewFireArmor extends MKAbility {
 
         int duration = getDuration(casterData, level);
 
-        EffectInstance absorbEffect = new EffectInstance(Effects.ABSORPTION, duration, level + 1, false, true);
+        MobEffectInstance absorbEffect = new MobEffectInstance(MobEffects.ABSORPTION, duration, level + 1, false, true);
 
-        EffectInstance fireResistanceEffect = new EffectInstance(Effects.FIRE_RESISTANCE, duration, level, false, true);
+        MobEffectInstance fireResistanceEffect = new MobEffectInstance(MobEffects.FIRE_RESISTANCE, duration, level, false, true);
 
         MKEffectBuilder<?> newFireEffect = NewFireArmorEffect.INSTANCE.builder(castingEntity)
                 .ability(this)
@@ -77,8 +77,8 @@ public class NewFireArmor extends MKAbility {
                 .amplify(level);
 
         MKEffectBuilder<?> particleEffect = MKOldParticleEffect.from(castingEntity, ParticleTypes.FLAME,
-                ParticleEffects.CIRCLE_PILLAR_MOTION, false, new Vector3d(1.0, 1.0, 1.0),
-                new Vector3d(0.0, 1.0, 0.0), 40, 5, .1f)
+                ParticleEffects.CIRCLE_PILLAR_MOTION, false, new Vec3(1.0, 1.0, 1.0),
+                new Vec3(0.0, 1.0, 0.0), 40, 5, .1f)
                 .ability(this)
                 .amplify(level);
 
@@ -96,8 +96,8 @@ public class NewFireArmor extends MKAbility {
         PacketHandler.sendToTrackingAndSelf(new ParticleEffectSpawnPacket(
                 ParticleTypes.FLAME,
                 ParticleEffects.CIRCLE_MOTION, 50, 0,
-                castingEntity.getPosX(), castingEntity.getPosY() + 1.0,
-                castingEntity.getPosZ(), 1.0, 1.0, 1.0, .1f,
-                castingEntity.getLookVec()), castingEntity);
+                castingEntity.getX(), castingEntity.getY() + 1.0,
+                castingEntity.getZ(), 1.0, 1.0, 1.0, .1f,
+                castingEntity.getLookAngle()), castingEntity);
     }
 }

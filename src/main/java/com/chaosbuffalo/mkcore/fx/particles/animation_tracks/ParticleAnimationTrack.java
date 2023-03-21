@@ -9,10 +9,10 @@ import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.DynamicOps;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,13 +49,13 @@ public abstract class ParticleAnimationTrack implements ISerializableAttributeCo
 
     public abstract ParticleAnimationTrack copy();
 
-    public ITextComponent getDescription(){
-        return new TranslationTextComponent(String.format("%s.anim_track.%s.name",
+    public Component getDescription(){
+        return new TranslatableComponent(String.format("%s.anim_track.%s.name",
                 getTypeName().getNamespace(), getTypeName().getPath()));
     }
 
-    public static ITextComponent getDescriptionFromType(ResourceLocation type){
-        return new TranslationTextComponent(String.format("%s.anim_track.%s.name",
+    public static Component getDescriptionFromType(ResourceLocation type){
+        return new TranslatableComponent(String.format("%s.anim_track.%s.name",
                 type.getNamespace(), type.getPath()));
     }
 
@@ -98,8 +98,8 @@ public abstract class ParticleAnimationTrack implements ISerializableAttributeCo
         return (particle.getRand().nextFloat() * 2.0f) - 1.0f;
     }
 
-    public Vector3d generateVarianceVector(MKParticle particle){
-        return new Vector3d(generateVariance(particle), generateVariance(particle), generateVariance(particle));
+    public Vec3 generateVarianceVector(MKParticle particle){
+        return new Vec3(generateVariance(particle), generateVariance(particle), generateVariance(particle));
     }
 
 

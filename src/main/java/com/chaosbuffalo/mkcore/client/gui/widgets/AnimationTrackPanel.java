@@ -8,20 +8,20 @@ import com.chaosbuffalo.mkwidgets.client.gui.layouts.MKStackLayoutVertical;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKButton;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKRectangle;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKText;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.gui.Font;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 
 public class AnimationTrackPanel extends MKStackLayoutVertical {
 
     private ParticleAnimationTrack track;
     private final ParticleAnimationTrack.AnimationTrackType trackType;
-    private final FontRenderer font;
+    private final Font font;
     private final ParticleEditorScreen particleEditor;
 
     public AnimationTrackPanel(int x, int y, int width, ParticleAnimationTrack.AnimationTrackType trackType,
-                               FontRenderer font, ParticleEditorScreen particleEditor) {
+                               Font font, ParticleEditorScreen particleEditor) {
         super(x, y, width);
         this.track = null;
         this.trackType = trackType;
@@ -55,18 +55,18 @@ public class AnimationTrackPanel extends MKStackLayoutVertical {
         MKStackLayoutVertical headerLayout = new MKStackLayoutVertical(0, 0, getWidth());
         headerLayout.setPaddings(2, 2, 2, 2);
         headerLayout.setMargins(2, 2,2, 2);
-        ITextComponent trackName = getTrackName();
+        Component trackName = getTrackName();
         MKText tracktextName = new MKText(font, trackName);
         tracktextName.setWidth(getWidth());
         tracktextName.setColor(0xffffffff);
         headerLayout.addWidget(tracktextName);
         if (track == null){
-            MKButton setTrack = new MKButton(0, 0, 75, 20, new TranslationTextComponent("mkcore.particle_editor.add_track"));
+            MKButton setTrack = new MKButton(0, 0, 75, 20, new TranslatableComponent("mkcore.particle_editor.add_track"));
             setTrack.setPressedCallback((button, click) -> particleEditor.promptAddTrack(trackType));
             headerLayout.addWidget(setTrack);
             headerLayout.addConstraintToWidget(new OffsetConstraint(10, 0, true, false), setTrack);
         } else {
-            MKButton deleteTrack = new MKButton(0, 0, 75, 20, new TranslationTextComponent("mkcore.particle_editor.delete_track"));
+            MKButton deleteTrack = new MKButton(0, 0, 75, 20, new TranslatableComponent("mkcore.particle_editor.delete_track"));
             deleteTrack.setPressedCallback((button, click) -> particleEditor.deleteTrackButton(trackType));
             headerLayout.addWidget(deleteTrack);
             headerLayout.addConstraintToWidget(new OffsetConstraint(10, 0, true, false), deleteTrack);
@@ -74,18 +74,18 @@ public class AnimationTrackPanel extends MKStackLayoutVertical {
         return headerLayout;
     }
 
-    ITextComponent getTrackName(){
-        ITextComponent trackName = track == null ? new StringTextComponent("Empty") : track.getDescription();
+    Component getTrackName(){
+        Component trackName = track == null ? new TextComponent("Empty") : track.getDescription();
         switch (trackType){
             case COLOR:
-                return new TranslationTextComponent("mkcore.particle_editor.track_type.color", trackName);
+                return new TranslatableComponent("mkcore.particle_editor.track_type.color", trackName);
             case SCALE:
-                return new TranslationTextComponent("mkcore.particle_editor.track_type.scale", trackName);
+                return new TranslatableComponent("mkcore.particle_editor.track_type.scale", trackName);
             case MOTION:
-                return new TranslationTextComponent("mkcore.particle_editor.track_type.motion", trackName);
+                return new TranslatableComponent("mkcore.particle_editor.track_type.motion", trackName);
             case UNKNOWN:
             default:
-                return new TranslationTextComponent("mkcore.particle_editor.track_type.unknown", trackName);
+                return new TranslatableComponent("mkcore.particle_editor.track_type.unknown", trackName);
         }
     }
 

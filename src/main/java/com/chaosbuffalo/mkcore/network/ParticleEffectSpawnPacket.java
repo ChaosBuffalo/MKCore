@@ -2,11 +2,11 @@ package com.chaosbuffalo.mkcore.network;
 
 import com.chaosbuffalo.mkcore.fx.ParticleEffects;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.datasync.DataSerializers;
-import net.minecraft.particles.IParticleData;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.function.Supplier;
@@ -21,14 +21,14 @@ public class ParticleEffectSpawnPacket {
     private final double radiusX;
     private final double radiusY;
     private final double radiusZ;
-    private final IParticleData particleID;
+    private final ParticleOptions particleID;
     private final int data;
     private final double headingX;
     private final double headingY;
     private final double headingZ;
 
 
-    public ParticleEffectSpawnPacket(IParticleData particleID, int motionType, int count, int data,
+    public ParticleEffectSpawnPacket(ParticleOptions particleID, int motionType, int count, int data,
                                      double xPos, double yPos, double zPos,
                                      double radiusX, double radiusY, double radiusZ,
                                      double speed, double headingX, double headingY, double headingZ) {
@@ -48,26 +48,26 @@ public class ParticleEffectSpawnPacket {
         this.headingZ = headingZ;
     }
 
-    public ParticleEffectSpawnPacket(IParticleData particleID, int motionType, int count, int data,
+    public ParticleEffectSpawnPacket(ParticleOptions particleID, int motionType, int count, int data,
                                      double xPos, double yPos, double zPos,
                                      double radiusX, double radiusY, double radiusZ,
-                                     double speed, Vector3d headingVec) {
+                                     double speed, Vec3 headingVec) {
         this(particleID, motionType, count, data,
                 xPos, yPos, zPos,
                 radiusX, radiusY, radiusZ, speed,
                 headingVec.x, headingVec.y, headingVec.z);
     }
 
-    public ParticleEffectSpawnPacket(IParticleData particleID, int motionType, int count, int data,
-                                     Vector3d posVec,
+    public ParticleEffectSpawnPacket(ParticleOptions particleID, int motionType, int count, int data,
+                                     Vec3 posVec,
                                      double radiusX, double radiusY, double radiusZ,
-                                     double speed, Vector3d headingVec) {
+                                     double speed, Vec3 headingVec) {
         this(particleID, motionType, count, data, posVec.x, posVec.y, posVec.z, radiusX,
                 radiusY, radiusZ, speed, headingVec.x, headingVec.y, headingVec.z);
     }
 
-    public ParticleEffectSpawnPacket(PacketBuffer buf) {
-        this.particleID = DataSerializers.PARTICLE_DATA.read(buf);
+    public ParticleEffectSpawnPacket(FriendlyByteBuf buf) {
+        this.particleID = EntityDataSerializers.PARTICLE.read(buf);
         this.motionType = buf.readInt();
         this.data = buf.readInt();
         this.count = buf.readInt();
@@ -83,8 +83,8 @@ public class ParticleEffectSpawnPacket {
         this.headingZ = buf.readDouble();
     }
 
-    public void toBytes(PacketBuffer buf) {
-        DataSerializers.PARTICLE_DATA.write(buf, particleID);
+    public void toBytes(FriendlyByteBuf buf) {
+        EntityDataSerializers.PARTICLE.write(buf, particleID);
         buf.writeInt(this.motionType);
         buf.writeInt(this.data);
         buf.writeInt(this.count);
@@ -108,16 +108,16 @@ public class ParticleEffectSpawnPacket {
 
     static class ClientHandler {
         public static void handleClient(ParticleEffectSpawnPacket packet) {
-            PlayerEntity player = Minecraft.getInstance().player;
+            Player player = Minecraft.getInstance().player;
             if (player == null)
                 return;
 
             ParticleEffects.spawnParticleEffect(
                     packet.particleID, packet.motionType, packet.data, packet.speed, packet.count,
-                    new Vector3d(packet.xPos, packet.yPos, packet.zPos),
-                    new Vector3d(packet.radiusX, packet.radiusY, packet.radiusZ),
-                    new Vector3d(packet.headingX, packet.headingY, packet.headingZ),
-                    player.world);
+                    new Vec3(packet.xPos, packet.yPos, packet.zPos),
+                    new Vec3(packet.radiusX, packet.radiusY, packet.radiusZ),
+                    new Vec3(packet.headingX, packet.headingY, packet.headingZ),
+                    player.level);
         }
     }
 }

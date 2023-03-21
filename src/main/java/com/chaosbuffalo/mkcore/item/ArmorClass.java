@@ -3,17 +3,17 @@ package com.chaosbuffalo.mkcore.item;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.MKAttributes;
 import com.chaosbuffalo.mkcore.init.CoreTags;
-import net.minecraft.entity.ai.attributes.Attribute;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.ArmorItem;
-import net.minecraft.item.IArmorMaterial;
-import net.minecraft.item.Item;
-import net.minecraft.tags.ITag;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.ArmorMaterial;
+import net.minecraft.world.item.Item;
+import net.minecraft.tags.Tag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.*;
 
@@ -47,10 +47,10 @@ public class ArmorClass {
     private final ResourceLocation location;
     private final Map<Attribute, AttributeModifier> positiveModifierMap = new HashMap<>();
     private final Map<Attribute, AttributeModifier> negativeModifierMap = new HashMap<>();
-    private final Set<IArmorMaterial> materials = new HashSet<>();
-    private final ITag.INamedTag<Item> tag;
+    private final Set<ArmorMaterial> materials = new HashSet<>();
+    private final Tag.Named<Item> tag;
 
-    private static ArmorClass getArmorClassForMaterial(IArmorMaterial material) {
+    private static ArmorClass getArmorClassForMaterial(ArmorMaterial material) {
         return CHECK_ORDER.stream()
                 .filter(armorClass -> armorClass.hasMaterial(material))
                 .findFirst()
@@ -61,10 +61,10 @@ public class ArmorClass {
         return CHECK_ORDER.stream()
                 .filter(armorClass -> armorClass.containsItem(item))
                 .findFirst()
-                .orElseGet(() -> getArmorClassForMaterial(item.getArmorMaterial()));
+                .orElseGet(() -> getArmorClassForMaterial(item.getMaterial()));
     }
 
-    public ArmorClass(ResourceLocation location, ITag.INamedTag<Item> tag) {
+    public ArmorClass(ResourceLocation location, Tag.Named<Item> tag) {
         this.location = location;
         this.tag = tag;
     }
@@ -81,11 +81,11 @@ public class ArmorClass {
         return this;
     }
 
-    public Map<Attribute, AttributeModifier> getPositiveModifierMap(EquipmentSlotType slot) {
+    public Map<Attribute, AttributeModifier> getPositiveModifierMap(EquipmentSlot slot) {
         return this.positiveModifierMap;
     }
 
-    public Map<Attribute, AttributeModifier> getNegativeModifierMap(EquipmentSlotType slot) {
+    public Map<Attribute, AttributeModifier> getNegativeModifierMap(EquipmentSlot slot) {
         return this.negativeModifierMap;
     }
 
@@ -93,15 +93,15 @@ public class ArmorClass {
         return String.format("%s.%s.name", location.getNamespace(), location.getPath());
     }
 
-    public ITextComponent getName() {
-        return new TranslationTextComponent(getTranslationKey());
+    public Component getName() {
+        return new TranslatableComponent(getTranslationKey());
     }
 
     public ResourceLocation getLocation() {
         return location;
     }
 
-    private boolean hasMaterial(IArmorMaterial material) {
+    private boolean hasMaterial(ArmorMaterial material) {
         return materials.contains(material);
     }
 
@@ -109,7 +109,7 @@ public class ArmorClass {
         return tag == null || tag.contains(item);
     }
 
-    public ArmorClass register(IArmorMaterial material) {
+    public ArmorClass register(ArmorMaterial material) {
         materials.add(material);
         return this;
     }

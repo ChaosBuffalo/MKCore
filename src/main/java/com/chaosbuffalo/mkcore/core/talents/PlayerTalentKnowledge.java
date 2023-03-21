@@ -12,11 +12,11 @@ import com.chaosbuffalo.mkcore.utils.SoundUtils;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.DynamicOps;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
-import net.minecraft.nbt.NBTDynamicOps;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundCategory;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundSource;
 
 import java.util.*;
 import java.util.function.Function;
@@ -73,7 +73,7 @@ public class PlayerTalentKnowledge implements IPlayerSyncComponentProvider {
         if (playerData.isServerSide()) {
             talentXp.add(-getXpToNextLevel());
             grantTalentPoints(1);
-            SoundUtils.serverPlaySoundAtEntity(playerData.getEntity(), CoreSounds.level_up, SoundCategory.PLAYERS);
+            SoundUtils.serverPlaySoundAtEntity(playerData.getEntity(), CoreSounds.level_up, SoundSource.PLAYERS);
             playerData.getStats().setHealth(playerData.getStats().getMaxHealth());
             playerData.getStats().setMana(playerData.getStats().getMaxMana());
         }
@@ -270,19 +270,19 @@ public class PlayerTalentKnowledge implements IPlayerSyncComponentProvider {
         }
     }
 
-    public INBT serializeNBT() {
-        return serialize(NBTDynamicOps.INSTANCE);
+    public Tag serializeNBT() {
+        return serialize(NbtOps.INSTANCE);
     }
 
-    public void deserializeNBT(INBT tag) {
-        deserialize(new Dynamic<>(NBTDynamicOps.INSTANCE, tag));
+    public void deserializeNBT(Tag tag) {
+        deserialize(new Dynamic<>(NbtOps.INSTANCE, tag));
     }
 
     class ClientTreeSyncGroup extends DynamicSyncGroup {
 
         @Override
         protected void onKey(String key) {
-            ResourceLocation treeId = ResourceLocation.tryCreate(key);
+            ResourceLocation treeId = ResourceLocation.tryParse(key);
             if (treeId == null)
                 return;
 
@@ -295,12 +295,12 @@ public class PlayerTalentKnowledge implements IPlayerSyncComponentProvider {
         }
 
         @Override
-        public void serializeUpdate(CompoundNBT tag) {
+        public void serializeUpdate(CompoundTag tag) {
             throw new IllegalStateException("ClientTreeSyncGroup should never call serializeUpdate!");
         }
 
         @Override
-        public void serializeFull(CompoundNBT tag) {
+        public void serializeFull(CompoundTag tag) {
             throw new IllegalStateException("ClientTreeSyncGroup should never call serializeFull!");
         }
     }

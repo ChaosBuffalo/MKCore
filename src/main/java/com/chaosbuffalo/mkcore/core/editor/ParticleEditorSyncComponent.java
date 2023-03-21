@@ -7,8 +7,8 @@ import com.chaosbuffalo.mkcore.network.ParticleAnimationEditorSyncPacket;
 import com.chaosbuffalo.mkcore.sync.ISyncNotifier;
 import com.chaosbuffalo.mkcore.sync.ISyncObject;
 import com.mojang.serialization.Dynamic;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.NBTDynamicOps;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 
 public class ParticleEditorSyncComponent implements ISyncObject {
     private final String name;
@@ -62,13 +62,13 @@ public class ParticleEditorSyncComponent implements ISyncObject {
     }
 
     @Override
-    public void deserializeUpdate(CompoundNBT tag) {
+    public void deserializeUpdate(CompoundTag tag) {
         if (tag.contains(name)){
-            CompoundNBT syncTag = tag.getCompound(name);
+            CompoundTag syncTag = tag.getCompound(name);
             if (syncTag.contains("animation")){
                 this.animation = ParticleAnimation.deserializeFromDynamic(
                         ParticleAnimationManager.RAW_EFFECT,
-                        new Dynamic<>(NBTDynamicOps.INSTANCE, syncTag.getCompound("animation")));
+                        new Dynamic<>(NbtOps.INSTANCE, syncTag.getCompound("animation")));
             } else {
                 this.animation = null;
             }
@@ -76,17 +76,17 @@ public class ParticleEditorSyncComponent implements ISyncObject {
     }
 
     @Override
-    public void serializeUpdate(CompoundNBT tag) {
+    public void serializeUpdate(CompoundTag tag) {
         if (isDirty()){
             serializeFull(tag);
         }
     }
 
     @Override
-    public void serializeFull(CompoundNBT tag) {
-        CompoundNBT syncTag = new CompoundNBT();
+    public void serializeFull(CompoundTag tag) {
+        CompoundTag syncTag = new CompoundTag();
         if (animation != null){
-            syncTag.put("animation", animation.serialize(NBTDynamicOps.INSTANCE));
+            syncTag.put("animation", animation.serialize(NbtOps.INSTANCE));
         }
         syncTag.putInt("currentKeyFrame", currentFrame);
         tag.put(name, syncTag);

@@ -6,9 +6,9 @@ import com.chaosbuffalo.mkcore.serialization.attributes.BooleanAttribute;
 import com.chaosbuffalo.mkcore.serialization.attributes.DoubleAttribute;
 import com.chaosbuffalo.mkcore.serialization.attributes.IntAttribute;
 import com.chaosbuffalo.mkcore.utils.MathUtils;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 import org.lwjgl.system.CallbackI;
 
 import javax.annotation.Nullable;
@@ -53,8 +53,8 @@ public class ConeSpawnPattern extends ParticleSpawnPattern {
     }
 
     @Override
-    public void produceParticlesForIndex(Vector3d origin, int particleNumber, @Nullable List<Vector3d> additionalLocs,
-                                         World world, Function<Vector3d, MKParticleData> particleDataSupplier,
+    public void produceParticlesForIndex(Vec3 origin, int particleNumber, @Nullable List<Vec3> additionalLocs,
+                                         Level world, Function<Vec3, MKParticleData> particleDataSupplier,
                                          List<ParticleSpawnEntry> finalParticles) {
         int perLayer = count.value() / layers.value();
         particleNumber = particleNumber % (perLayer * layers.value());
@@ -65,11 +65,11 @@ public class ConeSpawnPattern extends ParticleSpawnPattern {
         double lerpWidth = inverted.value() ? MathUtils.lerpDouble(maxRadius.value(), minRadius.value(), ratio) :
                 MathUtils.lerpDouble(minRadius.value(), maxRadius.value(), ratio);
         double realDegrees = (360.0 / perLayer) * realNum;
-        Vector3d posVec = new Vector3d(
+        Vec3 posVec = new Vec3(
                 origin.x + (lerpWidth * Math.cos(Math.toRadians(realDegrees))),
                 ratio * height.value() + origin.y,
                 origin.z + (lerpWidth * Math.sin(Math.toRadians(realDegrees))));
-        Vector3d diffVec = posVec.subtract(origin).normalize();
+        Vec3 diffVec = posVec.subtract(origin).normalize();
         finalParticles.add(new ParticleSpawnEntry(particleDataSupplier.apply(origin), posVec, diffVec.scale(speed.value())));
     }
 }

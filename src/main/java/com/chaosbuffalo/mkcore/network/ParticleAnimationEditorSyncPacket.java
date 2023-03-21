@@ -3,10 +3,10 @@ package com.chaosbuffalo.mkcore.network;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.fx.particles.ParticleAnimation;
 import com.mojang.serialization.Dynamic;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
-import net.minecraft.nbt.NBTDynamicOps;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.function.Supplier;
@@ -25,18 +25,18 @@ public class ParticleAnimationEditorSyncPacket {
     }
 
 
-    public ParticleAnimationEditorSyncPacket(PacketBuffer buf) {
+    public ParticleAnimationEditorSyncPacket(FriendlyByteBuf buf) {
         this.currentKeyFrame = buf.readInt();
-        this.anim = ParticleAnimation.deserializeFromDynamic(RAW_EFFECT, new Dynamic<>(NBTDynamicOps.INSTANCE,
-                buf.readCompoundTag()));
+        this.anim = ParticleAnimation.deserializeFromDynamic(RAW_EFFECT, new Dynamic<>(NbtOps.INSTANCE,
+                buf.readNbt()));
     }
 
-    public void toBytes(PacketBuffer buf) {
+    public void toBytes(FriendlyByteBuf buf) {
         buf.writeInt(currentKeyFrame);
 
-        INBT dyn = anim.serialize(NBTDynamicOps.INSTANCE);
-        if (dyn instanceof CompoundNBT) {
-            buf.writeCompoundTag((CompoundNBT) dyn);
+        Tag dyn = anim.serialize(NbtOps.INSTANCE);
+        if (dyn instanceof CompoundTag) {
+            buf.writeNbt((CompoundTag) dyn);
         } else {
             throw new RuntimeException(String.format("Particle Animation %s did not serialize to a CompoundNBT!", anim));
         }

@@ -11,8 +11,8 @@ import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.DynamicOps;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.MutableComponent;
 
 import java.util.*;
 import java.util.function.Function;
@@ -59,7 +59,7 @@ public abstract class AbilityTrainingRequirement implements ISerializableAttribu
 
     public abstract void onLearned(MKPlayerData playerData, MKAbility ability);
 
-    public abstract IFormattableTextComponent describe(MKPlayerData playerData);
+    public abstract MutableComponent describe(MKPlayerData playerData);
 
     public <D> void readAdditionalData(Dynamic<D> dynamic) {
         deserializeAttributeMap(dynamic, "attributes");

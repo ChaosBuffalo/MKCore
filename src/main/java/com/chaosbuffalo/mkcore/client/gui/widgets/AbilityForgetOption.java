@@ -5,9 +5,9 @@ import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.PlayerLearnAbilityRequestPacket;
 import com.chaosbuffalo.mkwidgets.client.gui.constraints.MarginConstraint;
 import com.chaosbuffalo.mkwidgets.client.gui.layouts.MKLayout;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.Font;
 import net.minecraft.util.ResourceLocation;
 
 public class AbilityForgetOption extends MKLayout {
@@ -16,7 +16,7 @@ public class AbilityForgetOption extends MKLayout {
     private final MKAbility ability;
 
     public AbilityForgetOption(MKAbility ability, ForgetAbilityModal popup,
-                               FontRenderer font) {
+                               Font font) {
         super(0, 0, 200, 16);
         this.popup = popup;
         this.ability = ability;
@@ -41,7 +41,7 @@ public class AbilityForgetOption extends MKLayout {
     }
 
     @Override
-    public void postDraw(MatrixStack matrixStack, Minecraft mc, int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks) {
+    public void postDraw(PoseStack matrixStack, Minecraft mc, int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks) {
         boolean isForgetting = popup.isForgetting(ability);
         boolean hovered = isHovered();
         if (hovered || isForgetting) {

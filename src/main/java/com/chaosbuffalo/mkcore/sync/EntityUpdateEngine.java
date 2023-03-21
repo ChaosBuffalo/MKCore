@@ -3,9 +3,9 @@ package com.chaosbuffalo.mkcore.sync;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.network.EntityDataSyncPacket;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.nbt.CompoundTag;
 
 public class EntityUpdateEngine extends UpdateEngine{
 
@@ -17,7 +17,7 @@ public class EntityUpdateEngine extends UpdateEngine{
 
     @Override
     public void syncUpdates() {
-        if (entity.getEntityWorld().isRemote){
+        if (entity.getCommandSenderWorld().isClientSide){
             return;
         }
         if (publicUpdater.isDirty()) {
@@ -28,13 +28,13 @@ public class EntityUpdateEngine extends UpdateEngine{
     }
 
     private EntityDataSyncPacket getUpdateMessage() {
-        CompoundNBT tag = new CompoundNBT();
+        CompoundTag tag = new CompoundTag();
         serializeUpdate(tag, false, false);
-        return new EntityDataSyncPacket(entity.getEntityId(), tag);
+        return new EntityDataSyncPacket(entity.getId(), tag);
     }
 
     @Override
-    public void serializeUpdate(CompoundNBT updateTag, boolean fullSync, boolean privateUpdate) {
+    public void serializeUpdate(CompoundTag updateTag, boolean fullSync, boolean privateUpdate) {
         if (fullSync) {
             publicUpdater.serializeFull(updateTag);
         } else {
@@ -43,17 +43,17 @@ public class EntityUpdateEngine extends UpdateEngine{
     }
 
     @Override
-    public void deserializeUpdate(CompoundNBT updateTag, boolean privateUpdate) {
+    public void deserializeUpdate(CompoundTag updateTag, boolean privateUpdate) {
         publicUpdater.deserializeUpdate(updateTag);
     }
 
     @Override
-    public void sendAll(ServerPlayerEntity otherPlayer) {
-        if (entity.getEntityWorld().isRemote)
+    public void sendAll(ServerPlayer otherPlayer) {
+        if (entity.getCommandSenderWorld().isClientSide)
             return;
-        CompoundNBT tag = new CompoundNBT();
+        CompoundTag tag = new CompoundTag();
         publicUpdater.serializeFull(tag);
-        EntityDataSyncPacket packet = new EntityDataSyncPacket(entity.getEntityId(), tag);
+        EntityDataSyncPacket packet = new EntityDataSyncPacket(entity.getId(), tag);
         MKCore.LOGGER.info("sending full sync {} for {} to {}", packet, entity, otherPlayer);
         PacketHandler.sendMessage(packet, otherPlayer);
     }

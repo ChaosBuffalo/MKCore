@@ -2,11 +2,11 @@ package com.chaosbuffalo.mkcore.client.rendering.skeleton;
 
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.util.HandSide;
 import net.minecraft.util.Tuple;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.util.math.vector.Vector3f;
 
 import javax.annotation.Nullable;
@@ -16,9 +16,9 @@ public abstract class MCBone {
 
     private final String boneName;
     private final MCBone parent;
-    private final Vector3d boneLocation;
+    private final Vec3 boneLocation;
 
-    public MCBone(String boneName, Vector3d boneLocation, @Nullable MCBone parent){
+    public MCBone(String boneName, Vec3 boneLocation, @Nullable MCBone parent){
         this.boneName = boneName;
         this.parent = parent;
         this.boneLocation = boneLocation;
@@ -37,7 +37,7 @@ public abstract class MCBone {
         return boneName;
     }
 
-    public Vector3d getBoneLocation(){
+    public Vec3 getBoneLocation(){
         return boneLocation;
     }
 
@@ -47,15 +47,15 @@ public abstract class MCBone {
 
     public abstract float getRoll();
 
-    public static Vector3d getOffsetForStopAt(MCBone bone, MCBone stopAt){
+    public static Vec3 getOffsetForStopAt(MCBone bone, MCBone stopAt){
         MCBone currentBone = bone;
-        Vector3d finalLoc = bone.getBoneLocation();
+        Vec3 finalLoc = bone.getBoneLocation();
         while (currentBone != null && currentBone.hasParent()){
             MCBone parent = currentBone.getParent();
             if (parent != null){
-                finalLoc = finalLoc.rotatePitch(-parent.getPitch());
-                finalLoc = finalLoc.rotateYaw(parent.getYaw());
-                finalLoc = finalLoc.rotateRoll(parent.getRoll());
+                finalLoc = finalLoc.xRot(-parent.getPitch());
+                finalLoc = finalLoc.yRot(parent.getYaw());
+                finalLoc = finalLoc.zRot(parent.getRoll());
                 finalLoc = finalLoc.add(parent.getBoneLocation());
             }
             if (currentBone.equals(stopAt)){
@@ -66,15 +66,15 @@ public abstract class MCBone {
         return finalLoc;
     }
 
-    public static Vector3d getOffsetForBone(MCBone bone){
+    public static Vec3 getOffsetForBone(MCBone bone){
         MCBone currentBone = bone;
-        Vector3d finalLoc = bone.getBoneLocation();
+        Vec3 finalLoc = bone.getBoneLocation();
         while (currentBone != null && currentBone.hasParent()){
             MCBone parent = currentBone.getParent();
             if (parent != null){
-                finalLoc = finalLoc.rotatePitch(-parent.getPitch());
-                finalLoc = finalLoc.rotateYaw(parent.getYaw());
-                finalLoc = finalLoc.rotateRoll(parent.getRoll());
+                finalLoc = finalLoc.xRot(-parent.getPitch());
+                finalLoc = finalLoc.yRot(parent.getYaw());
+                finalLoc = finalLoc.zRot(parent.getRoll());
                 finalLoc = finalLoc.add(parent.getBoneLocation());
             }
             currentBone = parent;
@@ -85,38 +85,38 @@ public abstract class MCBone {
 
 
 
-    public static Optional<Vector3d> getPositionOfBoneInWorld(LivingEntity entityIn, MCSkeleton skeleton,
-                                                              float partialTicks, Vector3d renderOffset, String boneName){
+    public static Optional<Vec3> getPositionOfBoneInWorld(LivingEntity entityIn, MCSkeleton skeleton,
+                                                              float partialTicks, Vec3 renderOffset, String boneName){
         MCBone bone = skeleton.getBone(boneName);
         if (bone != null){
-            double entX = MathHelper.lerp(partialTicks, entityIn.prevPosX, entityIn.getPosX());
-            double entY = MathHelper.lerp(partialTicks, entityIn.prevPosY, entityIn.getPosY());
-            double entZ = MathHelper.lerp(partialTicks, entityIn.prevPosZ, entityIn.getPosZ());
-            float yaw = MathHelper.lerp(partialTicks, entityIn.prevRenderYawOffset, entityIn.renderYawOffset) * ((float)Math.PI / 180F);
+            double entX = Mth.lerp(partialTicks, entityIn.xo, entityIn.getX());
+            double entY = Mth.lerp(partialTicks, entityIn.yo, entityIn.getY());
+            double entZ = Mth.lerp(partialTicks, entityIn.zo, entityIn.getZ());
+            float yaw = Mth.lerp(partialTicks, entityIn.yBodyRotO, entityIn.yBodyRot) * ((float)Math.PI / 180F);
 
             //we need to handle swimming rots
-            float swimTime = entityIn.getSwimAnimation(partialTicks);
+            float swimTime = entityIn.getSwimAmount(partialTicks);
             float pitch = 0.0f;
-            Vector3d boneOffset = new Vector3d(0.0, 0.0, 0.0);
+            Vec3 boneOffset = new Vec3(0.0, 0.0, 0.0);
 
 
-            Vector3d bonePos = MCBone.getOffsetForBone(bone);
+            Vec3 bonePos = MCBone.getOffsetForBone(bone);
 
             if (swimTime > 0.0f){
-                float entPitch = entityIn.isInWater() ? -90.0F - entityIn.rotationPitch : -90.0F;
-                float lerpSwim = MathHelper.lerp(swimTime, 0.0F, entPitch);
+                float entPitch = entityIn.isInWater() ? -90.0F - entityIn.xRot : -90.0F;
+                float lerpSwim = Mth.lerp(swimTime, 0.0F, entPitch);
                 pitch = ((float)Math.PI / 180F) * lerpSwim;
-                if (entityIn.isActualySwimming()) {
-                    boneOffset = new Vector3d(0.0, -1.0, -0.3);
+                if (entityIn.isVisuallySwimming()) {
+                    boneOffset = new Vec3(0.0, -1.0, -0.3);
                 }
                 bonePos = bonePos.add(boneOffset);
-                bonePos = bonePos.rotatePitch(pitch);
+                bonePos = bonePos.xRot(pitch);
 //                bonePos = bonePos.add(boneOffset);
             }
 
 
-            return Optional.of(new Vector3d(entX, entY, entZ).add(renderOffset).add(bonePos.rotateYaw(-yaw)
-                    .scale(entityIn.getRenderScale())));
+            return Optional.of(new Vec3(entX, entY, entZ).add(renderOffset).add(bonePos.yRot(-yaw)
+                    .scale(entityIn.getScale())));
         } else {
             return Optional.empty();
         }

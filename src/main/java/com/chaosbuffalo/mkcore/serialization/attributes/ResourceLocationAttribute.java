@@ -2,7 +2,7 @@ package com.chaosbuffalo.mkcore.serialization.attributes;
 
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.DynamicOps;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 
 public class ResourceLocationAttribute extends SimpleAttribute<ResourceLocation> {
 

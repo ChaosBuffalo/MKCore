@@ -5,10 +5,10 @@ import com.chaosbuffalo.mkcore.core.damage.MKDamageType;
 import com.chaosbuffalo.mkcore.network.MKParticleEffectSpawnPacket;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.utils.MKNBTUtil;
-import net.minecraft.entity.Entity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 
@@ -58,7 +58,7 @@ public abstract class ScalingValueEffectState extends MKEffectState {
     }
 
     @Override
-    public void serializeStorage(CompoundNBT stateTag) {
+    public void serializeStorage(CompoundTag stateTag) {
         super.serializeStorage(stateTag);
         stateTag.putFloat("base", base);
         stateTag.putFloat("scale", scale);
@@ -72,7 +72,7 @@ public abstract class ScalingValueEffectState extends MKEffectState {
     }
 
     @Override
-    public void deserializeStorage(CompoundNBT stateTag) {
+    public void deserializeStorage(CompoundTag stateTag) {
         super.deserializeStorage(stateTag);
         base = stateTag.getFloat("base");
         scale = stateTag.getFloat("scale");
@@ -85,11 +85,11 @@ public abstract class ScalingValueEffectState extends MKEffectState {
         }
     }
 
-    private final Vector3d YP = new Vector3d(0.0, 1.0, 0.0);
+    private final Vec3 YP = new Vec3(0.0, 1.0, 0.0);
 
     protected void sendEffectParticles(Entity target) {
         if (particles != null) {
-            PacketHandler.sendToTrackingAndSelf(new MKParticleEffectSpawnPacket(YP, particles, target.getEntityId()), target);
+            PacketHandler.sendToTrackingAndSelf(new MKParticleEffectSpawnPacket(YP, particles, target.getId()), target);
         }
     }
 }

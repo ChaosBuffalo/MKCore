@@ -2,9 +2,9 @@ package com.chaosbuffalo.mkcore.network;
 
 import com.chaosbuffalo.mkcore.CoreCapabilities;
 import com.chaosbuffalo.mkcore.core.AbilityGroupId;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.function.Supplier;
@@ -22,22 +22,22 @@ public class PlayerSlotAbilityPacket {
     }
 
 
-    public PlayerSlotAbilityPacket(PacketBuffer buf) {
+    public PlayerSlotAbilityPacket(FriendlyByteBuf buf) {
         ability = buf.readResourceLocation();
-        group = buf.readEnumValue(AbilityGroupId.class);
+        group = buf.readEnum(AbilityGroupId.class);
         slotIndex = buf.readInt();
     }
 
-    public void toBytes(PacketBuffer buf) {
+    public void toBytes(FriendlyByteBuf buf) {
         buf.writeResourceLocation(ability);
-        buf.writeEnumValue(group);
+        buf.writeEnum(group);
         buf.writeInt(slotIndex);
     }
 
     public void handle(Supplier<NetworkEvent.Context> supplier) {
         NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
-            ServerPlayerEntity entity = ctx.getSender();
+            ServerPlayer entity = ctx.getSender();
             if (entity == null) {
                 return;
             }

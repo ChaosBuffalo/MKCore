@@ -1,9 +1,9 @@
 package com.chaosbuffalo.mkcore.network;
 
 import com.chaosbuffalo.mkcore.CoreCapabilities;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.function.Supplier;
@@ -26,24 +26,24 @@ public class TalentPointActionPacket {
         this.action = action;
     }
 
-    public TalentPointActionPacket(PacketBuffer buffer) {
+    public TalentPointActionPacket(FriendlyByteBuf buffer) {
         talentTree = buffer.readResourceLocation();
-        line = buffer.readString(1024);
+        line = buffer.readUtf(1024);
         index = buffer.readVarInt();
-        action = buffer.readEnumValue(Action.class);
+        action = buffer.readEnum(Action.class);
     }
 
-    public void toBytes(PacketBuffer buffer) {
+    public void toBytes(FriendlyByteBuf buffer) {
         buffer.writeResourceLocation(talentTree);
-        buffer.writeString(line);
+        buffer.writeUtf(line);
         buffer.writeVarInt(index);
-        buffer.writeEnumValue(action);
+        buffer.writeEnum(action);
     }
 
     public void handle(Supplier<NetworkEvent.Context> supplier) {
         NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
-            ServerPlayerEntity entity = ctx.getSender();
+            ServerPlayer entity = ctx.getSender();
             if (entity == null)
                 return;
 

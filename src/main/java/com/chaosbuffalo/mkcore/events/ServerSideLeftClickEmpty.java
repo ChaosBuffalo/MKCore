@@ -1,21 +1,21 @@
 package com.chaosbuffalo.mkcore.events;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.core.BlockPos;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 
 public class ServerSideLeftClickEmpty extends PlayerEvent {
-    private final Hand hand;
+    private final InteractionHand hand;
     private final BlockPos pos;
 
-    public ServerSideLeftClickEmpty(PlayerEntity player) {
+    public ServerSideLeftClickEmpty(Player player) {
         super(player);
-        this.hand = Hand.MAIN_HAND;
-        this.pos = player.getPosition();
+        this.hand = InteractionHand.MAIN_HAND;
+        this.pos = player.blockPosition();
     }
 
-    public Hand getHand() {
+    public InteractionHand getHand() {
         return hand;
     }
 

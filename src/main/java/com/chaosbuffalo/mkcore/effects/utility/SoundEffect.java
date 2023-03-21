@@ -4,11 +4,11 @@ import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.effects.*;
 import com.chaosbuffalo.mkcore.utils.SoundUtils;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.potion.EffectType;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -20,16 +20,16 @@ public class SoundEffect extends MKEffect {
     public static final SoundEffect INSTANCE = new SoundEffect();
 
     public SoundEffect() {
-        super(EffectType.NEUTRAL);
+        super(MobEffectCategory.NEUTRAL);
         setRegistryName("effect.sound_effect");
     }
 
     public static MKEffectBuilder<?> from(LivingEntity source, SoundEvent event, float pitch, float volume,
-                                          SoundCategory cat) {
+                                          SoundSource cat) {
         return INSTANCE.builder(source).state(s -> s.setup(event, pitch, volume, cat));
     }
 
-    public static MKEffectBuilder<?> from(LivingEntity source, SoundEvent event, SoundCategory cat) {
+    public static MKEffectBuilder<?> from(LivingEntity source, SoundEvent event, SoundSource cat) {
         return from(source, event, 1f, 1f, cat);
     }
 
@@ -52,16 +52,16 @@ public class SoundEffect extends MKEffect {
         public ResourceLocation soundEvent;
         public float volume;
         public float pitch;
-        public SoundCategory category;
+        public SoundSource category;
 
-        public void setup(SoundEvent event, float pitch, float volume, SoundCategory cat) {
+        public void setup(SoundEvent event, float pitch, float volume, SoundSource cat) {
             soundEvent = event.getRegistryName();
             this.volume = volume;
             this.pitch = pitch;
             this.category = cat;
         }
 
-        public void setup(SoundEvent event, SoundCategory cat) {
+        public void setup(SoundEvent event, SoundSource cat) {
             setup(event, 1f, 1f, cat);
         }
 

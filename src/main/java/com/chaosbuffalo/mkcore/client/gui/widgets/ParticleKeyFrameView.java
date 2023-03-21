@@ -9,7 +9,7 @@ import com.chaosbuffalo.mkwidgets.client.gui.layouts.MKStackLayoutVertical;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKButton;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKScrollView;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.particle.Particle;
 import org.lwjgl.glfw.GLFW;
 
@@ -19,12 +19,12 @@ public class ParticleKeyFrameView extends MKScrollView {
     private static final int SPACE_PER_TICK = 2;
     private static final int GRID_INTERVAL = 5;
     private final LongitudinalGridStackLayoutVertical layout;
-    private final FontRenderer font;
+    private final Font font;
     private final ParticleEditorScreen editor;
 
 
     public ParticleKeyFrameView(int x, int y, int width, int height, ParticleAnimation animation,
-                                FontRenderer font, ParticleEditorScreen editor) {
+                                Font font, ParticleEditorScreen editor) {
         super(x, y, width, height, true);
         this.animation = animation;
         this.font = font;

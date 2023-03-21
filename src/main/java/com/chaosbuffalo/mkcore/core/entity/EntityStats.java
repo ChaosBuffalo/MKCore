@@ -3,9 +3,9 @@ package com.chaosbuffalo.mkcore.core.entity;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.core.*;
 import com.chaosbuffalo.mkcore.core.damage.MKDamageType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 
 public class EntityStats implements IMKEntityStats {
 
@@ -101,12 +101,12 @@ public class EntityStats implements IMKEntityStats {
     }
 
     @Override
-    public CompoundNBT serialize() {
-        return new CompoundNBT();
+    public CompoundTag serialize() {
+        return new CompoundTag();
     }
 
     @Override
-    public void deserialize(CompoundNBT nbt) {
+    public void deserialize(CompoundTag nbt) {
 
     }
 

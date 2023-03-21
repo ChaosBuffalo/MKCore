@@ -11,17 +11,17 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.Commands;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.potion.EffectInstance;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.effect.MobEffectInstance;
 
 import java.util.Collection;
 import java.util.UUID;
 
 public class EffectCommand {
 
-    public static LiteralArgumentBuilder<CommandSource> register() {
+    public static LiteralArgumentBuilder<CommandSourceStack> register() {
         return Commands.literal("effect")
                 .then(Commands.literal("list")
                         .executes(EffectCommand::listEffects)
@@ -35,14 +35,14 @@ public class EffectCommand {
                 ;
     }
 
-    static int listEffects(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
-        ServerPlayerEntity player = ctx.getSource().asPlayer();
+    static int listEffects(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        ServerPlayer player = ctx.getSource().getPlayerOrException();
 
-        Collection<EffectInstance> effects = player.getActivePotionEffects();
+        Collection<MobEffectInstance> effects = player.getActiveEffects();
         if (effects.size() > 0) {
             ChatUtils.sendMessageWithBrackets(player, "Active MobEffects");
-            for (EffectInstance instance : effects) {
-                ChatUtils.sendMessage(player, "%s: %d", instance.getPotion().getRegistryName(), instance.getDuration());
+            for (MobEffectInstance instance : effects) {
+                ChatUtils.sendMessage(player, "%s: %d", instance.getEffect().getRegistryName(), instance.getDuration());
             }
         } else {
             ChatUtils.sendMessageWithBrackets(player, "No active MobEffects");
@@ -62,20 +62,20 @@ public class EffectCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    static int clearEffects(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
-        ServerPlayerEntity player = ctx.getSource().asPlayer();
-        player.clearActivePotions();
+    static int clearEffects(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        ServerPlayer player = ctx.getSource().getPlayerOrException();
+        player.removeAllEffects();
         MKCore.getPlayer(player).ifPresent(playerData -> playerData.getEffects().clearEffects());
         ChatUtils.sendMessageWithBrackets(player, "Effects cleared");
 
         return Command.SINGLE_SUCCESS;
     }
 
-    static int testEffects(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
-        ServerPlayerEntity player = ctx.getSource().asPlayer();
+    static int testEffects(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        ServerPlayer player = ctx.getSource().getPlayerOrException();
 
 //        UUID source = UUID.randomUUID();
-        UUID source = player.getUniqueID();
+        UUID source = player.getUUID();
         MKCore.getPlayer(player).ifPresent(playerData -> {
             MKEffectBuilder<?> newInstance;
             newInstance = NewHealEffect.INSTANCE.builder(source)

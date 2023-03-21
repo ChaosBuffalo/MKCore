@@ -3,9 +3,9 @@ package com.chaosbuffalo.mkcore.effects;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.targeting_api.Targeting;
 import com.chaosbuffalo.targeting_api.TargetingContext;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.potion.EffectInstance;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.effect.MobEffectInstance;
 
 public abstract class WorldAreaEffectEntry {
 
@@ -27,7 +27,7 @@ public abstract class WorldAreaEffectEntry {
 
     public abstract void apply(IMKEntityData casterData, IMKEntityData targetData);
 
-    public static WorldAreaEffectEntry forEffect(Entity directSource, EffectInstance effect,
+    public static WorldAreaEffectEntry forEffect(Entity directSource, MobEffectInstance effect,
                                                  TargetingContext targetContext) {
         return new VanillaEffectEntry(directSource, effect, targetContext);
     }
@@ -57,10 +57,10 @@ public abstract class WorldAreaEffectEntry {
     }
 
     private static class VanillaEffectEntry extends WorldAreaEffectEntry {
-        protected final EffectInstance effect;
+        protected final MobEffectInstance effect;
         protected final Entity directSource;
 
-        VanillaEffectEntry(Entity directSource, EffectInstance effect, TargetingContext targetContext) {
+        VanillaEffectEntry(Entity directSource, MobEffectInstance effect, TargetingContext targetContext) {
             super(targetContext);
             this.directSource = directSource;
             this.effect = effect;
@@ -75,10 +75,10 @@ public abstract class WorldAreaEffectEntry {
                 return;
             }
 
-            if (effect.getPotion().isInstant()) {
-                effect.getPotion().affectEntity(directSource, casterData.getEntity(), target, effect.getAmplifier(), 0.5D);
+            if (effect.getEffect().isInstantenous()) {
+                effect.getEffect().applyInstantenousEffect(directSource, casterData.getEntity(), target, effect.getAmplifier(), 0.5D);
             } else {
-                target.addPotionEffect(new EffectInstance(effect));
+                target.addEffect(new MobEffectInstance(effect));
             }
         }
     }

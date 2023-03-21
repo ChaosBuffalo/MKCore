@@ -4,15 +4,15 @@ import com.chaosbuffalo.mkcore.client.gui.ParticleEditorScreen;
 import com.chaosbuffalo.mkcore.fx.particles.spawn_patterns.ParticleSpawnPattern;
 import com.chaosbuffalo.mkwidgets.client.gui.layouts.MKStackLayoutVertical;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKButton;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.resources.I18n;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.resources.language.I18n;
 
 public class ParticleSpawnPatternWidget extends MKStackLayoutVertical {
     private ParticleSpawnPattern spawnPattern;
-    private final FontRenderer font;
+    private final Font font;
     private final ParticleEditorScreen editor;
 
-    public ParticleSpawnPatternWidget(int x, int y, int width, ParticleSpawnPattern spawnPattern, FontRenderer font,
+    public ParticleSpawnPatternWidget(int x, int y, int width, ParticleSpawnPattern spawnPattern, Font font,
                                       ParticleEditorScreen editor) {
         super(x, y, width);
         this.spawnPattern = spawnPattern;
@@ -41,7 +41,7 @@ public class ParticleSpawnPatternWidget extends MKStackLayoutVertical {
             });
             addWidget(change);
         } else {
-            MKButton addButton = new MKButton(getX(), getY(), I18n.format("mkcore.particle_editor.set_spawn_pattern"));
+            MKButton addButton = new MKButton(getX(), getY(), I18n.get("mkcore.particle_editor.set_spawn_pattern"));
             addButton.setPressedCallback((but, click) -> {
                 editor.promptSetSpawnPattern();
                 return true;

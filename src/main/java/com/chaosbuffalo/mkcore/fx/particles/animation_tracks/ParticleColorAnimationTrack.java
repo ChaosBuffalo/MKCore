@@ -1,8 +1,8 @@
 package com.chaosbuffalo.mkcore.fx.particles.animation_tracks;
 
 import com.chaosbuffalo.mkcore.fx.particles.MKParticle;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.resources.ResourceLocation;
+import com.mojang.math.Vector3f;
 
 public abstract class ParticleColorAnimationTrack extends ParticleAnimationTrack{
 
@@ -22,7 +22,7 @@ public abstract class ParticleColorAnimationTrack extends ParticleAnimationTrack
     @Override
     public void apply(MKParticle particle) {
         Vector3f color = getColor(particle);
-        particle.setColor(color.getX(), color.getY(), color.getZ());
+        particle.setColor(color.x(), color.y(), color.z());
     }
 
     @Override

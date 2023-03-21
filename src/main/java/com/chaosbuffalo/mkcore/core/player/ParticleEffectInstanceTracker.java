@@ -7,10 +7,10 @@ import com.chaosbuffalo.mkcore.fx.particles.effect_instances.ParticleEffectInsta
 import com.chaosbuffalo.mkcore.sync.ISyncNotifier;
 import com.chaosbuffalo.mkcore.sync.ISyncObject;
 import com.mojang.serialization.Dynamic;
-import net.minecraft.entity.Entity;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.*;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.util.Constants;
 
 import java.util.ArrayList;
@@ -74,12 +74,12 @@ public class ParticleEffectInstanceTracker implements ISyncObject {
 
 
     @Override
-    public void deserializeUpdate(CompoundNBT tag) {
+    public void deserializeUpdate(CompoundTag tag) {
         if (tag.contains("effectInstances")){
             particleInstances.clear();
-            ListNBT effectsNbt = tag.getList("effectInstances", Constants.NBT.TAG_COMPOUND);
-            for (INBT effNbt : effectsNbt){
-                Dynamic<?> dyn = new Dynamic<>(NBTDynamicOps.INSTANCE, effNbt);
+            ListTag effectsNbt = tag.getList("effectInstances", Constants.NBT.TAG_COMPOUND);
+            for (Tag effNbt : effectsNbt){
+                Dynamic<?> dyn = new Dynamic<>(NbtOps.INSTANCE, effNbt);
                 ResourceLocation type = ParticleEffectInstance.getType(dyn);
                 ParticleEffectInstance inst = ParticleAnimationManager.getEffectInstance(type);
                 if (inst != null){
@@ -89,9 +89,9 @@ public class ParticleEffectInstanceTracker implements ISyncObject {
             }
         }
         if (tag.contains("effectInstancesAdd")){
-            ListNBT effectsNbt = tag.getList("effectInstancesAdd", Constants.NBT.TAG_COMPOUND);
-            for (INBT effNbt : effectsNbt){
-                Dynamic<?> dyn = new Dynamic<>(NBTDynamicOps.INSTANCE, effNbt);
+            ListTag effectsNbt = tag.getList("effectInstancesAdd", Constants.NBT.TAG_COMPOUND);
+            for (Tag effNbt : effectsNbt){
+                Dynamic<?> dyn = new Dynamic<>(NbtOps.INSTANCE, effNbt);
                 ResourceLocation type = ParticleEffectInstance.getType(dyn);
                 ParticleEffectInstance inst = ParticleAnimationManager.getEffectInstance(type);
                 if (inst != null){
@@ -101,9 +101,9 @@ public class ParticleEffectInstanceTracker implements ISyncObject {
             }
         }
         if (tag.contains("effectInstancesRemove")){
-            ListNBT toRemoveNbt = tag.getList("effectInstancesRemove", Constants.NBT.TAG_STRING);
-            for (INBT inbt : toRemoveNbt){
-                UUID id = UUID.fromString(inbt.getString());
+            ListTag toRemoveNbt = tag.getList("effectInstancesRemove", Constants.NBT.TAG_STRING);
+            for (Tag inbt : toRemoveNbt){
+                UUID id = UUID.fromString(inbt.getAsString());
                 removeParticleInstance(id);
             }
         }
@@ -111,12 +111,12 @@ public class ParticleEffectInstanceTracker implements ISyncObject {
     }
 
     @Override
-    public void serializeUpdate(CompoundNBT tag) {
+    public void serializeUpdate(CompoundTag tag) {
 
     }
 
     @Override
-    public void serializeFull(CompoundNBT tag) {
+    public void serializeFull(CompoundTag tag) {
 
     }
 
@@ -155,10 +155,10 @@ public class ParticleEffectInstanceTracker implements ISyncObject {
         }
 
         @Override
-        public void serializeFull(CompoundNBT tag) {
-            ListNBT effectsNbt = new ListNBT();
+        public void serializeFull(CompoundTag tag) {
+            ListTag effectsNbt = new ListTag();
             for (ParticleEffectInstance instance : particleInstances){
-                effectsNbt.add(instance.serialize(NBTDynamicOps.INSTANCE));
+                effectsNbt.add(instance.serialize(NbtOps.INSTANCE));
             }
             tag.put("effectInstances", effectsNbt);
             toRemoveDirty.clear();
@@ -166,16 +166,16 @@ public class ParticleEffectInstanceTracker implements ISyncObject {
         }
 
         @Override
-        public void serializeUpdate(CompoundNBT tag) {
-            ListNBT toRemove = new ListNBT();
+        public void serializeUpdate(CompoundTag tag) {
+            ListTag toRemove = new ListTag();
             for (UUID id : toRemoveDirty){
-                toRemove.add(StringNBT.valueOf(id.toString()));
+                toRemove.add(StringTag.valueOf(id.toString()));
             }
             tag.put("effectInstancesRemove", toRemove);
             toRemoveDirty.clear();
-            ListNBT toAdd = new ListNBT();
+            ListTag toAdd = new ListTag();
             for (ParticleEffectInstance instance : toAddDirty){
-                toAdd.add(instance.serialize(NBTDynamicOps.INSTANCE));
+                toAdd.add(instance.serialize(NbtOps.INSTANCE));
             }
             tag.put("effectInstancesAdd", toAdd);
             toAddDirty.clear();
@@ -188,7 +188,7 @@ public class ParticleEffectInstanceTracker implements ISyncObject {
     }
 
     public static ParticleEffectInstanceTracker getTracker(Entity entity) {
-        if (!entity.getEntityWorld().isRemote()) {
+        if (!entity.getCommandSenderWorld().isClientSide()) {
             return new ParticleEffectInstanceTrackerServer(entity);
         } else {
             return new ParticleEffectInstanceTracker(entity);

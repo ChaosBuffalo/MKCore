@@ -1,8 +1,8 @@
 package com.chaosbuffalo.mkcore.utils;
 
-import net.minecraft.util.math.vector.Matrix4f;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector4f;
+import com.mojang.math.Matrix4f;
+import net.minecraft.world.phys.Vec3;
+import com.mojang.math.Vector4f;
 
 public class MathUtils {
 
@@ -26,10 +26,10 @@ public class MathUtils {
         return str.matches("^([+-]?[1-9]\\d*|0)$");
     }
 
-    public static Vector3d getTranslation(Matrix4f mat, Vector3d vecIn){
-        Vector4f vec = new Vector4f((float)vecIn.getX(), (float)vecIn.getY(), (float)vecIn.getZ(), 1.0f);
+    public static Vec3 getTranslation(Matrix4f mat, Vec3 vecIn){
+        Vector4f vec = new Vector4f((float)vecIn.x(), (float)vecIn.y(), (float)vecIn.z(), 1.0f);
         vec.transform(mat);
-        return new Vector3d(vec.getX(), vec.getY(), vec.getZ());
+        return new Vec3(vec.x(), vec.y(), vec.z());
     }
 
     public static double getAtanOffset(double y, double x){

@@ -4,7 +4,7 @@ import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.IMKEntityKnowledge;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.talents.PlayerTalentKnowledge;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
 
 public class PlayerKnowledge implements IMKEntityKnowledge, IPlayerSyncComponentProvider {
 
@@ -52,8 +52,8 @@ public class PlayerKnowledge implements IMKEntityKnowledge, IPlayerSyncComponent
         return entitlementsKnowledge;
     }
 
-    public CompoundNBT serialize() {
-        CompoundNBT tag = new CompoundNBT();
+    public CompoundTag serialize() {
+        CompoundTag tag = new CompoundTag();
         tag.put("abilities", abilityKnowledge.serialize());
         tag.put("talents", talentKnowledge.serializeNBT());
         tag.put("entitlements", entitlementsKnowledge.serialize());
@@ -62,7 +62,7 @@ public class PlayerKnowledge implements IMKEntityKnowledge, IPlayerSyncComponent
         return tag;
     }
 
-    public void deserialize(CompoundNBT tag) {
+    public void deserialize(CompoundTag tag) {
         abilityKnowledge.deserialize(tag.getCompound("abilities"));
         talentKnowledge.deserializeNBT(tag.get("talents"));
         entitlementsKnowledge.deserialize(tag.getCompound("entitlements"));

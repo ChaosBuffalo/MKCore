@@ -16,14 +16,14 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.JsonOps;
-import net.minecraft.client.resources.JsonReloadListener;
-import net.minecraft.particles.ParticleType;
-import net.minecraft.profiler.IProfiler;
-import net.minecraft.resources.IResourceManager;
+import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
+import net.minecraft.core.particles.ParticleType;
+import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.storage.FolderName;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.storage.LevelResource;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.OnDatapackSyncEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -40,7 +40,7 @@ import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class ParticleAnimationManager extends JsonReloadListener {
+public class ParticleAnimationManager extends SimpleJsonResourceReloadListener {
     public static final String DEFINITION_FOLDER = "particle_animations";
 
     public static final ResourceLocation RAW_EFFECT = new ResourceLocation(MKCore.MOD_ID, "particle_anim.raw_effect");
@@ -171,7 +171,7 @@ public class ParticleAnimationManager extends JsonReloadListener {
     }
 
     @Override
-    protected void apply(Map<ResourceLocation, JsonElement> objectIn, IResourceManager resourceManagerIn, IProfiler profilerIn) {
+    protected void apply(Map<ResourceLocation, JsonElement> objectIn, ResourceManager resourceManagerIn, ProfilerFiller profilerIn) {
         ANIMATIONS.clear();
         for(Map.Entry<ResourceLocation, JsonElement> entry : objectIn.entrySet()) {
             ResourceLocation resourcelocation = entry.getKey();
@@ -221,7 +221,7 @@ public class ParticleAnimationManager extends JsonReloadListener {
     }
 
     private void handleWorldGenerated( ){
-        Path dataPath = server.anvilConverterForAnvilFile.resolveFilePath(FolderName.GENERATED).normalize();
+        Path dataPath = server.storageSource.getLevelPath(LevelResource.GENERATED_DIR).normalize();
         loadAnimationsFromWorldGenerated(dataPath);
     }
 
@@ -230,7 +230,7 @@ public class ParticleAnimationManager extends JsonReloadListener {
         Map<ResourceLocation, ParticleAnimation> updateMap = new HashMap<>();
         updateMap.put(location, animation);
         syncAnimations(updateMap);
-        Path dataPath = server.anvilConverterForAnvilFile.resolveFilePath(FolderName.GENERATED).normalize();
+        Path dataPath = server.storageSource.getLevelPath(LevelResource.GENERATED_DIR).normalize();
         Path loc = Paths.get(dataPath.toString(), location.getNamespace(), "particle_animations", location.getPath() + ".json");
         try {
             JsonElement element = animation.serialize(JsonOps.INSTANCE);
@@ -270,7 +270,7 @@ public class ParticleAnimationManager extends JsonReloadListener {
                             try {
                                 InputStream fileStream = new FileInputStream(filePath.toFile());
                                 Reader reader = new BufferedReader(new InputStreamReader(fileStream, StandardCharsets.UTF_8));
-                                JsonElement jsonelement = JSONUtils.fromJson(GSON, reader, JsonElement.class);
+                                JsonElement jsonelement = GsonHelper.fromJson(GSON, reader, JsonElement.class);
                                 serverOverrides.put(overrideName, jsonelement);
                             } catch (FileNotFoundException e) {
                                 MKCore.LOGGER.error("Failed to decode {}: {}", filePath, e.getMessage());

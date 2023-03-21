@@ -9,12 +9,12 @@ import com.chaosbuffalo.mkcore.effects.MKEffectState;
 import com.chaosbuffalo.mkcore.network.MKParticleEffectSpawnPacket;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.utils.MKNBTUtil;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.potion.EffectType;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -25,11 +25,11 @@ public class MKParticleEffect extends MKEffect {
     public static final MKParticleEffect INSTANCE = new MKParticleEffect();
 
     public MKParticleEffect() {
-        super(EffectType.NEUTRAL);
+        super(MobEffectCategory.NEUTRAL);
         setRegistryName("effect.mk_particle");
     }
 
-    public static MKEffectBuilder<?> from(LivingEntity source, ResourceLocation animName, boolean includeSelf, Vector3d location) {
+    public static MKEffectBuilder<?> from(LivingEntity source, ResourceLocation animName, boolean includeSelf, Vec3 location) {
         return INSTANCE.builder(source).state(s -> s.setup(animName, includeSelf, location));
     }
 
@@ -50,10 +50,10 @@ public class MKParticleEffect extends MKEffect {
 
     public static class State extends MKEffectState {
         public ResourceLocation animName;
-        public Vector3d location;
+        public Vec3 location;
         public boolean includeSelf;
 
-        public void setup(ResourceLocation animName, boolean includeSelf, Vector3d location) {
+        public void setup(ResourceLocation animName, boolean includeSelf, Vec3 location) {
             this.animName = animName;
             this.includeSelf = includeSelf;
             this.location = location;
@@ -72,11 +72,11 @@ public class MKParticleEffect extends MKEffect {
         }
 
         private MKParticleEffectSpawnPacket createPacket(Entity target) {
-            return new MKParticleEffectSpawnPacket(location, animName, target.getEntityId());
+            return new MKParticleEffectSpawnPacket(location, animName, target.getId());
         }
 
         @Override
-        public void serializeStorage(CompoundNBT stateTag) {
+        public void serializeStorage(CompoundTag stateTag) {
             super.serializeStorage(stateTag);
             stateTag.putBoolean("includeSelf", includeSelf);
             MKNBTUtil.writeVector3d(stateTag, "location", location);
@@ -84,7 +84,7 @@ public class MKParticleEffect extends MKEffect {
         }
 
         @Override
-        public void deserializeStorage(CompoundNBT tag) {
+        public void deserializeStorage(CompoundTag tag) {
             super.deserializeStorage(tag);
             includeSelf = tag.getBoolean("includeSelf");
             location = MKNBTUtil.readVector3(tag, "location");

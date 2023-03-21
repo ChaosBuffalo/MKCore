@@ -16,22 +16,22 @@ import com.chaosbuffalo.mkcore.network.MKItemAttackPacket;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.targeting_api.Targeting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.client.util.InputMappings;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.ai.attributes.Attribute;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.ProjectileHelper;
-import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.KeyMapping;
+import com.mojang.blaze3d.platform.InputConstants;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.ProjectileUtil;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.item.*;
-import net.minecraft.util.Hand;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.util.math.*;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.settings.KeyConflictContext;
@@ -49,39 +49,45 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
+
 @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, value = Dist.CLIENT)
 public class ClientEventHandler {
 
-    private static KeyBinding playerMenuBind;
-    private static KeyBinding particleEditorBind;
-    private static KeyBinding[] activeAbilityBinds;
-    private static KeyBinding[] ultimateAbilityBinds;
-    private static KeyBinding itemAbilityBind;
+    private static KeyMapping playerMenuBind;
+    private static KeyMapping particleEditorBind;
+    private static KeyMapping[] activeAbilityBinds;
+    private static KeyMapping[] ultimateAbilityBinds;
+    private static KeyMapping itemAbilityBind;
 
     public static void initKeybindings() {
-        playerMenuBind = new KeyBinding("key.hud.playermenu", GLFW.GLFW_KEY_J, "key.mkcore.category");
+        playerMenuBind = new KeyMapping("key.hud.playermenu", GLFW.GLFW_KEY_J, "key.mkcore.category");
         ClientRegistry.registerKeyBinding(playerMenuBind);
 
-        particleEditorBind = new KeyBinding("key.hud.particle_editor", GLFW.GLFW_KEY_KP_ADD, "key.mkcore.category");
+        particleEditorBind = new KeyMapping("key.hud.particle_editor", GLFW.GLFW_KEY_KP_ADD, "key.mkcore.category");
         ClientRegistry.registerKeyBinding(particleEditorBind);
 
-        activeAbilityBinds = new KeyBinding[GameConstants.MAX_BASIC_ABILITIES];
+        activeAbilityBinds = new KeyMapping[GameConstants.MAX_BASIC_ABILITIES];
         for (int i = 0; i < GameConstants.MAX_BASIC_ABILITIES; i++) {
             String bindName = String.format("key.hud.active_ability%d", i + 1);
             int key = GLFW.GLFW_KEY_1 + i;
-            KeyBinding bind = new KeyBinding(bindName, KeyConflictContext.IN_GAME, KeyModifier.ALT,
-                    InputMappings.getInputByCode(key, 0), "key.mkcore.abilitybar");
+            KeyMapping bind = new KeyMapping(bindName, KeyConflictContext.IN_GAME, KeyModifier.ALT,
+                    InputConstants.getKey(key, 0), "key.mkcore.abilitybar");
 
             ClientRegistry.registerKeyBinding(bind);
             activeAbilityBinds[i] = bind;
         }
 
-        ultimateAbilityBinds = new KeyBinding[GameConstants.MAX_ULTIMATE_ABILITIES];
+        ultimateAbilityBinds = new KeyMapping[GameConstants.MAX_ULTIMATE_ABILITIES];
         for (int i = 0; i < GameConstants.MAX_ULTIMATE_ABILITIES; i++) {
             String bindName = String.format("key.hud.ultimate_ability%d", i + 1);
             int key = GLFW.GLFW_KEY_6 + i;
-            KeyBinding bind = new KeyBinding(bindName, KeyConflictContext.IN_GAME, KeyModifier.ALT,
-                    InputMappings.getInputByCode(key, 0), "key.mkcore.abilitybar");
+            KeyMapping bind = new KeyMapping(bindName, KeyConflictContext.IN_GAME, KeyModifier.ALT,
+                    InputConstants.getKey(key, 0), "key.mkcore.abilitybar");
 
             ClientRegistry.registerKeyBinding(bind);
             ultimateAbilityBinds[i] = bind;
@@ -89,8 +95,8 @@ public class ClientEventHandler {
 
 
         int defaultItemKey = GLFW.GLFW_KEY_8;
-        itemAbilityBind = new KeyBinding("key.hud.item_ability", KeyConflictContext.IN_GAME, KeyModifier.ALT,
-                InputMappings.getInputByCode(defaultItemKey, 0), "key.mkcore.abilitybar");
+        itemAbilityBind = new KeyMapping("key.hud.item_ability", KeyConflictContext.IN_GAME, KeyModifier.ALT,
+                InputConstants.getKey(defaultItemKey, 0), "key.mkcore.abilitybar");
         ClientRegistry.registerKeyBinding(itemAbilityBind);
     }
 
@@ -113,7 +119,7 @@ public class ClientEventHandler {
         Minecraft minecraft = Minecraft.getInstance();
         MKCore.getEntityData(minecraft.player).ifPresent(playerData -> {
             if (playerData.getEffects().isEffectActive(StunEffect.INSTANCE) &&
-                    minecraft.currentScreen == null) {
+                    minecraft.screen == null) {
                 event.setCanceled(true);
             }
         });
@@ -132,7 +138,7 @@ public class ClientEventHandler {
     }
 
     public static void handleInputEvent() {
-        PlayerEntity player = Minecraft.getInstance().player;
+        Player player = Minecraft.getInstance().player;
         if (player == null)
             return;
 
@@ -140,29 +146,29 @@ public class ClientEventHandler {
         if (playerData == null)
             return;
 
-        while (playerMenuBind.isPressed()) {
+        while (playerMenuBind.consumeClick()) {
             PlayerPageRegistry.openDefaultPlayerScreen(playerData);
         }
 
-        while (particleEditorBind.isPressed()) {
-            Minecraft.getInstance().displayGuiScreen(new ParticleEditorScreen());
+        while (particleEditorBind.consumeClick()) {
+            Minecraft.getInstance().setScreen(new ParticleEditorScreen());
         }
 
         for (int i = 0; i < activeAbilityBinds.length; i++) {
-            KeyBinding bind = activeAbilityBinds[i];
-            while (bind.isPressed()) {
+            KeyMapping bind = activeAbilityBinds[i];
+            while (bind.consumeClick()) {
                 handleAbilityBarPressed(playerData, AbilityGroupId.Basic, i);
             }
         }
 
         for (int i = 0; i < ultimateAbilityBinds.length; i++) {
-            KeyBinding bind = ultimateAbilityBinds[i];
-            while (bind.isPressed()) {
+            KeyMapping bind = ultimateAbilityBinds[i];
+            while (bind.consumeClick()) {
                 handleAbilityBarPressed(playerData, AbilityGroupId.Ultimate, i);
             }
         }
 
-        while (itemAbilityBind.isPressed()) {
+        while (itemAbilityBind.consumeClick()) {
             handleAbilityBarPressed(playerData, AbilityGroupId.Item, 0);
         }
     }
@@ -171,22 +177,22 @@ public class ClientEventHandler {
     public static void onRender(TickEvent.RenderTickEvent event){
         if (event.phase == TickEvent.Phase.START){
             Minecraft inst = Minecraft.getInstance();
-            PlayerEntity player = inst.player;
+            Player player = inst.player;
             if (player != null) {
                 double dist =  player.getAttribute(MKAttributes.ATTACK_REACH).getValue();
-                float partialTicks = inst.getRenderPartialTicks();
-                RayTraceResult result = player.pick(dist, partialTicks, false);
-                Vector3d eyePos = player.getEyePosition(partialTicks);
+                float partialTicks = inst.getFrameTime();
+                HitResult result = player.pick(dist, partialTicks, false);
+                Vec3 eyePos = player.getEyePosition(partialTicks);
 
                 double tracedDist2 = dist * dist;
                 if (result != null){
-                    tracedDist2 = result.getHitVec().squareDistanceTo(eyePos);
+                    tracedDist2 = result.getLocation().distanceToSqr(eyePos);
                 }
-                Vector3d lookVec = player.getLook(1.0f);
-                Vector3d to = eyePos.add(lookVec.x * dist, lookVec.y * dist, lookVec.z * dist);
-                AxisAlignedBB lookBB = player.getBoundingBox().expand(lookVec.scale(dist)).grow(1.0D, 1.0D, 1.0D);
-                EntityRayTraceResult entityTrace = ProjectileHelper.rayTraceEntities(player, eyePos, to, lookBB,
-                        (ent) -> !ent.isSpectator() && ent.canBeCollidedWith(), tracedDist2);
+                Vec3 lookVec = player.getViewVector(1.0f);
+                Vec3 to = eyePos.add(lookVec.x * dist, lookVec.y * dist, lookVec.z * dist);
+                AABB lookBB = player.getBoundingBox().expandTowards(lookVec.scale(dist)).inflate(1.0D, 1.0D, 1.0D);
+                EntityHitResult entityTrace = ProjectileUtil.getEntityHitResult(player, eyePos, to, lookBB,
+                        (ent) -> !ent.isSpectator() && ent.isPickable(), tracedDist2);
                 MKCore.getPlayer(player).ifPresent(x -> {
                     if (entityTrace != null) {
                         Entity entityHit = entityTrace.getEntity();
@@ -201,13 +207,13 @@ public class ClientEventHandler {
 
     @SubscribeEvent
     public static void onPlayerDataUpdated(PlayerDataEvent.Updated event) {
-        if (event.getPlayer().getEntityWorld().isRemote) {
-            PlayerEntity local = Minecraft.getInstance().player;
-            if (local == null || !event.getPlayer().isEntityEqual(local))
+        if (event.getPlayer().getCommandSenderWorld().isClientSide) {
+            Player local = Minecraft.getInstance().player;
+            if (local == null || !event.getPlayer().is(local))
                 return;
 
-            if (Minecraft.getInstance().currentScreen instanceof IPlayerDataAwareScreen) {
-                ((IPlayerDataAwareScreen) Minecraft.getInstance().currentScreen).onPlayerDataUpdate();
+            if (Minecraft.getInstance().screen instanceof IPlayerDataAwareScreen) {
+                ((IPlayerDataAwareScreen) Minecraft.getInstance().screen).onPlayerDataUpdate();
             }
         }
     }
@@ -228,25 +234,25 @@ public class ClientEventHandler {
         AttributeTooltipManager.registerAttributeRenderer(MKAttributes.MELEE_CRIT_MULTIPLIER, ClientEventHandler::renderCritMultiplier);
     }
 
-    static List<ITextComponent> renderPoise(ItemStack stack, EquipmentSlotType slotType, PlayerEntity player,
+    static List<Component> renderPoise(ItemStack stack, EquipmentSlot slotType, Player player,
                                             Attribute attribute, AttributeModifier modifier) {
         return Collections.singletonList(
                 AttributeTooltipManager.makeBonusOrTakeText(attribute, modifier,
                         modifier.getAmount(), modifier.getAmount()));
     }
 
-    static List<ITextComponent> renderAbsolutePercentTwoDigits(ItemStack stack, EquipmentSlotType slotType,
-                                                               PlayerEntity player, Attribute attribute,
+    static List<Component> renderAbsolutePercentTwoDigits(ItemStack stack, EquipmentSlot slotType,
+                                                               Player player, Attribute attribute,
                                                                AttributeModifier modifier) {
         return Collections.singletonList(
                 AttributeTooltipManager.makeAbsoluteText(attribute, modifier,
                         modifier.getAmount() * 100, v -> String.format("%.2f%%", v)));
     }
 
-    static List<ITextComponent> renderCritMultiplier(ItemStack stack, EquipmentSlotType slotType,
-                                                     PlayerEntity player, Attribute attribute,
+    static List<Component> renderCritMultiplier(ItemStack stack, EquipmentSlot slotType,
+                                                     Player player, Attribute attribute,
                                                      AttributeModifier modifier) {
-        double value = player.getBaseAttributeValue(attribute) + modifier.getAmount();
+        double value = player.getAttributeBaseValue(attribute) + modifier.getAmount();
         return Collections.singletonList(
                 AttributeTooltipManager.makeAbsoluteText(attribute, modifier,
                         value, v -> String.format("%.1fx", v)));
@@ -263,26 +269,26 @@ public class ClientEventHandler {
                 return;
             }
 
-            event.getToolTip().add(new TranslationTextComponent("mkcore.gui.item.armor_class.name")
-                    .appendString(": ")
-                    .appendSibling(armorClass.getName()));
+            event.getToolTip().add(new TranslatableComponent("mkcore.gui.item.armor_class.name")
+                    .append(": ")
+                    .append(armorClass.getName()));
 
             if (MKConfig.CLIENT.showArmorClassEffectsOnTooltip.get()) {
-                List<ITextComponent> tooltip = event.getToolTip();
+                List<Component> tooltip = event.getToolTip();
                 if (Screen.hasShiftDown()) {
-                    armorClass.getPositiveModifierMap(armorItem.getEquipmentSlot())
-                            .forEach(((attribute, modifier) -> addAttributeToTooltip(tooltip, attribute, modifier, TextFormatting.GREEN)));
-                    armorClass.getNegativeModifierMap(armorItem.getEquipmentSlot())
-                            .forEach(((attribute, modifier) -> addAttributeToTooltip(tooltip, attribute, modifier, TextFormatting.RED)));
+                    armorClass.getPositiveModifierMap(armorItem.getSlot())
+                            .forEach(((attribute, modifier) -> addAttributeToTooltip(tooltip, attribute, modifier, ChatFormatting.GREEN)));
+                    armorClass.getNegativeModifierMap(armorItem.getSlot())
+                            .forEach(((attribute, modifier) -> addAttributeToTooltip(tooltip, attribute, modifier, ChatFormatting.RED)));
                 } else {
-                    tooltip.add(new TranslationTextComponent("mkcore.gui.item.armor_class.effect_prompt"));
+                    tooltip.add(new TranslatableComponent("mkcore.gui.item.armor_class.effect_prompt"));
                 }
             }
         }
     }
 
-    private static void addAttributeToTooltip(List<ITextComponent> tooltip, Attribute attribute,
-                                              AttributeModifier modifier, TextFormatting color) {
+    private static void addAttributeToTooltip(List<Component> tooltip, Attribute attribute,
+                                              AttributeModifier modifier, ChatFormatting color) {
         String suffix = "";
         double amount = modifier.getAmount();
         if (modifier.getOperation() == AttributeModifier.Operation.ADDITION) {
@@ -302,22 +308,22 @@ public class ClientEventHandler {
         }
         String prefix = amount > 0 ? "+" : "";
 
-        ITextComponent component = new TranslationTextComponent("mkcore.gui.item.armor_class.effect.name")
-                .mergeStyle(color)
-                .appendString(String.format(": %s%.2f%s ", prefix, amount, suffix))
-                .appendSibling(new TranslationTextComponent(attribute.getAttributeName()));
+        Component component = new TranslatableComponent("mkcore.gui.item.armor_class.effect.name")
+                .withStyle(color)
+                .append(String.format(": %s%.2f%s ", prefix, amount, suffix))
+                .append(new TranslatableComponent(attribute.getDescriptionId()));
 
         tooltip.add(component);
     }
 
-    private static void doPlayerAttack(PlayerEntity player, Entity target, Minecraft minecraft) {
-        if (minecraft.playerController != null) {
-            minecraft.playerController.syncCurrentPlayItem();
+    private static void doPlayerAttack(Player player, Entity target, Minecraft minecraft) {
+        if (minecraft.gameMode != null) {
+            minecraft.gameMode.ensureHasSentCarriedItem();
         }
         PacketHandler.sendMessageToServer(new MKItemAttackPacket(target));
         if (!player.isSpectator()) {
-            player.attackTargetEntityWithCurrentItem(target);
-            player.resetCooldown();
+            player.attack(target);
+            player.resetAttackStrengthTicker();
             MKCore.getEntityData(player).ifPresent(cap -> cap.getCombatExtension().recordSwing());
             MinecraftForge.EVENT_BUS.post(new PostAttackEvent(player));
         }
@@ -325,9 +331,9 @@ public class ClientEventHandler {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onAttackReplacement(InputEvent.ClickInputEvent event) {
-        if (event.isAttack() && event.getHand() == Hand.MAIN_HAND) {
+        if (event.isAttack() && event.getHand() == InteractionHand.MAIN_HAND) {
             Minecraft inst = Minecraft.getInstance();
-            PlayerEntity player = inst.player;
+            Player player = inst.player;
             if (player != null) {
                 Optional<Entity> lookingAt = MKCore.getPlayer(player)
                         .map(x -> x.getCombatExtension().getPointedEntity())

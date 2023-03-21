@@ -2,7 +2,7 @@ package com.chaosbuffalo.mkcore.effects.triggers;
 
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.effects.SpellTriggers;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.world.entity.LivingEntity;
 
 public class LivingEquipmentChangeEvent extends SpellTriggers.EffectBasedTriggerCollection<LivingEquipmentChangeEvent.EquipmentChangeTrigger> {
     @FunctionalInterface

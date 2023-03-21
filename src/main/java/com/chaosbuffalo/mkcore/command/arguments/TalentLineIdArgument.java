@@ -8,8 +8,8 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import net.minecraft.command.ISuggestionProvider;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.commands.SharedSuggestionProvider;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
@@ -32,9 +32,9 @@ public class TalentLineIdArgument implements ArgumentType<String> {
 
         TalentTreeDefinition treeDef = MKCore.getTalentManager().getTalentTree(treeId);
         if (treeDef != null) {
-            return ISuggestionProvider.suggest(treeDef.getTalentLines().keySet(), builder);
+            return SharedSuggestionProvider.suggest(treeDef.getTalentLines().keySet(), builder);
         }
 
-        return ISuggestionProvider.suggest(Collections.emptyList(), builder);
+        return SharedSuggestionProvider.suggest(Collections.emptyList(), builder);
     }
 }

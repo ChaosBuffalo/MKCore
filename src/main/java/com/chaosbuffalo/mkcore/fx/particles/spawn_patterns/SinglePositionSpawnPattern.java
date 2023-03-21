@@ -2,10 +2,10 @@ package com.chaosbuffalo.mkcore.fx.particles.spawn_patterns;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.fx.particles.MKParticleData;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Tuple;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -25,7 +25,7 @@ public class SinglePositionSpawnPattern extends ParticleSpawnPattern{
     }
 
     @Override
-    public void produceParticlesForIndex(Vector3d origin, int particleNumber, @Nullable List<Vector3d> additionalLocs, World world, Function<Vector3d, MKParticleData> particleDataSupplier, List<ParticleSpawnEntry> finalParticles) {
-        finalParticles.add(new ParticleSpawnEntry(particleDataSupplier.apply(origin), origin, new Vector3d(0, 0, 0)));
+    public void produceParticlesForIndex(Vec3 origin, int particleNumber, @Nullable List<Vec3> additionalLocs, Level world, Function<Vec3, MKParticleData> particleDataSupplier, List<ParticleSpawnEntry> finalParticles) {
+        finalParticles.add(new ParticleSpawnEntry(particleDataSupplier.apply(origin), origin, new Vec3(0, 0, 0)));
     }
 }

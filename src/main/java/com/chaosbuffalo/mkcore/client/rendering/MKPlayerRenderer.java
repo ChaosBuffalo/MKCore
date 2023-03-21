@@ -8,31 +8,31 @@ import com.chaosbuffalo.mkcore.client.rendering.skeleton.MCBone;
 import com.chaosbuffalo.mkcore.core.player.PlayerAnimationModule;
 import com.chaosbuffalo.mkcore.fx.particles.ParticleAnimation;
 import com.chaosbuffalo.mkcore.fx.particles.ParticleAnimationManager;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.FirstPersonRenderer;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.entity.EntityRendererManager;
-import net.minecraft.client.renderer.entity.PlayerRenderer;
-import net.minecraft.util.HandSide;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.Optional;
 
 
 public class MKPlayerRenderer extends PlayerRenderer {
-    private final BipedSkeleton<AbstractClientPlayerEntity, MKPlayerModel> skeleton;
+    private final BipedSkeleton<AbstractClientPlayer, MKPlayerModel> skeleton;
 
-    public MKPlayerRenderer(EntityRendererManager renderManager, boolean useSmallArms) {
+    public MKPlayerRenderer(EntityRenderDispatcher renderManager, boolean useSmallArms) {
         super(renderManager, useSmallArms);
-        this.entityModel = new MKPlayerModel(0.0f, useSmallArms);
-        this.skeleton = new BipedSkeleton<>((MKPlayerModel) entityModel);
+        this.model = new MKPlayerModel(0.0f, useSmallArms);
+        this.skeleton = new BipedSkeleton<>((MKPlayerModel) model);
     }
 
     @Override
-    public void render(AbstractClientPlayerEntity entityIn, float entityYaw, float partialTicks, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int packedLightIn) {
+    public void render(AbstractClientPlayer entityIn, float entityYaw, float partialTicks, PoseStack matrixStackIn, MultiBufferSource bufferIn, int packedLightIn) {
         super.render(entityIn, entityYaw, partialTicks, matrixStackIn, bufferIn, packedLightIn);
 
         MKCore.getPlayer(entityIn).ifPresent(data -> {
@@ -44,10 +44,10 @@ public class MKPlayerRenderer extends PlayerRenderer {
                     if (ability.hasCastingParticles()){
                         ParticleAnimation anim = ParticleAnimationManager.getAnimation(ability.getCastingParticles());
                         if (anim != null){
-                            Optional<Vector3d> leftPos = getHandPosition(partialTicks, entityIn, HandSide.LEFT);
-                            leftPos.ifPresent(x -> anim.spawn(entityIn.getEntityWorld(), x, null));
-                            Optional<Vector3d> rightPos = getHandPosition(partialTicks, entityIn, HandSide.RIGHT);
-                            rightPos.ifPresent(x -> anim.spawn(entityIn.getEntityWorld(), x, null));
+                            Optional<Vec3> leftPos = getHandPosition(partialTicks, entityIn, HumanoidArm.LEFT);
+                            leftPos.ifPresent(x -> anim.spawn(entityIn.getCommandSenderWorld(), x, null));
+                            Optional<Vec3> rightPos = getHandPosition(partialTicks, entityIn, HumanoidArm.RIGHT);
+                            rightPos.ifPresent(x -> anim.spawn(entityIn.getCommandSenderWorld(), x, null));
                         }
                     }
                 }
@@ -59,9 +59,9 @@ public class MKPlayerRenderer extends PlayerRenderer {
     }
 
     @Override
-    public void renderRightArm(MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int combinedLightIn, AbstractClientPlayerEntity playerIn) {
-        super.renderRightArm(matrixStackIn, bufferIn, combinedLightIn, playerIn);
-        if (playerIn instanceof ClientPlayerEntity){
+    public void renderRightHand(PoseStack matrixStackIn, MultiBufferSource bufferIn, int combinedLightIn, AbstractClientPlayer playerIn) {
+        super.renderRightHand(matrixStackIn, bufferIn, combinedLightIn, playerIn);
+        if (playerIn instanceof LocalPlayer){
             MKCore.getPlayer(playerIn).ifPresent(data -> {
                 PlayerAnimationModule.PlayerVisualCastState state = data.getAnimationModule().getPlayerVisualCastState();
                 if (state == PlayerAnimationModule.PlayerVisualCastState.CASTING || state == PlayerAnimationModule.PlayerVisualCastState.RELEASE){
@@ -71,12 +71,12 @@ public class MKPlayerRenderer extends PlayerRenderer {
                         if (ability.hasCastingParticles()){
                             ParticleAnimation anim = ParticleAnimationManager.ANIMATIONS.get(ability.getCastingParticles());
                             if (anim != null){
-                                Vector3d leftPos = getFirstPersonHandPosition(HandSide.LEFT,
-                                        (ClientPlayerEntity) playerIn, 0.0f, getRenderOffset(playerIn, 0.0f));
-                                anim.spawn(playerIn.getEntityWorld(), leftPos, null);
-                                Vector3d rightPos = getFirstPersonHandPosition(HandSide.RIGHT,
-                                        (ClientPlayerEntity) playerIn, 0.0f, getRenderOffset(playerIn, 0.0f));
-                                anim.spawn(playerIn.getEntityWorld(), rightPos, null);
+                                Vec3 leftPos = getFirstPersonHandPosition(HumanoidArm.LEFT,
+                                        (LocalPlayer) playerIn, 0.0f, getRenderOffset(playerIn, 0.0f));
+                                anim.spawn(playerIn.getCommandSenderWorld(), leftPos, null);
+                                Vec3 rightPos = getFirstPersonHandPosition(HumanoidArm.RIGHT,
+                                        (LocalPlayer) playerIn, 0.0f, getRenderOffset(playerIn, 0.0f));
+                                anim.spawn(playerIn.getCommandSenderWorld(), rightPos, null);
                             }
                         }
                     }
@@ -92,9 +92,9 @@ public class MKPlayerRenderer extends PlayerRenderer {
     }
 
     @Override
-    public void renderLeftArm(MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int combinedLightIn, AbstractClientPlayerEntity playerIn) {
-        super.renderLeftArm(matrixStackIn, bufferIn, combinedLightIn, playerIn);
-        if (playerIn instanceof ClientPlayerEntity){
+    public void renderLeftHand(PoseStack matrixStackIn, MultiBufferSource bufferIn, int combinedLightIn, AbstractClientPlayer playerIn) {
+        super.renderLeftHand(matrixStackIn, bufferIn, combinedLightIn, playerIn);
+        if (playerIn instanceof LocalPlayer){
             MKCore.getPlayer(playerIn).ifPresent(data -> {
                 PlayerAnimationModule.PlayerVisualCastState state = data.getAnimationModule().getPlayerVisualCastState();
                 if (state == PlayerAnimationModule.PlayerVisualCastState.CASTING || state == PlayerAnimationModule.PlayerVisualCastState.RELEASE){
@@ -104,12 +104,12 @@ public class MKPlayerRenderer extends PlayerRenderer {
                         if (ability.hasCastingParticles()){
                             ParticleAnimation anim = ParticleAnimationManager.ANIMATIONS.get(ability.getCastingParticles());
                             if (anim != null){
-                                Vector3d leftPos = getFirstPersonHandPosition(HandSide.LEFT,
-                                        (ClientPlayerEntity) playerIn, 0.0f, getRenderOffset(playerIn, 0.0f));
-                                anim.spawn(playerIn.getEntityWorld(), leftPos, null);
-                                Vector3d rightPos = getFirstPersonHandPosition(HandSide.RIGHT,
-                                        (ClientPlayerEntity) playerIn, 0.0f, getRenderOffset(playerIn, 0.0f));
-                                anim.spawn(playerIn.getEntityWorld(), rightPos, null);
+                                Vec3 leftPos = getFirstPersonHandPosition(HumanoidArm.LEFT,
+                                        (LocalPlayer) playerIn, 0.0f, getRenderOffset(playerIn, 0.0f));
+                                anim.spawn(playerIn.getCommandSenderWorld(), leftPos, null);
+                                Vec3 rightPos = getFirstPersonHandPosition(HumanoidArm.RIGHT,
+                                        (LocalPlayer) playerIn, 0.0f, getRenderOffset(playerIn, 0.0f));
+                                anim.spawn(playerIn.getCommandSenderWorld(), rightPos, null);
                             }
                         }
                     }
@@ -121,34 +121,34 @@ public class MKPlayerRenderer extends PlayerRenderer {
         }
     }
 
-    private Vector3d getOffsetSideFirstPerson(HandSide handIn, float equippedProg) {
-        int i = handIn == HandSide.RIGHT ? 1 : -1;
-        return new Vector3d(i * 0.56F, -0.52F + equippedProg * -0.6F, -0.72F);
+    private Vec3 getOffsetSideFirstPerson(HumanoidArm handIn, float equippedProg) {
+        int i = handIn == HumanoidArm.RIGHT ? 1 : -1;
+        return new Vec3(i * 0.56F, -0.52F + equippedProg * -0.6F, -0.72F);
     }
 
-    private Vector3d getFirstPersonHandPosition(HandSide handSide,
-                                                ClientPlayerEntity playerEntityIn, float partialTicks,
-                                                Vector3d renderOffset){
-        double entX = MathHelper.lerp(partialTicks, playerEntityIn.prevPosX, playerEntityIn.getPosX());
-        double entY = MathHelper.lerp(partialTicks, playerEntityIn.prevPosY, playerEntityIn.getPosY());
-        double entZ = MathHelper.lerp(partialTicks, playerEntityIn.prevPosZ, playerEntityIn.getPosZ());
-        float yaw = MathHelper.lerp(partialTicks, playerEntityIn.prevRenderYawOffset, playerEntityIn.renderYawOffset) * ((float)Math.PI / 180F);
-        int handScalar = handSide == HandSide.RIGHT ? 1 : -1;
+    private Vec3 getFirstPersonHandPosition(HumanoidArm handSide,
+                                                LocalPlayer playerEntityIn, float partialTicks,
+                                                Vec3 renderOffset){
+        double entX = Mth.lerp(partialTicks, playerEntityIn.xo, playerEntityIn.getX());
+        double entY = Mth.lerp(partialTicks, playerEntityIn.yo, playerEntityIn.getY());
+        double entZ = Mth.lerp(partialTicks, playerEntityIn.zo, playerEntityIn.getZ());
+        float yaw = Mth.lerp(partialTicks, playerEntityIn.yBodyRotO, playerEntityIn.yBodyRot) * ((float)Math.PI / 180F);
+        int handScalar = handSide == HumanoidArm.RIGHT ? 1 : -1;
         // taken from first person render pathway
-        Vector3d shoulderLoc = new Vector3d(handScalar * -0.4785682F, -0.094387F, 0.05731531F);
+        Vec3 shoulderLoc = new Vec3(handScalar * -0.4785682F, -0.094387F, 0.05731531F);
         // the rest from bone system
-        MCBone shoulderBone = handSide == HandSide.RIGHT ? skeleton.rightArm : skeleton.leftArm;
-        MCBone castLoc = handSide == HandSide.RIGHT ? skeleton.rightHand : skeleton.leftHand;
-        Vector3d bonePos = MCBone.getOffsetForStopAt(castLoc, shoulderBone);
+        MCBone shoulderBone = handSide == HumanoidArm.RIGHT ? skeleton.rightArm : skeleton.leftArm;
+        MCBone castLoc = handSide == HumanoidArm.RIGHT ? skeleton.rightHand : skeleton.leftHand;
+        Vec3 bonePos = MCBone.getOffsetForStopAt(castLoc, shoulderBone);
         bonePos = bonePos.add(shoulderLoc);
         //a height fudge factor
-        return new Vector3d(entX, entY, entZ).add(renderOffset).add(new Vector3d(0.0, 1.25, 0.0)).add(bonePos.rotateYaw(-yaw));
+        return new Vec3(entX, entY, entZ).add(renderOffset).add(new Vec3(0.0, 1.25, 0.0)).add(bonePos.yRot(-yaw));
     }
 
 
-    private Optional<Vector3d> getHandPosition(float partialTicks, AbstractClientPlayerEntity entityIn, HandSide handSide){
+    private Optional<Vec3> getHandPosition(float partialTicks, AbstractClientPlayer entityIn, HumanoidArm handSide){
         return MCBone.getPositionOfBoneInWorld(entityIn, skeleton, partialTicks,
-                getRenderOffset(entityIn, partialTicks), handSide == HandSide.LEFT ?
+                getRenderOffset(entityIn, partialTicks), handSide == HumanoidArm.LEFT ?
                         BipedSkeleton.LEFT_HAND_BONE_NAME : BipedSkeleton.RIGHT_HAND_BONE_NAME);
     }
 }

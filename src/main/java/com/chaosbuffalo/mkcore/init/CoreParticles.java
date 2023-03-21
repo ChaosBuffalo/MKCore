@@ -7,8 +7,8 @@ import com.chaosbuffalo.mkcore.fx.particles.ParticleAnimation;
 import com.chaosbuffalo.mkcore.fx.particles.ParticleAnimationManager;
 import com.mojang.serialization.Codec;
 import net.minecraft.client.Minecraft;
-import net.minecraft.particles.BasicParticleType;
-import net.minecraft.particles.ParticleType;
+import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.core.particles.ParticleType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.ParticleFactoryRegisterEvent;
@@ -32,7 +32,7 @@ public class CoreParticles {
     @ObjectHolder("magic_gradient_square")
     public static ParticleType<MKParticleData> MAGIC_GRADIENT_SQUARE;
     @ObjectHolder("indicator_particle")
-    public static BasicParticleType INDICATOR_PARTICLE;
+    public static SimpleParticleType INDICATOR_PARTICLE;
     @ObjectHolder("magic_sideways_line")
     public static ParticleType<MKParticleData> MAGIC_SIDEWAYS_LINE;
     @ObjectHolder("magic_chip")
@@ -52,7 +52,7 @@ public class CoreParticles {
     public static void registerParticles(RegistryEvent.Register<ParticleType<?>> evt){
         ParticleType<MKParticleData> magicCross = new ParticleType<MKParticleData>(false, MKParticleData.DESERIALIZER){
             @Override
-            public Codec<MKParticleData> func_230522_e_() {
+            public Codec<MKParticleData> codec() {
                 return MKParticleData.typeCodec(this);
             }
         };
@@ -61,7 +61,7 @@ public class CoreParticles {
 
         ParticleType<MKParticleData> magicClover = new ParticleType<MKParticleData>(false, MKParticleData.DESERIALIZER){
             @Override
-            public Codec<MKParticleData> func_230522_e_() {
+            public Codec<MKParticleData> codec() {
                 return MKParticleData.typeCodec(this);
             }
         };
@@ -70,7 +70,7 @@ public class CoreParticles {
 
         ParticleType<MKParticleData> magicLine = new ParticleType<MKParticleData>(false, MKParticleData.DESERIALIZER){
             @Override
-            public Codec<MKParticleData> func_230522_e_() {
+            public Codec<MKParticleData> codec() {
                 return MKParticleData.typeCodec(this);
             }
         };
@@ -79,7 +79,7 @@ public class CoreParticles {
 
         ParticleType<MKParticleData> magicCircle = new ParticleType<MKParticleData>(false, MKParticleData.DESERIALIZER){
             @Override
-            public Codec<MKParticleData> func_230522_e_() {
+            public Codec<MKParticleData> codec() {
                 return MKParticleData.typeCodec(this);
             }
         };
@@ -88,7 +88,7 @@ public class CoreParticles {
 
         ParticleType<MKParticleData> magicGradientSquare = new ParticleType<MKParticleData>(false, MKParticleData.DESERIALIZER){
             @Override
-            public Codec<MKParticleData> func_230522_e_() {
+            public Codec<MKParticleData> codec() {
                 return MKParticleData.typeCodec(this);
             }
         };
@@ -97,7 +97,7 @@ public class CoreParticles {
 
         ParticleType<MKParticleData> magicSidewaysLine = new ParticleType<MKParticleData>(false, MKParticleData.DESERIALIZER){
             @Override
-            public Codec<MKParticleData> func_230522_e_() {
+            public Codec<MKParticleData> codec() {
                 return MKParticleData.typeCodec(this);
             }
         };
@@ -106,20 +106,20 @@ public class CoreParticles {
 
         ParticleType<MKParticleData> magicChip = new ParticleType<MKParticleData>(false, MKParticleData.DESERIALIZER){
             @Override
-            public Codec<MKParticleData> func_230522_e_() {
+            public Codec<MKParticleData> codec() {
                 return MKParticleData.typeCodec(this);
             }
         };
         magicChip.setRegistryName(CoreRegistryNames.MAGIC_CHIP_NAME);
         evt.getRegistry().register(magicChip);
 
-        BasicParticleType indiciatorParticle = new BasicParticleType(true);
+        SimpleParticleType indiciatorParticle = new SimpleParticleType(true);
         indiciatorParticle.setRegistryName(MKCore.MOD_ID, "indicator_particle");
         evt.getRegistry().register(indiciatorParticle);
 
         ParticleType<MKParticleData> blackMagicCross = new ParticleType<MKParticleData>(false, MKParticleData.DESERIALIZER){
             @Override
-            public Codec<MKParticleData> func_230522_e_() {
+            public Codec<MKParticleData> codec() {
                 return MKParticleData.typeCodec(this);
             }
         };
@@ -127,7 +127,7 @@ public class CoreParticles {
         evt.getRegistry().register(blackMagicCross);
         ParticleType<MKParticleData> blackMagicClover = new ParticleType<MKParticleData>(false, MKParticleData.DESERIALIZER){
             @Override
-            public Codec<MKParticleData> func_230522_e_() {
+            public Codec<MKParticleData> codec() {
                 return MKParticleData.typeCodec(this);
             }
         };
@@ -135,7 +135,7 @@ public class CoreParticles {
         evt.getRegistry().register(blackMagicClover);
         ParticleType<MKParticleData> blackMagicLine = new ParticleType<MKParticleData>(false, MKParticleData.DESERIALIZER){
             @Override
-            public Codec<MKParticleData> func_230522_e_() {
+            public Codec<MKParticleData> codec() {
                 return MKParticleData.typeCodec(this);
             }
         };
@@ -143,7 +143,7 @@ public class CoreParticles {
         evt.getRegistry().register(blackMagicLine);
         ParticleType<MKParticleData> blackMagicCircle = new ParticleType<MKParticleData>(false, MKParticleData.DESERIALIZER){
             @Override
-            public Codec<MKParticleData> func_230522_e_() {
+            public Codec<MKParticleData> codec() {
                 return MKParticleData.typeCodec(this);
             }
         };
@@ -151,7 +151,7 @@ public class CoreParticles {
         evt.getRegistry().register(blackMagicCircle);
         ParticleType<MKParticleData> blackMagicGradientSquare = new ParticleType<MKParticleData>(false, MKParticleData.DESERIALIZER){
             @Override
-            public Codec<MKParticleData> func_230522_e_() {
+            public Codec<MKParticleData> codec() {
                 return MKParticleData.typeCodec(this);
             }
         };

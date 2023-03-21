@@ -6,10 +6,10 @@ import com.chaosbuffalo.mkcore.core.talents.TalentTypeHandler;
 import com.chaosbuffalo.mkcore.core.talents.nodes.AttributeTalentNode;
 import com.chaosbuffalo.mkcore.core.talents.TalentRecord;
 import com.chaosbuffalo.mkcore.core.talents.talent_types.AttributeTalent;
-import net.minecraft.entity.ai.attributes.Attribute;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.ai.attributes.AttributeModifierManager;
-import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.AttributeMap;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 
 import java.util.*;
 
@@ -54,29 +54,29 @@ public class AttributeTalentHandler extends TalentTypeHandler {
         }
     }
 
-    private void dumpAttrInstance(ModifiableAttributeInstance instance) {
-        MKCore.LOGGER.info("\tAttribute {}", instance.getAttribute().getAttributeName());
-        for (AttributeModifier modifier : instance.getModifierListCopy()) {
+    private void dumpAttrInstance(AttributeInstance instance) {
+        MKCore.LOGGER.info("\tAttribute {}", instance.getAttribute().getDescriptionId());
+        for (AttributeModifier modifier : instance.getModifiers()) {
             MKCore.LOGGER.info("\t\tmodifier {}", modifier);
         }
     }
 
     private void dumpAttributes(String location) {
         MKCore.LOGGER.info("All Attributes @ {}", location);
-        AttributeModifierManager map = playerData.getEntity().getAttributeManager();
+        AttributeMap map = playerData.getEntity().getAttributes();
 
 //        map.getAllAttributes().forEach(this::dumpAttrInstance);
     }
 
     private void dumpDirtyAttributes(String location) {
-        AttributeModifierManager map = playerData.getEntity().getAttributeManager();
+        AttributeMap map = playerData.getEntity().getAttributes();
 
         MKCore.LOGGER.info("Dirty Attributes @ {}", location);
-        map.getInstances().forEach(this::dumpAttrInstance);
+        map.getDirtyAttributes().forEach(this::dumpAttrInstance);
     }
 
     private void applyAttribute(AttributeEntry entry) {
-        ModifiableAttributeInstance instance = playerData.getEntity().getAttribute(entry.getAttribute());
+        AttributeInstance instance = playerData.getEntity().getAttribute(entry.getAttribute());
         if (instance == null) {
             MKCore.LOGGER.error("PlayerTalentModule.applyAttribute player did not have attribute {}!", entry.getAttribute());
             return;
@@ -84,7 +84,7 @@ public class AttributeTalentHandler extends TalentTypeHandler {
 
         AttributeModifier mod = entry.getModifier();
         instance.removeModifier(mod);
-        instance.applyNonPersistentModifier(mod);
+        instance.addTransientModifier(mod);
         if (entry.getAttributeTalent().requiresStatRefresh()) {
             playerData.getStats().refreshStats();
         }
@@ -95,7 +95,7 @@ public class AttributeTalentHandler extends TalentTypeHandler {
     private void removeAttribute(AttributeTalent attributeTalent) {
         AttributeEntry entry = attributeEntryMap.get(attributeTalent);
         if (entry != null) {
-            ModifiableAttributeInstance instance = playerData.getEntity().getAttribute(entry.getAttribute());
+            AttributeInstance instance = playerData.getEntity().getAttribute(entry.getAttribute());
             if (instance != null) {
                 instance.removeModifier(entry.getModifier());
 //                dumpDirtyAttributes("removeAttribute");

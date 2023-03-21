@@ -4,12 +4,12 @@ import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.talents.*;
 import com.chaosbuffalo.mkcore.core.talents.nodes.AttributeTalentNode;
 import com.mojang.serialization.Dynamic;
-import net.minecraft.entity.ai.attributes.Attribute;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.UUID;
 
@@ -64,7 +64,7 @@ public class AttributeTalent extends MKTalent {
 
     @Override
     public String toString() {
-        return String.format("AttributeTalent[%s, %s, %s]", attribute.getAttributeName(), id, operation);
+        return String.format("AttributeTalent[%s, %s, %s]", attribute.getDescriptionId(), id, operation);
     }
 
     private String getDescriptionTranslationKey() {
@@ -72,7 +72,7 @@ public class AttributeTalent extends MKTalent {
     }
 
     @Override
-    public ITextComponent getTalentDescription(TalentRecord record) {
+    public Component getTalentDescription(TalentRecord record) {
         double perRank = 0;
         double currentValue = 0;
         if (record.getNode() instanceof AttributeTalentNode) {
@@ -92,7 +92,7 @@ public class AttributeTalent extends MKTalent {
             totalAmount = String.format("%.2f", currentValue);
         }
         String finalAmount = String.format("%s (%s)", amount, totalAmount);
-        return new TranslationTextComponent(getDescriptionTranslationKey(), finalAmount).mergeStyle(TextFormatting.GRAY);
+        return new TranslatableComponent(getDescriptionTranslationKey(), finalAmount).withStyle(ChatFormatting.GRAY);
     }
 
     public AttributeModifier createModifier(double value) {

@@ -2,9 +2,9 @@ package com.chaosbuffalo.mkcore.abilities;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.sync.IMKSerializable;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nonnull;
@@ -14,7 +14,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 
-public class MKAbilityInfo implements IMKSerializable<CompoundNBT> {
+public class MKAbilityInfo implements IMKSerializable<CompoundTag> {
     private final MKAbility ability;
     private final Set<AbilitySource> sources = new HashSet<>(2);
     @Nullable
@@ -68,20 +68,20 @@ public class MKAbilityInfo implements IMKSerializable<CompoundNBT> {
     }
 
     @Override
-    public CompoundNBT serialize() {
-        CompoundNBT tag = new CompoundNBT();
+    public CompoundTag serialize() {
+        CompoundTag tag = new CompoundTag();
 
-        ListNBT list = new ListNBT();
+        ListTag list = new ListTag();
         sources.forEach(s -> list.add(s.serialize()));
         tag.put("sources", list);
         return tag;
     }
 
     @Override
-    public CompoundNBT serializeStorage() {
-        CompoundNBT tag = new CompoundNBT();
+    public CompoundTag serializeStorage() {
+        CompoundTag tag = new CompoundTag();
 
-        ListNBT list = new ListNBT();
+        ListTag list = new ListTag();
         sources.forEach(s -> {
             // Only store sources that will not be reapplied on login
             if (s.getSourceType().isPersistent()) {
@@ -93,10 +93,10 @@ public class MKAbilityInfo implements IMKSerializable<CompoundNBT> {
     }
 
     @Override
-    public boolean deserialize(CompoundNBT tag) {
+    public boolean deserialize(CompoundTag tag) {
         sources.clear();
         if (tag.contains("sources")) {
-            ListNBT list = tag.getList("sources", Constants.NBT.TAG_STRING);
+            ListTag list = tag.getList("sources", Constants.NBT.TAG_STRING);
             for (int i = 0; i < list.size(); i++) {
                 AbilitySource source = AbilitySource.deserialize(list.getString(i));
                 if (source == null) {

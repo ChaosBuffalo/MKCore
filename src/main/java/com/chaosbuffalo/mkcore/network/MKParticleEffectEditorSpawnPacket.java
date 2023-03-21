@@ -1,19 +1,19 @@
 package com.chaosbuffalo.mkcore.network;
 
 import com.chaosbuffalo.mkcore.fx.particles.ParticleAnimation;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
 public class MKParticleEffectEditorSpawnPacket extends MKParticleEffectSpawnPacket {
 
-    public MKParticleEffectEditorSpawnPacket(Vector3d posVec, ParticleAnimation anim) {
+    public MKParticleEffectEditorSpawnPacket(Vec3 posVec, ParticleAnimation anim) {
         super(posVec, anim);
     }
 
-    public MKParticleEffectEditorSpawnPacket(PacketBuffer buffer) {
+    public MKParticleEffectEditorSpawnPacket(FriendlyByteBuf buffer) {
         super(buffer);
     }
 

@@ -8,16 +8,16 @@ import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKButton;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKRectangle;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKScrollView;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKText;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.client.gui.Font;
+import net.minecraft.network.chat.TextComponent;
 
 public class ParticleKeyFramePanel extends MKScrollView {
     private ParticleKeyFrame particleKeyFrame;
     private final ParticleEditorScreen particleEditor;
-    private final FontRenderer font;
+    private final Font font;
 
     public ParticleKeyFramePanel(int x, int y, int width, int height, ParticleKeyFrame frame,
-                                 FontRenderer font, ParticleEditorScreen particleEditor) {
+                                 Font font, ParticleEditorScreen particleEditor) {
         super(x, y, width, height, true);
         this.particleKeyFrame = frame;
         this.particleEditor = particleEditor;
@@ -81,7 +81,7 @@ public class ParticleKeyFramePanel extends MKScrollView {
                     getWidth(), particleEditor.getSpawnPattern(), font, particleEditor);
             particleEditor.setSpawnWidget(pattern);
             layout.addWidget(pattern);
-            MKText text = new MKText(font, new StringTextComponent("Click a current key frame or add a new one to edit"));
+            MKText text = new MKText(font, new TextComponent("Click a current key frame or add a new one to edit"));
             text.setColor(0xffffffff);
             text.setWidth(layout.getWidth());
             text.setMultiline(true);

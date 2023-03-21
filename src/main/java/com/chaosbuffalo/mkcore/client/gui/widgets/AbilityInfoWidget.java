@@ -5,18 +5,18 @@ import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.utils.text.IconTextComponent;
 import com.chaosbuffalo.mkwidgets.client.gui.layouts.MKStackLayoutVertical;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKText;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.gui.Font;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 
 public class AbilityInfoWidget extends MKStackLayoutVertical {
 
     private final MKPlayerData playerData;
-    private final FontRenderer fontRenderer;
+    private final Font fontRenderer;
     private final IAbilityScreen screen;
 
     public AbilityInfoWidget(int x, int y, int width, MKPlayerData playerData,
-                             FontRenderer fontRenderer, IAbilityScreen screen) {
+                             Font fontRenderer, IAbilityScreen screen) {
         super(x, y, width);
         this.screen = screen;
         this.playerData = playerData;
@@ -27,7 +27,7 @@ public class AbilityInfoWidget extends MKStackLayoutVertical {
         setup();
     }
 
-    private void addDescriptionLine(ITextComponent component) {
+    private void addDescriptionLine(Component component) {
         if (component instanceof IconTextComponent) {
             IconText icon = new IconText(0, 0, 16, component, ((IconTextComponent) component).getIcon(), fontRenderer, 16, 1);
             icon.getText().setColor(0xaaffffff);
@@ -42,7 +42,7 @@ public class AbilityInfoWidget extends MKStackLayoutVertical {
 
     public void setup() {
         if (screen.getSelectedAbility() == null) {
-            MKText noSelectPrompt = new MKText(fontRenderer, new TranslationTextComponent("mkcore.gui.select_ability"));
+            MKText noSelectPrompt = new MKText(fontRenderer, new TranslatableComponent("mkcore.gui.select_ability"));
             noSelectPrompt.setColor(0xffffffff);
             addWidget(noSelectPrompt);
         } else {

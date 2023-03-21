@@ -7,10 +7,10 @@ import com.chaosbuffalo.mkcore.effects.MKActiveEffect;
 import com.chaosbuffalo.mkcore.effects.MKEffect;
 import com.chaosbuffalo.mkcore.effects.MKEffectState;
 import com.chaosbuffalo.mkcore.effects.MKSimplePassiveState;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.potion.EffectType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -24,17 +24,17 @@ public class PhoenixAspectEffect extends MKEffect {
     public static final PhoenixAspectEffect INSTANCE = new PhoenixAspectEffect();
 
     private PhoenixAspectEffect() {
-        super(EffectType.BENEFICIAL);
+        super(MobEffectCategory.BENEFICIAL);
         setRegistryName("effect.test_phoenix_aspect");
         addAttribute(MKAttributes.COOLDOWN, MODIFIER_ID, 0.33, AttributeModifier.Operation.MULTIPLY_TOTAL);
         addAttribute(MKAttributes.MANA_REGEN, MODIFIER_ID, 1.0f, AttributeModifier.Operation.ADDITION);
     }
 
     public void enableFlying(LivingEntity target) {
-        if (target instanceof ServerPlayerEntity) {
-            ServerPlayerEntity player = (ServerPlayerEntity) target;
-            player.abilities.allowFlying = true;
-            player.sendPlayerAbilities();
+        if (target instanceof ServerPlayer) {
+            ServerPlayer player = (ServerPlayer) target;
+            player.abilities.mayfly = true;
+            player.onUpdateAbilities();
         }
     }
 
@@ -53,11 +53,11 @@ public class PhoenixAspectEffect extends MKEffect {
     @Override
     public void onInstanceRemoved(IMKEntityData targetData, MKActiveEffect expiredEffect) {
         super.onInstanceRemoved(targetData, expiredEffect);
-        if (targetData.getEntity() instanceof ServerPlayerEntity) {
-            ServerPlayerEntity player = (ServerPlayerEntity) targetData.getEntity();
-            player.abilities.allowFlying = false;
-            player.abilities.isFlying = false;
-            player.sendPlayerAbilities();
+        if (targetData.getEntity() instanceof ServerPlayer) {
+            ServerPlayer player = (ServerPlayer) targetData.getEntity();
+            player.abilities.mayfly = false;
+            player.abilities.flying = false;
+            player.onUpdateAbilities();
         }
     }
 

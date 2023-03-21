@@ -9,9 +9,9 @@ import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.PlayerLearnAbilityRequestPacket;
 import com.chaosbuffalo.mkwidgets.client.gui.layouts.MKStackLayoutVertical;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.*;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.gui.Font;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +26,7 @@ public class ForgetAbilityModal extends MKModal {
     private final int trainerEntityId;
     private final boolean isLearning;
 
-    public ForgetAbilityModal(MKAbility tryingToLearn, MKPlayerData playerData, int xPos, int yPos, int width, int height, FontRenderer font, int trainerEntityId){
+    public ForgetAbilityModal(MKAbility tryingToLearn, MKPlayerData playerData, int xPos, int yPos, int width, int height, Font font, int trainerEntityId){
         MKImage background = GuiTextures.CORE_TEXTURES.getImageForRegion(
                 GuiTextures.BACKGROUND_180_200, xPos, yPos, width, height);
         addWidget(background);
@@ -36,11 +36,11 @@ public class ForgetAbilityModal extends MKModal {
         int count = playerData.getAbilities().getSlotDeficitToLearnAnAbility();
         numberToForget = count;
 
-        ITextComponent promptText;
+        Component promptText;
         if (isLearning){
-            promptText= new TranslationTextComponent("mkcore.gui.character.forget_ability", count, tryingToLearn.getAbilityName());
+            promptText= new TranslatableComponent("mkcore.gui.character.forget_ability", count, tryingToLearn.getAbilityName());
         } else {
-            promptText = new TranslationTextComponent("mkcore.gui.character.forget");
+            promptText = new TranslatableComponent("mkcore.gui.character.forget");
         }
         MKText prompt = new MKText(font, promptText, xPos + 6, yPos + 6);
         prompt.setWidth(width - 10);
@@ -51,9 +51,9 @@ public class ForgetAbilityModal extends MKModal {
                 height - 75, true);
 
         addWidget(scrollview);
-        TranslationTextComponent text = new TranslationTextComponent("mkcore.gui.character.forget_confirm");
+        TranslatableComponent text = new TranslatableComponent("mkcore.gui.character.forget_confirm");
         forgetButton = new MKButton(scrollview.getX(), scrollview.getY() + scrollview.getHeight() + 10, text);
-        forgetButton.setWidth(font.getStringPropertyWidth(text) + 20);
+        forgetButton.setWidth(font.width(text) + 20);
         forgetButton.setX(scrollview.getX() + (scrollview.getWidth() - forgetButton.getWidth()) / 2);
         forgetButton.setEnabled(ready());
         forgetButton.setPressedCallback(this::forgetCallback);

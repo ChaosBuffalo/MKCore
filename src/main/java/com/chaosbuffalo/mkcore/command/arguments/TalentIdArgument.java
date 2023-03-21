@@ -8,8 +8,8 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import net.minecraft.command.ISuggestionProvider;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.commands.SharedSuggestionProvider;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
@@ -32,6 +32,6 @@ public class TalentIdArgument implements ArgumentType<ResourceLocation> {
                 .map(MKTalent::getTalentId)
                 .map(ResourceLocation::toString);
 
-        return ISuggestionProvider.suggest(all, builder);
+        return SharedSuggestionProvider.suggest(all, builder);
     }
 }

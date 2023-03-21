@@ -2,15 +2,15 @@ package com.chaosbuffalo.mkcore.core.damage;
 
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.core.MKCombatFormulas;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.Attribute;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
 import javax.annotation.Nonnull;
@@ -26,11 +26,11 @@ public class MKDamageType extends ForgeRegistryEntry<MKDamageType> {
     private final ResourceLocation iconLoc;
     private float critMultiplier;
     private boolean shouldDisplay;
-    private final TextFormatting formatting;
+    private final ChatFormatting formatting;
 
     public MKDamageType(ResourceLocation name, Attribute damageAttribute,
                         Attribute resistanceAttribute, Attribute critAttribute,
-                        Attribute critMultiplierAttribute, TextFormatting formatting) {
+                        Attribute critMultiplierAttribute, ChatFormatting formatting) {
         setRegistryName(name);
         this.damageAttribute = damageAttribute;
         this.resistanceAttribute = resistanceAttribute;
@@ -53,7 +53,7 @@ public class MKDamageType extends ForgeRegistryEntry<MKDamageType> {
         return this;
     }
 
-    public TextFormatting getFormatting() {
+    public ChatFormatting getFormatting() {
         return formatting;
     }
 
@@ -66,9 +66,9 @@ public class MKDamageType extends ForgeRegistryEntry<MKDamageType> {
         return shouldDisplay;
     }
 
-    public IFormattableTextComponent getDisplayName() {
+    public MutableComponent getDisplayName() {
         ResourceLocation name = getId();
-        return new TranslationTextComponent(String.format("%s.%s.name", name.getNamespace(), name.getPath()));
+        return new TranslatableComponent(String.format("%s.%s.name", name.getNamespace(), name.getPath()));
     }
 
     public ResourceLocation getIcon() {
@@ -96,40 +96,40 @@ public class MKDamageType extends ForgeRegistryEntry<MKDamageType> {
         attributeMap.accept(getResistanceAttribute());
     }
 
-    public ITextComponent getEffectCritMessage(LivingEntity source, LivingEntity target, float damage,
+    public Component getEffectCritMessage(LivingEntity source, LivingEntity target, float damage,
                                                String damageType, boolean isSelf) {
-        TranslationTextComponent msg;
+        TranslatableComponent msg;
         if (isSelf) {
-            msg = new TranslationTextComponent("mkcore.crit.effect.self",
-                    new TranslationTextComponent(damageType),
+            msg = new TranslatableComponent("mkcore.crit.effect.self",
+                    new TranslatableComponent(damageType),
                     target.getDisplayName(),
                     Math.round(damage));
         } else {
-            msg = new TranslationTextComponent("mkcore.crit.effect.other",
+            msg = new TranslatableComponent("mkcore.crit.effect.other",
                     source.getDisplayName(),
-                    new TranslationTextComponent(damageType),
+                    new TranslatableComponent(damageType),
                     target.getDisplayName(),
                     Math.round(damage));
         }
-        return msg.mergeStyle(TextFormatting.DARK_PURPLE);
+        return msg.withStyle(ChatFormatting.DARK_PURPLE);
     }
 
-    public ITextComponent getAbilityCritMessage(LivingEntity source, LivingEntity target, float damage,
+    public Component getAbilityCritMessage(LivingEntity source, LivingEntity target, float damage,
                                                 MKAbility ability, boolean isSelf) {
-        TranslationTextComponent msg;
+        TranslatableComponent msg;
         if (isSelf) {
-            msg = new TranslationTextComponent("mkcore.crit.ability.self",
+            msg = new TranslatableComponent("mkcore.crit.ability.self",
                     ability.getAbilityName(),
                     target.getDisplayName(),
                     Math.round(damage));
         } else {
-            msg = new TranslationTextComponent("mkcore.crit.ability.other",
+            msg = new TranslatableComponent("mkcore.crit.ability.other",
                     source.getDisplayName(),
                     ability.getAbilityName(),
                     target.getDisplayName(),
                     Math.round(damage));
         }
-        return msg.mergeStyle(TextFormatting.AQUA);
+        return msg.withStyle(ChatFormatting.AQUA);
     }
 
     public float applyDamage(LivingEntity source, LivingEntity target, float originalDamage, float modifierScaling) {
@@ -145,7 +145,7 @@ public class MKDamageType extends ForgeRegistryEntry<MKDamageType> {
     }
 
     protected boolean canCrit(LivingEntity source){
-        return source instanceof PlayerEntity;
+        return source instanceof Player;
     }
 
     public boolean rollCrit(LivingEntity source, LivingEntity target) {

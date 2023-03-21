@@ -11,16 +11,16 @@ import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.PlayerLeftClickEmptyPacket;
 import com.chaosbuffalo.mkcore.utils.DamageUtils;
 import com.chaosbuffalo.mkcore.utils.SoundUtils;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.AbstractArrowEntity;
-import net.minecraft.item.SwordItem;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.Hand;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.item.SwordItem;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.util.Tuple;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.ProjectileImpactEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
@@ -36,11 +36,11 @@ public class CombatEventHandler {
     @SubscribeEvent
     public static void onLivingHurt(LivingHurtEvent event) {
         LivingEntity livingTarget = event.getEntityLiving();
-        if (livingTarget.world.isRemote)
+        if (livingTarget.level.isClientSide)
             return;
 
         DamageSource source = event.getSource();
-        Entity trueSource = source.getTrueSource();
+        Entity trueSource = source.getEntity();
         if (source == DamageSource.FALL) { // TODO: maybe just use LivingFallEvent?
             SpellTriggers.FALL.onLivingFall(event, source, livingTarget);
         }
@@ -58,8 +58,8 @@ public class CombatEventHandler {
 
     @SubscribeEvent
     public static void onAttackEntityEvent(AttackEntityEvent event) {
-        PlayerEntity player = event.getPlayer();
-        if (player.world.isRemote)
+        Player player = event.getPlayer();
+        if (player.level.isClientSide)
             return;
         Entity target = event.getTarget();
 
@@ -68,7 +68,7 @@ public class CombatEventHandler {
 
     @SubscribeEvent
     public static void onLeftClickEmpty(PlayerInteractEvent.LeftClickEmpty event) {
-        if (event.getPlayer().world.isRemote) {
+        if (event.getPlayer().level.isClientSide) {
             // Only send this spammy packet if someone will listen to it
             if (SpellTriggers.EMPTY_LEFT_CLICK.hasTriggers()) {
                 PacketHandler.sendMessageToServer(new PlayerLeftClickEmptyPacket());
@@ -78,29 +78,29 @@ public class CombatEventHandler {
 
     @SubscribeEvent
     public static void onLeftClickEmptyServer(ServerSideLeftClickEmpty event) {
-        if (!event.getPlayer().world.isRemote) {
+        if (!event.getPlayer().level.isClientSide) {
             SpellTriggers.EMPTY_LEFT_CLICK.onEmptyLeftClick(event.getPlayer(), event);
         }
     }
 
     private static boolean canBlock(DamageSource source, LivingEntity entity){
 
-        Entity sourceEntity = source.getImmediateSource();
+        Entity sourceEntity = source.getDirectEntity();
         boolean hasPiercing = false;
-        if (sourceEntity instanceof AbstractArrowEntity) {
-            AbstractArrowEntity abstractarrowentity = (AbstractArrowEntity)sourceEntity;
+        if (sourceEntity instanceof AbstractArrow) {
+            AbstractArrow abstractarrowentity = (AbstractArrow)sourceEntity;
             if (abstractarrowentity.getPierceLevel() > 0) {
                 hasPiercing = true;
             }
         }
 
-        if (!source.isUnblockable() && entity.isActiveItemStackBlocking() && !hasPiercing) {
-            Vector3d damageLoc = source.getDamageLocation();
+        if (!source.isBypassArmor() && entity.isBlocking() && !hasPiercing) {
+            Vec3 damageLoc = source.getSourcePosition();
             if (damageLoc != null) {
-                Vector3d lookVec = entity.getLook(1.0F);
-                Vector3d damageDir = damageLoc.subtractReverse(entity.getPositionVec()).normalize();
-                damageDir = new Vector3d(damageDir.x, 0.0D, damageDir.z);
-                if (damageDir.dotProduct(lookVec) < 0.0D) {
+                Vec3 lookVec = entity.getViewVector(1.0F);
+                Vec3 damageDir = damageLoc.vectorTo(entity.position()).normalize();
+                damageDir = new Vec3(damageDir.x, 0.0D, damageDir.z);
+                if (damageDir.dot(lookVec) < 0.0D) {
                     return true;
                 }
             }
@@ -112,11 +112,11 @@ public class CombatEventHandler {
     @SubscribeEvent
     public static void onLivingAttackEvent(LivingAttackEvent event) {
         Entity target = event.getEntity();
-        if (target.world.isRemote)
+        if (target.level.isClientSide)
             return;
 
         DamageSource dmgSource = event.getSource();
-        Entity source = dmgSource.getTrueSource();
+        Entity source = dmgSource.getEntity();
 
         if (canBlock(dmgSource, event.getEntityLiving())){
             MKCore.getPlayer(target).ifPresent(playerData -> {
@@ -133,34 +133,34 @@ public class CombatEventHandler {
                 }
                 event.setCanceled(true);
                 if (left > 0){
-                    target.attackEntityFrom(dmgSource instanceof MKDamageSource ? ((MKDamageSource) dmgSource)
-                            .setSuppressTriggers(true).setDamageBypassesArmor() : dmgSource.setDamageBypassesArmor(),
+                    target.hurt(dmgSource instanceof MKDamageSource ? ((MKDamageSource) dmgSource)
+                            .setSuppressTriggers(true).bypassArmor() : dmgSource.bypassArmor(),
                             left);
                 }
                 if (breakResult.getB()){
                     SoundUtils.serverPlaySoundAtEntity(event.getEntityLiving(),
-                            CoreSounds.block_break, event.getEntityLiving().getSoundCategory());
+                            CoreSounds.block_break, event.getEntityLiving().getSoundSource());
                 } else {
-                    if (event.getEntityLiving().getItemInUseMaxCount() <= 6){
+                    if (event.getEntityLiving().getTicksUsingItem() <= 6){
                         SoundUtils.serverPlaySoundAtEntity(event.getEntityLiving(),
-                                CoreSounds.parry, event.getEntityLiving().getSoundCategory());
+                                CoreSounds.parry, event.getEntityLiving().getSoundSource());
                         playerData.getSkills().tryIncreaseSkill(MKAttributes.BLOCK);
                     } else {
                         playerData.getSkills().tryScaledIncreaseSkill(MKAttributes.BLOCK, 0.5);
-                        if (dmgSource.getImmediateSource() instanceof AbstractArrowEntity){
+                        if (dmgSource.getDirectEntity() instanceof AbstractArrow){
                             SoundUtils.serverPlaySoundAtEntity(event.getEntityLiving(),
-                                    CoreSounds.arrow_block, event.getEntityLiving().getSoundCategory());
+                                    CoreSounds.arrow_block, event.getEntityLiving().getSoundSource());
                         } else if (source instanceof LivingEntity){
-                            if (((LivingEntity) source).getHeldItem(Hand.MAIN_HAND).getItem() instanceof SwordItem){
+                            if (((LivingEntity) source).getItemInHand(InteractionHand.MAIN_HAND).getItem() instanceof SwordItem){
                                 SoundUtils.serverPlaySoundAtEntity(event.getEntityLiving(),
-                                        CoreSounds.weapon_block, event.getEntityLiving().getSoundCategory());
+                                        CoreSounds.weapon_block, event.getEntityLiving().getSoundSource());
                             } else {
                                 SoundUtils.serverPlaySoundAtEntity(event.getEntityLiving(),
-                                        CoreSounds.fist_block, event.getEntityLiving().getSoundCategory());
+                                        CoreSounds.fist_block, event.getEntityLiving().getSoundSource());
                             }
                         } else {
                             SoundUtils.serverPlaySoundAtEntity(event.getEntityLiving(),
-                                    CoreSounds.fist_block, event.getEntityLiving().getSoundCategory());
+                                    CoreSounds.fist_block, event.getEntityLiving().getSoundSource());
                         }
                     }
                 }
@@ -177,10 +177,10 @@ public class CombatEventHandler {
 
     @SubscribeEvent
     public static void onArrowImpact(ProjectileImpactEvent.Arrow arrowEvent) {
-        Entity shooter = arrowEvent.getArrow().getShooter(); // getShooter
+        Entity shooter = arrowEvent.getArrow().getOwner(); // getShooter
         if (shooter != null) {
             MKCore.getEntityData(shooter).ifPresent(cap -> {
-                if (arrowEvent.getRayTraceResult().getType() == RayTraceResult.Type.BLOCK) {
+                if (arrowEvent.getRayTraceResult().getType() == HitResult.Type.BLOCK) {
                     cap.getCombatExtension().projectileMiss();
                 } else {
                     cap.getCombatExtension().recordProjectileHit();
@@ -195,9 +195,9 @@ public class CombatEventHandler {
                 entityData.getAbilityExecutor().interruptCast(CastInterruptReason.Death));
 
         DamageSource source = event.getSource();
-        if (source.getTrueSource() instanceof LivingEntity) {
-            LivingEntity killer = (LivingEntity) source.getTrueSource();
-            if (killer.world.isRemote) {
+        if (source.getEntity() instanceof LivingEntity) {
+            LivingEntity killer = (LivingEntity) source.getEntity();
+            if (killer.level.isClientSide) {
                 return;
             }
             SpellTriggers.LIVING_KILL_ENTITY.onEntityDeath(event, source, killer);

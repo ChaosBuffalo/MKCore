@@ -11,16 +11,16 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.Commands;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class TalentCommand {
-    public static LiteralArgumentBuilder<CommandSource> register() {
+    public static LiteralArgumentBuilder<CommandSourceStack> register() {
         return Commands.literal("talent")
                 .then(Commands.literal("points")
                         .then(Commands.literal("give")
@@ -59,8 +59,8 @@ public class TalentCommand {
                 );
     }
 
-    static int takePoints(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
-        ServerPlayerEntity player = ctx.getSource().asPlayer();
+    static int takePoints(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        ServerPlayer player = ctx.getSource().getPlayerOrException();
         int amount = IntegerArgumentType.getInteger(ctx, "amount");
 
         MKCore.getPlayer(player).ifPresent(cap -> {
@@ -75,8 +75,8 @@ public class TalentCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    static int givePoints(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
-        ServerPlayerEntity player = ctx.getSource().asPlayer();
+    static int givePoints(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        ServerPlayer player = ctx.getSource().getPlayerOrException();
         int amount = IntegerArgumentType.getInteger(ctx, "amount");
 
         MKCore.getPlayer(player).ifPresent(cap -> {
@@ -91,8 +91,8 @@ public class TalentCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    static int showPoints(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
-        ServerPlayerEntity player = ctx.getSource().asPlayer();
+    static int showPoints(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        ServerPlayer player = ctx.getSource().getPlayerOrException();
 
         MKCore.getPlayer(player).ifPresent(cap -> {
             PlayerTalentKnowledge talentKnowledge = cap.getTalents();
@@ -104,8 +104,8 @@ public class TalentCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    static int learnTalent(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
-        ServerPlayerEntity player = ctx.getSource().asPlayer();
+    static int learnTalent(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        ServerPlayer player = ctx.getSource().getPlayerOrException();
         ResourceLocation talentId = ctx.getArgument("tree", ResourceLocation.class);
         String line = StringArgumentType.getString(ctx, "line");
         int index = IntegerArgumentType.getInteger(ctx, "index");
@@ -122,8 +122,8 @@ public class TalentCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    static int unlearnTalent(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
-        ServerPlayerEntity player = ctx.getSource().asPlayer();
+    static int unlearnTalent(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        ServerPlayer player = ctx.getSource().getPlayerOrException();
         ResourceLocation talentId = ctx.getArgument("tree", ResourceLocation.class);
         String line = StringArgumentType.getString(ctx, "line");
         int index = IntegerArgumentType.getInteger(ctx, "index");
@@ -141,8 +141,8 @@ public class TalentCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    static int unlockTree(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
-        ServerPlayerEntity player = ctx.getSource().asPlayer();
+    static int unlockTree(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        ServerPlayer player = ctx.getSource().getPlayerOrException();
         ResourceLocation talentId = ctx.getArgument("tree", ResourceLocation.class);
 
         MKCore.getPlayer(player).ifPresent(cap -> {
@@ -162,8 +162,8 @@ public class TalentCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    static int listTrees(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
-        ServerPlayerEntity player = ctx.getSource().asPlayer();
+    static int listTrees(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        ServerPlayer player = ctx.getSource().getPlayerOrException();
 
         MKCore.getPlayer(player).ifPresent(cap -> {
             PlayerTalentKnowledge talents = cap.getTalents();
@@ -179,8 +179,8 @@ public class TalentCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    static int listLine(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
-        ServerPlayerEntity player = ctx.getSource().asPlayer();
+    static int listLine(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        ServerPlayer player = ctx.getSource().getPlayerOrException();
 
         ResourceLocation treeId = ctx.getArgument("tree", ResourceLocation.class);
         String line = StringArgumentType.getString(ctx, "line");
@@ -217,8 +217,8 @@ public class TalentCommand {
         return String.format("%d/%d %s - %s", rank, node.getMaxRanks(), node.getPositionString(), node.getTalent().getRegistryName());
     }
 
-    static int listTalents(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
-        ServerPlayerEntity player = ctx.getSource().asPlayer();
+    static int listTalents(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        ServerPlayer player = ctx.getSource().getPlayerOrException();
 
         MKCore.getPlayer(player).ifPresent(cap -> {
             PlayerTalentKnowledge talents = cap.getTalents();

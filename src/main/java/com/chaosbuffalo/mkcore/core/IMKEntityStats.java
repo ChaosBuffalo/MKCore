@@ -2,8 +2,8 @@ package com.chaosbuffalo.mkcore.core;
 
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.core.damage.MKDamageType;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 
 public interface IMKEntityStats {
 
@@ -37,7 +37,7 @@ public interface IMKEntityStats {
 
     void resetAllTimers();
 
-    CompoundNBT serialize();
+    CompoundTag serialize();
 
-    void deserialize(CompoundNBT nbt);
+    void deserialize(CompoundTag nbt);
 }

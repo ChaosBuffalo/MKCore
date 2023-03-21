@@ -3,9 +3,9 @@ package com.chaosbuffalo.mkcore.core.talents;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.DynamicOps;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.TextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.BaseComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.*;
 
@@ -46,8 +46,8 @@ public class TalentTreeDefinition {
         return Collections.unmodifiableMap(talentLines);
     }
 
-    public TextComponent getName() {
-        return new TranslationTextComponent(String.format("%s.%s.name", treeId.getNamespace(), treeId.getPath()));
+    public BaseComponent getName() {
+        return new TranslatableComponent(String.format("%s.%s.name", treeId.getNamespace(), treeId.getPath()));
     }
 
     public TalentLineDefinition getLine(String name) {

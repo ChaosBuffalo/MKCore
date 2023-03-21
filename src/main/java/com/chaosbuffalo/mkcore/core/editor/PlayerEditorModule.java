@@ -3,7 +3,7 @@ package com.chaosbuffalo.mkcore.core.editor;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.player.IPlayerSyncComponentProvider;
 import com.chaosbuffalo.mkcore.core.player.SyncComponent;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
 
 public class PlayerEditorModule implements IPlayerSyncComponentProvider {
     private final SyncComponent sync = new SyncComponent("editor");
@@ -24,17 +24,17 @@ public class PlayerEditorModule implements IPlayerSyncComponentProvider {
         return particleEditorData;
     }
 
-    public CompoundNBT serialize() {
-        CompoundNBT tag = new CompoundNBT();
-        CompoundNBT particlesTag = new CompoundNBT();
+    public CompoundTag serialize() {
+        CompoundTag tag = new CompoundTag();
+        CompoundTag particlesTag = new CompoundTag();
         particleEditorData.serializeFull(particlesTag);
         tag.put("particleEditor", particlesTag);
         return tag;
     }
 
-    public void deserialize(CompoundNBT nbt) {
+    public void deserialize(CompoundTag nbt) {
         if (nbt.contains("particleEditor")){
-            CompoundNBT particlesTag = nbt.getCompound("particleEditor");
+            CompoundTag particlesTag = nbt.getCompound("particleEditor");
             particleEditorData.deserializeUpdate(particlesTag);
             particleEditorData.markDirty();
         }

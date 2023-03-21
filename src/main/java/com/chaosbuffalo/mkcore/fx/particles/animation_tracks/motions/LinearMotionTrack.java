@@ -6,15 +6,15 @@ import com.chaosbuffalo.mkcore.fx.particles.animation_tracks.ParticleMotionAnima
 import com.chaosbuffalo.mkcore.serialization.attributes.DoubleAttribute;
 import com.chaosbuffalo.mkcore.utils.MathUtils;
 import com.mojang.serialization.Dynamic;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.Vec3;
 
 public class LinearMotionTrack extends ParticleMotionAnimationTrack {
     protected final DoubleAttribute xSpeed = new DoubleAttribute("xSpeed", 0.0f);
     protected final DoubleAttribute ySpeed = new DoubleAttribute("ySpeed", 0.0f);
     protected final DoubleAttribute zSpeed = new DoubleAttribute("zSpeed", 0.0f);
     protected final DoubleAttribute varianceMagnitude = new DoubleAttribute("varianceMagnitude", 0.0f);
-    private Vector3d motionVec;
+    private Vec3 motionVec;
     public final static ResourceLocation TYPE_NAME = new ResourceLocation(MKCore.MOD_ID, "particle_anim.linear_motion");
     private final MKParticle.ParticleDataKey VARIANCE_VECTOR = new MKParticle.ParticleDataKey(this,
             keyCount++);
@@ -24,7 +24,7 @@ public class LinearMotionTrack extends ParticleMotionAnimationTrack {
         this.xSpeed.setValue(xSpeed);
         this.ySpeed.setValue(ySpeed);
         this.zSpeed.setValue(zSpeed);
-        this.motionVec = new Vector3d(xSpeed, ySpeed, zSpeed);
+        this.motionVec = new Vec3(xSpeed, ySpeed, zSpeed);
         this.varianceMagnitude.setValue(varianceMagnitude);
     }
 
@@ -36,7 +36,7 @@ public class LinearMotionTrack extends ParticleMotionAnimationTrack {
     @Override
     public void begin(MKParticle particle, int duration) {
         particle.setTrackVector3dData(VARIANCE_VECTOR,
-                new Vector3d(generateVariance(particle), generateVariance(particle), generateVariance(particle)));
+                new Vec3(generateVariance(particle), generateVariance(particle), generateVariance(particle)));
     }
 
     @Override
@@ -50,14 +50,14 @@ public class LinearMotionTrack extends ParticleMotionAnimationTrack {
     }
 
     @Override
-    public Vector3d getMotion(MKParticle particle) {
+    public Vec3 getMotion(MKParticle particle) {
         return motionVec.add(particle.getTrackVector3dData(VARIANCE_VECTOR).scale(varianceMagnitude.value()));
     }
 
     @Override
     public void update(MKParticle particle, int tick, float time) {
-        Vector3d currentMotion = particle.getCurrentFrame().getMotionTrack().getMotion(particle);
-        Vector3d desiredMotion = getMotion(particle);
+        Vec3 currentMotion = particle.getCurrentFrame().getMotionTrack().getMotion(particle);
+        Vec3 desiredMotion = getMotion(particle);
         particle.setMotion(
                 MathUtils.lerpDouble(currentMotion.x, desiredMotion.x, time),
                 MathUtils.lerpDouble(currentMotion.y, desiredMotion.y, time),
@@ -68,6 +68,6 @@ public class LinearMotionTrack extends ParticleMotionAnimationTrack {
     @Override
     public <D> void readAdditionalData(Dynamic<D> dynamic) {
         super.readAdditionalData(dynamic);
-        motionVec = new Vector3d(xSpeed.value(), ySpeed.value(), zSpeed.value());
+        motionVec = new Vec3(xSpeed.value(), ySpeed.value(), zSpeed.value());
     }
 }

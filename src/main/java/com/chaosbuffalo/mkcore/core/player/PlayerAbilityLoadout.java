@@ -5,8 +5,8 @@ import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.player.loadout.ItemAbilityGroup;
 import com.chaosbuffalo.mkcore.core.player.loadout.PassiveAbilityGroup;
 import com.chaosbuffalo.mkcore.core.player.loadout.UltimateAbilityGroup;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nonnull;
 import java.util.EnumMap;
@@ -64,8 +64,8 @@ public class PlayerAbilityLoadout implements IPlayerSyncComponentProvider {
         return itemAbilityGroup;
     }
 
-    public CompoundNBT serializeNBT() {
-        CompoundNBT tag = new CompoundNBT();
+    public CompoundTag serializeNBT() {
+        CompoundTag tag = new CompoundTag();
         tag.put("basic", basicAbilityGroup.serializeNBT());
         tag.put("passive", passiveAbilityGroup.serializeNBT());
         tag.put("ultimate", ultimateAbilityGroup.serializeNBT());
@@ -73,7 +73,7 @@ public class PlayerAbilityLoadout implements IPlayerSyncComponentProvider {
         return tag;
     }
 
-    public void deserializeNBT(CompoundNBT tag) {
+    public void deserializeNBT(CompoundTag tag) {
         basicAbilityGroup.deserializeNBT(tag.get("basic"));
         passiveAbilityGroup.deserializeNBT(tag.get("passive"));
         ultimateAbilityGroup.deserializeNBT(tag.get("ultimate"));

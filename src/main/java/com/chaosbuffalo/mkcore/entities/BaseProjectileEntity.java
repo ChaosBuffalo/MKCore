@@ -2,20 +2,20 @@ package com.chaosbuffalo.mkcore.entities;
 
 import com.chaosbuffalo.targeting_api.Targeting;
 import com.chaosbuffalo.targeting_api.TargetingContext;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.projectile.ProjectileEntity;
-import net.minecraft.entity.projectile.ProjectileHelper;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.IPacket;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.EntityPredicates;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.entity.projectile.ProjectileUtil;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.util.math.*;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.event.ForgeEventFactory;
@@ -25,7 +25,15 @@ import net.minecraftforge.fml.network.NetworkHooks;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public abstract class BaseProjectileEntity extends ProjectileEntity implements IClientUpdatable, IEntityAdditionalSpawnData {
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
+
+public abstract class BaseProjectileEntity extends Projectile implements IClientUpdatable, IEntityAdditionalSpawnData {
 
     @Nullable
     private BlockState inBlockState;
@@ -44,7 +52,7 @@ public abstract class BaseProjectileEntity extends ProjectileEntity implements I
     private float skillLevel;
     private boolean doGroundProc;
 
-    public BaseProjectileEntity(EntityType<? extends ProjectileEntity> entityTypeIn, World worldIn) {
+    public BaseProjectileEntity(EntityType<? extends Projectile> entityTypeIn, Level worldIn) {
         super(entityTypeIn, worldIn);
         this.inBlockState = null;
         this.inGround = false;
@@ -60,13 +68,13 @@ public abstract class BaseProjectileEntity extends ProjectileEntity implements I
 
 
     @Override
-    public void writeSpawnData(PacketBuffer buffer) {
-        buffer.writeInt(field_234610_c_);
+    public void writeSpawnData(FriendlyByteBuf buffer) {
+        buffer.writeInt(ownerNetworkId);
     }
 
     @Override
-    public void readSpawnData(PacketBuffer additionalData) {
-        field_234610_c_ = additionalData.readInt();
+    public void readSpawnData(FriendlyByteBuf additionalData) {
+        ownerNetworkId = additionalData.readInt();
     }
 
     public void setup() {
@@ -82,7 +90,7 @@ public abstract class BaseProjectileEntity extends ProjectileEntity implements I
     }
 
     @Override
-    protected void registerData() {
+    protected void defineSynchedData() {
 
     }
 
@@ -154,46 +162,46 @@ public abstract class BaseProjectileEntity extends ProjectileEntity implements I
     }
 
     @OnlyIn(Dist.CLIENT)
-    public boolean isInRangeToRenderDist(double distance) {
-        double edgeLength = this.getBoundingBox().getAverageEdgeLength() * 10.0D;
+    public boolean shouldRenderAtSqrDistance(double distance) {
+        double edgeLength = this.getBoundingBox().getSize() * 10.0D;
         if (Double.isNaN(edgeLength)) {
             edgeLength = 1.0D;
         }
 
-        edgeLength = edgeLength * 64.0D * getRenderDistanceWeight();
+        edgeLength = edgeLength * 64.0D * getViewScale();
         return distance < edgeLength * edgeLength;
     }
 
     @Nonnull
     @Override
-    public IPacket<?> createSpawnPacket() {
+    public Packet<?> getAddEntityPacket() {
         return NetworkHooks.getEntitySpawningPacket(this);
     }
 
     public void shoot(Entity source, float rotationPitchIn, float rotationYawIn,
                       float pitchOffset, float velocity, float inaccuracy) {
-        float x = -MathHelper.sin(rotationYawIn * ONE_DEGREE) * MathHelper.cos(rotationPitchIn * ONE_DEGREE);
-        float y = -MathHelper.sin((rotationPitchIn + pitchOffset) * ONE_DEGREE);
-        float z = MathHelper.cos(rotationYawIn * ONE_DEGREE) * MathHelper.cos(rotationPitchIn * ONE_DEGREE);
+        float x = -Mth.sin(rotationYawIn * ONE_DEGREE) * Mth.cos(rotationPitchIn * ONE_DEGREE);
+        float y = -Mth.sin((rotationPitchIn + pitchOffset) * ONE_DEGREE);
+        float z = Mth.cos(rotationYawIn * ONE_DEGREE) * Mth.cos(rotationPitchIn * ONE_DEGREE);
         this.shoot(x, y, z, velocity, inaccuracy);
-        this.setMotion(this.getMotion().add(source.getMotion().x, source.isOnGround() ? 0.0D : source.getMotion().y,
-                source.getMotion().z));
+        this.setDeltaMovement(this.getDeltaMovement().add(source.getDeltaMovement().x, source.isOnGround() ? 0.0D : source.getDeltaMovement().y,
+                source.getDeltaMovement().z));
     }
 
     @Override
     public void shoot(double x, double y, double z, float velocity, float inaccuracy) {
-        float mag = MathHelper.sqrt(x * x + y * y + z * z);
+        float mag = Mth.sqrt(x * x + y * y + z * z);
         double nX = x / (double) mag;
         double nY = y / (double) mag;
         double nZ = z / (double) mag;
-        nX = nX + this.rand.nextGaussian() * MAX_INACCURACY * (double) inaccuracy;
-        nY = nY + this.rand.nextGaussian() * MAX_INACCURACY * (double) inaccuracy;
-        nZ = nZ + this.rand.nextGaussian() * MAX_INACCURACY * (double) inaccuracy;
+        nX = nX + this.random.nextGaussian() * MAX_INACCURACY * (double) inaccuracy;
+        nY = nY + this.random.nextGaussian() * MAX_INACCURACY * (double) inaccuracy;
+        nZ = nZ + this.random.nextGaussian() * MAX_INACCURACY * (double) inaccuracy;
         x = nX * (double) velocity;
         y = nY * (double) velocity;
         z = nZ * (double) velocity;
-        this.setMotion(x, y, z);
-        calculateOriginalPitchYaw(getMotion());
+        this.setDeltaMovement(x, y, z);
+        calculateOriginalPitchYaw(getDeltaMovement());
         this.ticksInGround = 0;
     }
 
@@ -202,12 +210,12 @@ public abstract class BaseProjectileEntity extends ProjectileEntity implements I
     }
 
     protected boolean checkIfInGround(BlockPos blockpos, BlockState blockstate) {
-        if (!blockstate.isAir(this.world, blockpos)) {
-            VoxelShape voxelshape = blockstate.getCollisionShape(this.world, blockpos);
+        if (!blockstate.isAir(this.level, blockpos)) {
+            VoxelShape voxelshape = blockstate.getBlockSupportShape(this.level, blockpos);
             if (!voxelshape.isEmpty()) {
-                Vector3d entityPos = this.getPositionVec();
-                for (AxisAlignedBB axisalignedbb : voxelshape.toBoundingBoxList()) {
-                    if (axisalignedbb.offset(blockpos).contains(entityPos)) {
+                Vec3 entityPos = this.position();
+                for (AABB axisalignedbb : voxelshape.toAabbs()) {
+                    if (axisalignedbb.move(blockpos).contains(entityPos)) {
                         return true;
                     }
                 }
@@ -217,22 +225,22 @@ public abstract class BaseProjectileEntity extends ProjectileEntity implements I
     }
 
     protected boolean missingPrevPitchAndYaw() {
-        return this.prevRotationPitch == 0.0F && this.prevRotationYaw == 0.0F;
+        return this.xRotO == 0.0F && this.yRotO == 0.0F;
     }
 
-    protected void calculateOriginalPitchYaw(Vector3d motion) {
-        float xyMag = MathHelper.sqrt(horizontalMag(motion));
-        this.rotationYaw = (float) (MathHelper.atan2(motion.x, motion.z) * (double) (180F / (float) Math.PI));
-        this.rotationPitch = (float) (MathHelper.atan2(motion.y, xyMag) * (double) (180F / (float) Math.PI));
-        this.prevRotationYaw = this.rotationYaw;
-        this.prevRotationPitch = this.rotationPitch;
+    protected void calculateOriginalPitchYaw(Vec3 motion) {
+        float xyMag = Mth.sqrt(getHorizontalDistanceSqr(motion));
+        this.yRot = (float) (Mth.atan2(motion.x, motion.z) * (double) (180F / (float) Math.PI));
+        this.xRot = (float) (Mth.atan2(motion.y, xyMag) * (double) (180F / (float) Math.PI));
+        this.yRotO = this.yRot;
+        this.xRotO = this.xRot;
     }
 
     protected boolean onGroundProc(Entity caster, int amplifier) {
         return false;
     }
 
-    protected boolean onImpact(Entity caster, RayTraceResult result, int amplifier) {
+    protected boolean onImpact(Entity caster, HitResult result, int amplifier) {
         return false;
     }
 
@@ -243,12 +251,12 @@ public abstract class BaseProjectileEntity extends ProjectileEntity implements I
 
 
     protected boolean isValidEntityTargetGeneric(Entity entity) {
-        return entity != this && EntityPredicates.NOT_SPECTATING.test(entity) && EntityPredicates.IS_ALIVE.test(entity);
+        return entity != this && EntitySelector.NO_SPECTATORS.test(entity) && EntitySelector.ENTITY_STILL_ALIVE.test(entity);
     }
 
 
     protected boolean isValidEntityTarget(Entity entity) {
-        Entity shooter = getShooter();
+        Entity shooter = getOwner();
         if (entity instanceof LivingEntity && shooter != null) {
             return Targeting.isValidTarget(getTargetContext(), shooter, entity);
         }
@@ -257,30 +265,30 @@ public abstract class BaseProjectileEntity extends ProjectileEntity implements I
 
     // Real name canHitEntity
     @Override
-    protected boolean func_230298_a_(Entity entity) {
+    protected boolean canHitEntity(Entity entity) {
         // super will check if it has left the shooter
-        return super.func_230298_a_(entity) && isValidEntityTarget(entity);
+        return super.canHitEntity(entity) && isValidEntityTarget(entity);
     }
 
-    private EntityRayTraceResult rayTraceEntities(Vector3d traceStart, Vector3d traceEnd) {
-        return ProjectileHelper.rayTraceEntities(world, this, traceStart, traceEnd,
-                getBoundingBox().expand(getMotion()).grow(1.0D), this::func_230298_a_);
+    private EntityHitResult rayTraceEntities(Vec3 traceStart, Vec3 traceEnd) {
+        return ProjectileUtil.getEntityHitResult(level, this, traceStart, traceEnd,
+                getBoundingBox().expandTowards(getDeltaMovement()).inflate(1.0D), this::canHitEntity);
     }
 
-    protected boolean onHit(RayTraceResult rayTraceResult) {
-        if (rayTraceResult.getType() == RayTraceResult.Type.BLOCK) {
-            BlockRayTraceResult blockraytraceresult = (BlockRayTraceResult) rayTraceResult;
-            BlockState blockstate = this.world.getBlockState(blockraytraceresult.getPos());
+    protected boolean onHit(HitResult rayTraceResult) {
+        if (rayTraceResult.getType() == HitResult.Type.BLOCK) {
+            BlockHitResult blockraytraceresult = (BlockHitResult) rayTraceResult;
+            BlockState blockstate = this.level.getBlockState(blockraytraceresult.getBlockPos());
             this.inBlockState = blockstate;
-            Vector3d vec3d = blockraytraceresult.getHitVec().subtract(this.getPosX(), this.getPosY(), this.getPosZ());
-            this.setMotion(vec3d);
-            Vector3d vec3d1 = vec3d.normalize().scale(0.05F);
-            this.setRawPosition(this.getPosX() - vec3d1.x, this.getPosY() - vec3d1.y,
-                    this.getPosZ() - vec3d1.z);
+            Vec3 vec3d = blockraytraceresult.getLocation().subtract(this.getX(), this.getY(), this.getZ());
+            this.setDeltaMovement(vec3d);
+            Vec3 vec3d1 = vec3d.normalize().scale(0.05F);
+            this.setPosRaw(this.getX() - vec3d1.x, this.getY() - vec3d1.y,
+                    this.getZ() - vec3d1.z);
             this.inGround = true;
-            blockstate.onProjectileCollision(this.world, blockstate, blockraytraceresult, this);
+            blockstate.onProjectileHit(this.level, blockstate, blockraytraceresult, this);
         }
-        return this.onImpact(getShooter(), rayTraceResult, getAmplifier());
+        return this.onImpact(getOwner(), rayTraceResult, getAmplifier());
 
     }
 
@@ -332,32 +340,32 @@ public abstract class BaseProjectileEntity extends ProjectileEntity implements I
 //    }
 
     @Override
-    public boolean writeUnlessPassenger(CompoundNBT compound) {
+    public boolean save(CompoundTag compound) {
         return false;
     }
 
     @Override
     public void tick() {
-        this.lastTickPosX = this.getPosX();
-        this.lastTickPosY = this.getPosY();
-        this.lastTickPosZ = this.getPosZ();
+        this.xOld = this.getX();
+        this.yOld = this.getY();
+        this.zOld = this.getZ();
         super.tick();
         if (!isAlive()) {
             return;
         }
 
-        if (this.ticksExisted == this.getDeathTime()) {
+        if (this.tickCount == this.getDeathTime()) {
             this.remove();
         }
 
-        Vector3d motion = this.getMotion();
+        Vec3 motion = this.getDeltaMovement();
 
         if (missingPrevPitchAndYaw()) {
             calculateOriginalPitchYaw(motion);
         }
 
-        BlockPos blockpos = getPosition();
-        BlockState blockstate = this.world.getBlockState(blockpos);
+        BlockPos blockpos = blockPosition();
+        BlockState blockstate = this.level.getBlockState(blockpos);
         this.inGround = checkIfInGround(blockpos, blockstate);
 
 //        if (world.isRemote && ticksExisted % graphicalEffectTickInterval == 0) {
@@ -365,18 +373,18 @@ public abstract class BaseProjectileEntity extends ProjectileEntity implements I
 //        }
 
         if (this.inGround) {
-            if (this.inBlockState != blockstate && this.world.hasNoCollisions(this.getBoundingBox().grow(0.06D))) {
+            if (this.inBlockState != blockstate && this.level.noCollision(this.getBoundingBox().inflate(0.06D))) {
                 this.inGround = false;
-                this.setMotion(motion.mul(this.rand.nextFloat() * 0.2F,
-                        this.rand.nextFloat() * 0.2F,
-                        this.rand.nextFloat() * 0.2F));
+                this.setDeltaMovement(motion.multiply(this.random.nextFloat() * 0.2F,
+                        this.random.nextFloat() * 0.2F,
+                        this.random.nextFloat() * 0.2F));
                 this.ticksInGround = 0;
                 this.ticksInAir = 0;
             } else {
                 ++this.ticksInGround;
                 if (this.getDoGroundProc() && this.ticksInGround > 0 &&
                         this.ticksInGround % this.getGroundProcTime() == 0) {
-                    if (this.onGroundProc(this.getShooter(), this.getAmplifier())) {
+                    if (this.onGroundProc(this.getOwner(), this.getAmplifier())) {
                         this.remove();
                     }
                 }
@@ -385,70 +393,70 @@ public abstract class BaseProjectileEntity extends ProjectileEntity implements I
             this.ticksInGround = 0;
             ++this.ticksInAir;
             if (this.getDoAirProc() && this.ticksInAir % this.getAirProcTime() == 0) {
-                if (this.onAirProc(this.getShooter(), this.getAmplifier())) {
+                if (this.onAirProc(this.getOwner(), this.getAmplifier())) {
                     this.remove();
                 }
             }
-            RayTraceResult trace;
-            Vector3d traceStart = this.getPositionVec();
-            Vector3d traceEnd = traceStart.add(motion);
-            RayTraceResult blockRayTrace = this.world.rayTraceBlocks(new RayTraceContext(traceStart, traceEnd,
-                    RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, this));
+            HitResult trace;
+            Vec3 traceStart = this.position();
+            Vec3 traceEnd = traceStart.add(motion);
+            HitResult blockRayTrace = this.level.clip(new ClipContext(traceStart, traceEnd,
+                    ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this));
             trace = blockRayTrace;
-            if (blockRayTrace.getType() != RayTraceResult.Type.MISS) {
-                traceEnd = blockRayTrace.getHitVec();
+            if (blockRayTrace.getType() != HitResult.Type.MISS) {
+                traceEnd = blockRayTrace.getLocation();
             }
 
-            EntityRayTraceResult entityRayTrace = rayTraceEntities(traceStart, traceEnd);
+            EntityHitResult entityRayTrace = rayTraceEntities(traceStart, traceEnd);
             if (entityRayTrace != null) {
                 trace = entityRayTrace;
             }
 
-            if (trace.getType() != RayTraceResult.Type.MISS && !ForgeEventFactory.onProjectileImpact(this, trace)) {
+            if (trace.getType() != HitResult.Type.MISS && !ForgeEventFactory.onProjectileImpact(this, trace)) {
                 if (this.onHit(trace)) {
                     this.remove();
                 }
-                this.isAirBorne = true;
+                this.hasImpulse = true;
             }
-            motion = getMotion();
-            float xyMag = MathHelper.sqrt(horizontalMag(motion));
-            this.rotationYaw = (float) (MathHelper.atan2(motion.x, motion.z) * (double) (180F / (float) Math.PI));
-            this.rotationPitch = (float) (MathHelper.atan2(motion.y, xyMag) * (double) (180F / (float) Math.PI));
+            motion = getDeltaMovement();
+            float xyMag = Mth.sqrt(getHorizontalDistanceSqr(motion));
+            this.yRot = (float) (Mth.atan2(motion.x, motion.z) * (double) (180F / (float) Math.PI));
+            this.xRot = (float) (Mth.atan2(motion.y, xyMag) * (double) (180F / (float) Math.PI));
 
-            while (this.rotationPitch - this.prevRotationPitch < -180.0F) {
-                this.prevRotationPitch -= 360.0F;
-            }
-
-            while (this.rotationPitch - this.prevRotationPitch >= 180.0F) {
-                this.prevRotationPitch += 360.0F;
+            while (this.xRot - this.xRotO < -180.0F) {
+                this.xRotO -= 360.0F;
             }
 
-            while (this.rotationYaw - this.prevRotationYaw < -180.0F) {
-                this.prevRotationYaw -= 360.0F;
+            while (this.xRot - this.xRotO >= 180.0F) {
+                this.xRotO += 360.0F;
             }
 
-            while (this.rotationYaw - this.prevRotationYaw >= 180.0F) {
-                this.prevRotationYaw += 360.0F;
+            while (this.yRot - this.yRotO < -180.0F) {
+                this.yRotO -= 360.0F;
             }
 
-            this.rotationPitch = this.prevRotationPitch + (this.rotationPitch - this.prevRotationPitch) * 0.2F;
-            this.rotationYaw = this.prevRotationYaw + (this.rotationYaw - this.prevRotationYaw) * 0.2F;
+            while (this.yRot - this.yRotO >= 180.0F) {
+                this.yRotO += 360.0F;
+            }
+
+            this.xRot = this.xRotO + (this.xRot - this.xRotO) * 0.2F;
+            this.yRot = this.yRotO + (this.yRot - this.yRotO) * 0.2F;
             if (!this.inGround) {
-                setMotion(motion.subtract(new Vector3d(0.0, getGravityVelocity(), 0.0)));
+                setDeltaMovement(motion.subtract(new Vec3(0.0, getGravityVelocity(), 0.0)));
             }
-            this.setPosition(getPosX() + motion.getX(), getPosY() + motion.getY(), getPosZ() + motion.getZ());
+            this.setPos(getX() + motion.x(), getY() + motion.y(), getZ() + motion.z());
         }
     }
 
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void setVelocity(double x, double y, double z) {
-        super.setVelocity(x, y, z);
+    public void lerpMotion(double x, double y, double z) {
+        super.lerpMotion(x, y, z);
         if (missingPrevPitchAndYaw()) {
-            calculateOriginalPitchYaw(getMotion());
-            this.setLocationAndAngles(this.getPosX(), this.getPosY(), this.getPosZ(),
-                    this.rotationYaw, this.rotationPitch);
+            calculateOriginalPitchYaw(getDeltaMovement());
+            this.moveTo(this.getX(), this.getY(), this.getZ(),
+                    this.yRot, this.xRot);
             this.ticksInGround = 0;
         }
     }

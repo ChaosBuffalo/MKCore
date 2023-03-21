@@ -1,8 +1,8 @@
 package com.chaosbuffalo.mkcore.sync;
 
-import net.minecraft.nbt.INBT;
+import net.minecraft.nbt.Tag;
 
-public interface IMKSerializable<T extends INBT> {
+public interface IMKSerializable<T extends Tag> {
     T serialize();
 
     boolean deserialize(T tag);

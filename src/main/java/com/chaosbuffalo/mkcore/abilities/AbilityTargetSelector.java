@@ -1,10 +1,10 @@
 package com.chaosbuffalo.mkcore.abilities;
 
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
-import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,7 +18,7 @@ public class AbilityTargetSelector {
     private final BiFunction<IMKEntityData, MKAbility, AbilityContext> selector;
     private Set<MemoryModuleType<?>> requiredMemories;
     private String descriptionKey;
-    private final List<BiFunction<MKAbility, IMKEntityData, ITextComponent>> additionalDescriptors;
+    private final List<BiFunction<MKAbility, IMKEntityData, Component>> additionalDescriptors;
     private boolean showTargetType;
 
     public AbilityTargetSelector(BiFunction<IMKEntityData, MKAbility, AbilityContext> selector) {
@@ -38,7 +38,7 @@ public class AbilityTargetSelector {
         return this;
     }
 
-    public AbilityTargetSelector addDynamicDescription(BiFunction<MKAbility, IMKEntityData, ITextComponent> description) {
+    public AbilityTargetSelector addDynamicDescription(BiFunction<MKAbility, IMKEntityData, Component> description) {
         additionalDescriptors.add(description);
         return this;
     }
@@ -47,22 +47,22 @@ public class AbilityTargetSelector {
         return showTargetType;
     }
 
-    public void buildDescription(MKAbility ability, IMKEntityData casterData, Consumer<ITextComponent> consumer) {
+    public void buildDescription(MKAbility ability, IMKEntityData casterData, Consumer<Component> consumer) {
         consumer.accept(getDescriptionWithHeading(ability));
         additionalDescriptors.forEach(func -> consumer.accept(func.apply(ability, casterData)));
     }
 
-    private IFormattableTextComponent getDescriptionWithHeading(MKAbility ability) {
+    private MutableComponent getDescriptionWithHeading(MKAbility ability) {
         if (showTargetType) {
-            ITextComponent type = ability.getTargetContext().getLocalizedDescription();
-            return new TranslationTextComponent("mkcore.ability_description.target_with_type", getDescription(), type);
+            Component type = ability.getTargetContext().getLocalizedDescription();
+            return new TranslatableComponent("mkcore.ability_description.target_with_type", getDescription(), type);
         } else {
-            return new TranslationTextComponent("mkcore.ability_description.target", getDescription());
+            return new TranslatableComponent("mkcore.ability_description.target", getDescription());
         }
     }
 
-    public ITextComponent getDescription() {
-        return new TranslationTextComponent(descriptionKey);
+    public Component getDescription() {
+        return new TranslatableComponent(descriptionKey);
     }
 
     public AbilityTargetSelector setRequiredMemories(Set<MemoryModuleType<?>> types) {

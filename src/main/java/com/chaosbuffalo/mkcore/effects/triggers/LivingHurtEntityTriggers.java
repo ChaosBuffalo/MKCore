@@ -13,12 +13,12 @@ import com.chaosbuffalo.mkcore.network.CritMessagePacket;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.ParticleEffectSpawnPacket;
 import com.chaosbuffalo.mkcore.utils.DamageUtils;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 
 import java.util.ArrayList;
@@ -105,7 +105,7 @@ public class LivingHurtEntityTriggers extends SpellTriggers.TriggerCollectionBas
                                    LivingEntity livingSource, IMKEntityData sourceData,
                                    MKDamageSource source, String typeTag,
                                    List<Trigger> playerHurtTriggers) {
-        Entity immediate = source.getImmediateSource() != null ? source.getImmediateSource() : livingSource;
+        Entity immediate = source.getDirectEntity() != null ? source.getDirectEntity() : livingSource;
         float newDamage = source.getMKDamageType().applyDamage(livingSource, livingTarget, immediate, event.getAmount(), source.getModifierScaling());
         if (source.getMKDamageType().rollCrit(livingSource, livingTarget, immediate)) {
             newDamage = source.getMKDamageType().applyCritDamage(livingSource, livingTarget, immediate, newDamage);
@@ -131,7 +131,7 @@ public class LivingHurtEntityTriggers extends SpellTriggers.TriggerCollectionBas
         if (source instanceof MKDamageSource.EffectDamage) {
             MKDamageSource.EffectDamage effectDamage = (MKDamageSource.EffectDamage) source;
             sendCritPacket(livingTarget, livingSource,
-                    new CritMessagePacket(livingTarget.getEntityId(), livingSource.getEntityId(), newDamage,
+                    new CritMessagePacket(livingTarget.getId(), livingSource.getId(), newDamage,
                             source.getMKDamageType(), effectDamage.getDamageTypeName()));
         }
     }
@@ -148,7 +148,7 @@ public class LivingHurtEntityTriggers extends SpellTriggers.TriggerCollectionBas
                 abilityName = MKCoreRegistry.INVALID_ABILITY;
             }
             sendCritPacket(livingTarget, livingSource,
-                    new CritMessagePacket(livingTarget.getEntityId(), livingSource.getEntityId(), newDamage,
+                    new CritMessagePacket(livingTarget.getId(), livingSource.getId(), newDamage,
                             abilityName, source.getMKDamageType()));
         }
     }
@@ -156,7 +156,7 @@ public class LivingHurtEntityTriggers extends SpellTriggers.TriggerCollectionBas
     private void handleProjectile(LivingHurtEvent event, DamageSource source, LivingEntity livingTarget,
                                   LivingEntity livingSource, IMKEntityData sourceData) {
 
-        Entity projectile = source.getImmediateSource();
+        Entity projectile = source.getDirectEntity();
         float damage = event.getAmount();
         if (DamageUtils.isNonMKProjectileDamage(source)) {
             damage += livingSource.getAttribute(MKAttributes.RANGED_DAMAGE).getValue();
@@ -170,8 +170,8 @@ public class LivingHurtEntityTriggers extends SpellTriggers.TriggerCollectionBas
         event.setAmount(damage);
         if (wasCrit){
             sendCritPacket(livingTarget, livingSource,
-                    new CritMessagePacket(livingTarget.getEntityId(), livingSource.getEntityId(), damage,
-                            projectile.getEntityId()));
+                    new CritMessagePacket(livingTarget.getId(), livingSource.getId(), damage,
+                            projectile.getId()));
         }
         if (livingHurtEntityProjectileTriggers.size() == 0 || startTrigger(livingSource, PROJECTILE_TAG))
             return;
@@ -193,7 +193,7 @@ public class LivingHurtEntityTriggers extends SpellTriggers.TriggerCollectionBas
                 float newDamage = CoreDamageTypes.MeleeDamage.applyCritDamage(livingSource, livingTarget, event.getAmount());
                 event.setAmount(newDamage);
                 sendCritPacket(livingTarget, livingSource,
-                        new CritMessagePacket(livingTarget.getEntityId(), livingSource.getEntityId(), newDamage));
+                        new CritMessagePacket(livingTarget.getId(), livingSource.getId(), newDamage));
             }
         }
 
@@ -206,12 +206,12 @@ public class LivingHurtEntityTriggers extends SpellTriggers.TriggerCollectionBas
     private static void sendCritPacket(LivingEntity livingTarget, LivingEntity livingSource,
                                        CritMessagePacket packet) {
         PacketHandler.sendToTrackingAndSelf(packet, livingSource);
-        Vector3d lookVec = livingTarget.getLookVec();
+        Vec3 lookVec = livingTarget.getLookAngle();
         PacketHandler.sendToTrackingAndSelf(new ParticleEffectSpawnPacket(
                 ParticleTypes.ENCHANTED_HIT,
                 ParticleEffects.SPHERE_MOTION, 12, 4,
-                livingTarget.getPosX(), livingTarget.getPosY() + 1.0f,
-                livingTarget.getPosZ(), .5f, .5f, .5f, 0.2,
+                livingTarget.getX(), livingTarget.getY() + 1.0f,
+                livingTarget.getZ(), .5f, .5f, .5f, 0.2,
                 lookVec), livingTarget);
     }
 }

@@ -10,11 +10,11 @@ import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKScrollView;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKWidget;
 import com.chaosbuffalo.mkwidgets.utils.TextureRegion;
 import com.google.common.base.Preconditions;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nonnull;
 import java.util.function.BiConsumer;
@@ -35,7 +35,7 @@ public abstract class PlayerPageBase extends MKScreen implements IPlayerDataAwar
     protected MKPlayerData playerData;
     private boolean wasResized;
 
-    public PlayerPageBase(MKPlayerData playerData, ITextComponent title) {
+    public PlayerPageBase(MKPlayerData playerData, Component title) {
         super(title);
         this.playerData = Preconditions.checkNotNull(playerData, "Must pass a non-null PlayerData to create a screen");
     }
@@ -44,7 +44,7 @@ public abstract class PlayerPageBase extends MKScreen implements IPlayerDataAwar
 
     public void switchState(ResourceLocation newState) {
         MKScreen next = PlayerPageRegistry.createPage(playerData, newState);
-        getMinecraft().displayGuiScreen(next);
+        getMinecraft().setScreen(next);
     }
 
     protected String getDataBoxTexture() {
@@ -52,7 +52,7 @@ public abstract class PlayerPageBase extends MKScreen implements IPlayerDataAwar
     }
 
     @Override
-    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
         int xPos = width / 2 - PANEL_WIDTH / 2;
         int yPos = height / 2 - PANEL_HEIGHT / 2;
         RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
@@ -64,7 +64,7 @@ public abstract class PlayerPageBase extends MKScreen implements IPlayerDataAwar
         RenderSystem.enableLighting();
     }
 
-    protected void drawDataBox(MatrixStack matrixStack, int xPos, int yPos) {
+    protected void drawDataBox(PoseStack matrixStack, int xPos, int yPos) {
         String dataBoxTex = getDataBoxTexture();
         int xOffset = GuiTextures.CORE_TEXTURES.getCenterXOffset(dataBoxTex, GuiTextures.BACKGROUND_320_240);
         GuiTextures.CORE_TEXTURES.drawRegionAtPos(matrixStack, dataBoxTex, xPos + xOffset, yPos + DATA_BOX_OFFSET);
@@ -79,7 +79,7 @@ public abstract class PlayerPageBase extends MKScreen implements IPlayerDataAwar
             setPaddingLeft(2).setPaddingRight(2);
             for (PlayerPageRegistry.Extension otherPage : PlayerPageRegistry.getAllPages()) {
                 MKButton button = new MKButton(otherPage.getDisplayName());
-                button.setWidth(currentPage.font.getStringPropertyWidth(otherPage.getDisplayName()) + 10);
+                button.setWidth(currentPage.font.width(otherPage.getDisplayName()) + 10);
                 button.setEnabled(!otherPage.getId().equals(currentPage.getPageId()));
                 button.setPressedCallback((btn, mouseButton) -> {
                     currentPage.switchState(otherPage.getId());

@@ -4,9 +4,9 @@ import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkwidgets.client.gui.screens.MKScreen;
 import net.minecraft.client.Minecraft;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.fml.InterModComms;
 
 import javax.annotation.Nullable;
@@ -23,7 +23,7 @@ public class PlayerPageRegistry {
     public interface Extension {
         ResourceLocation getId();
 
-        ITextComponent getDisplayName();
+        Component getDisplayName();
 
         MKScreen createPage(MKPlayerData playerData);
     }
@@ -59,8 +59,8 @@ public class PlayerPageRegistry {
             }
 
             @Override
-            public ITextComponent getDisplayName() {
-                return new TranslationTextComponent(String.format("mkcore.gui.character.%s", getId().getPath()));
+            public Component getDisplayName() {
+                return new TranslatableComponent(String.format("mkcore.gui.character.%s", getId().getPath()));
             }
 
             @Override
@@ -98,7 +98,7 @@ public class PlayerPageRegistry {
 
     public static void openPlayerScreen(MKPlayerData playerData, ResourceLocation name) {
         MKScreen screen = createPage(playerData, name);
-        Minecraft.getInstance().displayGuiScreen(screen);
+        Minecraft.getInstance().setScreen(screen);
     }
 
     public static void openDefaultPlayerScreen(MKPlayerData playerData) {

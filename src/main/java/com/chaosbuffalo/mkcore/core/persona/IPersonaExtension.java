@@ -1,7 +1,7 @@
 package com.chaosbuffalo.mkcore.core.persona;
 
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 
 public interface IPersonaExtension {
     ResourceLocation getName();
@@ -10,7 +10,7 @@ public interface IPersonaExtension {
 
     void onPersonaDeactivated();
 
-    CompoundNBT serialize();
+    CompoundTag serialize();
 
-    void deserialize(CompoundNBT tag);
+    void deserialize(CompoundTag tag);
 }

@@ -5,14 +5,14 @@ import com.chaosbuffalo.mkcore.fx.particles.ParticleAnimation;
 import com.chaosbuffalo.mkcore.fx.particles.ParticleAnimationManager;
 import com.mojang.serialization.Dynamic;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
-import net.minecraft.nbt.NBTDynamicOps;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.ArrayList;
@@ -27,7 +27,7 @@ public class MKParticleEffectSpawnPacket {
     protected final ResourceLocation animName;
     protected final boolean hasRaw;
     protected final int entityId;
-    protected final List<Vector3d> additionalLocs;
+    protected final List<Vec3> additionalLocs;
 
 
     public MKParticleEffectSpawnPacket(double xPos, double yPos, double zPos, ParticleAnimation anim, int entityId) {
@@ -56,7 +56,7 @@ public class MKParticleEffectSpawnPacket {
         this.additionalLocs = new ArrayList<>();
     }
 
-    public void addLoc(Vector3d loc) {
+    public void addLoc(Vec3 loc) {
         additionalLocs.add(loc);
     }
 
@@ -65,19 +65,19 @@ public class MKParticleEffectSpawnPacket {
     }
 
 
-    public MKParticleEffectSpawnPacket(Vector3d posVec, ParticleAnimation anim) {
+    public MKParticleEffectSpawnPacket(Vec3 posVec, ParticleAnimation anim) {
         this(posVec.x, posVec.y, posVec.z, anim);
     }
 
-    public MKParticleEffectSpawnPacket(Vector3d posVec, ResourceLocation animName, int entityId) {
-        this(posVec.getX(), posVec.getY(), posVec.getZ(), animName, entityId);
+    public MKParticleEffectSpawnPacket(Vec3 posVec, ResourceLocation animName, int entityId) {
+        this(posVec.x(), posVec.y(), posVec.z(), animName, entityId);
     }
 
-    public MKParticleEffectSpawnPacket(Vector3d posVec, ResourceLocation animName) {
+    public MKParticleEffectSpawnPacket(Vec3 posVec, ResourceLocation animName) {
         this(posVec, animName, -1);
     }
 
-    public MKParticleEffectSpawnPacket(PacketBuffer buf) {
+    public MKParticleEffectSpawnPacket(FriendlyByteBuf buf) {
         this.xPos = buf.readDouble();
         this.yPos = buf.readDouble();
         this.zPos = buf.readDouble();
@@ -85,12 +85,12 @@ public class MKParticleEffectSpawnPacket {
         int addVecCount = buf.readInt();
         additionalLocs = new ArrayList<>();
         for (int i = 0; i < addVecCount; i++) {
-            additionalLocs.add(new Vector3d(buf.readDouble(), buf.readDouble(), buf.readDouble()));
+            additionalLocs.add(new Vec3(buf.readDouble(), buf.readDouble(), buf.readDouble()));
         }
         this.hasRaw = buf.readBoolean();
         if (hasRaw) {
             this.anim = ParticleAnimation.deserializeFromDynamic(ParticleAnimationManager.RAW_EFFECT,
-                    new Dynamic<>(NBTDynamicOps.INSTANCE, buf.readCompoundTag()));
+                    new Dynamic<>(NbtOps.INSTANCE, buf.readNbt()));
             this.animName = ParticleAnimationManager.RAW_EFFECT;
         } else {
             this.animName = buf.readResourceLocation();
@@ -105,22 +105,22 @@ public class MKParticleEffectSpawnPacket {
 
     }
 
-    public void toBytes(PacketBuffer buf) {
+    public void toBytes(FriendlyByteBuf buf) {
         buf.writeDouble(this.xPos);
         buf.writeDouble(this.yPos);
         buf.writeDouble(this.zPos);
         buf.writeInt(this.entityId);
         buf.writeInt(additionalLocs.size());
-        for (Vector3d vec : additionalLocs) {
-            buf.writeDouble(vec.getX());
-            buf.writeDouble(vec.getY());
-            buf.writeDouble(vec.getZ());
+        for (Vec3 vec : additionalLocs) {
+            buf.writeDouble(vec.x());
+            buf.writeDouble(vec.y());
+            buf.writeDouble(vec.z());
         }
         buf.writeBoolean(hasRaw);
         if (hasRaw) {
-            INBT dyn = anim.serialize(NBTDynamicOps.INSTANCE);
-            if (dyn instanceof CompoundNBT) {
-                buf.writeCompoundTag((CompoundNBT) dyn);
+            Tag dyn = anim.serialize(NbtOps.INSTANCE);
+            if (dyn instanceof CompoundTag) {
+                buf.writeNbt((CompoundTag) dyn);
             } else {
                 throw new RuntimeException(String.format("Particle Animation %s did not serialize to a CompoundNBT!", anim));
             }
@@ -142,17 +142,17 @@ public class MKParticleEffectSpawnPacket {
 
     static class ClientHandler {
         public static void handleClient(MKParticleEffectSpawnPacket packet) {
-            PlayerEntity player = Minecraft.getInstance().player;
+            Player player = Minecraft.getInstance().player;
             if (player == null || packet.anim == null)
                 return;
             if (packet.entityId != -1) {
-                Entity source = player.getEntityWorld().getEntityByID(packet.entityId);
+                Entity source = player.getCommandSenderWorld().getEntity(packet.entityId);
                 if (source != null) {
-                    packet.anim.spawnOffsetFromEntity(player.getEntityWorld(), new Vector3d(packet.xPos, packet.yPos, packet.zPos),
+                    packet.anim.spawnOffsetFromEntity(player.getCommandSenderWorld(), new Vec3(packet.xPos, packet.yPos, packet.zPos),
                             source, packet.additionalLocs);
                 }
             } else {
-                packet.anim.spawn(player.getEntityWorld(), new Vector3d(packet.xPos, packet.yPos, packet.zPos), packet.additionalLocs);
+                packet.anim.spawn(player.getCommandSenderWorld(), new Vec3(packet.xPos, packet.yPos, packet.zPos), packet.additionalLocs);
             }
         }
     }

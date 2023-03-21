@@ -2,14 +2,14 @@ package com.chaosbuffalo.mkcore.core.damage;
 
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.core.MKAttributes;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.Attribute;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.util.CombatRules;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.damagesource.CombatRules;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.function.Consumer;
 
@@ -18,26 +18,26 @@ public class MeleeDamageType extends MKDamageType {
     public MeleeDamageType(ResourceLocation name) {
         super(name, Attributes.ATTACK_DAMAGE, Attributes.ARMOR_TOUGHNESS,
                 MKAttributes.MELEE_CRIT, MKAttributes.MELEE_CRIT_MULTIPLIER,
-                TextFormatting.WHITE);
+                ChatFormatting.WHITE);
     }
 
     @Override
-    public ITextComponent getAbilityCritMessage(LivingEntity source, LivingEntity target, float damage,
+    public Component getAbilityCritMessage(LivingEntity source, LivingEntity target, float damage,
                                                 MKAbility ability, boolean isSelf) {
-        TranslationTextComponent msg;
+        TranslatableComponent msg;
         if (isSelf) {
-            msg = new TranslationTextComponent("mkcore.crit.melee.self",
+            msg = new TranslatableComponent("mkcore.crit.melee.self",
                     target.getDisplayName(),
-                    source.getHeldItemMainhand().getDisplayName(),
+                    source.getMainHandItem().getHoverName(),
                     Math.round(damage));
         } else {
-            msg = new TranslationTextComponent("mkcore.crit.melee.other",
+            msg = new TranslatableComponent("mkcore.crit.melee.other",
                     source.getDisplayName(),
                     target.getDisplayName(),
-                    source.getHeldItemMainhand().getDisplayName(),
+                    source.getMainHandItem().getHoverName(),
                     Math.round(damage));
         }
-        return msg.mergeStyle(TextFormatting.GOLD);
+        return msg.withStyle(ChatFormatting.GOLD);
     }
 
     @Override
@@ -48,7 +48,7 @@ public class MeleeDamageType extends MKDamageType {
 
     @Override
     public float applyResistance(LivingEntity target, float originalDamage) {
-        return CombatRules.getDamageAfterAbsorb(originalDamage, target.getTotalArmorValue(),
+        return CombatRules.getDamageAfterAbsorb(originalDamage, target.getArmorValue(),
                 (float) target.getAttribute(getResistanceAttribute()).getValue());
     }
 }

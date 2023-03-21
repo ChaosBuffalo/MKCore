@@ -3,9 +3,9 @@ package com.chaosbuffalo.mkcore.effects.instant;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.effects.*;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.potion.EffectType;
-import net.minecraft.util.DamageSource;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -17,7 +17,7 @@ public class AbilityMagicDamageEffect extends MKEffect {
 
 
     public AbilityMagicDamageEffect() {
-        super(EffectType.HARMFUL);
+        super(MobEffectCategory.HARMFUL);
         setRegistryName(MKCore.makeRL("effect.ability_magic_damage"));
     }
 
@@ -47,13 +47,13 @@ public class AbilityMagicDamageEffect extends MKEffect {
 
             DamageSource damage;
             if (activeEffect.getDirectEntity() != null) {
-                damage = DamageSource.causeIndirectMagicDamage(activeEffect.getDirectEntity(), activeEffect.getSourceEntity());
+                damage = DamageSource.indirectMagic(activeEffect.getDirectEntity(), activeEffect.getSourceEntity());
             } else {
                 damage = DamageSource.MAGIC;
             }
 
             float value = getScaledValue(activeEffect.getStackCount(), activeEffect.getSkillLevel());
-            targetData.getEntity().attackEntityFrom(damage, value);
+            targetData.getEntity().hurt(damage, value);
             return true;
         }
     }

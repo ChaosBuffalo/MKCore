@@ -29,74 +29,74 @@ public class MKRenderers {
 
     public static void registerPlayerRenderers() {
         if (MKConfig.CLIENT.enablePlayerCastAnimations.get()) {
-            Minecraft.getInstance().getRenderManager().skinMap.put("default",
-                    new MKPlayerRenderer(Minecraft.getInstance().getRenderManager(), false));
-            Minecraft.getInstance().getRenderManager().skinMap.put("slim",
-                    new MKPlayerRenderer(Minecraft.getInstance().getRenderManager(), true));
+            Minecraft.getInstance().getEntityRenderDispatcher().playerRenderers.put("default",
+                    new MKPlayerRenderer(Minecraft.getInstance().getEntityRenderDispatcher(), false));
+            Minecraft.getInstance().getEntityRenderDispatcher().playerRenderers.put("slim",
+                    new MKPlayerRenderer(Minecraft.getInstance().getEntityRenderDispatcher(), true));
         }
     }
 
 
     @SubscribeEvent
     public static void registerParticleFactory(ParticleFactoryRegisterEvent evt){
-        Minecraft.getInstance().particles.registerFactory(CoreParticles.MAGIC_CROSS,
+        Minecraft.getInstance().particleEngine.register(CoreParticles.MAGIC_CROSS,
                 (spriteSet) -> new MKParticle.MKParticleFactory(
                         spriteSet, -0.0001f, 0.05f,
                         0.05f, 80, true,
                         null));
-        Minecraft.getInstance().particles.registerFactory(CoreParticles.MAGIC_CLOVER,
+        Minecraft.getInstance().particleEngine.register(CoreParticles.MAGIC_CLOVER,
                 (spriteSet) -> new MKParticle.MKParticleFactory(
                         spriteSet, -0.0001f, 0.05f,
                         0.05f, 80, true,
                         null));
-        Minecraft.getInstance().particles.registerFactory(CoreParticles.MAGIC_LINE,
+        Minecraft.getInstance().particleEngine.register(CoreParticles.MAGIC_LINE,
                 (spriteSet) -> new MKParticle.MKParticleFactory(
                         spriteSet, -0.0001f, 0.05f,
                         0.05f, 80, true,
                         null));
-        Minecraft.getInstance().particles.registerFactory(CoreParticles.MAGIC_CIRCLE,
+        Minecraft.getInstance().particleEngine.register(CoreParticles.MAGIC_CIRCLE,
                 (spriteSet) -> new MKParticle.MKParticleFactory(
                         spriteSet, -0.0001f, 0.05f,
                         0.05f, 80, true,
                         null));
-        Minecraft.getInstance().particles.registerFactory(CoreParticles.MAGIC_GRADIENT_SQUARE,
+        Minecraft.getInstance().particleEngine.register(CoreParticles.MAGIC_GRADIENT_SQUARE,
                 (spriteSet) -> new MKParticle.MKParticleFactory(
                         spriteSet, -0.0001f, 0.05f,
                         0.05f, 80, true,
                         null));
-        Minecraft.getInstance().particles.registerFactory(CoreParticles.MAGIC_SIDEWAYS_LINE,
+        Minecraft.getInstance().particleEngine.register(CoreParticles.MAGIC_SIDEWAYS_LINE,
                 (spriteSet) -> new MKParticle.MKParticleFactory(
                         spriteSet, -0.0001f, 0.05f,
                         0.05f, 80, true,
                         null));
-        Minecraft.getInstance().particles.registerFactory(CoreParticles.MAGIC_CHIP,
+        Minecraft.getInstance().particleEngine.register(CoreParticles.MAGIC_CHIP,
                 (spriteSet) -> new MKParticle.MKParticleFactory(
                         spriteSet, -0.0001f, 0.05f,
                         0.05f, 80, true,
                         null));
-        Minecraft.getInstance().particles.registerFactory(CoreParticles.INDICATOR_PARTICLE,
+        Minecraft.getInstance().particleEngine.register(CoreParticles.INDICATOR_PARTICLE,
                 IndicatorParticle.IndicatorFactory::new);
-        Minecraft.getInstance().particles.registerFactory(CoreParticles.BLACK_MAGIC_CROSS,
+        Minecraft.getInstance().particleEngine.register(CoreParticles.BLACK_MAGIC_CROSS,
                 (spriteSet) -> new MKParticle.MKParticleFactory(
                         spriteSet, -0.0001f, 0.05f,
                         0.05f, 80, true, ParticleRenderTypes.BLACK_MAGIC_RENDERER,
                         null));
-        Minecraft.getInstance().particles.registerFactory(CoreParticles.BLACK_MAGIC_CLOVER,
+        Minecraft.getInstance().particleEngine.register(CoreParticles.BLACK_MAGIC_CLOVER,
                 (spriteSet) -> new MKParticle.MKParticleFactory(
                         spriteSet, -0.0001f, 0.05f,
                         0.05f, 80, true, ParticleRenderTypes.BLACK_MAGIC_RENDERER,
                         null));
-        Minecraft.getInstance().particles.registerFactory(CoreParticles.BLACK_MAGIC_CIRCLE,
+        Minecraft.getInstance().particleEngine.register(CoreParticles.BLACK_MAGIC_CIRCLE,
                 (spriteSet) -> new MKParticle.MKParticleFactory(
                         spriteSet, -0.0001f, 0.05f,
                         0.05f, 80, true, ParticleRenderTypes.BLACK_MAGIC_RENDERER,
                         null));
-        Minecraft.getInstance().particles.registerFactory(CoreParticles.BLACK_MAGIC_LINE,
+        Minecraft.getInstance().particleEngine.register(CoreParticles.BLACK_MAGIC_LINE,
                 (spriteSet) -> new MKParticle.MKParticleFactory(
                         spriteSet, -0.0001f, 0.05f,
                         0.05f, 80, true, ParticleRenderTypes.BLACK_MAGIC_RENDERER,
                         null));
-        Minecraft.getInstance().particles.registerFactory(CoreParticles.BLACK_MAGIC_GRADIENT_SQUARE,
+        Minecraft.getInstance().particleEngine.register(CoreParticles.BLACK_MAGIC_GRADIENT_SQUARE,
                 (spriteSet) -> new MKParticle.MKParticleFactory(
                         spriteSet, -0.0001f, 0.05f,
                         0.05f, 80, true, ParticleRenderTypes.BLACK_MAGIC_RENDERER,

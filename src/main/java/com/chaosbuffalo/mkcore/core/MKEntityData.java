@@ -5,9 +5,9 @@ import com.chaosbuffalo.mkcore.core.entity.EntityEffectHandler;
 import com.chaosbuffalo.mkcore.core.entity.EntityStats;
 import com.chaosbuffalo.mkcore.core.pets.EntityPetModule;
 import com.chaosbuffalo.mkcore.sync.UpdateEngine;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.nbt.CompoundTag;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;
@@ -69,24 +69,24 @@ public class MKEntityData implements IMKEntityData {
     }
 
     public void update() {
-        getEntity().getEntityWorld().getProfiler().startSection("MKEntityData.update");
+        getEntity().getCommandSenderWorld().getProfiler().push("MKEntityData.update");
 
-        getEntity().getEntityWorld().getProfiler().startSection("EntityEffects.tick");
+        getEntity().getCommandSenderWorld().getProfiler().push("EntityEffects.tick");
         getEffects().tick();
-        getEntity().getEntityWorld().getProfiler().endStartSection("AbilityExecutor.tick");
+        getEntity().getCommandSenderWorld().getProfiler().popPush("AbilityExecutor.tick");
         getAbilityExecutor().tick();
-        getEntity().getEntityWorld().getProfiler().endStartSection("EntityStats.tick");
+        getEntity().getCommandSenderWorld().getProfiler().popPush("EntityStats.tick");
         getStats().tick();
-        getEntity().getEntityWorld().getProfiler().endStartSection("EntityCombat.tick");
+        getEntity().getCommandSenderWorld().getProfiler().popPush("EntityCombat.tick");
         getCombatExtension().tick();
-        getEntity().getEntityWorld().getProfiler().endSection();
+        getEntity().getCommandSenderWorld().getProfiler().pop();
 
-        getEntity().getEntityWorld().getProfiler().endSection();
+        getEntity().getCommandSenderWorld().getProfiler().pop();
     }
 
     @Override
-    public CompoundNBT serialize() {
-        CompoundNBT tag = new CompoundNBT();
+    public CompoundTag serialize() {
+        CompoundTag tag = new CompoundTag();
         tag.put("knowledge", getKnowledge().serialize());
         tag.put("effects", effectHandler.serialize());
         return tag;
@@ -98,13 +98,13 @@ public class MKEntityData implements IMKEntityData {
     }
 
     @Override
-    public void deserialize(CompoundNBT tag) {
+    public void deserialize(CompoundTag tag) {
         getKnowledge().deserialize(tag.getCompound("knowledge"));
         effectHandler.deserialize(tag.getCompound("effects"));
     }
 
     @Override
-    public void onPlayerStartTracking(ServerPlayerEntity playerEntity) {
+    public void onPlayerStartTracking(ServerPlayer playerEntity) {
         getEffects().sendAllEffectsToPlayer(playerEntity);
     }
 

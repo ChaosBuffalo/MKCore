@@ -8,18 +8,18 @@ import com.chaosbuffalo.mkcore.fx.particles.ParticleAnimation;
 import com.chaosbuffalo.mkcore.fx.particles.ParticleAnimationManager;
 import com.chaosbuffalo.targeting_api.TargetingContext;
 import com.google.common.collect.Maps;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.IPacket;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.util.EntityPredicates;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.network.NetworkHooks;
 
@@ -81,28 +81,28 @@ public abstract class BaseEffectEntity extends Entity implements IEntityAddition
             }
         }
 
-        public void write(PacketBuffer buffer) {
+        public void write(FriendlyByteBuf buffer) {
             buffer.writeResourceLocation(particles);
             buffer.writeInt(tickRate);
-            buffer.writeEnumValue(type);
+            buffer.writeEnum(type);
         }
 
-        public static ParticleDisplay read(PacketBuffer buffer){
+        public static ParticleDisplay read(FriendlyByteBuf buffer){
             ResourceLocation loc = buffer.readResourceLocation();
             int tickRate = buffer.readInt();
-            DisplayType type = buffer.readEnumValue(DisplayType.class);
+            DisplayType type = buffer.readEnum(DisplayType.class);
             return new ParticleDisplay(loc, tickRate, type);
         }
     }
 
-    public BaseEffectEntity(EntityType<? extends BaseEffectEntity> entityType, World world) {
+    public BaseEffectEntity(EntityType<? extends BaseEffectEntity> entityType, Level world) {
         super(entityType, world);
         this.effects = new ArrayList<>();
         particles = null;
     }
 
     @Override
-    protected void registerData() {
+    protected void defineSynchedData() {
 
     }
 
@@ -129,11 +129,11 @@ public abstract class BaseEffectEntity extends Entity implements IEntityAddition
     }
 
 
-    public void addEffect(EffectInstance effect, TargetingContext targetContext) {
+    public void addEffect(MobEffectInstance effect, TargetingContext targetContext) {
         this.effects.add(WorldAreaEffectEntry.forEffect(this, effect, targetContext));
     }
 
-    public void addDelayedEffect(EffectInstance effect, TargetingContext targetContext, int delayTicks) {
+    public void addDelayedEffect(MobEffectInstance effect, TargetingContext targetContext, int delayTicks) {
         WorldAreaEffectEntry entry = WorldAreaEffectEntry.forEffect(this, effect, targetContext);
         entry.setTickStart(delayTicks);
         this.effects.add(entry);
@@ -151,22 +151,22 @@ public abstract class BaseEffectEntity extends Entity implements IEntityAddition
     }
 
     @Override
-    protected void readAdditional(CompoundNBT compound) {
+    protected void readAdditionalSaveData(CompoundTag compound) {
     }
 
     @Override
-    protected void writeAdditional(CompoundNBT compound) {
+    protected void addAdditionalSaveData(CompoundTag compound) {
     }
 
     @Override
-    public IPacket<?> createSpawnPacket() {
+    public Packet<?> getAddEntityPacket() {
         return NetworkHooks.getEntitySpawningPacket(this);
     }
 
     @Override
     public void tick() {
         super.tick();
-        if (this.world.isRemote) {
+        if (this.level.isClientSide) {
             clientUpdate();
         } else {
             if (serverUpdate()) {
@@ -178,23 +178,23 @@ public abstract class BaseEffectEntity extends Entity implements IEntityAddition
     protected void spawnClientParticles(ParticleDisplay display) {
         ParticleAnimation anim = ParticleAnimationManager.getAnimation(display.getParticles());
         if (anim != null){
-            anim.spawn(getEntityWorld(), getPositionVec(), null);
+            anim.spawn(getCommandSenderWorld(), position(), null);
         }
     }
 
     private void clientUpdate() {
         ParticleDisplay display = isWaiting() ? waitingParticles : particles;
-        if (display != null && display.shouldTick(ticksExisted, isWaiting() ? 0 : waitTime) ){
+        if (display != null && display.shouldTick(tickCount, isWaiting() ? 0 : waitTime) ){
             spawnClientParticles(display);
         }
     }
 
     @Override
-    public void writeSpawnData(PacketBuffer buffer) {
-        buffer.writeInt(owner.getEntityId());
+    public void writeSpawnData(FriendlyByteBuf buffer) {
+        buffer.writeInt(owner.getId());
         buffer.writeInt(tickRate);
         buffer.writeInt(waitTime);
-        buffer.writeInt(ticksExisted);
+        buffer.writeInt(tickCount);
         buffer.writeBoolean(particles != null);
         if (particles != null) {
             particles.write(buffer);
@@ -206,14 +206,14 @@ public abstract class BaseEffectEntity extends Entity implements IEntityAddition
     }
 
     @Override
-    public void readSpawnData(PacketBuffer additionalData) {
-        Entity ent = getEntityWorld().getEntityByID(additionalData.readInt());
+    public void readSpawnData(FriendlyByteBuf additionalData) {
+        Entity ent = getCommandSenderWorld().getEntity(additionalData.readInt());
         if (ent instanceof LivingEntity) {
             owner = (LivingEntity) ent;
         }
         tickRate = additionalData.readInt();
         waitTime = additionalData.readInt();
-        ticksExisted = additionalData.readInt();
+        tickCount = additionalData.readInt();
         boolean hasParticles = additionalData.readBoolean();
         if (hasParticles) {
             particles = ParticleDisplay.read(additionalData);
@@ -226,13 +226,13 @@ public abstract class BaseEffectEntity extends Entity implements IEntityAddition
 
     public void setOwner(@Nullable LivingEntity ownerIn) {
         this.owner = ownerIn;
-        this.ownerUniqueId = ownerIn == null ? null : ownerIn.getUniqueID();
+        this.ownerUniqueId = ownerIn == null ? null : ownerIn.getUUID();
     }
 
     @Nullable
     public LivingEntity getOwner() {
-        if (this.owner == null && this.ownerUniqueId != null && this.world instanceof ServerWorld) {
-            Entity entity = ((ServerWorld)this.world).getEntityByUuid(this.ownerUniqueId);
+        if (this.owner == null && this.ownerUniqueId != null && this.level instanceof ServerLevel) {
+            Entity entity = ((ServerLevel)this.level).getEntity(this.ownerUniqueId);
             if (entity instanceof LivingEntity) {
                 this.owner = (LivingEntity)entity;
             }
@@ -242,7 +242,7 @@ public abstract class BaseEffectEntity extends Entity implements IEntityAddition
     }
 
     public boolean isWaiting() {
-        return ticksExisted < waitTime;
+        return tickCount < waitTime;
     }
 
     @Nullable
@@ -256,7 +256,7 @@ public abstract class BaseEffectEntity extends Entity implements IEntityAddition
     protected abstract Collection<LivingEntity> getEntitiesInBounds();
 
     private boolean serverUpdate() {
-        if (ticksExisted > waitTime + duration + WAIT_LAG + 1) {
+        if (tickCount > waitTime + duration + WAIT_LAG + 1) {
             return true;
         }
         IMKEntityData entityData = getOwnerData();
@@ -264,13 +264,13 @@ public abstract class BaseEffectEntity extends Entity implements IEntityAddition
             return true;
 
         // lets recalc waiting to include a wait lag so that the server isnt damaging before the client responds
-        boolean stillWaiting = ticksExisted <= waitTime + WAIT_LAG;
+        boolean stillWaiting = tickCount <= waitTime + WAIT_LAG;
 
         if (stillWaiting) {
             return false;
         }
 
-        reapplicationDelayMap.entrySet().removeIf(entry -> ticksExisted >= entry.getValue());
+        reapplicationDelayMap.entrySet().removeIf(entry -> tickCount >= entry.getValue());
 
         if (effects.isEmpty()) {
             reapplicationDelayMap.clear();
@@ -284,10 +284,10 @@ public abstract class BaseEffectEntity extends Entity implements IEntityAddition
         }
 
         for (LivingEntity target : result){
-            reapplicationDelayMap.put(target, ticksExisted + tickRate);
+            reapplicationDelayMap.put(target, tickCount + tickRate);
             MKCore.getEntityData(target).ifPresent(targetData ->
                     effects.forEach(entry -> {
-                        if (entry.getTickStart() <= ticksExisted - waitTime - WAIT_LAG) {
+                        if (entry.getTickStart() <= tickCount - waitTime - WAIT_LAG) {
                             entry.apply(entityData, targetData);
                         }
                     }));
@@ -299,10 +299,10 @@ public abstract class BaseEffectEntity extends Entity implements IEntityAddition
 
     protected boolean entityCheck(LivingEntity e) {
         return e != null &&
-                EntityPredicates.NOT_SPECTATING.test(e) &&
-                EntityPredicates.IS_LIVING_ALIVE.test(e) &&
+                EntitySelector.NO_SPECTATORS.test(e) &&
+                EntitySelector.LIVING_ENTITY_STILL_ALIVE.test(e) &&
                 !reapplicationDelayMap.containsKey(e) &&
-                e.canBeHitWithPotion();
+                e.isAffectedByPotions();
     }
 
     public void setWaitTime(int waitTime) {
@@ -313,13 +313,13 @@ public abstract class BaseEffectEntity extends Entity implements IEntityAddition
         this.duration = duration;
     }
 
-    protected void writeVector(PacketBuffer buffer, Vector3d vector){
-        buffer.writeDouble(vector.getX());
-        buffer.writeDouble(vector.getY());
-        buffer.writeDouble(vector.getZ());
+    protected void writeVector(FriendlyByteBuf buffer, Vec3 vector){
+        buffer.writeDouble(vector.x());
+        buffer.writeDouble(vector.y());
+        buffer.writeDouble(vector.z());
     }
 
-    protected Vector3d readVector(PacketBuffer buffer){
-        return new Vector3d(buffer.readDouble(), buffer.readDouble(), buffer.readDouble());
+    protected Vec3 readVector(FriendlyByteBuf buffer){
+        return new Vec3(buffer.readDouble(), buffer.readDouble(), buffer.readDouble());
     }
 }

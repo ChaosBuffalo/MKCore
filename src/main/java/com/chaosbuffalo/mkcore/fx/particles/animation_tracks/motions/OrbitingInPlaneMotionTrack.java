@@ -6,8 +6,8 @@ import com.chaosbuffalo.mkcore.fx.particles.MKParticle;
 import com.chaosbuffalo.mkcore.serialization.attributes.DoubleAttribute;
 import com.chaosbuffalo.mkcore.serialization.attributes.FloatAttribute;
 import com.chaosbuffalo.mkcore.utils.MathUtils;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.Vec3;
 
 public class OrbitingInPlaneMotionTrack extends BaseMotionTrack {
     protected final DoubleAttribute rpm = new DoubleAttribute("rpm", 1.0f);
@@ -39,21 +39,21 @@ public class OrbitingInPlaneMotionTrack extends BaseMotionTrack {
 
     @Override
     public void begin(MKParticle particle, int duration) {
-        Vector3d pos = particle.getPosition();
+        Vec3 pos = particle.getPosition();
         particle.setTrackFloatData(VARIANCE_SCALAR, generateVariance(particle));
-        Vector3d originVertical = new Vector3d(particle.getOrigin().getX(), pos.getY(),
-                particle.getOrigin().getZ());
-        Vector3d diff = pos.subtract(originVertical);
+        Vec3 originVertical = new Vec3(particle.getOrigin().x(), pos.y(),
+                particle.getOrigin().z());
+        Vec3 diff = pos.subtract(originVertical);
         double realRadius = pos.distanceTo(originVertical);
-        double angle = MathUtils.getAngleAroundYAxis(diff.getZ(), diff.getX());
+        double angle = MathUtils.getAngleAroundYAxis(diff.z(), diff.x());
         double w = (Math.PI * 2) / GameConstants.TICKS_PER_SECOND * ((rpm.value() + particle.getTrackFloatData(VARIANCE_SCALAR) * rpmVarianceMagnitude.value()) / 60);
-        particle.setTrackVector3dData(MOTION_VECTOR, new Vector3d(angle, w, realRadius));
+        particle.setTrackVector3dData(MOTION_VECTOR, new Vec3(angle, w, realRadius));
         particle.setMotion(0, 0, 0);
         updateParticle(particle, 0, duration, 0);
     }
 
     private void updateParticle(MKParticle particle, float time, int duration, float partialTicks){
-        Vector3d motionData = particle.getTrackVector3dData(MOTION_VECTOR);
+        Vec3 motionData = particle.getTrackVector3dData(MOTION_VECTOR);
 
         float rT = rampTime.value();
         float realTime;
@@ -67,17 +67,17 @@ public class OrbitingInPlaneMotionTrack extends BaseMotionTrack {
         float elapsed = realTime * duration;
         double vx = -motionData.z * Math.sin(motionData.x + elapsed * motionData.y);
         double vz = -motionData.z * Math.cos(motionData.x + elapsed * motionData.y);
-        Vector3d desiredPosition = new Vector3d(particle.getOrigin().getX() + vx,
-                particle.getPosition().getY(), particle.getOrigin().getZ() + vz);
+        Vec3 desiredPosition = new Vec3(particle.getOrigin().x() + vx,
+                particle.getPosition().y(), particle.getOrigin().z() + vz);
         if (usingRamp){
-            Vector3d pos = particle.getPosition();
-            particle.setPosition(
-                    MathUtils.lerpDouble(pos.getX(), desiredPosition.getX(), time / rT),
-                    MathUtils.lerpDouble(pos.getY(), desiredPosition.getY(), time / rT),
-                    MathUtils.lerpDouble(pos.getZ(), desiredPosition.getZ(), time / rT)
+            Vec3 pos = particle.getPosition();
+            particle.setPos(
+                    MathUtils.lerpDouble(pos.x(), desiredPosition.x(), time / rT),
+                    MathUtils.lerpDouble(pos.y(), desiredPosition.y(), time / rT),
+                    MathUtils.lerpDouble(pos.z(), desiredPosition.z(), time / rT)
             );
         } else {
-            particle.setPosition(desiredPosition.getX(), desiredPosition.getY(), desiredPosition.getZ());
+            particle.setPos(desiredPosition.x(), desiredPosition.y(), desiredPosition.z());
         }
     }
 

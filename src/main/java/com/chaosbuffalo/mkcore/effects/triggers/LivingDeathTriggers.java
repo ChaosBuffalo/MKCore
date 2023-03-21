@@ -1,8 +1,8 @@
 package com.chaosbuffalo.mkcore.effects.triggers;
 
 import com.chaosbuffalo.mkcore.effects.SpellTriggers;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.DamageSource;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 
 public class LivingDeathTriggers extends SpellTriggers.EffectBasedTriggerCollection<LivingDeathTriggers.DeathTrigger> {

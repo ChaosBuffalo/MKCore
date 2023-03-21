@@ -1,13 +1,13 @@
 package com.chaosbuffalo.mkcore.client.rendering.animations;
 
-import net.minecraft.client.renderer.entity.model.BipedModel;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.util.Mth;
 
 public abstract class BipedCompleteCastAnimation<T extends LivingEntity> extends AdditionalBipedAnimation<T> {
     private static final float ANIM_TIME = 15.0f;
 
-    public BipedCompleteCastAnimation(BipedModel<?> model) {
+    public BipedCompleteCastAnimation(HumanoidModel<?> model) {
         super(model);
     }
 
@@ -15,16 +15,16 @@ public abstract class BipedCompleteCastAnimation<T extends LivingEntity> extends
 
     @Override
     public void apply(T entity) {
-        BipedModel<?> model = getModel();
+        HumanoidModel<?> model = getModel();
         int castTicks = getCastAnimTimer(entity);
         float progress = ANIM_TIME - castTicks / ANIM_TIME;
-        float armZ = MathHelper.cos((float) (Math.PI / 2.0f + progress * (float) Math.PI)) * (float) Math.PI / 2.0f;
-        model.bipedRightArm.rotateAngleY = 0.0F;
-        model.bipedLeftArm.rotateAngleY = 0.0F;
-        model.bipedRightArm.rotateAngleZ = -armZ;
-        model.bipedLeftArm.rotateAngleZ = armZ;
-        model.bipedRightArm.rotateAngleX = 0.0F;
-        model.bipedLeftArm.rotateAngleX = 0.0F;
+        float armZ = Mth.cos((float) (Math.PI / 2.0f + progress * (float) Math.PI)) * (float) Math.PI / 2.0f;
+        model.rightArm.yRot = 0.0F;
+        model.leftArm.yRot = 0.0F;
+        model.rightArm.zRot = -armZ;
+        model.leftArm.zRot = armZ;
+        model.rightArm.xRot = 0.0F;
+        model.leftArm.xRot = 0.0F;
 
     }
 }

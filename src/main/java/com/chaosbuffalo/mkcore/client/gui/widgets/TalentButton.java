@@ -6,12 +6,12 @@ import com.chaosbuffalo.mkcore.core.talents.TalentRecord;
 import com.chaosbuffalo.mkwidgets.client.gui.instructions.HoveringTextInstruction;
 import com.chaosbuffalo.mkwidgets.client.gui.math.Vec2i;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKButton;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.client.gui.Font;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +31,7 @@ public class TalentButton extends MKButton {
     public static final int SLOT_Y_OFFSET = 4;
     public static final int TEXT_OFFSET = 4;
     public static final int SLOT_X_OFFSET = (WIDTH - SLOT_WIDTH) / 2;
-    private final List<ITextComponent> tooltip;
+    private final List<Component> tooltip;
 
     public final int index;
     public final String line;
@@ -64,10 +64,10 @@ public class TalentButton extends MKButton {
 
 
     @Override
-    public void draw(MatrixStack matrixStack, Minecraft minecraft, int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks) {
+    public void draw(PoseStack matrixStack, Minecraft minecraft, int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks) {
         if (this.isVisible()) {
-            FontRenderer fontrenderer = minecraft.fontRenderer;
-            minecraft.getTextureManager().bindTexture(TALENT_SLOT_GRAPHIC);
+            Font fontrenderer = minecraft.font;
+            minecraft.getTextureManager().bind(TALENT_SLOT_GRAPHIC);
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
             RenderSystem.enableBlend();
             mkBlitUVSizeSame(matrixStack, this.getX() + SLOT_X_OFFSET,
@@ -81,13 +81,13 @@ public class TalentButton extends MKButton {
             } else {
                 icon = record.getNode().getTalent().getIcon();
             }
-            minecraft.getTextureManager().bindTexture(icon);
+            minecraft.getTextureManager().bind(icon);
             mkBlitUVSizeSame(matrixStack, this.getX() + SLOT_X_OFFSET,
                     this.getY() + SLOT_Y_OFFSET,
                     0, 0,
                     SLOT_WIDTH, SLOT_HEIGHT, SLOT_WIDTH, SLOT_HEIGHT);
             if (record.getRank() == record.getNode().getMaxRanks()) {
-                minecraft.getTextureManager().bindTexture(TALENT_SLOT_OVERLAY);
+                minecraft.getTextureManager().bind(TALENT_SLOT_OVERLAY);
                 mkBlitUVSizeSame(matrixStack,
                         this.getX() + SLOT_X_OFFSET - OVERLAY_WIDTH / 2,
                         this.getY() + SLOT_Y_OFFSET - OVERLAY_HEIGHT / 2,
@@ -109,7 +109,7 @@ public class TalentButton extends MKButton {
             int maxRank = record.getNode().getMaxRanks();
             int rankOffset = SLOT_Y_OFFSET + SLOT_HEIGHT + OVERLAY_HEIGHT + TEXT_OFFSET;
             mkFill(matrixStack, this.getX(), this.getY() + rankOffset - 2,
-                    getX() + getWidth(), getY() + rankOffset + fontrenderer.FONT_HEIGHT + 2,
+                    getX() + getWidth(), getY() + rankOffset + fontrenderer.lineHeight + 2,
                     0xff264747);
             String rankText = String.format("%d/%d", rank, maxRank);
             drawCenteredString(matrixStack, fontrenderer, rankText,

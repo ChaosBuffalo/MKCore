@@ -2,9 +2,9 @@ package com.chaosbuffalo.mkcore.effects;
 
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nullable;
 import java.util.Objects;
@@ -36,7 +36,7 @@ public class MKEffectBuilder<T extends MKEffectState> {
     }
 
     public MKEffectBuilder(MKEffect effect, LivingEntity sourceEntity, Supplier<T> stateFactory) {
-        this(effect, sourceEntity.getUniqueID(), stateFactory);
+        this(effect, sourceEntity.getUUID(), stateFactory);
         this.sourceEntity = sourceEntity;
     }
 

@@ -6,11 +6,11 @@ import com.chaosbuffalo.mkcore.init.CoreRegistryNames;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.DynamicOps;
-import net.minecraft.entity.Entity;
-import net.minecraft.particles.ParticleType;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.core.particles.ParticleType;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
@@ -154,13 +154,13 @@ public class ParticleAnimation {
         return anim;
     }
 
-    public void spawn(World world, Vector3d location, @Nullable List<Vector3d> additionalLocs){
+    public void spawn(Level world, Vec3 location, @Nullable List<Vec3> additionalLocs){
         if (hasSpawnPattern() && hasParticleType()){
             spawnPattern.spawn(getParticleType(), location, world, this, additionalLocs);
         }
     }
 
-    public void spawnOffsetFromEntity(World world, Vector3d offset, Entity entity, @Nullable List<Vector3d> additionalLocs){
+    public void spawnOffsetFromEntity(Level world, Vec3 offset, Entity entity, @Nullable List<Vec3> additionalLocs){
         if (hasSpawnPattern() && hasParticleType()){
             spawnPattern.spawnOffsetFromEntity(getParticleType(), offset, world, this, entity, additionalLocs);
         }

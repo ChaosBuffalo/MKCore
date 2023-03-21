@@ -3,15 +3,25 @@ package com.chaosbuffalo.mkcore.utils;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import net.minecraft.entity.ai.attributes.Attribute;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.item.*;
 
 import java.util.ArrayList;
 import java.util.UUID;
 import java.util.function.Function;
+
+import net.minecraft.world.item.AxeItem;
+import net.minecraft.world.item.BowItem;
+import net.minecraft.world.item.CrossbowItem;
+import net.minecraft.world.item.HoeItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.PickaxeItem;
+import net.minecraft.world.item.ShovelItem;
+import net.minecraft.world.item.SwordItem;
 
 public class ItemUtils {
     public static final UUID OFFHAND_UUID = UUID.fromString("80df259e-29f8-4779-bd46-94a24e313c2d");
@@ -74,19 +84,19 @@ public class ItemUtils {
     public static Multimap<String, AttributeModifier> getOffhandModifiersForItem(ItemStack item) {
         SwordItem sword = (SwordItem) item.getItem();
         Multimap<Attribute, AttributeModifier> modifiers = sword.getAttributeModifiers(
-                EquipmentSlotType.MAINHAND, item);
+                EquipmentSlot.MAINHAND, item);
         Multimap<String, AttributeModifier> newModifiers = HashMultimap.create();
         modifiers.forEach((key, modifier) -> {
             if (key.equals(Attributes.ATTACK_SPEED)) {
                 double attacksPerSecond = 4.0 + modifier.getAmount();
                 double ratio = attacksPerSecond / 8.0;
                 MKCore.LOGGER.info("ratio is {}, {}", ratio, attacksPerSecond);
-                newModifiers.put(key.getAttributeName(), new AttributeModifier(OFFHAND_UUID,
+                newModifiers.put(key.getDescriptionId(), new AttributeModifier(OFFHAND_UUID,
                         "Weapon modifier offhand", -ratio, AttributeModifier.Operation.MULTIPLY_TOTAL));
             } else {
                 AttributeModifier newMod = new AttributeModifier(OFFHAND_UUID,
                         "Weapon modifier offhand", modifier.getAmount(), modifier.getOperation());
-                newModifiers.put(key.getAttributeName(), newMod);
+                newModifiers.put(key.getDescriptionId(), newMod);
             }
 
         });

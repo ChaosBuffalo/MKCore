@@ -2,9 +2,9 @@ package com.chaosbuffalo.mkcore.network;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.abilities.AbilitySource;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.ArrayList;
@@ -18,7 +18,7 @@ public class ForgetAbilitiesRequestPacket {
         this.forgetting = forgetting;
     }
 
-    public ForgetAbilitiesRequestPacket(PacketBuffer buffer) {
+    public ForgetAbilitiesRequestPacket(FriendlyByteBuf buffer) {
         int count = buffer.readInt();
         forgetting = new ArrayList<>();
         for (int i = 0; i < count; i++) {
@@ -26,7 +26,7 @@ public class ForgetAbilitiesRequestPacket {
         }
     }
 
-    public void toBytes(PacketBuffer buffer) {
+    public void toBytes(FriendlyByteBuf buffer) {
         buffer.writeInt(forgetting.size());
         for (ResourceLocation loc : forgetting) {
             buffer.writeResourceLocation(loc);
@@ -36,7 +36,7 @@ public class ForgetAbilitiesRequestPacket {
     public void handle(Supplier<NetworkEvent.Context> supplier) {
         NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
-            ServerPlayerEntity player = ctx.getSender();
+            ServerPlayer player = ctx.getSender();
             if (player == null)
                 return;
 

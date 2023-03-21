@@ -3,8 +3,8 @@ package com.chaosbuffalo.mkcore.fx.particles.animation_tracks.motions;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.fx.particles.MKParticle;
 import com.mojang.serialization.Dynamic;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.Vec3;
 
 public class FlipMotionTrack extends BaseMotionTrack {
     public final static ResourceLocation TYPE_NAME = new ResourceLocation(MKCore.MOD_ID, "particle_anim.flip_motion");
@@ -21,7 +21,7 @@ public class FlipMotionTrack extends BaseMotionTrack {
     @Override
     public void apply(MKParticle particle) {
         super.apply(particle);
-        Vector3d newMotion = particle.getMotion().scale(-1);
-        particle.setMotion(newMotion.getX(), newMotion.getY(), newMotion.getZ());
+        Vec3 newMotion = particle.getMotion().scale(-1);
+        particle.setMotion(newMotion.x(), newMotion.y(), newMotion.z());
     }
 }

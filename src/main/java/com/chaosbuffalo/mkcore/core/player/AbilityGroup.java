@@ -14,10 +14,10 @@ import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.DynamicOps;
-import net.minecraft.nbt.INBT;
-import net.minecraft.nbt.NBTDynamicOps;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.core.NonNullList;
+import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -293,12 +293,12 @@ public class AbilityGroup implements IPlayerSyncComponentProvider {
         deserializeAbilityList(dynamic.get("abilities").orElseEmptyList(), this::setIndex);
     }
 
-    public INBT serializeNBT() {
-        return serialize(NBTDynamicOps.INSTANCE);
+    public Tag serializeNBT() {
+        return serialize(NbtOps.INSTANCE);
     }
 
-    public void deserializeNBT(INBT tag) {
-        deserialize(new Dynamic<>(NBTDynamicOps.INSTANCE, tag));
+    public void deserializeNBT(Tag tag) {
+        deserialize(new Dynamic<>(NbtOps.INSTANCE, tag));
     }
 
     private <T> void deserializeAbilityList(Dynamic<T> dynamic, BiConsumer<Integer, ResourceLocation> consumer) {

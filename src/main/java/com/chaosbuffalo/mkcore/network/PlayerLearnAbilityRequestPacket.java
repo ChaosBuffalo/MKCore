@@ -7,10 +7,10 @@ import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.abilities.training.AbilityTrainingEntry;
 import com.chaosbuffalo.mkcore.abilities.training.IAbilityTrainer;
 import com.chaosbuffalo.mkcore.abilities.training.IAbilityTrainingEntity;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.ArrayList;
@@ -32,7 +32,7 @@ public class PlayerLearnAbilityRequestPacket {
         this(new ArrayList<>(), learning, entityId);
     }
 
-    public PlayerLearnAbilityRequestPacket(PacketBuffer buffer) {
+    public PlayerLearnAbilityRequestPacket(FriendlyByteBuf buffer) {
         entityId = buffer.readInt();
         learning = buffer.readResourceLocation();
         int count = buffer.readInt();
@@ -42,7 +42,7 @@ public class PlayerLearnAbilityRequestPacket {
         }
     }
 
-    public void toBytes(PacketBuffer buffer) {
+    public void toBytes(FriendlyByteBuf buffer) {
         buffer.writeInt(entityId);
         buffer.writeResourceLocation(learning);
         buffer.writeInt(forgetting.size());
@@ -54,7 +54,7 @@ public class PlayerLearnAbilityRequestPacket {
     public void handle(Supplier<NetworkEvent.Context> supplier) {
         NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
-            ServerPlayerEntity player = ctx.getSender();
+            ServerPlayer player = ctx.getSender();
             if (player == null)
                 return;
 
@@ -72,7 +72,7 @@ public class PlayerLearnAbilityRequestPacket {
             }
 
 
-            Entity teacher = player.getServerWorld().getEntityByID(entityId);
+            Entity teacher = player.getLevel().getEntity(entityId);
             if (teacher instanceof IAbilityTrainingEntity) {
                 IAbilityTrainer abilityTrainer = ((IAbilityTrainingEntity) teacher).getAbilityTrainer();
 

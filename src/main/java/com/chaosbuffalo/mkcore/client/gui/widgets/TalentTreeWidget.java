@@ -11,21 +11,21 @@ import com.chaosbuffalo.mkwidgets.client.gui.layouts.MKLayout;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKButton;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKRectangle;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKText;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.gui.Font;
+import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.Arrays;
 import java.util.Map;
 import java.util.function.Supplier;
 
 public class TalentTreeWidget extends MKLayout {
-    private final FontRenderer fontRenderer;
+    private final Font fontRenderer;
     private final int originalWidth;
     private final int originalHeight;
     private final Supplier<TalentTreeRecord> recordSupplier;
 
     public TalentTreeWidget(int x, int y, int width, int height,
-                            FontRenderer fontRenderer, Supplier<TalentTreeRecord> recordSupplier) {
+                            Font fontRenderer, Supplier<TalentTreeRecord> recordSupplier) {
         super(x, y, width, height);
         this.fontRenderer = fontRenderer;
         this.originalWidth = width;
@@ -38,7 +38,7 @@ public class TalentTreeWidget extends MKLayout {
     public void setup() {
         if (getCurrent() == null) {
             MKText noSelectPrompt = new MKText(fontRenderer,
-                    new TranslationTextComponent("mkcore.gui.select_talent_tree"));
+                    new TranslatableComponent("mkcore.gui.select_talent_tree"));
             noSelectPrompt.setColor(0xffffffff);
             addWidget(noSelectPrompt, MarginConstraint.TOP, MarginConstraint.LEFT);
             setWidth(originalWidth);

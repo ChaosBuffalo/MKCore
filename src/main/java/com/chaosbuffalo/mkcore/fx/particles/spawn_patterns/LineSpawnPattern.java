@@ -4,12 +4,12 @@ import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.fx.particles.MKParticleData;
 import com.chaosbuffalo.mkcore.fx.particles.ParticleAnimation;
 import com.chaosbuffalo.mkcore.serialization.attributes.DoubleAttribute;
-import net.minecraft.entity.Entity;
-import net.minecraft.particles.ParticleType;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.core.particles.ParticleType;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Tuple;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -22,7 +22,7 @@ public class LineSpawnPattern extends ParticleSpawnPattern{
     protected final DoubleAttribute xRadius = new DoubleAttribute("xRadius", 1.0);
     protected final DoubleAttribute yRadius = new DoubleAttribute("yRadius", 1.0);
     protected final DoubleAttribute zRadius = new DoubleAttribute("zRadius", 1.0);
-    protected final Vector3d EMPTY_VEC = new Vector3d(0.0, 0.0, 0.0);
+    protected final Vec3 EMPTY_VEC = new Vec3(0.0, 0.0, 0.0);
 
     public LineSpawnPattern(){
         super(TYPE);
@@ -42,42 +42,42 @@ public class LineSpawnPattern extends ParticleSpawnPattern{
         return new LineSpawnPattern(xRadius.value(), yRadius.value(), zRadius.value());
     }
 
-    private Vector3d getRandomOffset(World world){
+    private Vec3 getRandomOffset(Level world){
         double x = (2.0 * xRadius.value()) * world.getRandom().nextDouble() - xRadius.value();
         double y = (2.0 * yRadius.value()) * world.getRandom().nextDouble() - yRadius.value();
         double z = (2.0 * zRadius.value()) * world.getRandom().nextDouble() - zRadius.value();
-        return new Vector3d(x, y, z);
+        return new Vec3(x, y, z);
     }
 
     @Override
-    public void produceParticlesForIndex(Vector3d origin, int particleNumber, @Nullable List<Vector3d> additionalLocs,
-                                         World world, Function<Vector3d, MKParticleData> particleDataSupplier,
+    public void produceParticlesForIndex(Vec3 origin, int particleNumber, @Nullable List<Vec3> additionalLocs,
+                                         Level world, Function<Vec3, MKParticleData> particleDataSupplier,
                                          List<ParticleSpawnEntry> finalParticles) {
         if (additionalLocs != null){
-            Vector3d direction = additionalLocs.get(0);
-            Vector3d data = additionalLocs.get(1);
-            double perParticle = data.getY();
-            Vector3d offset = getRandomOffset(world);
-            Vector3d finalPos = origin.add(direction.scale(perParticle * particleNumber)).add(offset);
+            Vec3 direction = additionalLocs.get(0);
+            Vec3 data = additionalLocs.get(1);
+            double perParticle = data.y();
+            Vec3 offset = getRandomOffset(world);
+            Vec3 finalPos = origin.add(direction.scale(perParticle * particleNumber)).add(offset);
             finalParticles.add(new ParticleSpawnEntry(particleDataSupplier.apply(finalPos), finalPos, EMPTY_VEC));
         }
     }
 
 
-    public Vector3d getEndpoint(Vector3d position, @Nullable List<Vector3d> additionalLocs){
+    public Vec3 getEndpoint(Vec3 position, @Nullable List<Vec3> additionalLocs){
         if (additionalLocs != null && !additionalLocs.isEmpty()){
             return additionalLocs.get(0);
         }
-        return position.add(new Vector3d(0.0, 5.0, 0.0));
+        return position.add(new Vec3(0.0, 5.0, 0.0));
     }
 
-    protected Tuple<List<Vector3d>, Double> getSpawnData(Vector3d position, @Nullable List<Vector3d> additionalLocs){
-        List<Vector3d> spawnData = new ArrayList<>();
-        Vector3d endPoint = getEndpoint(position, additionalLocs);
+    protected Tuple<List<Vec3>, Double> getSpawnData(Vec3 position, @Nullable List<Vec3> additionalLocs){
+        List<Vec3> spawnData = new ArrayList<>();
+        Vec3 endPoint = getEndpoint(position, additionalLocs);
         double distance = endPoint.distanceTo(position);
-        Vector3d direction = endPoint.subtract(position).normalize();
+        Vec3 direction = endPoint.subtract(position).normalize();
         long particleCount = Math.round(distance * count.value());
-        Vector3d lineData = new Vector3d(distance, distance / particleCount, 0);
+        Vec3 lineData = new Vec3(distance, distance / particleCount, 0);
         spawnData.add(direction);
         spawnData.add(lineData);
         return new Tuple<>(spawnData, distance);
@@ -86,9 +86,9 @@ public class LineSpawnPattern extends ParticleSpawnPattern{
 
     @Override
     public void spawn(ParticleType<MKParticleData> particleType,
-                      Vector3d position, World world, ParticleAnimation anim, @Nullable List<Vector3d> additionalLocs){
+                      Vec3 position, Level world, ParticleAnimation anim, @Nullable List<Vec3> additionalLocs){
         List<ParticleSpawnEntry> finalParticles = new ArrayList<>();
-        Tuple<List<Vector3d>, Double> spawnData = getSpawnData(position, additionalLocs);
+        Tuple<List<Vec3>, Double> spawnData = getSpawnData(position, additionalLocs);
         long particleCount = Math.round(spawnData.getB() * count.value());
         for (int i = 0; i < particleCount; i++) {
             produceParticlesForIndex(position, i, spawnData.getA(), world,
@@ -102,17 +102,17 @@ public class LineSpawnPattern extends ParticleSpawnPattern{
 
     @Override
     public void spawnOffsetFromEntity(ParticleType<MKParticleData> particleType,
-                                     Vector3d offset, World world,
-                                     ParticleAnimation anim, Entity entity, List<Vector3d> additionalLocs){
-        Vector3d position = offset.add(entity.getPositionVec());
-        List<Vector3d> finalLocs = additionalLocs.stream().map(
-                x -> x.add(entity.getPositionVec())).collect(Collectors.toList());
-        Tuple<List<Vector3d>, Double> spawnData = getSpawnData(position, finalLocs);
+                                     Vec3 offset, Level world,
+                                     ParticleAnimation anim, Entity entity, List<Vec3> additionalLocs){
+        Vec3 position = offset.add(entity.position());
+        List<Vec3> finalLocs = additionalLocs.stream().map(
+                x -> x.add(entity.position())).collect(Collectors.toList());
+        Tuple<List<Vec3>, Double> spawnData = getSpawnData(position, finalLocs);
         long particleCount = Math.round(spawnData.getB() * count.value());
         List<ParticleSpawnEntry> finalParticles = new ArrayList<>();
         for (int i = 0; i < particleCount; i++) {
             produceParticlesForIndex(position, i, spawnData.getA(), world,
-                    (pos) -> new MKParticleData(particleType, offset, anim, entity.getEntityId()),
+                    (pos) -> new MKParticleData(particleType, offset, anim, entity.getId()),
                     finalParticles);
         }
         for (ParticleSpawnEntry entry : finalParticles){
