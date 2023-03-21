@@ -5,7 +5,6 @@ import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.core.IMKAbilityProvider;
 import com.chaosbuffalo.mkcore.test.MKTestAbilities;
 import net.minecraft.client.renderer.item.ItemProperties;
-import net.minecraft.item.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.*;
@@ -72,8 +71,9 @@ public class CoreItems {
         swordsToAddBlocking.add(Items.NETHERITE_SWORD);
         for (Item sword : swordsToAddBlocking) {
 
+            //ItemStack p_174676_, @Nullable ClientLevel p_174677_, @Nullable LivingEntity p_174678_, int p_174679_
             ItemProperties.register(sword, new ResourceLocation("blocking"),
-                    (itemStack, world, entity) -> entity != null && entity.isUsingItem()
+                    (itemStack, world, entity, p_174679_) -> entity != null && entity.isUsingItem()
                             && entity.getUseItem() == itemStack ? 1.0F : 0.0F);
         }
 

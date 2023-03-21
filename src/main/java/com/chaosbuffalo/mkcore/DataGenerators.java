@@ -29,7 +29,7 @@ import net.minecraft.world.item.Items;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
+import net.minecraftforge.forge.event.lifecycle.GatherDataEvent;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -238,10 +238,6 @@ public class DataGenerators {
                     .addTag(CoreTags.Items.LIGHT_ARMOR)
                     .addTag(CoreTags.Items.MEDIUM_ARMOR)
                     .addTag(CoreTags.Items.HEAVY_ARMOR);
-        }
-
-        private TagsProvider.TagAppender<Item> tag(Tag.Named<Item> tag) {
-            return this.tag(tag);
         }
 
         @Nonnull

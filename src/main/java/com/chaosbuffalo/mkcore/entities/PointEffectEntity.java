@@ -1,7 +1,6 @@
 package com.chaosbuffalo.mkcore.entities;
 
 import com.chaosbuffalo.mkcore.MKCore;
-import net.minecraft.entity.*;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -82,7 +81,6 @@ public class PointEffectEntity extends BaseEffectEntity {
 
     @Override
     protected Collection<LivingEntity> getEntitiesInBounds() {
-        return this.level.getLoadedEntitiesOfClass(LivingEntity.class,
-                getBoundingBox(), this::entityCheck);
+        return this.level.getEntitiesOfClass(LivingEntity.class, getBoundingBox(), this::entityCheck);
     }
 }

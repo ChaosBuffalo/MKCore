@@ -176,9 +176,9 @@ public class CombatEventHandler {
     }
 
     @SubscribeEvent
-    public static void onArrowImpact(ProjectileImpactEvent.Arrow arrowEvent) {
-        Entity shooter = arrowEvent.getArrow().getOwner(); // getShooter
-        if (shooter != null) {
+    public static void onArrowImpact(ProjectileImpactEvent arrowEvent) {
+        Entity shooter = arrowEvent.getProjectile().getOwner(); // getShooter
+        if (shooter != null && arrowEvent.getProjectile() instanceof AbstractArrow) {
             MKCore.getEntityData(shooter).ifPresent(cap -> {
                 if (arrowEvent.getRayTraceResult().getType() == HitResult.Type.BLOCK) {
                     cap.getCombatExtension().projectileMiss();
