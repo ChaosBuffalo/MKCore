@@ -7,7 +7,6 @@ import com.chaosbuffalo.mkcore.effects.WorldAreaEffectEntry;
 import com.chaosbuffalo.targeting_api.TargetingContext;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.entity.*;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
@@ -15,8 +14,8 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
-import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraftforge.fmllegacy.common.registry.IEntityAdditionalSpawnData;
+import net.minecraftforge.fmllegacy.network.NetworkHooks;
 import net.minecraftforge.registries.ObjectHolder;
 
 import javax.annotation.Nonnull;
@@ -75,25 +74,19 @@ public class MKAreaEffectEntity extends AreaEffectCloud implements IEntityAdditi
     }
 
     private void entityTick() {
-        // We don't want to call AreaEffectCloudEntity.tick because it'll do all the logic. This is what Entity.tick() does
-        if (!this.level.isClientSide) {
-            this.setSharedFlag(6, this.isGlowing());
-        }
-
         this.baseTick();
     }
 
     @Override
     public void tick() {
         entityTick();
-
         if (this.level.isClientSide()) {
             if (!particlesDisabled) {
                 clientUpdate();
             }
         } else {
             if (serverUpdate()) {
-                remove();
+                remove(RemovalReason.KILLED);
             }
         }
     }
@@ -190,7 +183,7 @@ public class MKAreaEffectEntity extends AreaEffectCloud implements IEntityAdditi
 
         // Copy in case callbacks try to add more effects
         List<WorldAreaEffectEntry> targetEffects = new ArrayList<>(effects);
-        List<LivingEntity> potentialTargets = this.level.getLoadedEntitiesOfClass(LivingEntity.class,
+        List<LivingEntity> potentialTargets = this.level.getEntitiesOfClass(LivingEntity.class,
                 getBoundingBox(), this::entityCheck);
         if (potentialTargets.isEmpty()) {
             return false;

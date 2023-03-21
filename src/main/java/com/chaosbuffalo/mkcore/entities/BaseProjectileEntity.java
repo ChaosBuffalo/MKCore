@@ -7,7 +7,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.util.Mth;
-import net.minecraft.util.math.*;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EntityType;
@@ -22,8 +21,8 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.event.ForgeEventFactory;
-import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
-import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraftforge.fmllegacy.common.registry.IEntityAdditionalSpawnData;
+import net.minecraftforge.fmllegacy.network.NetworkHooks;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -33,6 +32,7 @@ public abstract class BaseProjectileEntity extends Projectile implements IClient
     @Nullable
     private BlockState inBlockState;
     protected boolean inGround;
+    private int ownerNetworkId;
 
     public static final float ONE_DEGREE = 0.017453292F;
     public static final double MAX_INACCURACY = 0.0075;
@@ -61,6 +61,24 @@ public abstract class BaseProjectileEntity extends Projectile implements IClient
         setup();
     }
 
+    @Override
+    public void setOwner(@Nullable Entity p_37263_) {
+        super.setOwner(p_37263_);
+        if (p_37263_ != null) {
+            ownerNetworkId = p_37263_.getId();
+        }
+    }
+
+    @Nullable
+    @Override
+    public Entity getOwner() {
+        //replacement for the old get owner on client logic
+        Entity ret = super.getOwner();
+        if (ret == null && ownerNetworkId != 0){
+            return this.level.getEntity(ownerNetworkId);
+        }
+        return ret;
+    }
 
     @Override
     public void writeSpawnData(FriendlyByteBuf buffer) {
@@ -185,10 +203,10 @@ public abstract class BaseProjectileEntity extends Projectile implements IClient
 
     @Override
     public void shoot(double x, double y, double z, float velocity, float inaccuracy) {
-        float mag = Mth.sqrt(x * x + y * y + z * z);
-        double nX = x / (double) mag;
-        double nY = y / (double) mag;
-        double nZ = z / (double) mag;
+        double mag = Math.sqrt(x * x + y * y + z * z);
+        double nX = x / mag;
+        double nY = y / mag;
+        double nZ = z / mag;
         nX = nX + this.random.nextGaussian() * MAX_INACCURACY * (double) inaccuracy;
         nY = nY + this.random.nextGaussian() * MAX_INACCURACY * (double) inaccuracy;
         nZ = nZ + this.random.nextGaussian() * MAX_INACCURACY * (double) inaccuracy;
@@ -205,7 +223,7 @@ public abstract class BaseProjectileEntity extends Projectile implements IClient
     }
 
     protected boolean checkIfInGround(BlockPos blockpos, BlockState blockstate) {
-        if (!blockstate.isAir(this.level, blockpos)) {
+        if (!blockstate.isAir()) {
             VoxelShape voxelshape = blockstate.getBlockSupportShape(this.level, blockpos);
             if (!voxelshape.isEmpty()) {
                 Vec3 entityPos = this.position();
@@ -219,16 +237,21 @@ public abstract class BaseProjectileEntity extends Projectile implements IClient
         return false;
     }
 
+    public static double horizontalMag(Vec3 vec) {
+        return vec.x * vec.x + vec.z * vec.z;
+    }
+
     protected boolean missingPrevPitchAndYaw() {
         return this.xRotO == 0.0F && this.yRotO == 0.0F;
     }
 
     protected void calculateOriginalPitchYaw(Vec3 motion) {
-        float xyMag = Mth.sqrt(getHorizontalDistanceSqr(motion));
-        this.yRot = (float) (Mth.atan2(motion.x, motion.z) * (double) (180F / (float) Math.PI));
-        this.xRot = (float) (Mth.atan2(motion.y, xyMag) * (double) (180F / (float) Math.PI));
-        this.yRotO = this.yRot;
-        this.xRotO = this.xRot;
+
+        double xyMag = Math.sqrt(horizontalMag(motion));
+        this.setYRot((float) (Mth.atan2(motion.x, motion.z) * (double) (180F / (float) Math.PI)));
+        this.setXRot((float) (Mth.atan2(motion.y, xyMag) * (double) (180F / (float) Math.PI)));
+        this.yRotO = this.getYRot();
+        this.xRotO = this.getXRot();
     }
 
     protected boolean onGroundProc(Entity caster, int amplifier) {
@@ -270,7 +293,12 @@ public abstract class BaseProjectileEntity extends Projectile implements IClient
                 getBoundingBox().expandTowards(getDeltaMovement()).inflate(1.0D), this::canHitEntity);
     }
 
-    protected boolean onHit(HitResult rayTraceResult) {
+    @Override
+    protected void onHitEntity(EntityHitResult p_37259_) {
+        super.onHitEntity(p_37259_);
+    }
+
+    protected boolean onMKHit(HitResult rayTraceResult) {
         if (rayTraceResult.getType() == HitResult.Type.BLOCK) {
             BlockHitResult blockraytraceresult = (BlockHitResult) rayTraceResult;
             BlockState blockstate = this.level.getBlockState(blockraytraceresult.getBlockPos());
@@ -350,7 +378,7 @@ public abstract class BaseProjectileEntity extends Projectile implements IClient
         }
 
         if (this.tickCount == this.getDeathTime()) {
-            this.remove();
+            this.remove(RemovalReason.KILLED);
         }
 
         Vec3 motion = this.getDeltaMovement();
@@ -380,7 +408,7 @@ public abstract class BaseProjectileEntity extends Projectile implements IClient
                 if (this.getDoGroundProc() && this.ticksInGround > 0 &&
                         this.ticksInGround % this.getGroundProcTime() == 0) {
                     if (this.onGroundProc(this.getOwner(), this.getAmplifier())) {
-                        this.remove();
+                        this.remove(RemovalReason.KILLED);
                     }
                 }
             }
@@ -389,7 +417,7 @@ public abstract class BaseProjectileEntity extends Projectile implements IClient
             ++this.ticksInAir;
             if (this.getDoAirProc() && this.ticksInAir % this.getAirProcTime() == 0) {
                 if (this.onAirProc(this.getOwner(), this.getAmplifier())) {
-                    this.remove();
+                    this.remove(RemovalReason.KILLED);
                 }
             }
             HitResult trace;
@@ -408,34 +436,34 @@ public abstract class BaseProjectileEntity extends Projectile implements IClient
             }
 
             if (trace.getType() != HitResult.Type.MISS && !ForgeEventFactory.onProjectileImpact(this, trace)) {
-                if (this.onHit(trace)) {
-                    this.remove();
+                if (this.onMKHit(trace)) {
+                    this.remove(RemovalReason.KILLED);
                 }
                 this.hasImpulse = true;
             }
             motion = getDeltaMovement();
-            float xyMag = Mth.sqrt(getHorizontalDistanceSqr(motion));
-            this.yRot = (float) (Mth.atan2(motion.x, motion.z) * (double) (180F / (float) Math.PI));
-            this.xRot = (float) (Mth.atan2(motion.y, xyMag) * (double) (180F / (float) Math.PI));
+            double xyMag = Math.sqrt(horizontalMag(motion));
+            setYRot((float) (Mth.atan2(motion.x, motion.z) * (double) (180F / (float) Math.PI)));
+            setXRot((float) (Mth.atan2(motion.y, xyMag) * (double) (180F / (float) Math.PI)));
 
-            while (this.xRot - this.xRotO < -180.0F) {
+            while (this.getXRot() - this.xRotO < -180.0F) {
                 this.xRotO -= 360.0F;
             }
 
-            while (this.xRot - this.xRotO >= 180.0F) {
+            while (this.getYRot() - this.xRotO >= 180.0F) {
                 this.xRotO += 360.0F;
             }
 
-            while (this.yRot - this.yRotO < -180.0F) {
+            while (this.getYRot() - this.yRotO < -180.0F) {
                 this.yRotO -= 360.0F;
             }
 
-            while (this.yRot - this.yRotO >= 180.0F) {
+            while (this.getYRot() - this.yRotO >= 180.0F) {
                 this.yRotO += 360.0F;
             }
 
-            this.xRot = this.xRotO + (this.xRot - this.xRotO) * 0.2F;
-            this.yRot = this.yRotO + (this.yRot - this.yRotO) * 0.2F;
+            setXRot(this.xRotO + (this.getXRot() - this.xRotO) * 0.2F);
+            setYRot(this.yRotO + (this.getYRot() - this.yRotO) * 0.2F);
             if (!this.inGround) {
                 setDeltaMovement(motion.subtract(new Vec3(0.0, getGravityVelocity(), 0.0)));
             }
@@ -450,8 +478,7 @@ public abstract class BaseProjectileEntity extends Projectile implements IClient
         super.lerpMotion(x, y, z);
         if (missingPrevPitchAndYaw()) {
             calculateOriginalPitchYaw(getDeltaMovement());
-            this.moveTo(this.getX(), this.getY(), this.getZ(),
-                    this.yRot, this.xRot);
+            this.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
             this.ticksInGround = 0;
         }
     }
