@@ -3,7 +3,9 @@ package com.chaosbuffalo.mkcore.core.talents;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.records.IRecordType;
 import com.chaosbuffalo.mkcore.core.records.IRecordTypeHandler;
-import com.chaosbuffalo.mkcore.core.talents.handlers.*;
+import com.chaosbuffalo.mkcore.core.talents.handlers.AbilityGrantTalentHandler;
+import com.chaosbuffalo.mkcore.core.talents.handlers.AttributeTalentHandler;
+import com.chaosbuffalo.mkcore.core.talents.handlers.EntitlementGrantTalentTypeHandler;
 import com.chaosbuffalo.mkcore.init.CoreEntitlements;
 import net.minecraft.network.chat.TranslatableComponent;
 

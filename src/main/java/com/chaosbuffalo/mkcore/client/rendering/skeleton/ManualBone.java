@@ -4,7 +4,7 @@ import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 
-public class ManualBone extends MCBone{
+public class ManualBone extends MCBone {
     private float yaw;
     private float pitch;
     private float roll;
@@ -16,7 +16,7 @@ public class ManualBone extends MCBone{
         this.roll = roll;
     }
 
-    public ManualBone(String boneName, Vec3 boneLocation, @Nullable MCBone parent){
+    public ManualBone(String boneName, Vec3 boneLocation, @Nullable MCBone parent) {
         this(boneName, boneLocation, 0.0f, 0.0f, 0.0f, parent);
     }
 

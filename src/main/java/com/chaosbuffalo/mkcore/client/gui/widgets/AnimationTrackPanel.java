@@ -35,13 +35,13 @@ public class AnimationTrackPanel extends MKStackLayoutVertical {
         setupLayout();
     }
 
-    protected void setupLayout(){
+    protected void setupLayout() {
         clearWidgets();
         MKLayout header = getHeader();
         addWidget(header);
         MKRectangle divider = new MKRectangle(getX(), getY(), getWidth(), 1, 0xffffffff);
         addWidget(divider);
-        if (track != null){
+        if (track != null) {
             SerializableAttributeContainerPanel panel = new SerializableAttributeContainerPanel(
                     0, 0, getWidth(), track, font, (attr) -> particleEditor.markDirty());
             addWidget(panel);
@@ -51,16 +51,16 @@ public class AnimationTrackPanel extends MKStackLayoutVertical {
 
     }
 
-    protected MKLayout getHeader(){
+    protected MKLayout getHeader() {
         MKStackLayoutVertical headerLayout = new MKStackLayoutVertical(0, 0, getWidth());
         headerLayout.setPaddings(2, 2, 2, 2);
-        headerLayout.setMargins(2, 2,2, 2);
+        headerLayout.setMargins(2, 2, 2, 2);
         Component trackName = getTrackName();
         MKText tracktextName = new MKText(font, trackName);
         tracktextName.setWidth(getWidth());
         tracktextName.setColor(0xffffffff);
         headerLayout.addWidget(tracktextName);
-        if (track == null){
+        if (track == null) {
             MKButton setTrack = new MKButton(0, 0, 75, 20, new TranslatableComponent("mkcore.particle_editor.add_track"));
             setTrack.setPressedCallback((button, click) -> particleEditor.promptAddTrack(trackType));
             headerLayout.addWidget(setTrack);
@@ -74,9 +74,9 @@ public class AnimationTrackPanel extends MKStackLayoutVertical {
         return headerLayout;
     }
 
-    Component getTrackName(){
+    Component getTrackName() {
         Component trackName = track == null ? new TextComponent("Empty") : track.getDescription();
-        switch (trackType){
+        switch (trackType) {
             case COLOR:
                 return new TranslatableComponent("mkcore.particle_editor.track_type.color", trackName);
             case SCALE:

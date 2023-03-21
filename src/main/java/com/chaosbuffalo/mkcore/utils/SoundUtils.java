@@ -1,13 +1,11 @@
 package com.chaosbuffalo.mkcore.utils;
 
+import net.minecraft.network.protocol.game.ClientboundSoundPacket;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.network.protocol.game.ClientboundSoundPacket;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraftforge.fml.network.PacketDistributor;
-
-import javax.annotation.Nullable;
 
 public class SoundUtils {
     public static void playSoundAtEntity(Entity entity, SoundEvent event) {
@@ -22,7 +20,7 @@ public class SoundUtils {
         playSoundAtEntity(entity, event, cat, volume, 1.0F);
     }
 
-    public static void clientPlaySoundAtPlayer(Player player, SoundEvent event, SoundSource cat, float volume, float pitch){
+    public static void clientPlaySoundAtPlayer(Player player, SoundEvent event, SoundSource cat, float volume, float pitch) {
         if (event == null) {
             return;
         }
@@ -37,8 +35,8 @@ public class SoundUtils {
     }
 
     public static void serverPlaySoundFromEntity(double x, double y, double z,
-                                               SoundEvent soundIn, SoundSource category, float volume, float pitch,
-                                               Entity source){
+                                                 SoundEvent soundIn, SoundSource category, float volume, float pitch,
+                                                 Entity source) {
         net.minecraftforge.event.entity.PlaySoundAtEntityEvent event = net.minecraftforge.event.ForgeEventFactory
                 .onPlaySoundAtEntity(source, soundIn, category, volume, pitch);
         if (event.isCanceled() || event.getSound() == null) return;
@@ -49,12 +47,12 @@ public class SoundUtils {
                 new ClientboundSoundPacket(soundIn, category, x, y, z, volume, pitch));
     }
 
-    public static void serverPlaySoundAtEntity(Entity source, SoundEvent soundIn, SoundSource category, float volume, float pitch){
+    public static void serverPlaySoundAtEntity(Entity source, SoundEvent soundIn, SoundSource category, float volume, float pitch) {
         serverPlaySoundFromEntity(source.getX(), source.getY(), source.getZ(), soundIn, category,
                 volume, pitch, source);
     }
 
-    public static void serverPlaySoundAtEntity(Entity source, SoundEvent soundIn, SoundSource category){
+    public static void serverPlaySoundAtEntity(Entity source, SoundEvent soundIn, SoundSource category) {
         serverPlaySoundFromEntity(source.getX(), source.getY(), source.getZ(), soundIn, category,
                 1.0f, 1.0f, source);
     }

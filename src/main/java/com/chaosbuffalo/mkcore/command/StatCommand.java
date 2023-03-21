@@ -16,9 +16,9 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
@@ -96,8 +96,8 @@ public class StatCommand {
     }
 
     static ArgumentBuilder<CommandSourceStack, ?> createSimpleFloatStat(String name,
-                                                                   Function<PlayerStats, Float> getter,
-                                                                   BiConsumer<PlayerStats, Float> setter) {
+                                                                        Function<PlayerStats, Float> getter,
+                                                                        BiConsumer<PlayerStats, Float> setter) {
         ToIntFunction<Player> statGet = playerEntity -> {
             MKCore.getPlayer(playerEntity).ifPresent(cap ->
                     ChatUtils.sendMessageWithBrackets(playerEntity, "%s is %f", name, getter.apply(cap.getStats())));
@@ -154,8 +154,8 @@ public class StatCommand {
     }
 
     static ArgumentBuilder<CommandSourceStack, ?> createSimpleGetSetIntCommand(String name,
-                                                                          ToIntFunction<Player> getterAction,
-                                                                          ToIntBiFunction<Player, Float> setterAction) {
+                                                                               ToIntFunction<Player> getterAction,
+                                                                               ToIntBiFunction<Player, Float> setterAction) {
         return Commands.argument("player", EntityArgument.player())
                 .then(Commands.literal(name)
                         .executes(simpleGetAction(getterAction))
@@ -164,8 +164,8 @@ public class StatCommand {
     }
 
     static ArgumentBuilder<CommandSourceStack, ?> createAttrGetSetCommand(String name, Attribute attr,
-                                                                     ToIntFunction<Player> getterAction,
-                                                                     ToIntBiFunction<Player, Float> setterAction) {
+                                                                          ToIntFunction<Player> getterAction,
+                                                                          ToIntBiFunction<Player, Float> setterAction) {
         return Commands.argument("player", EntityArgument.player())
                 .then(Commands.literal(name)
                         .executes(simpleGetAction(getterAction))

@@ -9,16 +9,13 @@ import com.chaosbuffalo.mkcore.serialization.ISerializableAttributeContainer;
 import com.chaosbuffalo.mkcore.serialization.attributes.ISerializableAttribute;
 import com.chaosbuffalo.mkcore.serialization.attributes.ResourceLocationAttribute;
 import com.google.common.collect.ImmutableMap;
-import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.DynamicOps;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public abstract class ParticleEffectInstance implements ISerializableAttributeContainer, IDynamicMapTypedSerializer {
     private static final String TYPE_NAME_FIELD = "type";
@@ -32,11 +29,11 @@ public abstract class ParticleEffectInstance implements ISerializableAttributeCo
     private ParticleAnimation animation;
     private final ResourceLocation instanceType;
 
-    public ParticleEffectInstance(ResourceLocation instanceType){
+    public ParticleEffectInstance(ResourceLocation instanceType) {
         this(instanceType, UUID.randomUUID());
     }
 
-    public ParticleEffectInstance(ResourceLocation instanceType, UUID instanceUUID){
+    public ParticleEffectInstance(ResourceLocation instanceType, UUID instanceUUID) {
         this.attributes = new ArrayList<>();
         addAttribute(particleAnimName);
         this.instanceType = instanceType;
@@ -58,11 +55,11 @@ public abstract class ParticleEffectInstance implements ISerializableAttributeCo
         return instanceUUID;
     }
 
-    public Optional<ParticleAnimation> getAnimation(){
-        if (animation == null){
+    public Optional<ParticleAnimation> getAnimation() {
+        if (animation == null) {
             this.animation = ParticleAnimationManager.getAnimation(getParticleAnimName());
         }
-        if (animation != null){
+        if (animation != null) {
             return Optional.of(animation);
         } else {
             return Optional.empty();

@@ -7,12 +7,12 @@ import java.util.List;
 
 public class EntityCollectionRayTraceResult<E extends Entity> {
 
-    public static class TraceEntry<E>{
+    public static class TraceEntry<E> {
         public E entity;
         public double distance;
         public Vec3 intercept;
 
-        public TraceEntry(E entity, double distance, Vec3 intercept){
+        public TraceEntry(E entity, double distance, Vec3 intercept) {
             this.entity = entity;
             this.distance = distance;
             this.intercept = intercept;

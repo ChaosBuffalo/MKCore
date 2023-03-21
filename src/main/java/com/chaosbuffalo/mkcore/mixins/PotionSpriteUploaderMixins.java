@@ -3,13 +3,13 @@ package com.chaosbuffalo.mkcore.mixins;
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.effects.MKEffect;
 import com.google.common.collect.Streams;
-import net.minecraft.client.resources.MobEffectTextureManager;
-import net.minecraft.client.resources.TextureAtlasHolder;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.world.effect.MobEffect;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.resources.MobEffectTextureManager;
+import net.minecraft.client.resources.TextureAtlasHolder;
 import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.effect.MobEffect;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 

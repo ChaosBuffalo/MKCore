@@ -8,18 +8,15 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.codecs.PrimitiveCodec;
-import net.minecraft.entity.Entity;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.nbt.NbtOps;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.registries.ForgeRegistries;
 
-import javax.annotation.Nullable;
-import javax.crypto.spec.PSource;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -41,7 +38,7 @@ public class MKParticleData implements ParticleOptions {
                 Dynamic<T> d = new Dynamic<>(ops, input);
                 List<Double> vecD = d.get("origin").asList(x -> x.asDouble(0.0));
                 Vec3 origin = new Vec3(0.0, 0.0, 0.0);
-                if (vecD.size() == 3){
+                if (vecD.size() == 3) {
                     origin = new Vec3(vecD.get(0), vecD.get(1), vecD.get(2));
                 } else {
                     MKCore.LOGGER.warn("Failed to read origin from MKParticleData {}", input);
@@ -89,18 +86,18 @@ public class MKParticleData implements ParticleOptions {
         }
     };
 
-    public MKParticleData(ParticleType<MKParticleData> typeIn, Vec3 origin, ParticleAnimation animation, int entityId){
+    public MKParticleData(ParticleType<MKParticleData> typeIn, Vec3 origin, ParticleAnimation animation, int entityId) {
         this.particleType = typeIn;
         this.origin = origin;
         this.animation = animation;
         this.entityId = entityId;
     }
 
-    public MKParticleData(ParticleType<MKParticleData> typeIn, Vec3 origin, ParticleAnimation animation){
+    public MKParticleData(ParticleType<MKParticleData> typeIn, Vec3 origin, ParticleAnimation animation) {
         this(typeIn, origin, animation, -1);
     }
 
-    public boolean hasSource(){
+    public boolean hasSource() {
         return entityId != -1;
     }
 

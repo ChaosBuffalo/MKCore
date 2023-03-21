@@ -2,9 +2,8 @@ package com.chaosbuffalo.mkcore.client.rendering.animations;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.LivingEntity;
 
 public class BipedCastAnimation<T extends LivingEntity> extends AdditionalBipedAnimation<T> {
 

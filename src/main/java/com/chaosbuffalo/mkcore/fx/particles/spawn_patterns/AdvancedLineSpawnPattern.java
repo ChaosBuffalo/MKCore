@@ -6,13 +6,12 @@ import com.chaosbuffalo.mkcore.fx.particles.ParticleAnimation;
 import com.chaosbuffalo.mkcore.math.AxisAngle;
 import com.chaosbuffalo.mkcore.serialization.attributes.DoubleAttribute;
 import com.chaosbuffalo.mkcore.serialization.attributes.IntAttribute;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Tuple;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
-
+import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -20,18 +19,18 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class AdvancedLineSpawnPattern extends ParticleSpawnPattern{
+public class AdvancedLineSpawnPattern extends ParticleSpawnPattern {
     public final static ResourceLocation TYPE = new ResourceLocation(MKCore.MOD_ID, "particle_spawn_pattern.advanced_line");
     protected final DoubleAttribute offset = new DoubleAttribute("offset", 0.0);
     protected final DoubleAttribute motion = new DoubleAttribute("motion", 0.0);
     protected final IntAttribute perPosCount = new IntAttribute("per_pos_count", 10);
 
-    public AdvancedLineSpawnPattern(){
+    public AdvancedLineSpawnPattern() {
         super(TYPE);
         addAttributes(offset, motion, perPosCount);
     }
 
-    public AdvancedLineSpawnPattern(double offset, double motion, int perPosCount){
+    public AdvancedLineSpawnPattern(double offset, double motion, int perPosCount) {
         this();
         this.offset.setValue(offset);
         this.motion.setValue(motion);
@@ -67,7 +66,7 @@ public class AdvancedLineSpawnPattern extends ParticleSpawnPattern{
 
     @Override
     public void spawn(ParticleType<MKParticleData> particleType,
-                      Vec3 position, Level world, ParticleAnimation anim, @Nullable List<Vec3> additionalLocs){
+                      Vec3 position, Level world, ParticleAnimation anim, @Nullable List<Vec3> additionalLocs) {
         List<ParticleSpawnEntry> finalParticles = new ArrayList<>();
         Tuple<List<Vec3>, Double> spawnData = getSpawnData(position, additionalLocs);
         long particleCount = Math.round(spawnData.getB() * count.value());
@@ -76,7 +75,7 @@ public class AdvancedLineSpawnPattern extends ParticleSpawnPattern{
                     (pos) -> new MKParticleData(particleType, pos, anim),
                     finalParticles);
         }
-        for (ParticleSpawnEntry entry : finalParticles){
+        for (ParticleSpawnEntry entry : finalParticles) {
             spawnParticle(world, entry);
         }
     }
@@ -84,7 +83,7 @@ public class AdvancedLineSpawnPattern extends ParticleSpawnPattern{
     @Override
     public void spawnOffsetFromEntity(ParticleType<MKParticleData> particleType,
                                       Vec3 offset, Level world,
-                                      ParticleAnimation anim, Entity entity, List<Vec3> additionalLocs){
+                                      ParticleAnimation anim, Entity entity, List<Vec3> additionalLocs) {
         Vec3 position = offset.add(entity.position());
         List<Vec3> finalLocs = additionalLocs.stream().map(
                 x -> x.add(entity.position())).collect(Collectors.toList());
@@ -96,19 +95,19 @@ public class AdvancedLineSpawnPattern extends ParticleSpawnPattern{
                     (pos) -> new MKParticleData(particleType, offset, anim, entity.getId()),
                     finalParticles);
         }
-        for (ParticleSpawnEntry entry : finalParticles){
+        for (ParticleSpawnEntry entry : finalParticles) {
             spawnParticle(world, entry);
         }
     }
 
-    public Vec3 getEndpoint(Vec3 position, @Nullable List<Vec3> additionalLocs){
-        if (additionalLocs != null && !additionalLocs.isEmpty()){
+    public Vec3 getEndpoint(Vec3 position, @Nullable List<Vec3> additionalLocs) {
+        if (additionalLocs != null && !additionalLocs.isEmpty()) {
             return additionalLocs.get(0);
         }
         return position.add(new Vec3(0.0, 5.0, 0.0));
     }
 
-    protected Tuple<List<Vec3>, Double> getSpawnData(Vec3 position, @Nullable List<Vec3> additionalLocs){
+    protected Tuple<List<Vec3>, Double> getSpawnData(Vec3 position, @Nullable List<Vec3> additionalLocs) {
         List<Vec3> spawnData = new ArrayList<>();
         Vec3 endPoint = getEndpoint(position, additionalLocs);
         double distance = endPoint.distanceTo(position);

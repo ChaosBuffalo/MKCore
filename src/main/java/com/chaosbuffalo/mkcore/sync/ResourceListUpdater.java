@@ -1,7 +1,7 @@
 package com.chaosbuffalo.mkcore.sync;
 
-import net.minecraft.nbt.Tag;
 import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;

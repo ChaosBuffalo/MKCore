@@ -3,15 +3,14 @@ package com.chaosbuffalo.mkcore.fx.particles.spawn_patterns;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.fx.particles.MKParticleData;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.function.Function;
 
-public class SinglePositionSpawnPattern extends ParticleSpawnPattern{
+public class SinglePositionSpawnPattern extends ParticleSpawnPattern {
     public final static ResourceLocation TYPE = new ResourceLocation(MKCore.MOD_ID, "particle_spawn_pattern.single");
 
     public SinglePositionSpawnPattern() {

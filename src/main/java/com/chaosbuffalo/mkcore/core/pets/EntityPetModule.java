@@ -7,8 +7,8 @@ import com.chaosbuffalo.mkcore.core.player.SyncComponent;
 import com.chaosbuffalo.mkcore.sync.SyncBool;
 import com.chaosbuffalo.mkcore.sync.SyncEntity;
 import com.chaosbuffalo.mkcore.sync.SyncMapUpdater;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.LivingEntity;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
@@ -58,7 +58,7 @@ public class EntityPetModule implements IPlayerSyncComponentProvider {
         pets.values().stream().filter(MKPet::tick).collect(Collectors.toList()).forEach(this::removePet);
     }
 
-    public void removePet(MKPet<?> pet){
+    public void removePet(MKPet<?> pet) {
         pets.remove(pet.getName());
         clientPetMap.remove(pet.getName());
         clientPets.markDirty(pet.getName());
@@ -77,7 +77,7 @@ public class EntityPetModule implements IPlayerSyncComponentProvider {
         return pets.containsKey(name) && pets.get(name).isActive();
     }
 
-    public Optional<MKPet<?>> getPet(ResourceLocation name){
+    public Optional<MKPet<?>> getPet(ResourceLocation name) {
         return Optional.ofNullable(pets.get(name));
     }
 

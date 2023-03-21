@@ -1,8 +1,8 @@
 package com.chaosbuffalo.mkcore;
 
 import com.chaosbuffalo.mkcore.abilities.AbilityManager;
-import com.chaosbuffalo.mkcore.client.gui.PlayerPageRegistry;
 import com.chaosbuffalo.mkcore.client.gui.MKOverlay;
+import com.chaosbuffalo.mkcore.client.gui.PlayerPageRegistry;
 import com.chaosbuffalo.mkcore.client.rendering.MKRenderers;
 import com.chaosbuffalo.mkcore.command.MKCommand;
 import com.chaosbuffalo.mkcore.core.ICoreExtension;
@@ -18,12 +18,12 @@ import com.chaosbuffalo.mkcore.init.CoreItems;
 import com.chaosbuffalo.mkcore.init.CoreParticles;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.test.MKTestAbilities;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.LazyOptional;
@@ -150,7 +150,7 @@ public class MKCore {
                 MKCore.LOGGER.debug("IMC register persona extension from mod {} {}", m.getSenderModId(), m.getMethod());
                 IPersonaExtensionProvider factory = (IPersonaExtensionProvider) m.getMessageSupplier().get();
                 PersonaManager.registerExtension(factory);
-            } else if (m.getMethod().equals(CORE_EXTENSION)){
+            } else if (m.getMethod().equals(CORE_EXTENSION)) {
                 MKCore.LOGGER.debug("IMC core extension from mod {} {}", m.getSenderModId(), m.getMethod());
                 ICoreExtension extension = (ICoreExtension) m.getMessageSupplier().get();
                 extension.register();
@@ -158,7 +158,7 @@ public class MKCore {
         });
     }
 
-    private void internalIMCStageSetup(){
+    private void internalIMCStageSetup() {
         CoreParticles.HandleEditorParticleRegistration();
     }
 
@@ -199,5 +199,7 @@ public class MKCore {
         return INSTANCE.abilityManager;
     }
 
-    public static ParticleAnimationManager getAnimationManager() { return INSTANCE.particleAnimationManager; }
+    public static ParticleAnimationManager getAnimationManager() {
+        return INSTANCE.particleAnimationManager;
+    }
 }

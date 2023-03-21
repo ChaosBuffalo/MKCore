@@ -7,9 +7,8 @@ import com.chaosbuffalo.mkcore.serialization.attributes.DoubleAttribute;
 import com.chaosbuffalo.mkcore.serialization.attributes.IntAttribute;
 import com.chaosbuffalo.mkcore.utils.MathUtils;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.Level;
-import org.lwjgl.system.CallbackI;
+import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -30,7 +29,7 @@ public class ConeSpawnPattern extends ParticleSpawnPattern {
         this.count.setValue(40);
     }
 
-    public ConeSpawnPattern(int count, double minRadiusIn, double maxRadiusIn, double heightIn, boolean invertedIn, double speed, int layers){
+    public ConeSpawnPattern(int count, double minRadiusIn, double maxRadiusIn, double heightIn, boolean invertedIn, double speed, int layers) {
         this();
         minRadius.setValue(minRadiusIn);
         maxRadius.setValue(maxRadiusIn);

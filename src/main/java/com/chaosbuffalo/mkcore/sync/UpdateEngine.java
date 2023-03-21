@@ -1,7 +1,7 @@
 package com.chaosbuffalo.mkcore.sync;
 
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerPlayer;
 
 public abstract class UpdateEngine {
     protected final SyncGroup publicUpdater = new SyncGroup();

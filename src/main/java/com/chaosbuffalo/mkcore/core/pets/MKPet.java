@@ -3,10 +3,10 @@ package com.chaosbuffalo.mkcore.core.pets;
 
 import com.chaosbuffalo.mkcore.sync.IMKSerializable;
 import net.minecraft.client.Minecraft;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 
 import javax.annotation.Nullable;
 
@@ -62,7 +62,7 @@ public class MKPet<T extends LivingEntity & IMKPet> {
         }
 
         public void tick() {
-            if (isActive() && hasDuration()){
+            if (isActive() && hasDuration()) {
                 duration--;
             }
         }
@@ -118,7 +118,7 @@ public class MKPet<T extends LivingEntity & IMKPet> {
         return pet;
     }
 
-    public void addThreat(LivingEntity source, float threat, boolean propagate){
+    public void addThreat(LivingEntity source, float threat, boolean propagate) {
         if (isActive()) {
             entity.addThreat(source, threat, propagate);
         }

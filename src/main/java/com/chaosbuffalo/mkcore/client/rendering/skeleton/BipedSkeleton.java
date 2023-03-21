@@ -42,7 +42,7 @@ public class BipedSkeleton<T extends LivingEntity, M extends HumanoidModel<T>> e
     public final MCBone head;
 
 
-    public BipedSkeleton(M model){
+    public BipedSkeleton(M model) {
         this.model = model;
         this.boneMap = new HashMap<>();
         MCBone rootBone = new ManualBone(ROOT_BONE_NAME, new Vec3(0, 0, 0), null);
@@ -87,7 +87,7 @@ public class BipedSkeleton<T extends LivingEntity, M extends HumanoidModel<T>> e
         return model;
     }
 
-    public void addBone(MCBone bone){
+    public void addBone(MCBone bone) {
         this.boneMap.put(bone.getBoneName(), bone);
     }
 

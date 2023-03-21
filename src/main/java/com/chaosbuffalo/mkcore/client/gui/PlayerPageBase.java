@@ -10,11 +10,11 @@ import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKScrollView;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKWidget;
 import com.chaosbuffalo.mkwidgets.utils.TextureRegion;
 import com.google.common.base.Preconditions;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nonnull;
 import java.util.function.BiConsumer;
@@ -108,7 +108,8 @@ public abstract class PlayerPageBase extends MKScreen implements IPlayerDataAwar
     @Deprecated
     protected MKLayout createScrollingPanelWithContent(BiFunction<MKPlayerData, Integer, MKWidget> contentCreator,
                                                        BiConsumer<MKPlayerData, MKLayout> headerCreator) {
-        return createScrollingPanelWithContent(contentCreator, headerCreator, v -> {});
+        return createScrollingPanelWithContent(contentCreator, headerCreator, v -> {
+        });
     }
 
     protected MKLayout createScrollingPanelWithContent(BiFunction<MKPlayerData, Integer, MKWidget> contentCreator,

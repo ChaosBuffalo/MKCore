@@ -36,7 +36,7 @@ public class MKCoreRegistry {
     }
 
     @Nullable
-    public static MKEntitlement getEntitlement(ResourceLocation entitlementId){
+    public static MKEntitlement getEntitlement(ResourceLocation entitlementId) {
         return ENTITLEMENTS.getValue(entitlementId);
     }
 

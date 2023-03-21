@@ -2,13 +2,16 @@ package com.chaosbuffalo.mkcore.effects.utility;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
-import com.chaosbuffalo.mkcore.effects.*;
+import com.chaosbuffalo.mkcore.effects.MKActiveEffect;
+import com.chaosbuffalo.mkcore.effects.MKEffect;
+import com.chaosbuffalo.mkcore.effects.MKEffectBuilder;
+import com.chaosbuffalo.mkcore.effects.MKEffectState;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.ParticleEffectSpawnPacket;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -58,8 +61,8 @@ public class MKOldParticleEffect extends MKEffect {
         boolean includeSelf;
 
         public void setup(Entity source, ParticleOptions particleId, int motionType,
-                            Vec3 radius, Vec3 offsets, int particleCount, int particleData,
-                            double particleSpeed, boolean includeSelf) {
+                          Vec3 radius, Vec3 offsets, int particleCount, int particleData,
+                          double particleSpeed, boolean includeSelf) {
             this.source = source;
             this.particleId = particleId;
             this.motionType = motionType;

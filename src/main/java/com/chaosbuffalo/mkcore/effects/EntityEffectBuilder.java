@@ -4,13 +4,12 @@ import com.chaosbuffalo.mkcore.entities.BaseEffectEntity;
 import com.chaosbuffalo.mkcore.entities.LineEffectEntity;
 import com.chaosbuffalo.mkcore.entities.PointEffectEntity;
 import com.chaosbuffalo.targeting_api.TargetingContext;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 public abstract class EntityEffectBuilder<T extends BaseEffectEntity> {
 
@@ -42,17 +41,17 @@ public abstract class EntityEffectBuilder<T extends BaseEffectEntity> {
         return this;
     }
 
-    public EntityEffectBuilder<T> tickRate(int tickRate){
+    public EntityEffectBuilder<T> tickRate(int tickRate) {
         effect.setTickRate(tickRate);
         return this;
     }
 
-    public EntityEffectBuilder<T> setParticles(ResourceLocation animation){
+    public EntityEffectBuilder<T> setParticles(ResourceLocation animation) {
         effect.setParticles(animation);
         return this;
     }
 
-    public EntityEffectBuilder<T> setWaitingParticles(ResourceLocation animation){
+    public EntityEffectBuilder<T> setWaitingParticles(ResourceLocation animation) {
         effect.setWaitingParticles(animation);
         return this;
     }
@@ -102,7 +101,7 @@ public abstract class EntityEffectBuilder<T extends BaseEffectEntity> {
             effect.setEndPoint(endPoint);
         }
 
-        private LineEffectBuilder(LivingEntity caster, Vec3 startPoint, Vec3 endPoint){
+        private LineEffectBuilder(LivingEntity caster, Vec3 startPoint, Vec3 endPoint) {
             super(caster, startPoint);
             effect.setStartPoint(startPoint);
             effect.setEndPoint(endPoint);
@@ -128,7 +127,7 @@ public abstract class EntityEffectBuilder<T extends BaseEffectEntity> {
             super(caster, center, offset);
         }
 
-        private PointEffectBuilder(LivingEntity caster, Vec3 position){
+        private PointEffectBuilder(LivingEntity caster, Vec3 position) {
             super(caster, position);
         }
 

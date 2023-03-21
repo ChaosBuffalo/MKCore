@@ -4,34 +4,19 @@ import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.core.IMKAbilityProvider;
 import com.chaosbuffalo.mkcore.test.MKTestAbilities;
-import com.chaosbuffalo.mkcore.test.abilities.EmberAbility;
-import com.chaosbuffalo.mkcore.test.abilities.WhirlwindBlades;
-import com.chaosbuffalo.mkcore.test.abilities.NewBurningSoul;
-import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.item.*;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.*;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ObjectHolder;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
-
-import net.minecraft.world.item.Item.Properties;
-
-import net.minecraft.client.renderer.item.ItemProperties;
-import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.ArmorMaterial;
-import net.minecraft.world.item.ArmorMaterials;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.SwordItem;
-import net.minecraft.world.item.Tiers;
 
 @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 @ObjectHolder(MKCore.MOD_ID)
@@ -54,7 +39,7 @@ public class CoreItems {
     public static class AbilityArmor extends ArmorItem implements IMKAbilityProvider {
         private final Supplier<? extends MKAbility> ability;
 
-        public AbilityArmor(ArmorMaterial materialIn, EquipmentSlot slot, Properties builder, Supplier<? extends MKAbility>  ability) {
+        public AbilityArmor(ArmorMaterial materialIn, EquipmentSlot slot, Properties builder, Supplier<? extends MKAbility> ability) {
             super(materialIn, slot, builder);
             this.ability = ability;
         }
@@ -77,7 +62,7 @@ public class CoreItems {
         }
     }
 
-    public static void registerItemProperties(){
+    public static void registerItemProperties() {
         List<Item> swordsToAddBlocking = new ArrayList<>();
         swordsToAddBlocking.add(Items.DIAMOND_SWORD);
         swordsToAddBlocking.add(Items.WOODEN_SWORD);
@@ -85,7 +70,7 @@ public class CoreItems {
         swordsToAddBlocking.add(Items.IRON_SWORD);
         swordsToAddBlocking.add(Items.GOLDEN_SWORD);
         swordsToAddBlocking.add(Items.NETHERITE_SWORD);
-        for (Item sword : swordsToAddBlocking){
+        for (Item sword : swordsToAddBlocking) {
 
             ItemProperties.register(sword, new ResourceLocation("blocking"),
                     (itemStack, world, entity) -> entity != null && entity.isUsingItem()

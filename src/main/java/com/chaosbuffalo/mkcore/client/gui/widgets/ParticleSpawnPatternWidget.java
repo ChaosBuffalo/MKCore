@@ -28,14 +28,14 @@ public class ParticleSpawnPatternWidget extends MKStackLayoutVertical {
         setup();
     }
 
-    public void setup(){
+    public void setup() {
         clearWidgets();
-        if (spawnPattern != null){
+        if (spawnPattern != null) {
             SerializableAttributeContainerPanel panel = new SerializableAttributeContainerPanel(
-                    getX(), getY(), getWidth(), spawnPattern, font, (attr)-> editor.markDirty());
+                    getX(), getY(), getWidth(), spawnPattern, font, (attr) -> editor.markDirty());
             addWidget(panel);
             MKButton change = new MKButton(0, 0, spawnPattern.getDescription());
-            change.setPressedCallback((button, click)->{
+            change.setPressedCallback((button, click) -> {
                 editor.promptSetSpawnPattern();
                 return true;
             });

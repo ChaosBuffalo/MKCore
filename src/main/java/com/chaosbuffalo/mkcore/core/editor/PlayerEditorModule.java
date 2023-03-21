@@ -10,7 +10,7 @@ public class PlayerEditorModule implements IPlayerSyncComponentProvider {
     private final ParticleEditorSyncComponent particleEditorData = new ParticleEditorSyncComponent("particle_editor");
     protected final MKPlayerData playerData;
 
-    public PlayerEditorModule(MKPlayerData playerData){
+    public PlayerEditorModule(MKPlayerData playerData) {
         this.playerData = playerData;
         addSyncPrivate(particleEditorData);
     }
@@ -33,7 +33,7 @@ public class PlayerEditorModule implements IPlayerSyncComponentProvider {
     }
 
     public void deserialize(CompoundTag nbt) {
-        if (nbt.contains("particleEditor")){
+        if (nbt.contains("particleEditor")) {
             CompoundTag particlesTag = nbt.getCompound("particleEditor");
             particleEditorData.deserializeUpdate(particlesTag);
             particleEditorData.markDirty();

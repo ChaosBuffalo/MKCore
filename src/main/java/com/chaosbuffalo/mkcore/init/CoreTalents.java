@@ -2,15 +2,13 @@ package com.chaosbuffalo.mkcore.init;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.MKAttributes;
+import com.chaosbuffalo.mkcore.core.talents.MKTalent;
 import com.chaosbuffalo.mkcore.core.talents.TalentType;
 import com.chaosbuffalo.mkcore.core.talents.talent_types.AttributeTalent;
-import com.chaosbuffalo.mkcore.core.talents.MKTalent;
-import com.chaosbuffalo.mkcore.core.talents.talent_types.PassiveTalent;
 import com.chaosbuffalo.mkcore.core.talents.talent_types.EntitlementGrantTalent;
+import com.chaosbuffalo.mkcore.core.talents.talent_types.PassiveTalent;
 import com.chaosbuffalo.mkcore.core.talents.talent_types.UltimateTalent;
 import com.chaosbuffalo.mkcore.test.MKTestAbilities;
-import com.chaosbuffalo.mkcore.test.abilities.HealingRain;
-import com.chaosbuffalo.mkcore.test.abilities.NewBurningSoul;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraftforge.event.RegistryEvent;

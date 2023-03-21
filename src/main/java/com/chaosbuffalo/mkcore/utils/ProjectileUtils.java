@@ -11,20 +11,20 @@ public class ProjectileUtils {
         public boolean hasHighArc;
         public boolean foundSolution;
 
-        public BallisticResult(Vec3 lowArc, Vec3 highArc){
+        public BallisticResult(Vec3 lowArc, Vec3 highArc) {
             this.lowArc = lowArc;
             this.highArc = highArc;
             this.hasHighArc = true;
             this.foundSolution = true;
         }
 
-        public BallisticResult(Vec3 lowArc){
+        public BallisticResult(Vec3 lowArc) {
             this.lowArc = lowArc;
             this.hasHighArc = false;
             this.foundSolution = true;
         }
 
-        public BallisticResult(){
+        public BallisticResult() {
             this.foundSolution = false;
             this.hasHighArc = false;
         }

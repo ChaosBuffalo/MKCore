@@ -13,11 +13,11 @@ import com.chaosbuffalo.mkcore.network.CritMessagePacket;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.ParticleEffectSpawnPacket;
 import com.chaosbuffalo.mkcore.utils.DamageUtils;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 
@@ -168,7 +168,7 @@ public class LivingHurtEntityTriggers extends SpellTriggers.TriggerCollectionBas
         }
         damage = (float) (damage * (1.0 - livingTarget.getAttribute(MKAttributes.RANGED_RESISTANCE).getValue()));
         event.setAmount(damage);
-        if (wasCrit){
+        if (wasCrit) {
             sendCritPacket(livingTarget, livingSource,
                     new CritMessagePacket(livingTarget.getId(), livingSource.getId(), damage,
                             projectile.getId()));

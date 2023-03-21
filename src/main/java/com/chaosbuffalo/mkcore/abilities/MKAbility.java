@@ -17,18 +17,18 @@ import com.chaosbuffalo.mkcore.utils.text.IconTextComponent;
 import com.chaosbuffalo.targeting_api.Targeting;
 import com.chaosbuffalo.targeting_api.TargetingContext;
 import com.google.common.collect.ImmutableMap;
-import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.DynamicOps;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.*;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.util.text.*;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
 import javax.annotation.Nonnull;
@@ -36,16 +36,7 @@ import javax.annotation.Nullable;
 import java.text.NumberFormat;
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.ComponentUtils;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 
 public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> implements ISerializableAttributeContainer {
 
@@ -82,7 +73,7 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> implements
     }
 
     public Component getDamageDescription(IMKEntityData casterData, MKDamageType damageType, float damage,
-                                               float scale, float level, float modifierScaling) {
+                                          float scale, float level, float modifierScaling) {
         float bonus = casterData.getStats().getDamageTypeBonus(damageType) * modifierScaling;
         float abilityDamage = damage + (scale * level) + bonus;
         MutableComponent damageStr = TextComponent.EMPTY.copy();
@@ -106,13 +97,13 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> implements
     }
 
     public Component getHealDescription(IMKEntityData casterData, float value,
-                                             float scale, float level, float modifierScaling) {
+                                        float scale, float level, float modifierScaling) {
         float bonus = casterData.getStats().getHealBonus();
         return formatEffectValue(value, scale, level, bonus, modifierScaling).withStyle(ChatFormatting.GREEN);
     }
 
     protected Component formatManaValue(IMKEntityData casterData, float value, float scale, float level,
-                                             float bonus, float modifierScaling) {
+                                        float bonus, float modifierScaling) {
         return formatEffectValue(value, scale, level, bonus, modifierScaling).withStyle(ChatFormatting.BLUE);
     }
 
@@ -311,7 +302,7 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> implements
         deserializeAttributeMap(dynamic, "attributes");
     }
 
-    public static float convertDurationToSeconds(int dur){
+    public static float convertDurationToSeconds(int dur) {
         return dur / GameConstants.FTICKS_PER_SECOND;
     }
 
@@ -385,7 +376,7 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> implements
         return skill != null ? (float) (skill.getValue() / GameConstants.SKILL_POINTS_PER_LEVEL) : 0.0f;
     }
 
-    public static double convertSkillToMultiplier(double value){
+    public static double convertSkillToMultiplier(double value) {
         return value / 20.0;
     }
 

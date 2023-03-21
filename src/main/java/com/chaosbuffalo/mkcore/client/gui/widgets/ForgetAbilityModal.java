@@ -26,7 +26,7 @@ public class ForgetAbilityModal extends MKModal {
     private final int trainerEntityId;
     private final boolean isLearning;
 
-    public ForgetAbilityModal(MKAbility tryingToLearn, MKPlayerData playerData, int xPos, int yPos, int width, int height, Font font, int trainerEntityId){
+    public ForgetAbilityModal(MKAbility tryingToLearn, MKPlayerData playerData, int xPos, int yPos, int width, int height, Font font, int trainerEntityId) {
         MKImage background = GuiTextures.CORE_TEXTURES.getImageForRegion(
                 GuiTextures.BACKGROUND_180_200, xPos, yPos, width, height);
         addWidget(background);
@@ -37,8 +37,8 @@ public class ForgetAbilityModal extends MKModal {
         numberToForget = count;
 
         Component promptText;
-        if (isLearning){
-            promptText= new TranslatableComponent("mkcore.gui.character.forget_ability", count, tryingToLearn.getAbilityName());
+        if (isLearning) {
+            promptText = new TranslatableComponent("mkcore.gui.character.forget_ability", count, tryingToLearn.getAbilityName());
         } else {
             promptText = new TranslatableComponent("mkcore.gui.character.forget");
         }
@@ -69,7 +69,7 @@ public class ForgetAbilityModal extends MKModal {
             }
             MKAbility ability = MKCoreRegistry.getAbility(abilityId);
             if (ability != null) {
-                AbilityForgetOption abilityIcon = new AbilityForgetOption(ability,this, font);
+                AbilityForgetOption abilityIcon = new AbilityForgetOption(ability, this, font);
                 abilities.addWidget(abilityIcon);
             }
         });
@@ -78,8 +78,8 @@ public class ForgetAbilityModal extends MKModal {
         scrollview.resetView();
     }
 
-    private boolean forgetCallback(MKButton button, int click){
-        if (isLearning){
+    private boolean forgetCallback(MKButton button, int click) {
+        if (isLearning) {
             PacketHandler.sendMessageToServer(new PlayerLearnAbilityRequestPacket(
                     forgetting.stream().map(MKAbility::getAbilityId).collect(Collectors.toList()),
                     tryingToLearn.getAbilityId(), trainerEntityId));
@@ -93,25 +93,25 @@ public class ForgetAbilityModal extends MKModal {
         return true;
     }
 
-    private void checkStatus(){
+    private void checkStatus() {
         forgetButton.setEnabled(ready());
     }
 
-    public void forget(MKAbility ability){
+    public void forget(MKAbility ability) {
         forgetting.add(ability);
         checkStatus();
     }
 
-    public void cancelForget(MKAbility ability){
+    public void cancelForget(MKAbility ability) {
         forgetting.remove(ability);
         checkStatus();
     }
 
-    public boolean isForgetting(MKAbility ability){
+    public boolean isForgetting(MKAbility ability) {
         return forgetting.contains(ability);
     }
 
-    public boolean ready(){
+    public boolean ready() {
         return isLearning ? forgetting.size() == numberToForget : forgetting.size() > 0;
     }
 

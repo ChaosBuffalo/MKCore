@@ -1,13 +1,8 @@
 package com.chaosbuffalo.mkcore.client.rendering.skeleton;
 
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.util.HandSide;
-import net.minecraft.util.Tuple;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.util.math.vector.Vector3f;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
@@ -18,13 +13,13 @@ public abstract class MCBone {
     private final MCBone parent;
     private final Vec3 boneLocation;
 
-    public MCBone(String boneName, Vec3 boneLocation, @Nullable MCBone parent){
+    public MCBone(String boneName, Vec3 boneLocation, @Nullable MCBone parent) {
         this.boneName = boneName;
         this.parent = parent;
         this.boneLocation = boneLocation;
     }
 
-    public boolean hasParent(){
+    public boolean hasParent() {
         return this.parent != null;
     }
 
@@ -37,7 +32,7 @@ public abstract class MCBone {
         return boneName;
     }
 
-    public Vec3 getBoneLocation(){
+    public Vec3 getBoneLocation() {
         return boneLocation;
     }
 
@@ -47,18 +42,18 @@ public abstract class MCBone {
 
     public abstract float getRoll();
 
-    public static Vec3 getOffsetForStopAt(MCBone bone, MCBone stopAt){
+    public static Vec3 getOffsetForStopAt(MCBone bone, MCBone stopAt) {
         MCBone currentBone = bone;
         Vec3 finalLoc = bone.getBoneLocation();
-        while (currentBone != null && currentBone.hasParent()){
+        while (currentBone != null && currentBone.hasParent()) {
             MCBone parent = currentBone.getParent();
-            if (parent != null){
+            if (parent != null) {
                 finalLoc = finalLoc.xRot(-parent.getPitch());
                 finalLoc = finalLoc.yRot(parent.getYaw());
                 finalLoc = finalLoc.zRot(parent.getRoll());
                 finalLoc = finalLoc.add(parent.getBoneLocation());
             }
-            if (currentBone.equals(stopAt)){
+            if (currentBone.equals(stopAt)) {
                 return finalLoc;
             }
             currentBone = parent;
@@ -66,12 +61,12 @@ public abstract class MCBone {
         return finalLoc;
     }
 
-    public static Vec3 getOffsetForBone(MCBone bone){
+    public static Vec3 getOffsetForBone(MCBone bone) {
         MCBone currentBone = bone;
         Vec3 finalLoc = bone.getBoneLocation();
-        while (currentBone != null && currentBone.hasParent()){
+        while (currentBone != null && currentBone.hasParent()) {
             MCBone parent = currentBone.getParent();
-            if (parent != null){
+            if (parent != null) {
                 finalLoc = finalLoc.xRot(-parent.getPitch());
                 finalLoc = finalLoc.yRot(parent.getYaw());
                 finalLoc = finalLoc.zRot(parent.getRoll());
@@ -83,16 +78,14 @@ public abstract class MCBone {
     }
 
 
-
-
     public static Optional<Vec3> getPositionOfBoneInWorld(LivingEntity entityIn, MCSkeleton skeleton,
-                                                              float partialTicks, Vec3 renderOffset, String boneName){
+                                                          float partialTicks, Vec3 renderOffset, String boneName) {
         MCBone bone = skeleton.getBone(boneName);
-        if (bone != null){
+        if (bone != null) {
             double entX = Mth.lerp(partialTicks, entityIn.xo, entityIn.getX());
             double entY = Mth.lerp(partialTicks, entityIn.yo, entityIn.getY());
             double entZ = Mth.lerp(partialTicks, entityIn.zo, entityIn.getZ());
-            float yaw = Mth.lerp(partialTicks, entityIn.yBodyRotO, entityIn.yBodyRot) * ((float)Math.PI / 180F);
+            float yaw = Mth.lerp(partialTicks, entityIn.yBodyRotO, entityIn.yBodyRot) * ((float) Math.PI / 180F);
 
             //we need to handle swimming rots
             float swimTime = entityIn.getSwimAmount(partialTicks);
@@ -102,10 +95,10 @@ public abstract class MCBone {
 
             Vec3 bonePos = MCBone.getOffsetForBone(bone);
 
-            if (swimTime > 0.0f){
+            if (swimTime > 0.0f) {
                 float entPitch = entityIn.isInWater() ? -90.0F - entityIn.xRot : -90.0F;
                 float lerpSwim = Mth.lerp(swimTime, 0.0F, entPitch);
-                pitch = ((float)Math.PI / 180F) * lerpSwim;
+                pitch = ((float) Math.PI / 180F) * lerpSwim;
                 if (entityIn.isVisuallySwimming()) {
                     boneOffset = new Vec3(0.0, -1.0, -0.3);
                 }

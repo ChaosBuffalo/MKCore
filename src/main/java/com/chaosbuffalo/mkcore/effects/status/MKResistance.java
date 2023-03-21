@@ -4,10 +4,10 @@ import com.chaosbuffalo.mkcore.core.MKAttributes;
 import com.chaosbuffalo.mkcore.effects.MKEffect;
 import com.chaosbuffalo.mkcore.effects.MKEffectState;
 import com.chaosbuffalo.mkcore.effects.MKSimplePassiveState;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.effect.MobEffectCategory;
-import net.minecraft.resources.ResourceLocation;
 
 import java.util.UUID;
 
@@ -21,7 +21,7 @@ public class MKResistance extends MKEffect {
         addAttribute(attribute, attrId, perLevel, perLevel, AttributeModifier.Operation.ADDITION, MKAttributes.ABJURATION);
     }
 
-    public float getPerLevel(){
+    public float getPerLevel() {
         return perLevel;
     }
 

@@ -11,14 +11,14 @@ import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.PlayerLeftClickEmptyPacket;
 import com.chaosbuffalo.mkcore.utils.DamageUtils;
 import com.chaosbuffalo.mkcore.utils.SoundUtils;
+import net.minecraft.util.Tuple;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.SwordItem;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.util.Tuple;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.ProjectileImpactEvent;
@@ -83,12 +83,12 @@ public class CombatEventHandler {
         }
     }
 
-    private static boolean canBlock(DamageSource source, LivingEntity entity){
+    private static boolean canBlock(DamageSource source, LivingEntity entity) {
 
         Entity sourceEntity = source.getDirectEntity();
         boolean hasPiercing = false;
         if (sourceEntity instanceof AbstractArrow) {
-            AbstractArrow abstractarrowentity = (AbstractArrow)sourceEntity;
+            AbstractArrow abstractarrowentity = (AbstractArrow) sourceEntity;
             if (abstractarrowentity.getPierceLevel() > 0) {
                 hasPiercing = true;
             }
@@ -118,11 +118,11 @@ public class CombatEventHandler {
         DamageSource dmgSource = event.getSource();
         Entity source = dmgSource.getEntity();
 
-        if (canBlock(dmgSource, event.getEntityLiving())){
+        if (canBlock(dmgSource, event.getEntityLiving())) {
             MKCore.getPlayer(target).ifPresent(playerData -> {
                 Tuple<Float, Boolean> breakResult = playerData.getStats().handlePoiseDamage(event.getAmount());
                 float left = breakResult.getA();
-                if (!(dmgSource instanceof MKDamageSource)){
+                if (!(dmgSource instanceof MKDamageSource)) {
                     // correct for if we're a vanilla damage source and we're going to bypass armor so pre-apply armor
                     if (DamageUtils.isProjectileDamage(dmgSource)) {
                         left = CoreDamageTypes.RangedDamage.applyResistance(event.getEntityLiving(), left);
@@ -132,26 +132,26 @@ public class CombatEventHandler {
 
                 }
                 event.setCanceled(true);
-                if (left > 0){
+                if (left > 0) {
                     target.hurt(dmgSource instanceof MKDamageSource ? ((MKDamageSource) dmgSource)
-                            .setSuppressTriggers(true).bypassArmor() : dmgSource.bypassArmor(),
+                                    .setSuppressTriggers(true).bypassArmor() : dmgSource.bypassArmor(),
                             left);
                 }
-                if (breakResult.getB()){
+                if (breakResult.getB()) {
                     SoundUtils.serverPlaySoundAtEntity(event.getEntityLiving(),
                             CoreSounds.block_break, event.getEntityLiving().getSoundSource());
                 } else {
-                    if (event.getEntityLiving().getTicksUsingItem() <= 6){
+                    if (event.getEntityLiving().getTicksUsingItem() <= 6) {
                         SoundUtils.serverPlaySoundAtEntity(event.getEntityLiving(),
                                 CoreSounds.parry, event.getEntityLiving().getSoundSource());
                         playerData.getSkills().tryIncreaseSkill(MKAttributes.BLOCK);
                     } else {
                         playerData.getSkills().tryScaledIncreaseSkill(MKAttributes.BLOCK, 0.5);
-                        if (dmgSource.getDirectEntity() instanceof AbstractArrow){
+                        if (dmgSource.getDirectEntity() instanceof AbstractArrow) {
                             SoundUtils.serverPlaySoundAtEntity(event.getEntityLiving(),
                                     CoreSounds.arrow_block, event.getEntityLiving().getSoundSource());
-                        } else if (source instanceof LivingEntity){
-                            if (((LivingEntity) source).getItemInHand(InteractionHand.MAIN_HAND).getItem() instanceof SwordItem){
+                        } else if (source instanceof LivingEntity) {
+                            if (((LivingEntity) source).getItemInHand(InteractionHand.MAIN_HAND).getItem() instanceof SwordItem) {
                                 SoundUtils.serverPlaySoundAtEntity(event.getEntityLiving(),
                                         CoreSounds.weapon_block, event.getEntityLiving().getSoundSource());
                             } else {

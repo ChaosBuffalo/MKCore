@@ -2,21 +2,21 @@ package com.chaosbuffalo.mkcore.mixins;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.targeting_api.Targeting;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.Options;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
-import net.minecraft.client.gui.Gui;
-import net.minecraft.client.Camera;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Vector3f;
 import net.minecraft.client.AttackIndicatorStatus;
+import net.minecraft.client.Camera;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.Options;
+import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.phys.HitResult;
-import com.mojang.math.Vector3f;
 import net.minecraft.world.level.GameType;
+import net.minecraft.world.phys.HitResult;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -28,13 +28,18 @@ import java.util.Optional;
 @Mixin(Gui.class)
 public abstract class InGameGuiMixins extends GuiComponent {
 
-    @Shadow @Final protected Minecraft minecraft;
+    @Shadow
+    @Final
+    protected Minecraft minecraft;
 
-    @Shadow protected abstract boolean canRenderCrosshairForSpectator(HitResult rayTraceIn);
+    @Shadow
+    protected abstract boolean canRenderCrosshairForSpectator(HitResult rayTraceIn);
 
-    @Shadow protected int screenWidth;
+    @Shadow
+    protected int screenWidth;
 
-    @Shadow protected int screenHeight;
+    @Shadow
+    protected int screenHeight;
 
     /**
      * @author kovak
@@ -51,7 +56,7 @@ public abstract class InGameGuiMixins extends GuiComponent {
                     PoseStack posestack = RenderSystem.getModelViewStack();
                     posestack.pushPose();
 
-                    posestack.translate((double)(this.screenWidth / 2), (double)(this.screenHeight / 2), (double)this.getBlitOffset());
+                    posestack.translate((double) (this.screenWidth / 2), (double) (this.screenHeight / 2), (double) this.getBlitOffset());
                     posestack.mulPose(Vector3f.XN.rotationDegrees(camera.getXRot()));
                     posestack.mulPose(Vector3f.YP.rotationDegrees(camera.getYRot()));
                     posestack.scale(-1.0F, -1.0F, -1.0F);
@@ -80,7 +85,7 @@ public abstract class InGameGuiMixins extends GuiComponent {
                         if (shouldDrawAttackIndicator) {
                             this.blit(matrixStack, k, j, 68, 94, 16, 16);
                         } else if (f < 1.0F) {
-                            int l = (int)(f * 17.0F);
+                            int l = (int) (f * 17.0F);
                             this.blit(matrixStack, k, j, 36, 94, 16, 4);
                             this.blit(matrixStack, k, j, 52, 94, l, 4);
                         }
@@ -92,8 +97,8 @@ public abstract class InGameGuiMixins extends GuiComponent {
         }
     }
 
-    private Vector3f getColorForSituation(){
-        if (minecraft.player != null){
+    private Vector3f getColorForSituation() {
+        if (minecraft.player != null) {
             return MKCore.getPlayer(minecraft.player).map(x -> {
                 Optional<Entity> target = x.getCombatExtension().getPointedEntity();
                 return target.map(ent -> {
@@ -109,7 +114,6 @@ public abstract class InGameGuiMixins extends GuiComponent {
         }
         return new Vector3f(1.0f, 1.0f, 1.0f);
     }
-
 
 
 }

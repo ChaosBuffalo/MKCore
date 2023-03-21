@@ -10,7 +10,7 @@ public interface IAbilityTrainingEntity {
 
     default void openTrainingGui(ServerPlayer playerEntity) {
         MKCore.getPlayer(playerEntity).ifPresent(playerData -> {
-                PacketHandler.sendMessage(new OpenLearnAbilitiesGuiPacket(playerData, getAbilityTrainer()), playerEntity);
+            PacketHandler.sendMessage(new OpenLearnAbilitiesGuiPacket(playerData, getAbilityTrainer()), playerEntity);
         });
     }
 }

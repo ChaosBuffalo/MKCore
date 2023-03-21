@@ -1,10 +1,10 @@
 package com.chaosbuffalo.mkcore.fx.particles.animation_tracks;
 
 import com.chaosbuffalo.mkcore.fx.particles.MKParticle;
-import net.minecraft.resources.ResourceLocation;
 import com.mojang.math.Vector3f;
+import net.minecraft.resources.ResourceLocation;
 
-public abstract class ParticleColorAnimationTrack extends ParticleAnimationTrack{
+public abstract class ParticleColorAnimationTrack extends ParticleAnimationTrack {
 
     public ParticleColorAnimationTrack(ResourceLocation typeName) {
         super(typeName, AnimationTrackType.COLOR);
@@ -15,7 +15,7 @@ public abstract class ParticleColorAnimationTrack extends ParticleAnimationTrack
     @Override
     public abstract ParticleColorAnimationTrack copy();
 
-    protected float getColorWithVariance(float color, float varianceMagnitude, float variance){
+    protected float getColorWithVariance(float color, float varianceMagnitude, float variance) {
         return Math.max(0.0f, Math.min(1.0f, color + varianceMagnitude * variance));
     }
 

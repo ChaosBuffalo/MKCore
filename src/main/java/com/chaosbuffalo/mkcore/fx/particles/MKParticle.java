@@ -3,13 +3,13 @@ package com.chaosbuffalo.mkcore.fx.particles;
 import com.chaosbuffalo.mkcore.fx.particles.animation_tracks.ParticleAnimationTrack;
 import com.chaosbuffalo.mkcore.utils.MathUtils;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.client.particle.*;
+import com.mojang.math.Vector3f;
 import net.minecraft.client.Camera;
-import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.particle.*;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
-import com.mojang.math.Vector3f;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -39,7 +39,7 @@ public class MKParticle extends TextureSheetParticle {
         private final ParticleAnimationTrack animation;
         private final int index;
 
-        public ParticleDataKey(ParticleAnimationTrack animation, int i){
+        public ParticleDataKey(ParticleAnimationTrack animation, int i) {
             this.animation = animation;
             this.index = i;
         }
@@ -86,7 +86,7 @@ public class MKParticle extends TextureSheetParticle {
         animation.tickAnimation(this, 0.0f);
     }
 
-    public void fixUV(){
+    public void fixUV() {
         // there is not enough padding in between particles in the particle texture atlas, if we blur them
         // sometimes you'll get pixels from an adjacent particle, lets reduce our uvs by 10% to avoid this
         float minU = sprite.getU0();
@@ -102,7 +102,7 @@ public class MKParticle extends TextureSheetParticle {
 
     }
 
-    public boolean hasSource(){
+    public boolean hasSource() {
         return source != null;
     }
 
@@ -131,7 +131,7 @@ public class MKParticle extends TextureSheetParticle {
         return mkMinV;
     }
 
-    public Random getRand(){
+    public Random getRand() {
         return random;
     }
 
@@ -150,41 +150,41 @@ public class MKParticle extends TextureSheetParticle {
         return getSource().map(ent -> origin.add(ent.position())).orElse(origin);
     }
 
-    public Vec3 getMotion(){
+    public Vec3 getMotion() {
         return new Vec3(xd, yd, zd);
     }
 
-    public Vec3 getPosition(){
+    public Vec3 getPosition() {
         return new Vec3(x, y, z);
     }
 
-    public Vec3 getInterpolatedPosition(float partialTicks){
+    public Vec3 getInterpolatedPosition(float partialTicks) {
         return new Vec3(MathUtils.lerpDouble(xo, x, partialTicks),
                 MathUtils.lerpDouble(yo, y, partialTicks),
                 MathUtils.lerpDouble(zo, z, partialTicks));
     }
 
-    public void setTrackFloatData(ParticleDataKey key, float value){
+    public void setTrackFloatData(ParticleDataKey key, float value) {
         floatData.put(key, value);
     }
 
-    public float getTrackFloatData(ParticleDataKey key){
+    public float getTrackFloatData(ParticleDataKey key) {
         return floatData.getOrDefault(key, 0.0f);
     }
 
-    public void setTrackVector3dData(ParticleDataKey key, Vec3 vec){
+    public void setTrackVector3dData(ParticleDataKey key, Vec3 vec) {
         vector3dData.put(key, vec);
     }
 
-    public Vec3 getTrackVector3dData(ParticleDataKey key){
+    public Vec3 getTrackVector3dData(ParticleDataKey key) {
         return vector3dData.getOrDefault(key, EMPTY_VECTOR_3D);
     }
 
-    public void setTrackVector3fData(ParticleDataKey key, Vector3f vec){
+    public void setTrackVector3fData(ParticleDataKey key, Vector3f vec) {
         vector3fData.put(key, vec);
     }
 
-    public Vector3f getTrackVector3fData(ParticleDataKey key){
+    public Vector3f getTrackVector3fData(ParticleDataKey key) {
         return vector3fData.getOrDefault(key, EMPTY_VECTOR_3F);
     }
 
@@ -192,11 +192,11 @@ public class MKParticle extends TextureSheetParticle {
         return currentFrame;
     }
 
-    public void setScale(float scale){
+    public void setScale(float scale) {
         this.quadSize = scale;
     }
 
-    public int getAge(){
+    public int getAge() {
         return age;
     }
 
@@ -216,38 +216,38 @@ public class MKParticle extends TextureSheetParticle {
 
     protected void expire() {
         if (this.age++ >= lifetime) {
-            if (onExpire != null){
+            if (onExpire != null) {
                 onExpire.accept(this);
             }
             this.remove();
         }
     }
 
-    protected void onUpdate(){
-        if (this.onGround && expireOnGround){
+    protected void onUpdate() {
+        if (this.onGround && expireOnGround) {
             this.remove();
         }
     }
 
-    public void setMotion(double x, double y, double z){
+    public void setMotion(double x, double y, double z) {
         this.xd = x;
         this.yd = y;
         this.zd = z;
     }
 
-    public double getMotionX(){
+    public double getMotionX() {
         return xd;
     }
 
-    public double getMotionY(){
+    public double getMotionY() {
         return yd;
     }
 
-    public double getMotionZ(){
+    public double getMotionZ() {
         return zd;
     }
 
-    public float getParticleGravity(){
+    public float getParticleGravity() {
         return this.gravity;
     }
 
@@ -255,7 +255,7 @@ public class MKParticle extends TextureSheetParticle {
     public void tick() {
         particleAnimation.tick(this);
         ticksSinceRender++;
-        if (ticksSinceRender > 1){
+        if (ticksSinceRender > 1) {
             particleAnimation.tickAnimation(this, 0.0f);
         }
         this.xo = this.x;

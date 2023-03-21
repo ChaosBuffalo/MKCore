@@ -3,20 +3,15 @@ package com.chaosbuffalo.mkcore.utils;
 import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.entities.BaseProjectileEntity;
-import net.minecraft.command.impl.TeleportCommand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.entity.ai.RandomPositionGenerator;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.entity.projectile.SpectralArrow;
 import net.minecraft.world.entity.projectile.ThrowableProjectile;
-import net.minecraft.util.TeleportationRepositioner;
 import net.minecraft.world.entity.vehicle.DismountHelper;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.phys.Vec3;
 
 
@@ -55,7 +50,7 @@ public class EntityUtils {
                 GameConstants.TICKS_PER_SECOND;
     }
 
-    public static void shootArrow(LivingEntity source, AbstractArrow arrowEntity, LivingEntity target, float launchVelocity){
+    public static void shootArrow(LivingEntity source, AbstractArrow arrowEntity, LivingEntity target, float launchVelocity) {
 
 
         Vec3 targetVec = new Vec3(target.getX(), target.getY(0.9D), target.getZ());
@@ -76,7 +71,7 @@ public class EntityUtils {
 //        double d1 = target.getPosYHeight(0.3333333333333333D) - arrowEntity.getPosY();
 //        double d2 = target.getPosZ() - source.getPosZ();
 //        double d3 = MathHelper.sqrt(d0 * d0 + d2 * d2);
-        arrowEntity.shoot(targetPos.x(), targetPos.y(), targetPos.z(), launchVelocity, (float)(
+        arrowEntity.shoot(targetPos.x(), targetPos.y(), targetPos.z(), launchVelocity, (float) (
                 14 - source.getCommandSenderWorld().getDifficulty().getId() * 4));
     }
 
@@ -97,17 +92,17 @@ public class EntityUtils {
         }
     }
 
-    public static boolean canTeleportEntity(LivingEntity target){
+    public static boolean canTeleportEntity(LivingEntity target) {
         return true;
     }
 
     public static boolean safeTeleportEntity(LivingEntity targetEntity, Vec3 teleLoc) {
         Entity finalTarget = targetEntity;
-        if (targetEntity.isPassenger()){
+        if (targetEntity.isPassenger()) {
             finalTarget = targetEntity.getRootVehicle();
         }
         AABB axisalignedbb = targetEntity.getLocalBoundsForPose(targetEntity.getPose());
-        if (DismountHelper.canDismountTo(targetEntity.level, targetEntity, axisalignedbb.move(teleLoc))){
+        if (DismountHelper.canDismountTo(targetEntity.level, targetEntity, axisalignedbb.move(teleLoc))) {
             finalTarget.teleportTo(teleLoc.x, teleLoc.y, teleLoc.z);
             return true;
         }

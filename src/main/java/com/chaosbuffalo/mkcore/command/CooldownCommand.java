@@ -3,8 +3,8 @@ package com.chaosbuffalo.mkcore.command;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.ResetAttackSwingPacket;
-import com.chaosbuffalo.mkcore.utils.EntityUtils;
 import com.chaosbuffalo.mkcore.utils.ChatUtils;
+import com.chaosbuffalo.mkcore.utils.EntityUtils;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -33,7 +33,7 @@ public class CooldownCommand {
                         .executes(CooldownCommand::resetTimers)
                 )
                 .then(Commands.literal("attack_reset")
-                    .executes(CooldownCommand::resetAttackCd)
+                        .executes(CooldownCommand::resetAttackCd)
                 );
     }
 

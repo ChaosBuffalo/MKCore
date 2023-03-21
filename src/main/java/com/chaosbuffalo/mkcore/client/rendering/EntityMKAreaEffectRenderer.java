@@ -2,8 +2,8 @@ package com.chaosbuffalo.mkcore.client.rendering;
 
 import com.chaosbuffalo.mkcore.entities.MKAreaEffectEntity;
 import net.minecraft.client.renderer.culling.Frustum;
-import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.resources.ResourceLocation;
 

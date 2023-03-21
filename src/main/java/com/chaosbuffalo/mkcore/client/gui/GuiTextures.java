@@ -69,9 +69,9 @@ public class GuiTextures {
         CORE_TEXTURES.addTextureRegion(MANA_BAR_LONG, 378, 66, 75, 3);
         CORE_TEXTURES.addTextureRegion(WITHER_BAR_LONG, 378, 70, 75, 3);
         CORE_TEXTURES.addTextureRegion(ABSORPTION_BAR_LONG, 378, 54, 75, 5);
-        CORE_TEXTURES.addTextureRegion(XP_BAR_ON_SCREEN_YELLOW, 393,108,59, 5);
-        CORE_TEXTURES.addTextureRegion(XP_BAR_ON_SCREEN_BACKGROUND, 391,100,63, 5);
-        CORE_TEXTURES.addTextureRegion(XP_BAR_ON_SCREEN_BLUE, 393,92,59, 5);
+        CORE_TEXTURES.addTextureRegion(XP_BAR_ON_SCREEN_YELLOW, 393, 108, 59, 5);
+        CORE_TEXTURES.addTextureRegion(XP_BAR_ON_SCREEN_BACKGROUND, 391, 100, 63, 5);
+        CORE_TEXTURES.addTextureRegion(XP_BAR_ON_SCREEN_BLUE, 393, 92, 59, 5);
         CORE_TEXTURES.addTextureRegion(ABSORPTON_BAR, 378, 45, 50, 5);
         CORE_TEXTURES.addTextureRegion(PLAYER_BAR_OUTLINE, 455, 54, 75, 5);
         CORE_TEXTURES.addTextureRegion(SHORT_BAR_OUTLINE, 455, 45, 50, 5);

@@ -5,9 +5,8 @@ import com.chaosbuffalo.mkcore.fx.particles.MKParticleData;
 import com.chaosbuffalo.mkcore.serialization.attributes.DoubleAttribute;
 import com.chaosbuffalo.mkcore.serialization.attributes.IntAttribute;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -27,7 +26,7 @@ public class PillarSpawnPattern extends ParticleSpawnPattern {
         addAttributes(xRadius, yRadius, zRadius, speed, layers, layerHeight);
     }
 
-    public PillarSpawnPattern(int count, Vec3 radii, double speed, int layers, double layerHeight){
+    public PillarSpawnPattern(int count, Vec3 radii, double speed, int layers, double layerHeight) {
         this();
         this.count.setValue(count);
         xRadius.setValue(radii.x);

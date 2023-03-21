@@ -2,15 +2,15 @@ package com.chaosbuffalo.mkcore.core.damage;
 
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.core.MKCombatFormulas;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.Component;
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
 import javax.annotation.Nonnull;
@@ -97,7 +97,7 @@ public class MKDamageType extends ForgeRegistryEntry<MKDamageType> {
     }
 
     public Component getEffectCritMessage(LivingEntity source, LivingEntity target, float damage,
-                                               String damageType, boolean isSelf) {
+                                          String damageType, boolean isSelf) {
         TranslatableComponent msg;
         if (isSelf) {
             msg = new TranslatableComponent("mkcore.crit.effect.self",
@@ -115,7 +115,7 @@ public class MKDamageType extends ForgeRegistryEntry<MKDamageType> {
     }
 
     public Component getAbilityCritMessage(LivingEntity source, LivingEntity target, float damage,
-                                                MKAbility ability, boolean isSelf) {
+                                           MKAbility ability, boolean isSelf) {
         TranslatableComponent msg;
         if (isSelf) {
             msg = new TranslatableComponent("mkcore.crit.ability.self",
@@ -144,7 +144,7 @@ public class MKDamageType extends ForgeRegistryEntry<MKDamageType> {
         return (float) (originalDamage - (originalDamage * target.getAttribute(getResistanceAttribute()).getValue()));
     }
 
-    protected boolean canCrit(LivingEntity source){
+    protected boolean canCrit(LivingEntity source) {
         return source instanceof Player;
     }
 
@@ -153,7 +153,7 @@ public class MKDamageType extends ForgeRegistryEntry<MKDamageType> {
     }
 
     public boolean rollCrit(LivingEntity source, LivingEntity target, Entity immediate) {
-        if (canCrit(source)){
+        if (canCrit(source)) {
             float critChance = getCritChance(source, target, immediate);
             return MKCombatFormulas.checkCrit(source, critChance);
         } else {

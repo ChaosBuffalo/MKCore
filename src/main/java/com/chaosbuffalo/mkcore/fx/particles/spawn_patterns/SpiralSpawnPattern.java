@@ -5,9 +5,8 @@ import com.chaosbuffalo.mkcore.fx.particles.MKParticleData;
 import com.chaosbuffalo.mkcore.serialization.attributes.DoubleAttribute;
 import com.chaosbuffalo.mkcore.serialization.attributes.IntAttribute;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -28,7 +27,7 @@ public class SpiralSpawnPattern extends ParticleSpawnPattern {
         addAttributes(xRadius, yRadius, zRadius, speed, layers, layerHeight, fullRotations);
     }
 
-    public SpiralSpawnPattern(int count, Vec3 radii, double speed, int layers, double layerHeight, int fullRotations){
+    public SpiralSpawnPattern(int count, Vec3 radii, double speed, int layers, double layerHeight, int fullRotations) {
         this();
         this.count.setValue(count);
         xRadius.setValue(radii.x);
@@ -55,11 +54,11 @@ public class SpiralSpawnPattern extends ParticleSpawnPattern {
         int currentLayer = particleNumber / perLayer;
         int inLayer = particleNumber % perLayer;
         int rots = fullRotations.value();
-        if (rots == 0){
+        if (rots == 0) {
             rots = 1;
         }
         int inRot = count.value() / rots;
-        float heightRatio = (float)(inLayer) / perLayer;
+        float heightRatio = (float) (inLayer) / perLayer;
         double height = currentLayer * layerHeight.value() + (heightRatio * layerHeight.value());
         double degrees = (360.0 / inRot) * particleNumber;
         Vec3 posVec = new Vec3(origin.x + xRadius.value() * Math.cos(Math.toRadians(degrees)),

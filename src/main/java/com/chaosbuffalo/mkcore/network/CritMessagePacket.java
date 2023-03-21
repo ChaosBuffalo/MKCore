@@ -4,18 +4,17 @@ import com.chaosbuffalo.mkcore.MKConfig;
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.core.damage.MKDamageType;
+import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.Util;
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
-import java.util.UUID;
 import java.util.function.Supplier;
 
 public class CritMessagePacket {
@@ -119,7 +118,7 @@ public class CritMessagePacket {
             if (player == null) {
                 return;
             }
-            Entity source =  player.getCommandSenderWorld().getEntity(packet.sourceId);
+            Entity source = player.getCommandSenderWorld().getEntity(packet.sourceId);
             Entity target = player.getCommandSenderWorld().getEntity(packet.targetId);
             if (target == null || source == null) {
                 return;
@@ -135,7 +134,7 @@ public class CritMessagePacket {
                     return;
                 }
             }
-            if (!(source instanceof LivingEntity)){
+            if (!(source instanceof LivingEntity)) {
                 return;
             }
             LivingEntity livingSource = (LivingEntity) source;

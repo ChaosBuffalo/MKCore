@@ -15,12 +15,12 @@ public class TalentNode {
         this.maxRanks = entry.get("max_points").asInt(1);
     }
 
-    public TalentNode(MKTalent talent, int maxRanks){
+    public TalentNode(MKTalent talent, int maxRanks) {
         this.talent = talent;
         this.maxRanks = maxRanks;
     }
 
-    public TalentNode(MKTalent talent){
+    public TalentNode(MKTalent talent) {
         this(talent, 1);
     }
 

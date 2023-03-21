@@ -7,8 +7,8 @@ import com.chaosbuffalo.mkcore.client.rendering.animations.PlayerCompleteCastAni
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.world.entity.player.Player;
 
 public class MKPlayerModel extends PlayerModel<AbstractClientPlayer> {
@@ -29,7 +29,6 @@ public class MKPlayerModel extends PlayerModel<AbstractClientPlayer> {
             }
         });
     }
-
 
 
     @Override

@@ -1,8 +1,8 @@
 package com.chaosbuffalo.mkcore.effects.triggers;
 
 import com.chaosbuffalo.mkcore.effects.SpellTriggers;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 
 import java.util.ArrayList;

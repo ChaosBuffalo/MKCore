@@ -11,12 +11,11 @@ import com.chaosbuffalo.mkcore.fx.particles.ParticleAnimationManager;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.FirstPersonRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
-import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.Optional;
@@ -37,13 +36,13 @@ public class MKPlayerRenderer extends PlayerRenderer {
 
         MKCore.getPlayer(entityIn).ifPresent(data -> {
             PlayerAnimationModule.PlayerVisualCastState state = data.getAnimationModule().getPlayerVisualCastState();
-            if (state == PlayerAnimationModule.PlayerVisualCastState.CASTING || state == PlayerAnimationModule.PlayerVisualCastState.RELEASE){
+            if (state == PlayerAnimationModule.PlayerVisualCastState.CASTING || state == PlayerAnimationModule.PlayerVisualCastState.RELEASE) {
                 MKAbility ability = data.getAnimationModule().getCastingAbility();
-                if (ability != null){
+                if (ability != null) {
                     // do spell casting
-                    if (ability.hasCastingParticles()){
+                    if (ability.hasCastingParticles()) {
                         ParticleAnimation anim = ParticleAnimationManager.getAnimation(ability.getCastingParticles());
-                        if (anim != null){
+                        if (anim != null) {
                             Optional<Vec3> leftPos = getHandPosition(partialTicks, entityIn, HumanoidArm.LEFT);
                             leftPos.ifPresent(x -> anim.spawn(entityIn.getCommandSenderWorld(), x, null));
                             Optional<Vec3> rightPos = getHandPosition(partialTicks, entityIn, HumanoidArm.RIGHT);
@@ -61,16 +60,16 @@ public class MKPlayerRenderer extends PlayerRenderer {
     @Override
     public void renderRightHand(PoseStack matrixStackIn, MultiBufferSource bufferIn, int combinedLightIn, AbstractClientPlayer playerIn) {
         super.renderRightHand(matrixStackIn, bufferIn, combinedLightIn, playerIn);
-        if (playerIn instanceof LocalPlayer){
+        if (playerIn instanceof LocalPlayer) {
             MKCore.getPlayer(playerIn).ifPresent(data -> {
                 PlayerAnimationModule.PlayerVisualCastState state = data.getAnimationModule().getPlayerVisualCastState();
-                if (state == PlayerAnimationModule.PlayerVisualCastState.CASTING || state == PlayerAnimationModule.PlayerVisualCastState.RELEASE){
+                if (state == PlayerAnimationModule.PlayerVisualCastState.CASTING || state == PlayerAnimationModule.PlayerVisualCastState.RELEASE) {
                     MKAbility ability = data.getAnimationModule().getCastingAbility();
-                    if (ability != null){
+                    if (ability != null) {
                         // do spell casting
-                        if (ability.hasCastingParticles()){
+                        if (ability.hasCastingParticles()) {
                             ParticleAnimation anim = ParticleAnimationManager.ANIMATIONS.get(ability.getCastingParticles());
-                            if (anim != null){
+                            if (anim != null) {
                                 Vec3 leftPos = getFirstPersonHandPosition(HumanoidArm.LEFT,
                                         (LocalPlayer) playerIn, 0.0f, getRenderOffset(playerIn, 0.0f));
                                 anim.spawn(playerIn.getCommandSenderWorld(), leftPos, null);
@@ -94,16 +93,16 @@ public class MKPlayerRenderer extends PlayerRenderer {
     @Override
     public void renderLeftHand(PoseStack matrixStackIn, MultiBufferSource bufferIn, int combinedLightIn, AbstractClientPlayer playerIn) {
         super.renderLeftHand(matrixStackIn, bufferIn, combinedLightIn, playerIn);
-        if (playerIn instanceof LocalPlayer){
+        if (playerIn instanceof LocalPlayer) {
             MKCore.getPlayer(playerIn).ifPresent(data -> {
                 PlayerAnimationModule.PlayerVisualCastState state = data.getAnimationModule().getPlayerVisualCastState();
-                if (state == PlayerAnimationModule.PlayerVisualCastState.CASTING || state == PlayerAnimationModule.PlayerVisualCastState.RELEASE){
+                if (state == PlayerAnimationModule.PlayerVisualCastState.CASTING || state == PlayerAnimationModule.PlayerVisualCastState.RELEASE) {
                     MKAbility ability = data.getAnimationModule().getCastingAbility();
-                    if (ability != null){
+                    if (ability != null) {
                         // do spell casting
-                        if (ability.hasCastingParticles()){
+                        if (ability.hasCastingParticles()) {
                             ParticleAnimation anim = ParticleAnimationManager.ANIMATIONS.get(ability.getCastingParticles());
-                            if (anim != null){
+                            if (anim != null) {
                                 Vec3 leftPos = getFirstPersonHandPosition(HumanoidArm.LEFT,
                                         (LocalPlayer) playerIn, 0.0f, getRenderOffset(playerIn, 0.0f));
                                 anim.spawn(playerIn.getCommandSenderWorld(), leftPos, null);
@@ -127,12 +126,12 @@ public class MKPlayerRenderer extends PlayerRenderer {
     }
 
     private Vec3 getFirstPersonHandPosition(HumanoidArm handSide,
-                                                LocalPlayer playerEntityIn, float partialTicks,
-                                                Vec3 renderOffset){
+                                            LocalPlayer playerEntityIn, float partialTicks,
+                                            Vec3 renderOffset) {
         double entX = Mth.lerp(partialTicks, playerEntityIn.xo, playerEntityIn.getX());
         double entY = Mth.lerp(partialTicks, playerEntityIn.yo, playerEntityIn.getY());
         double entZ = Mth.lerp(partialTicks, playerEntityIn.zo, playerEntityIn.getZ());
-        float yaw = Mth.lerp(partialTicks, playerEntityIn.yBodyRotO, playerEntityIn.yBodyRot) * ((float)Math.PI / 180F);
+        float yaw = Mth.lerp(partialTicks, playerEntityIn.yBodyRotO, playerEntityIn.yBodyRot) * ((float) Math.PI / 180F);
         int handScalar = handSide == HumanoidArm.RIGHT ? 1 : -1;
         // taken from first person render pathway
         Vec3 shoulderLoc = new Vec3(handScalar * -0.4785682F, -0.094387F, 0.05731531F);
@@ -146,7 +145,7 @@ public class MKPlayerRenderer extends PlayerRenderer {
     }
 
 
-    private Optional<Vec3> getHandPosition(float partialTicks, AbstractClientPlayer entityIn, HumanoidArm handSide){
+    private Optional<Vec3> getHandPosition(float partialTicks, AbstractClientPlayer entityIn, HumanoidArm handSide) {
         return MCBone.getPositionOfBoneInWorld(entityIn, skeleton, partialTicks,
                 getRenderOffset(entityIn, partialTicks), handSide == HumanoidArm.LEFT ?
                         BipedSkeleton.LEFT_HAND_BONE_NAME : BipedSkeleton.RIGHT_HAND_BONE_NAME);

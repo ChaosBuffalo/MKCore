@@ -3,7 +3,9 @@ package com.chaosbuffalo.mkcore.events;
 import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.MKConfig;
 import com.chaosbuffalo.mkcore.MKCore;
-import com.chaosbuffalo.mkcore.client.gui.*;
+import com.chaosbuffalo.mkcore.client.gui.IPlayerDataAwareScreen;
+import com.chaosbuffalo.mkcore.client.gui.ParticleEditorScreen;
+import com.chaosbuffalo.mkcore.client.gui.PlayerPageRegistry;
 import com.chaosbuffalo.mkcore.core.AbilityGroupId;
 import com.chaosbuffalo.mkcore.core.MKAttributes;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
@@ -15,23 +17,28 @@ import com.chaosbuffalo.mkcore.network.ExecuteActiveAbilityPacket;
 import com.chaosbuffalo.mkcore.network.MKItemAttackPacket;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.targeting_api.Targeting;
+import com.mojang.blaze3d.platform.InputConstants;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.KeyMapping;
-import com.mojang.blaze3d.platform.InputConstants;
+import net.minecraft.item.*;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.util.math.*;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.item.*;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.util.math.*;
+import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.network.chat.Component;
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.settings.KeyConflictContext;
@@ -48,12 +55,6 @@ import org.lwjgl.glfw.GLFW;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-
-import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.world.phys.HitResult;
 
 @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, value = Dist.CLIENT)
 public class ClientEventHandler {
@@ -174,18 +175,18 @@ public class ClientEventHandler {
     }
 
     @SubscribeEvent
-    public static void onRender(TickEvent.RenderTickEvent event){
-        if (event.phase == TickEvent.Phase.START){
+    public static void onRender(TickEvent.RenderTickEvent event) {
+        if (event.phase == TickEvent.Phase.START) {
             Minecraft inst = Minecraft.getInstance();
             Player player = inst.player;
             if (player != null) {
-                double dist =  player.getAttribute(MKAttributes.ATTACK_REACH).getValue();
+                double dist = player.getAttribute(MKAttributes.ATTACK_REACH).getValue();
                 float partialTicks = inst.getFrameTime();
                 HitResult result = player.pick(dist, partialTicks, false);
                 Vec3 eyePos = player.getEyePosition(partialTicks);
 
                 double tracedDist2 = dist * dist;
-                if (result != null){
+                if (result != null) {
                     tracedDist2 = result.getLocation().distanceToSqr(eyePos);
                 }
                 Vec3 lookVec = player.getViewVector(1.0f);
@@ -235,23 +236,23 @@ public class ClientEventHandler {
     }
 
     static List<Component> renderPoise(ItemStack stack, EquipmentSlot slotType, Player player,
-                                            Attribute attribute, AttributeModifier modifier) {
+                                       Attribute attribute, AttributeModifier modifier) {
         return Collections.singletonList(
                 AttributeTooltipManager.makeBonusOrTakeText(attribute, modifier,
                         modifier.getAmount(), modifier.getAmount()));
     }
 
     static List<Component> renderAbsolutePercentTwoDigits(ItemStack stack, EquipmentSlot slotType,
-                                                               Player player, Attribute attribute,
-                                                               AttributeModifier modifier) {
+                                                          Player player, Attribute attribute,
+                                                          AttributeModifier modifier) {
         return Collections.singletonList(
                 AttributeTooltipManager.makeAbsoluteText(attribute, modifier,
                         modifier.getAmount() * 100, v -> String.format("%.2f%%", v)));
     }
 
     static List<Component> renderCritMultiplier(ItemStack stack, EquipmentSlot slotType,
-                                                     Player player, Attribute attribute,
-                                                     AttributeModifier modifier) {
+                                                Player player, Attribute attribute,
+                                                AttributeModifier modifier) {
         double value = player.getAttributeBaseValue(attribute) + modifier.getAmount();
         return Collections.singletonList(
                 AttributeTooltipManager.makeAbsoluteText(attribute, modifier,

@@ -1,17 +1,12 @@
 package com.chaosbuffalo.mkcore.mixins;
 
 import com.chaosbuffalo.mkcore.MKCore;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ShieldItem;
-import net.minecraft.world.item.SwordItem;
-import net.minecraft.world.item.Tier;
-import net.minecraft.world.item.TieredItem;
-import net.minecraft.world.item.UseAnim;
 
 @Mixin(SwordItem.class)
 public abstract class SwordItemMixins extends TieredItem {
@@ -47,10 +42,10 @@ public abstract class SwordItemMixins extends TieredItem {
     public InteractionResultHolder<ItemStack> use(Level worldIn, Player playerIn, InteractionHand handIn) {
         ItemStack itemstack = playerIn.getItemInHand(handIn);
         ItemStack offhand = playerIn.getOffhandItem();
-        if (offhand.getItem() instanceof ShieldItem){
+        if (offhand.getItem() instanceof ShieldItem) {
             return InteractionResultHolder.pass(itemstack);
         }
-        if (MKCore.getPlayer(playerIn).map(x -> x.getStats().isPoiseBroke()).orElse(false)){
+        if (MKCore.getPlayer(playerIn).map(x -> x.getStats().isPoiseBroke()).orElse(false)) {
             return InteractionResultHolder.pass(itemstack);
         } else {
             playerIn.startUsingItem(handIn);

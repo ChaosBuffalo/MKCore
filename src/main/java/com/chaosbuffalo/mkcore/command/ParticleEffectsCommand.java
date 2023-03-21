@@ -12,8 +12,8 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 
 import java.util.UUID;
 
@@ -24,7 +24,7 @@ public class ParticleEffectsCommand {
                 .then(Commands.literal("addBoneAnimation")
                         .then(Commands.argument("particleAnimation", ParticleAnimationArgument.ParticleAnimation())
                                 .then(Commands.argument("bone", BipedBoneArgument.BipedBone())
-                                    .executes(ParticleEffectsCommand::addEffectInstance)
+                                        .executes(ParticleEffectsCommand::addEffectInstance)
                                 )
                         )
                 )

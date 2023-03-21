@@ -1,23 +1,16 @@
 package com.chaosbuffalo.mkcore.utils;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
-import net.minecraft.util.math.*;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-
-
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.ClipContext;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.world.phys.HitResult;
 
 public class RayTraceUtils {
 
@@ -58,16 +51,16 @@ public class RayTraceUtils {
     }
 
     public static HitResult rayTraceEntities(Level world, Vec3 from, Vec3 to, Vec3 aaExpansion, float aaGrowth,
-                                                  float entityExpansion, final Predicate<Entity> filter) {
+                                             float entityExpansion, final Predicate<Entity> filter) {
         return rayTraceEntities(Entity.class, world, from, to, aaExpansion, aaGrowth, entityExpansion, filter);
     }
 
     public static <E extends Entity> EntityHitResult rayTraceEntities(Class<E> clazz, Level world,
-                                                                           Vec3 from, Vec3 to,
-                                                                           Vec3 aaExpansion,
-                                                                           float aaGrowth,
-                                                                           float entityExpansion,
-                                                                           final Predicate<E> filter) {
+                                                                      Vec3 from, Vec3 to,
+                                                                      Vec3 aaExpansion,
+                                                                      float aaGrowth,
+                                                                      float entityExpansion,
+                                                                      final Predicate<E> filter) {
 
         Predicate<E> predicate = input -> defaultFilter.test(input) && filter.test(input);
 
@@ -120,8 +113,8 @@ public class RayTraceUtils {
     }
 
     private static <E extends Entity> HitResult rayTraceBlocksAndEntities(Class<E> clazz, Entity mainEntity,
-                                                                               Vec3 from, Vec3 to, boolean stopOnLiquid,
-                                                                               final Predicate<E> entityFilter) {
+                                                                          Vec3 from, Vec3 to, boolean stopOnLiquid,
+                                                                          final Predicate<E> entityFilter) {
         BlockHitResult block = rayTraceBlocks(mainEntity, from, to, stopOnLiquid);
         if (block.getType() == HitResult.Type.BLOCK)
             to = block.getLocation();

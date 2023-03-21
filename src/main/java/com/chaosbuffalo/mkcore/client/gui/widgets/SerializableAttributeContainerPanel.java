@@ -17,7 +17,7 @@ public class SerializableAttributeContainerPanel extends MKStackLayoutVertical {
         this.container = container;
         setMargins(1, 1, 4, 4);
         setPaddings(0, 0, 1, 1);
-        for (ISerializableAttribute<?> attr : container.getAttributes()){
+        for (ISerializableAttribute<?> attr : container.getAttributes()) {
             SerializableAttributeEntry entry = new SerializableAttributeEntry(x, y, attr, font);
             entry.setCallback(callback);
             addWidget(entry);

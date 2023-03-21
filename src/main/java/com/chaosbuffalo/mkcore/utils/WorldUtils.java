@@ -1,9 +1,9 @@
 package com.chaosbuffalo.mkcore.utils;
 
 import com.chaosbuffalo.mkcore.GameConstants;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.Vec3i;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
 
 import java.util.HashMap;

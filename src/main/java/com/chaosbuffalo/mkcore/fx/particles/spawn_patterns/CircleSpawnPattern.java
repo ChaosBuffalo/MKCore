@@ -4,9 +4,8 @@ import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.fx.particles.MKParticleData;
 import com.chaosbuffalo.mkcore.serialization.attributes.DoubleAttribute;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -24,7 +23,7 @@ public class CircleSpawnPattern extends ParticleSpawnPattern {
         addAttributes(xRadius, yRadius, zRadius, speed);
     }
 
-    public CircleSpawnPattern(int count, Vec3 radii, double speed){
+    public CircleSpawnPattern(int count, Vec3 radii, double speed) {
         this();
         this.count.setValue(count);
         xRadius.setValue(radii.x);

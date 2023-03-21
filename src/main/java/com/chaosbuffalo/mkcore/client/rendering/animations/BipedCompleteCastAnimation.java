@@ -1,8 +1,8 @@
 package com.chaosbuffalo.mkcore.client.rendering.animations;
 
 import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.LivingEntity;
 
 public abstract class BipedCompleteCastAnimation<T extends LivingEntity> extends AdditionalBipedAnimation<T> {
     private static final float ANIM_TIME = 15.0f;

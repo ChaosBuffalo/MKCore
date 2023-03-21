@@ -6,11 +6,11 @@ import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.effects.*;
 import com.chaosbuffalo.mkcore.init.CoreSounds;
 import com.chaosbuffalo.mkcore.utils.SoundUtils;
+import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -55,7 +55,8 @@ public class StunEffect extends MKEffect {
     }
 
     private void applyEffect(IMKEntityData targetData, MKActiveEffect activeEffect) {
-        LivingEntity target = targetData.getEntity();;
+        LivingEntity target = targetData.getEntity();
+        ;
         if (target instanceof Mob) {
             Mob mob = (Mob) target;
             mob.setNoAi(true);

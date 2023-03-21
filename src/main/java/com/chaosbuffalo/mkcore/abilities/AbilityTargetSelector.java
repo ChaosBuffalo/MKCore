@@ -1,10 +1,10 @@
 package com.chaosbuffalo.mkcore.abilities;
 
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
-import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 
 import java.util.ArrayList;
 import java.util.Collections;

@@ -5,7 +5,6 @@ import com.chaosbuffalo.mkcore.utils.TargetUtil;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.util.math.vector.Vector3d;
 
 import java.util.HashMap;
 import java.util.Map;

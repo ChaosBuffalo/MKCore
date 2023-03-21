@@ -17,8 +17,8 @@ import com.chaosbuffalo.mkcore.test.effects.FeatherFallEffect;
 import com.chaosbuffalo.mkcore.test.effects.PhoenixAspectEffect;
 import com.chaosbuffalo.targeting_api.TargetingContext;
 import com.chaosbuffalo.targeting_api.TargetingContexts;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 
 public class PhoenixAspectAbility extends MKAbility {

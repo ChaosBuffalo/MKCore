@@ -13,13 +13,13 @@ public class ParticleRenderScaleAnimationTrack extends ParticleAnimationTrack {
     private final MKParticle.ParticleDataKey VARIANCE_KEY = new MKParticle.ParticleDataKey(this, keyCount++);
 
 
-    public ParticleRenderScaleAnimationTrack(float scale, float maxVariance){
+    public ParticleRenderScaleAnimationTrack(float scale, float maxVariance) {
         this();
         this.renderScale.setValue(scale);
         this.maxVariance.setValue(maxVariance);
     }
 
-    public ParticleRenderScaleAnimationTrack(){
+    public ParticleRenderScaleAnimationTrack() {
         super(TYPE_NAME, AnimationTrackType.SCALE);
         addAttributes(renderScale, maxVariance);
     }
@@ -34,7 +34,7 @@ public class ParticleRenderScaleAnimationTrack extends ParticleAnimationTrack {
         return new ParticleRenderScaleAnimationTrack(renderScale.value(), maxVariance.value());
     }
 
-    protected float getScaleWithVariance(MKParticle particle){
+    protected float getScaleWithVariance(MKParticle particle) {
         return renderScale.value() + (particle.getTrackFloatData(VARIANCE_KEY) * maxVariance.value());
     }
 

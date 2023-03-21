@@ -5,19 +5,19 @@
   "refmap": "mkcore.refmap.json",
   "mixins": [
     "LivingEntityMixins",
-    "ShieldItemMixins",
     "MobEntityMixins",
+    "ShieldItemMixins",
     "SwordItemMixins"
   ],
   "injectors": {
     "maxShiftBy": 2
   },
   "client": [
-    "WorldRendererMixins",
+    "ClientPlayerEntityMixins",
     "InGameGuiMixins",
     "ItemStackClientMixins",
-    "ClientPlayerEntityMixins",
-    "PotionSpriteUploaderMixins"
+    "PotionSpriteUploaderMixins",
+    "WorldRendererMixins"
   ],
   "minVersion": "0.8"
 }

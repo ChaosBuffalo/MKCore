@@ -8,18 +8,18 @@ import com.chaosbuffalo.mkcore.fx.particles.ParticleAnimation;
 import com.chaosbuffalo.mkcore.fx.particles.ParticleAnimationManager;
 import com.chaosbuffalo.targeting_api.TargetingContext;
 import com.google.common.collect.Maps;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.entity.EntitySelector;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.Level;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.network.NetworkHooks;
 
@@ -87,7 +87,7 @@ public abstract class BaseEffectEntity extends Entity implements IEntityAddition
             buffer.writeEnum(type);
         }
 
-        public static ParticleDisplay read(FriendlyByteBuf buffer){
+        public static ParticleDisplay read(FriendlyByteBuf buffer) {
             ResourceLocation loc = buffer.readResourceLocation();
             int tickRate = buffer.readInt();
             DisplayType type = buffer.readEnum(DisplayType.class);
@@ -177,14 +177,14 @@ public abstract class BaseEffectEntity extends Entity implements IEntityAddition
 
     protected void spawnClientParticles(ParticleDisplay display) {
         ParticleAnimation anim = ParticleAnimationManager.getAnimation(display.getParticles());
-        if (anim != null){
+        if (anim != null) {
             anim.spawn(getCommandSenderWorld(), position(), null);
         }
     }
 
     private void clientUpdate() {
         ParticleDisplay display = isWaiting() ? waitingParticles : particles;
-        if (display != null && display.shouldTick(tickCount, isWaiting() ? 0 : waitTime) ){
+        if (display != null && display.shouldTick(tickCount, isWaiting() ? 0 : waitTime)) {
             spawnClientParticles(display);
         }
     }
@@ -232,9 +232,9 @@ public abstract class BaseEffectEntity extends Entity implements IEntityAddition
     @Nullable
     public LivingEntity getOwner() {
         if (this.owner == null && this.ownerUniqueId != null && this.level instanceof ServerLevel) {
-            Entity entity = ((ServerLevel)this.level).getEntity(this.ownerUniqueId);
+            Entity entity = ((ServerLevel) this.level).getEntity(this.ownerUniqueId);
             if (entity instanceof LivingEntity) {
-                this.owner = (LivingEntity)entity;
+                this.owner = (LivingEntity) entity;
             }
         }
 
@@ -279,11 +279,11 @@ public abstract class BaseEffectEntity extends Entity implements IEntityAddition
 
         Collection<LivingEntity> result = getEntitiesInBounds();
 
-        if (result.isEmpty()){
+        if (result.isEmpty()) {
             return false;
         }
 
-        for (LivingEntity target : result){
+        for (LivingEntity target : result) {
             reapplicationDelayMap.put(target, tickCount + tickRate);
             MKCore.getEntityData(target).ifPresent(targetData ->
                     effects.forEach(entry -> {
@@ -313,13 +313,13 @@ public abstract class BaseEffectEntity extends Entity implements IEntityAddition
         this.duration = duration;
     }
 
-    protected void writeVector(FriendlyByteBuf buffer, Vec3 vector){
+    protected void writeVector(FriendlyByteBuf buffer, Vec3 vector) {
         buffer.writeDouble(vector.x());
         buffer.writeDouble(vector.y());
         buffer.writeDouble(vector.z());
     }
 
-    protected Vec3 readVector(FriendlyByteBuf buffer){
+    protected Vec3 readVector(FriendlyByteBuf buffer) {
         return new Vec3(buffer.readDouble(), buffer.readDouble(), buffer.readDouble());
     }
 }

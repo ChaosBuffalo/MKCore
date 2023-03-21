@@ -38,17 +38,17 @@ public class ModelRendererBone extends MCBone {
     }
 
     @Override
-    public float getPitch(){
+    public float getPitch() {
         return modelRenderer.xRot;
     }
 
     @Override
-    public float getYaw(){
+    public float getYaw() {
         return modelRenderer.yRot;
     }
 
     @Override
-    public float getRoll(){
+    public float getRoll() {
         return modelRenderer.zRot;
     }
 }

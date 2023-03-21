@@ -33,7 +33,7 @@ public class ResourceLocationAttribute extends SimpleAttribute<ResourceLocation>
 
     @Override
     public boolean isEmptyStringInput(String string) {
-        return string.isEmpty() ;
+        return string.isEmpty();
     }
 
     @Override

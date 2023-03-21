@@ -4,8 +4,8 @@ import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.fx.particles.MKParticle;
 import com.chaosbuffalo.mkcore.fx.particles.animation_tracks.ParticleColorAnimationTrack;
 import com.chaosbuffalo.mkcore.serialization.attributes.ColorFloatAttribute;
-import net.minecraft.resources.ResourceLocation;
 import com.mojang.math.Vector3f;
+import net.minecraft.resources.ResourceLocation;
 
 public class ParticleStaticColorAnimationTrack extends ParticleColorAnimationTrack {
     protected final ColorFloatAttribute red = new ColorFloatAttribute("red", 1.0f);
@@ -18,7 +18,7 @@ public class ParticleStaticColorAnimationTrack extends ParticleColorAnimationTra
     private final MKParticle.ParticleDataKey COLOR = new MKParticle.ParticleDataKey(this, keyCount++);
 
 
-    public ParticleStaticColorAnimationTrack(float red, float green, float blue){
+    public ParticleStaticColorAnimationTrack(float red, float green, float blue) {
         this();
         this.red.setValue(red);
         this.green.setValue(green);
@@ -26,7 +26,7 @@ public class ParticleStaticColorAnimationTrack extends ParticleColorAnimationTra
     }
 
     public ParticleStaticColorAnimationTrack(float red, float green, float blue,
-                                           float redVariance, float greenVariance, float blueVariance){
+                                             float redVariance, float greenVariance, float blueVariance) {
         this(red, green, blue);
         this.redVariance.setValue(redVariance);
         this.greenVariance.setValue(greenVariance);
@@ -52,7 +52,7 @@ public class ParticleStaticColorAnimationTrack extends ParticleColorAnimationTra
                 redVariance.value(), greenVariance.value(), blueVariance.value());
     }
 
-    public ParticleStaticColorAnimationTrack(){
+    public ParticleStaticColorAnimationTrack() {
         super(TYPE_NAME);
         addAttributes(red, green, blue, redVariance, greenVariance, blueVariance);
     }

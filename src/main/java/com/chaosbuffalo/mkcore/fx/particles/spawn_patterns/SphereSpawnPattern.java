@@ -5,9 +5,8 @@ import com.chaosbuffalo.mkcore.fx.particles.MKParticleData;
 import com.chaosbuffalo.mkcore.serialization.attributes.DoubleAttribute;
 import com.chaosbuffalo.mkcore.serialization.attributes.IntAttribute;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -27,7 +26,7 @@ public class SphereSpawnPattern extends ParticleSpawnPattern {
         this.count.setValue(40);
     }
 
-    public SphereSpawnPattern(int count, Vec3 radii, double speed, int layers){
+    public SphereSpawnPattern(int count, Vec3 radii, double speed, int layers) {
         this();
         xRadius.setValue(radii.x);
         yRadius.setValue(radii.y);

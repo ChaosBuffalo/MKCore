@@ -1,15 +1,13 @@
 package com.chaosbuffalo.mkcore.events;
 
-import com.chaosbuffalo.mkcore.CoreCapabilities;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.MKAttributes;
 import com.chaosbuffalo.mkcore.effects.SpellTriggers;
 import com.chaosbuffalo.mkcore.utils.ItemUtils;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ShieldItem;
 import net.minecraft.world.item.SwordItem;
@@ -49,10 +47,10 @@ public class ItemEventHandler {
 
     @SubscribeEvent
     public static void onEquipmentChange(LivingEquipmentChangeEvent event) {
-        if (event.getEntityLiving().getCommandSenderWorld().isClientSide()){
+        if (event.getEntityLiving().getCommandSenderWorld().isClientSide()) {
             return;
         }
-        if (event.getEntityLiving() instanceof Player){
+        if (event.getEntityLiving() instanceof Player) {
             MKCore.getPlayer(event.getEntityLiving()).ifPresent((playerData) -> {
                 playerData.getEquipment().onEquipmentChange(event.getSlot(), event.getFrom(), event.getTo());
                 SpellTriggers.LIVING_EQUIPMENT_CHANGE.onEquipmentChange(event, playerData, playerData.getEntity());

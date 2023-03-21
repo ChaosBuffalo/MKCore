@@ -19,7 +19,7 @@ public class LinearMotionTrack extends ParticleMotionAnimationTrack {
     private final MKParticle.ParticleDataKey VARIANCE_VECTOR = new MKParticle.ParticleDataKey(this,
             keyCount++);
 
-    public LinearMotionTrack(double xSpeed, double ySpeed, double zSpeed, double varianceMagnitude){
+    public LinearMotionTrack(double xSpeed, double ySpeed, double zSpeed, double varianceMagnitude) {
         this();
         this.xSpeed.setValue(xSpeed);
         this.ySpeed.setValue(ySpeed);
@@ -28,7 +28,7 @@ public class LinearMotionTrack extends ParticleMotionAnimationTrack {
         this.varianceMagnitude.setValue(varianceMagnitude);
     }
 
-    public LinearMotionTrack(){
+    public LinearMotionTrack() {
         super(TYPE_NAME);
         addAttributes(xSpeed, ySpeed, zSpeed, varianceMagnitude);
     }

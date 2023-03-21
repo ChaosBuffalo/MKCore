@@ -4,8 +4,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 
-import javax.annotation.Nullable;
-
 public class MKNBTUtil {
 
     public static void writeResourceLocation(CompoundTag tag, String name, ResourceLocation value) {

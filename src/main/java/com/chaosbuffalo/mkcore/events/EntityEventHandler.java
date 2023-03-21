@@ -9,15 +9,15 @@ import com.chaosbuffalo.mkcore.core.MKEntityData;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.effects.status.StunEffect;
 import com.chaosbuffalo.mkcore.entities.IUpdateEngineProvider;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
-import net.minecraft.world.item.enchantment.Enchantments;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.scores.Team;
-import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
@@ -65,7 +65,7 @@ public class EntityEventHandler {
         if (entry != null) {
             ItemStack stack = entry.getValue();
             if (!stack.isEmpty() && stack.isDamaged()) {
-                int i = Math.min((int)(xpValue * stack.getXpRepairRatio()), stack.getDamageValue());
+                int i = Math.min((int) (xpValue * stack.getXpRepairRatio()), stack.getDamageValue());
                 xpValue -= i / Math.max(1, xpPerDamage);
                 stack.setDamageValue(stack.getDamageValue() - i);
             }

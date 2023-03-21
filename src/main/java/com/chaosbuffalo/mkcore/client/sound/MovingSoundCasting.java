@@ -3,9 +3,9 @@ package com.chaosbuffalo.mkcore.client.sound;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.AbilityExecutor;
 import net.minecraft.client.resources.sounds.AbstractTickableSoundInstance;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.LivingEntity;
 
 
 public class MovingSoundCasting extends AbstractTickableSoundInstance {

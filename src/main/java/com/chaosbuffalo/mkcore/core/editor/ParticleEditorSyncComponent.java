@@ -17,7 +17,7 @@ public class ParticleEditorSyncComponent implements ISyncObject {
     private boolean dirty;
     private int currentFrame;
 
-    public ParticleEditorSyncComponent(String name){
+    public ParticleEditorSyncComponent(String name) {
         this.name = name;
         this.currentFrame = -1;
         this.animation = null;
@@ -46,26 +46,26 @@ public class ParticleEditorSyncComponent implements ISyncObject {
         this.dirty = true;
     }
 
-    public void update(ParticleAnimation animation, int currentKeyFrame, boolean sync){
+    public void update(ParticleAnimation animation, int currentKeyFrame, boolean sync) {
         this.currentFrame = currentKeyFrame;
-        setAnimationAndSpawn(animation,false);
-        if (sync){
+        setAnimationAndSpawn(animation, false);
+        if (sync) {
             PacketHandler.sendMessageToServer(new ParticleAnimationEditorSyncPacket(animation, currentKeyFrame));
         }
     }
 
-    public void setAnimationAndSpawn(ParticleAnimation animation, boolean flagDirty){
+    public void setAnimationAndSpawn(ParticleAnimation animation, boolean flagDirty) {
         this.animation = animation;
-        if (flagDirty){
+        if (flagDirty) {
             markDirty();
         }
     }
 
     @Override
     public void deserializeUpdate(CompoundTag tag) {
-        if (tag.contains(name)){
+        if (tag.contains(name)) {
             CompoundTag syncTag = tag.getCompound(name);
-            if (syncTag.contains("animation")){
+            if (syncTag.contains("animation")) {
                 this.animation = ParticleAnimation.deserializeFromDynamic(
                         ParticleAnimationManager.RAW_EFFECT,
                         new Dynamic<>(NbtOps.INSTANCE, syncTag.getCompound("animation")));
@@ -77,7 +77,7 @@ public class ParticleEditorSyncComponent implements ISyncObject {
 
     @Override
     public void serializeUpdate(CompoundTag tag) {
-        if (isDirty()){
+        if (isDirty()) {
             serializeFull(tag);
         }
     }
@@ -85,7 +85,7 @@ public class ParticleEditorSyncComponent implements ISyncObject {
     @Override
     public void serializeFull(CompoundTag tag) {
         CompoundTag syncTag = new CompoundTag();
-        if (animation != null){
+        if (animation != null) {
             syncTag.put("animation", animation.serialize(NbtOps.INSTANCE));
         }
         syncTag.putInt("currentKeyFrame", currentFrame);

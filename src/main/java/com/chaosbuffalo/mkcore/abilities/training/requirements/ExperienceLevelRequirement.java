@@ -6,10 +6,10 @@ import com.chaosbuffalo.mkcore.abilities.training.AbilityTrainingRequirement;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.serialization.attributes.IntAttribute;
 import com.mojang.serialization.Dynamic;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 
 public class ExperienceLevelRequirement extends AbilityTrainingRequirement {
     public final static ResourceLocation TYPE_NAME = new ResourceLocation(MKCore.MOD_ID, "training_req.exp_level");
@@ -21,7 +21,7 @@ public class ExperienceLevelRequirement extends AbilityTrainingRequirement {
     }
 
 
-    public <D> ExperienceLevelRequirement(Dynamic<D> dynamic){
+    public <D> ExperienceLevelRequirement(Dynamic<D> dynamic) {
         super(TYPE_NAME, dynamic);
     }
 

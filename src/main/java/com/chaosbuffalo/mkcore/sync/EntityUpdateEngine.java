@@ -3,11 +3,11 @@ package com.chaosbuffalo.mkcore.sync;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.network.EntityDataSyncPacket;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 
-public class EntityUpdateEngine extends UpdateEngine{
+public class EntityUpdateEngine extends UpdateEngine {
 
     private final Entity entity;
 
@@ -17,7 +17,7 @@ public class EntityUpdateEngine extends UpdateEngine{
 
     @Override
     public void syncUpdates() {
-        if (entity.getCommandSenderWorld().isClientSide){
+        if (entity.getCommandSenderWorld().isClientSide) {
             return;
         }
         if (publicUpdater.isDirty()) {

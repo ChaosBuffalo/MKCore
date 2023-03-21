@@ -1,17 +1,11 @@
 package com.chaosbuffalo.mkcore.init;
 
 import com.chaosbuffalo.mkcore.MKCore;
-import com.chaosbuffalo.mkcore.fx.particles.IndicatorParticle;
 import com.chaosbuffalo.mkcore.fx.particles.MKParticleData;
-import com.chaosbuffalo.mkcore.fx.particles.ParticleAnimation;
 import com.chaosbuffalo.mkcore.fx.particles.ParticleAnimationManager;
 import com.mojang.serialization.Codec;
-import net.minecraft.client.Minecraft;
-import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.core.particles.ParticleType;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.ParticleFactoryRegisterEvent;
+import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -49,8 +43,8 @@ public class CoreParticles {
     public static ParticleType<MKParticleData> BLACK_MAGIC_GRADIENT_SQUARE;
 
     @SubscribeEvent
-    public static void registerParticles(RegistryEvent.Register<ParticleType<?>> evt){
-        ParticleType<MKParticleData> magicCross = new ParticleType<MKParticleData>(false, MKParticleData.DESERIALIZER){
+    public static void registerParticles(RegistryEvent.Register<ParticleType<?>> evt) {
+        ParticleType<MKParticleData> magicCross = new ParticleType<MKParticleData>(false, MKParticleData.DESERIALIZER) {
             @Override
             public Codec<MKParticleData> codec() {
                 return MKParticleData.typeCodec(this);
@@ -59,7 +53,7 @@ public class CoreParticles {
         magicCross.setRegistryName(CoreRegistryNames.MAGIC_CROSS_NAME);
         evt.getRegistry().register(magicCross);
 
-        ParticleType<MKParticleData> magicClover = new ParticleType<MKParticleData>(false, MKParticleData.DESERIALIZER){
+        ParticleType<MKParticleData> magicClover = new ParticleType<MKParticleData>(false, MKParticleData.DESERIALIZER) {
             @Override
             public Codec<MKParticleData> codec() {
                 return MKParticleData.typeCodec(this);
@@ -68,7 +62,7 @@ public class CoreParticles {
         magicClover.setRegistryName(CoreRegistryNames.MAGIC_CLOVER_NAME);
         evt.getRegistry().register(magicClover);
 
-        ParticleType<MKParticleData> magicLine = new ParticleType<MKParticleData>(false, MKParticleData.DESERIALIZER){
+        ParticleType<MKParticleData> magicLine = new ParticleType<MKParticleData>(false, MKParticleData.DESERIALIZER) {
             @Override
             public Codec<MKParticleData> codec() {
                 return MKParticleData.typeCodec(this);
@@ -77,7 +71,7 @@ public class CoreParticles {
         magicLine.setRegistryName(CoreRegistryNames.MAGIC_LINE_NAME);
         evt.getRegistry().register(magicLine);
 
-        ParticleType<MKParticleData> magicCircle = new ParticleType<MKParticleData>(false, MKParticleData.DESERIALIZER){
+        ParticleType<MKParticleData> magicCircle = new ParticleType<MKParticleData>(false, MKParticleData.DESERIALIZER) {
             @Override
             public Codec<MKParticleData> codec() {
                 return MKParticleData.typeCodec(this);
@@ -86,7 +80,7 @@ public class CoreParticles {
         magicCircle.setRegistryName(CoreRegistryNames.MAGIC_CIRCLE_NAME);
         evt.getRegistry().register(magicCircle);
 
-        ParticleType<MKParticleData> magicGradientSquare = new ParticleType<MKParticleData>(false, MKParticleData.DESERIALIZER){
+        ParticleType<MKParticleData> magicGradientSquare = new ParticleType<MKParticleData>(false, MKParticleData.DESERIALIZER) {
             @Override
             public Codec<MKParticleData> codec() {
                 return MKParticleData.typeCodec(this);
@@ -95,7 +89,7 @@ public class CoreParticles {
         magicGradientSquare.setRegistryName(CoreRegistryNames.MAGIC_GRADIENT_SQUARE_NAME);
         evt.getRegistry().register(magicGradientSquare);
 
-        ParticleType<MKParticleData> magicSidewaysLine = new ParticleType<MKParticleData>(false, MKParticleData.DESERIALIZER){
+        ParticleType<MKParticleData> magicSidewaysLine = new ParticleType<MKParticleData>(false, MKParticleData.DESERIALIZER) {
             @Override
             public Codec<MKParticleData> codec() {
                 return MKParticleData.typeCodec(this);
@@ -104,7 +98,7 @@ public class CoreParticles {
         magicSidewaysLine.setRegistryName(CoreRegistryNames.MAGIC_SIDEWAYS_LINE_NAME);
         evt.getRegistry().register(magicSidewaysLine);
 
-        ParticleType<MKParticleData> magicChip = new ParticleType<MKParticleData>(false, MKParticleData.DESERIALIZER){
+        ParticleType<MKParticleData> magicChip = new ParticleType<MKParticleData>(false, MKParticleData.DESERIALIZER) {
             @Override
             public Codec<MKParticleData> codec() {
                 return MKParticleData.typeCodec(this);
@@ -117,7 +111,7 @@ public class CoreParticles {
         indiciatorParticle.setRegistryName(MKCore.MOD_ID, "indicator_particle");
         evt.getRegistry().register(indiciatorParticle);
 
-        ParticleType<MKParticleData> blackMagicCross = new ParticleType<MKParticleData>(false, MKParticleData.DESERIALIZER){
+        ParticleType<MKParticleData> blackMagicCross = new ParticleType<MKParticleData>(false, MKParticleData.DESERIALIZER) {
             @Override
             public Codec<MKParticleData> codec() {
                 return MKParticleData.typeCodec(this);
@@ -125,7 +119,7 @@ public class CoreParticles {
         };
         blackMagicCross.setRegistryName(CoreRegistryNames.BLACK_MAGIC_CROSS_NAME);
         evt.getRegistry().register(blackMagicCross);
-        ParticleType<MKParticleData> blackMagicClover = new ParticleType<MKParticleData>(false, MKParticleData.DESERIALIZER){
+        ParticleType<MKParticleData> blackMagicClover = new ParticleType<MKParticleData>(false, MKParticleData.DESERIALIZER) {
             @Override
             public Codec<MKParticleData> codec() {
                 return MKParticleData.typeCodec(this);
@@ -133,7 +127,7 @@ public class CoreParticles {
         };
         blackMagicClover.setRegistryName(CoreRegistryNames.BLACK_MAGIC_CLOVER_NAME);
         evt.getRegistry().register(blackMagicClover);
-        ParticleType<MKParticleData> blackMagicLine = new ParticleType<MKParticleData>(false, MKParticleData.DESERIALIZER){
+        ParticleType<MKParticleData> blackMagicLine = new ParticleType<MKParticleData>(false, MKParticleData.DESERIALIZER) {
             @Override
             public Codec<MKParticleData> codec() {
                 return MKParticleData.typeCodec(this);
@@ -141,7 +135,7 @@ public class CoreParticles {
         };
         blackMagicLine.setRegistryName(CoreRegistryNames.BLACK_MAGIC_LINE_NAME);
         evt.getRegistry().register(blackMagicLine);
-        ParticleType<MKParticleData> blackMagicCircle = new ParticleType<MKParticleData>(false, MKParticleData.DESERIALIZER){
+        ParticleType<MKParticleData> blackMagicCircle = new ParticleType<MKParticleData>(false, MKParticleData.DESERIALIZER) {
             @Override
             public Codec<MKParticleData> codec() {
                 return MKParticleData.typeCodec(this);
@@ -149,7 +143,7 @@ public class CoreParticles {
         };
         blackMagicCircle.setRegistryName(CoreRegistryNames.BLACK_MAGIC_CIRCLE_NAME);
         evt.getRegistry().register(blackMagicCircle);
-        ParticleType<MKParticleData> blackMagicGradientSquare = new ParticleType<MKParticleData>(false, MKParticleData.DESERIALIZER){
+        ParticleType<MKParticleData> blackMagicGradientSquare = new ParticleType<MKParticleData>(false, MKParticleData.DESERIALIZER) {
             @Override
             public Codec<MKParticleData> codec() {
                 return MKParticleData.typeCodec(this);
@@ -161,7 +155,7 @@ public class CoreParticles {
 
     }
 
-    public static void HandleEditorParticleRegistration(){
+    public static void HandleEditorParticleRegistration() {
         ParticleAnimationManager.putParticleTypeForEditor(CoreRegistryNames.MAGIC_LINE_NAME, MAGIC_LINE);
         ParticleAnimationManager.putParticleTypeForEditor(CoreRegistryNames.MAGIC_CIRCLE_NAME, MAGIC_CIRCLE);
         ParticleAnimationManager.putParticleTypeForEditor(CoreRegistryNames.MAGIC_CROSS_NAME, MAGIC_CROSS);

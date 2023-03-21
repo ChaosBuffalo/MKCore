@@ -5,8 +5,8 @@ import com.chaosbuffalo.mkcore.fx.particles.MKParticle;
 import com.chaosbuffalo.mkcore.fx.particles.animation_tracks.ParticleColorAnimationTrack;
 import com.chaosbuffalo.mkcore.serialization.attributes.ColorFloatAttribute;
 import com.chaosbuffalo.mkcore.utils.MathUtils;
-import net.minecraft.resources.ResourceLocation;
 import com.mojang.math.Vector3f;
+import net.minecraft.resources.ResourceLocation;
 
 
 public class ParticleLerpColorAnimationTrack extends ParticleColorAnimationTrack {
@@ -20,7 +20,7 @@ public class ParticleLerpColorAnimationTrack extends ParticleColorAnimationTrack
     private final MKParticle.ParticleDataKey COLOR = new MKParticle.ParticleDataKey(this, keyCount++);
 
 
-    public ParticleLerpColorAnimationTrack(float red, float green, float blue){
+    public ParticleLerpColorAnimationTrack(float red, float green, float blue) {
         this();
         this.red.setValue(red);
         this.green.setValue(green);
@@ -28,7 +28,7 @@ public class ParticleLerpColorAnimationTrack extends ParticleColorAnimationTrack
     }
 
     public ParticleLerpColorAnimationTrack(float red, float green, float blue,
-                                           float redVariance, float greenVariance, float blueVariance){
+                                           float redVariance, float greenVariance, float blueVariance) {
         this(red, green, blue);
         this.redVariance.setValue(redVariance);
         this.greenVariance.setValue(greenVariance);
@@ -41,7 +41,7 @@ public class ParticleLerpColorAnimationTrack extends ParticleColorAnimationTrack
                 redVariance.value(), greenVariance.value(), blueVariance.value());
     }
 
-    public ParticleLerpColorAnimationTrack(){
+    public ParticleLerpColorAnimationTrack() {
         super(TYPE_NAME);
         addAttributes(red, green, blue, redVariance, greenVariance, blueVariance);
     }
@@ -55,7 +55,7 @@ public class ParticleLerpColorAnimationTrack extends ParticleColorAnimationTrack
     }
 
 
-    public Vector3f getColor(MKParticle particle){
+    public Vector3f getColor(MKParticle particle) {
         return particle.getTrackVector3fData(COLOR);
     }
 

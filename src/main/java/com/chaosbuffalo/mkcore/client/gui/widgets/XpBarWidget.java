@@ -41,12 +41,12 @@ public class XpBarWidget extends MKWidget {
         return super.setY(newY);
     }
 
-    public void syncPlayerXp(MKPlayerData playerData){
+    public void syncPlayerXp(MKPlayerData playerData) {
         int currentXp = playerData.getTalents().getTalentXp();
         int nextLevel = playerData.getTalents().getXpToNextLevel();
         float ratio = (float) currentXp / (float) nextLevel;
         float fifths = ratio;
-        while (fifths > 0.2f){
+        while (fifths > 0.2f) {
             fifths -= 0.2f;
         }
         yellowBar.setWidthPercentage(ratio);

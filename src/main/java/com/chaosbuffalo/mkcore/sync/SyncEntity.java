@@ -1,8 +1,8 @@
 package com.chaosbuffalo.mkcore.sync;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.Entity;
 
 import javax.annotation.Nullable;
 

@@ -5,12 +5,10 @@ import com.chaosbuffalo.mkcore.client.gui.ParticleEditorScreen;
 import com.chaosbuffalo.mkcore.fx.particles.ParticleAnimation;
 import com.chaosbuffalo.mkcore.fx.particles.ParticleKeyFrame;
 import com.chaosbuffalo.mkwidgets.client.gui.constraints.OffsetConstraint;
-import com.chaosbuffalo.mkwidgets.client.gui.layouts.MKStackLayoutVertical;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKButton;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKScrollView;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.particle.Particle;
 import org.lwjgl.glfw.GLFW;
 
 public class ParticleKeyFrameView extends MKScrollView {
@@ -53,21 +51,21 @@ public class ParticleKeyFrameView extends MKScrollView {
 
     @Override
     public boolean onMousePressed(Minecraft minecraft, double mouseX, double mouseY, int mouseButton) {
-        if (mouseButton == GLFW.GLFW_MOUSE_BUTTON_2){
+        if (mouseButton == GLFW.GLFW_MOUSE_BUTTON_2) {
             editor.selectKeyFrame(null);
             return true;
         }
         return super.onMousePressed(minecraft, mouseX, mouseY, mouseButton);
     }
 
-    public void setup(){
+    public void setup() {
         layout.clearWidgets();
-        if (animation != null){
+        if (animation != null) {
             int totalTicks = Math.max(animation.getTickLength(), 1);
             layout.setGridCount(Math.max(totalTicks / 5, 50));
             int totalSpace = Math.max(layout.getDesiredWidth(), getWidth());
             layout.setWidth(totalSpace);
-            for (ParticleKeyFrame keyFrame : animation.getKeyFrames()){
+            for (ParticleKeyFrame keyFrame : animation.getKeyFrames()) {
                 int duration = keyFrame.getDuration();
                 int width = Math.max(duration * SPACE_PER_TICK + duration / GRID_INTERVAL, 5);
                 int startX = layout.getGridPos(keyFrame.getTickStart() / 5); // * SPACE_PER_TICK + (keyFrame.getTickStart() - 1) / 4;
@@ -78,7 +76,7 @@ public class ParticleKeyFrameView extends MKScrollView {
         }
         MKButton addButton = new MKButton(0, 0, "Add");
         addButton.setPressedCallback((button, click) -> {
-            if (animation != null){
+            if (animation != null) {
                 ParticleKeyFrame newFrame = new ParticleKeyFrame();
                 animation.addKeyFrame(newFrame);
                 editor.selectKeyFrame(newFrame);

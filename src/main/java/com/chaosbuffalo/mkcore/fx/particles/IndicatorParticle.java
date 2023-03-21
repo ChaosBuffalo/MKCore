@@ -1,11 +1,10 @@
 package com.chaosbuffalo.mkcore.fx.particles;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.client.particle.*;
 import net.minecraft.client.Camera;
-import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.particle.*;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.world.phys.Vec3;
 
@@ -47,9 +46,9 @@ public class IndicatorParticle extends TextureSheetParticle {
 
     @Override
     public float getQuadSize(float partialTicks) {
-        if (renderInfo != null){
+        if (renderInfo != null) {
             double dist = renderInfo.getPosition().distanceTo(new Vec3(x, y, z));
-            if (dist > 75){
+            if (dist > 75) {
                 return (float) (dist / 75.0f) * quadSize;
             }
         }

@@ -38,7 +38,7 @@ public class MKRenderers {
 
 
     @SubscribeEvent
-    public static void registerParticleFactory(ParticleFactoryRegisterEvent evt){
+    public static void registerParticleFactory(ParticleFactoryRegisterEvent evt) {
         Minecraft.getInstance().particleEngine.register(CoreParticles.MAGIC_CROSS,
                 (spriteSet) -> new MKParticle.MKParticleFactory(
                         spriteSet, -0.0001f, 0.05f,

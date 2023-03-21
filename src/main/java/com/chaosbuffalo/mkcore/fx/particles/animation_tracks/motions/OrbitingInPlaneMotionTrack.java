@@ -19,14 +19,14 @@ public class OrbitingInPlaneMotionTrack extends BaseMotionTrack {
     private final MKParticle.ParticleDataKey VARIANCE_SCALAR = new MKParticle.ParticleDataKey(this, keyCount++);
 
 
-    public OrbitingInPlaneMotionTrack(double rpm, double rpmVarianceMagnitude, float rampTime){
+    public OrbitingInPlaneMotionTrack(double rpm, double rpmVarianceMagnitude, float rampTime) {
         this();
         this.rpm.setValue(rpm);
         this.rpmVarianceMagnitude.setValue(rpmVarianceMagnitude);
         this.rampTime.setValue(rampTime);
     }
 
-    public OrbitingInPlaneMotionTrack(){
+    public OrbitingInPlaneMotionTrack() {
         super(TYPE_NAME);
         addAttributes(rpm, rpmVarianceMagnitude, rampTime);
     }
@@ -52,24 +52,24 @@ public class OrbitingInPlaneMotionTrack extends BaseMotionTrack {
         updateParticle(particle, 0, duration, 0);
     }
 
-    private void updateParticle(MKParticle particle, float time, int duration, float partialTicks){
+    private void updateParticle(MKParticle particle, float time, int duration, float partialTicks) {
         Vec3 motionData = particle.getTrackVector3dData(MOTION_VECTOR);
 
         float rT = rampTime.value();
         float realTime;
         boolean usingRamp = false;
-        if (rT <= 0){
+        if (rT <= 0) {
             realTime = time;
         } else {
             usingRamp = true;
-            realTime = time < rT ? 0.0f : MathUtils.lerp(0.0f, 1.0f, (time - rT) / (1.0f - rT) );
+            realTime = time < rT ? 0.0f : MathUtils.lerp(0.0f, 1.0f, (time - rT) / (1.0f - rT));
         }
         float elapsed = realTime * duration;
         double vx = -motionData.z * Math.sin(motionData.x + elapsed * motionData.y);
         double vz = -motionData.z * Math.cos(motionData.x + elapsed * motionData.y);
         Vec3 desiredPosition = new Vec3(particle.getOrigin().x() + vx,
                 particle.getPosition().y(), particle.getOrigin().z() + vz);
-        if (usingRamp){
+        if (usingRamp) {
             Vec3 pos = particle.getPosition();
             particle.setPos(
                     MathUtils.lerpDouble(pos.x(), desiredPosition.x(), time / rT),

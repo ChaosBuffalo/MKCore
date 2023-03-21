@@ -40,9 +40,9 @@ public class ParticleKeyFrameWidget extends MKLayout {
 
     @Override
     public void draw(PoseStack matrixStack, Minecraft mc, int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks) {
-        if (isHovered()){
+        if (isHovered()) {
             rect.setColor(0xffffffff);
-        } else if (keyFrame.equals(editor.getCurrentFrame())){
+        } else if (keyFrame.equals(editor.getCurrentFrame())) {
             rect.setColor(0xffeeeeee);
         } else {
             rect.setColor(0xff888888);

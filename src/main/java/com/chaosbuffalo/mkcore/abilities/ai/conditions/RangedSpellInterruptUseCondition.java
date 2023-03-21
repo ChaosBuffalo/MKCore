@@ -21,7 +21,7 @@ public class RangedSpellInterruptUseCondition extends AbilityUseCondition {
     public AbilityTargetingDecision getDecision(AbilityDecisionContext context) {
         LivingEntity threatTarget = context.getThreatTarget();
         if (threatTarget != null) {
-            if (MKCore.getEntityData(threatTarget).map(x -> x.getAbilityExecutor().isCasting()).orElse(false)){
+            if (MKCore.getEntityData(threatTarget).map(x -> x.getAbilityExecutor().isCasting()).orElse(false)) {
                 return new AbilityTargetingDecision(threatTarget, movementSuggestion, getAbility());
             }
         }
