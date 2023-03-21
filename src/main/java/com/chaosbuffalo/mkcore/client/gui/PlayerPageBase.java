@@ -13,6 +13,7 @@ import com.google.common.base.Preconditions;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
@@ -55,13 +56,12 @@ public abstract class PlayerPageBase extends MKScreen implements IPlayerDataAwar
     public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
         int xPos = width / 2 - PANEL_WIDTH / 2;
         int yPos = height / 2 - PANEL_HEIGHT / 2;
-        RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
         GuiTextures.CORE_TEXTURES.bind(getMinecraft());
-        RenderSystem.disableLighting();
         GuiTextures.CORE_TEXTURES.drawRegionAtPos(matrixStack, GuiTextures.BACKGROUND_320_240, xPos, yPos);
         drawDataBox(matrixStack, xPos, yPos);
         super.render(matrixStack, mouseX, mouseY, partialTicks);
-        RenderSystem.enableLighting();
     }
 
     protected void drawDataBox(PoseStack matrixStack, int xPos, int yPos) {
