@@ -1,23 +1,18 @@
 package com.chaosbuffalo.mkcore;
 
-import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.core.MKEntityData;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityInject;
-import net.minecraftforge.common.capabilities.CapabilityManager;
-import net.minecraftforge.common.capabilities.ICapabilitySerializable;
+import net.minecraftforge.common.capabilities.*;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -25,27 +20,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
+@Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class CoreCapabilities {
 
     public static final ResourceLocation PLAYER_CAP_ID = MKCore.makeRL("player_data");
     public static final ResourceLocation ENTITY_CAP_ID = MKCore.makeRL("entity_data");
     private static final List<Predicate<LivingEntity>> entityAdditionPredicates = new ArrayList<>();
 
-    @CapabilityInject(MKPlayerData.class)
-    public static final Capability<MKPlayerData> PLAYER_CAPABILITY;
+    public static final Capability<MKPlayerData> PLAYER_CAPABILITY = CapabilityManager.get(new CapabilityToken<>(){});
+    public static final Capability<MKEntityData> ENTITY_CAPABILITY = CapabilityManager.get(new CapabilityToken<>(){});
 
-    @CapabilityInject(MKEntityData.class)
-    public static final Capability<MKEntityData> ENTITY_CAPABILITY;
 
-    static {
-        PLAYER_CAPABILITY = null;
-        ENTITY_CAPABILITY = null;
-    }
-
-    public static void registerCapabilities() {
-        CapabilityManager.INSTANCE.register(MKPlayerData.class, new MKDataStorage<>(), () -> null);
-        CapabilityManager.INSTANCE.register(MKEntityData.class, new MKDataStorage<>(), () -> null);
-        MinecraftForge.EVENT_BUS.register(CoreCapabilities.class);
+    @SubscribeEvent
+    public static void registerCapabilities(RegisterCapabilitiesEvent event) {
+        event.register(MKPlayerData.class);
+        event.register(MKEntityData.class);
     }
 
     @SuppressWarnings("unused")
@@ -65,23 +54,6 @@ public class CoreCapabilities {
      */
     public static void registerLivingEntity(Predicate<LivingEntity> entityPredicate) {
         entityAdditionPredicates.add(entityPredicate);
-    }
-
-    public static class MKDataStorage<T extends IMKEntityData> implements Capability.IStorage<T> {
-
-        @Nullable
-        @Override
-        public Tag writeNBT(Capability<T> capability, T instance, Direction side) {
-            return instance.serialize();
-        }
-
-        @Override
-        public void readNBT(Capability<T> capability, T instance, Direction side, Tag nbt) {
-            if (nbt instanceof CompoundTag && instance != null) {
-                CompoundTag tag = (CompoundTag) nbt;
-                instance.deserialize(tag);
-            }
-        }
     }
 
     public static class EntityDataProvider implements ICapabilitySerializable<CompoundTag> {

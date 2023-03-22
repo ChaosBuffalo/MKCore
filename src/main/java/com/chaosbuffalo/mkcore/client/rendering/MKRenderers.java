@@ -11,7 +11,7 @@ import com.chaosbuffalo.mkcore.fx.particles.ParticleRenderTypes;
 import com.chaosbuffalo.mkcore.init.CoreParticles;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.ModelRegistryEvent;
+import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.ParticleFactoryRegisterEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -20,10 +20,10 @@ import net.minecraftforge.fml.common.Mod;
 public class MKRenderers {
 
     @SubscribeEvent
-    public static void registerModels(ModelRegistryEvent evt) {
-        RenderingRegistry.registerEntityRenderingHandler(MKAreaEffectEntity.TYPE, EntityMKAreaEffectRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(LineEffectEntity.TYPE, BaseEffectEntityRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(PointEffectEntity.TYPE, BaseEffectEntityRenderer::new);
+    public static void registerModels(EntityRenderersEvent.RegisterRenderers evt) {
+        evt.registerEntityRenderer(MKAreaEffectEntity.TYPE, EntityMKAreaEffectRenderer::new);
+        evt.registerEntityRenderer(LineEffectEntity.TYPE, BaseEffectEntityRenderer::new);
+        evt.registerEntityRenderer(PointEffectEntity.TYPE, BaseEffectEntityRenderer::new);
     }
 
     public static void registerPlayerRenderers() {

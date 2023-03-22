@@ -13,6 +13,7 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
@@ -24,8 +25,8 @@ import java.util.Optional;
 public class MKPlayerRenderer extends PlayerRenderer {
     private final BipedSkeleton<AbstractClientPlayer, MKPlayerModel> skeleton;
 
-    public MKPlayerRenderer(EntityRenderDispatcher renderManager, boolean useSmallArms) {
-        super(renderManager, useSmallArms);
+    public MKPlayerRenderer(EntityRendererProvider.Context context, boolean useSmallArms) {
+        super(context, useSmallArms);
         this.model = new MKPlayerModel(0.0f, useSmallArms);
         this.skeleton = new BipedSkeleton<>((MKPlayerModel) model);
     }

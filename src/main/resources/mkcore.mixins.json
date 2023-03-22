@@ -17,7 +17,8 @@
     "InGameGuiMixins",
     "ItemStackClientMixins",
     "PotionSpriteUploaderMixins",
-    "WorldRendererMixins"
+    "WorldRendererMixins",
+    "EntityRendererDispatcherMixins"
   ],
   "minVersion": "0.8"
 }

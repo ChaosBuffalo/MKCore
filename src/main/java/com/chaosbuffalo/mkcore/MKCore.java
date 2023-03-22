@@ -83,7 +83,6 @@ public class MKCore {
     private void setup(final FMLCommonSetupEvent event) {
         // some preinit code
         PacketHandler.setupHandler();
-        CoreCapabilities.registerCapabilities();
         MKCommand.registerArguments();
         ParticleAnimationManager.setupDeserializers();
         AbilityManager.setupDeserializers();
@@ -146,13 +145,13 @@ public class MKCore {
         internalIMCStageSetup();
         DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> PlayerPageRegistry::checkClientIMC);
         event.getIMCStream().forEach(m -> {
-            if (m.getMethod().equals(PERSONA_EXTENSION)) {
-                MKCore.LOGGER.debug("IMC register persona extension from mod {} {}", m.getSenderModId(), m.getMethod());
-                IPersonaExtensionProvider factory = (IPersonaExtensionProvider) m.getMessageSupplier().get();
+            if (m.method().equals(PERSONA_EXTENSION)) {
+                MKCore.LOGGER.debug("IMC register persona extension from mod {} {}", m.senderModId(), m.method());
+                IPersonaExtensionProvider factory = (IPersonaExtensionProvider) m.messageSupplier().get();
                 PersonaManager.registerExtension(factory);
-            } else if (m.getMethod().equals(CORE_EXTENSION)) {
-                MKCore.LOGGER.debug("IMC core extension from mod {} {}", m.getSenderModId(), m.getMethod());
-                ICoreExtension extension = (ICoreExtension) m.getMessageSupplier().get();
+            } else if (m.method().equals(CORE_EXTENSION)) {
+                MKCore.LOGGER.debug("IMC core extension from mod {} {}", m.senderModId(), m.method());
+                ICoreExtension extension = (ICoreExtension) m.messageSupplier().get();
                 extension.register();
             }
         });
