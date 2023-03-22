@@ -13,6 +13,7 @@ import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -306,49 +307,40 @@ public class MKActiveEffect {
         return displayEffectInstance.get();
     }
 
+    public static class MKMobEffectInstance extends MobEffectInstance{
+        protected final MKActiveEffect effectInstance;
+
+        public MKMobEffectInstance(MKActiveEffect effectInstance) {
+            super(effectInstance.getEffect().getVanillaWrapper());
+            this.effectInstance = effectInstance;
+        }
+
+        public MKActiveEffect getEffectInstance() {
+            return effectInstance;
+        }
+
+        @Override
+        public boolean isNoCounter() {
+            return effectInstance.getBehaviour().isInfinite();
+        }
+
+        @Override
+        public int getDuration() {
+            // Even though we override getIsPotionDurationMax we still need a large number so the
+            // in-game GUI doesn't flash continuously
+            if (isNoCounter())
+                return Integer.MAX_VALUE;
+            return effectInstance.getBehaviour().getDuration();
+        }
+
+        @Override
+        public int getAmplifier() {
+            // "Amplifier" in vanilla is the number of ranks above 1
+            return Math.max(0, effectInstance.getStackCount() - 1);
+        }
+    }
+
     private static MobEffectInstance createDisplayEffectInstance(MKActiveEffect effectInstance) {
-        return new MobEffectInstance(effectInstance.getEffect().getVanillaWrapper()) {
-
-            @Override
-            public boolean isNoCounter() {
-                return effectInstance.getBehaviour().isInfinite();
-            }
-
-            @Override
-            public int getDuration() {
-                // Even though we override getIsPotionDurationMax we still need a large number so the
-                // in-game GUI doesn't flash continuously
-                if (isNoCounter())
-                    return Integer.MAX_VALUE;
-                return effectInstance.getBehaviour().getDuration();
-            }
-
-            @Override
-            public int getAmplifier() {
-                // "Amplifier" in vanilla is the number of ranks above 1
-                return Math.max(0, effectInstance.getStackCount() - 1);
-            }
-
-//FIXME: wtf where did this go
-//            @Override
-//            public void renderHUDEffect(GuiComponent gui, PoseStack mStack, int x, int y, float z, float alpha) {
-//                super.renderHUDEffect(gui, mStack, x, y, z, alpha);
-//            }
-
-//            @Override
-//            public boolean shouldRender() {
-//                return effectInstance.getEffect().shouldRender(effectInstance);
-//            }
-//
-//            @Override
-//            public boolean shouldRenderHUD() {
-//                return effectInstance.getEffect().shouldRenderHUD(effectInstance);
-//            }
-//
-//            @Override
-//            public boolean shouldRenderInvText() {
-//                return effectInstance.getEffect().shouldRenderInvText(effectInstance);
-//            }
-        };
+        return new MKMobEffectInstance(effectInstance);
     }
 }

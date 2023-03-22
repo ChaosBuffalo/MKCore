@@ -2,6 +2,7 @@ package com.chaosbuffalo.mkcore.effects;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
+import com.chaosbuffalo.mkcore.client.effects.MKEffectRenderer;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.targeting_api.Targeting;
 import com.chaosbuffalo.targeting_api.TargetingContext;
@@ -17,12 +18,14 @@ import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.client.EffectRenderer;
 import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public abstract class MKEffect extends ForgeRegistryEntry<MKEffect> {
@@ -247,6 +250,10 @@ public abstract class MKEffect extends ForgeRegistryEntry<MKEffect> {
         @Override
         public List<ItemStack> getCurativeItems() {
             return Collections.emptyList();
+        }
+
+        public void initializeClient(Consumer<EffectRenderer> consumer) {
+            consumer.accept(new MKEffectRenderer(effect));
         }
     }
 }
