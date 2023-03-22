@@ -20,7 +20,7 @@ public abstract class EntityRendererDispatcherMixins {
         return new MKPlayerRenderer(p_174096_, true);
     });
 
-    // disable player blocking as we handle it ourselves
+    // redirect player model registration to use ours
     @Redirect(
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/EntityRenderers;createPlayerRenderers(Lnet/minecraft/client/renderer/entity/EntityRendererProvider$Context;)Ljava/util/Map;"),
             method = "Lnet/minecraft/client/renderer/entity/EntityRenderDispatcher;onResourceManagerReload(Lnet/minecraft/server/packs/resources/ResourceManager;)V"
