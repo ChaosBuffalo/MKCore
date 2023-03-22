@@ -37,17 +37,7 @@ public class CoreCapabilities {
         event.register(MKEntityData.class);
     }
 
-    @SuppressWarnings("unused")
-    @SubscribeEvent
-    public static void attachEntityCapability(AttachCapabilitiesEvent<Entity> e) {
-        if (e.getObject() instanceof Player) {
-            Player playerEntity = (Player) e.getObject();
-            PlayerDataProvider.attach(e, playerEntity);
-        } else if (e.getObject() instanceof LivingEntity) {
-            LivingEntity livingEntity = (LivingEntity) e.getObject();
-            EntityDataProvider.attach(e, livingEntity);
-        }
-    }
+
 
     /**
      * @param entityPredicate Predicate to determine if the given entity should be given the IMKEntityData capability

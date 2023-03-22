@@ -11,6 +11,7 @@ import com.chaosbuffalo.mkcore.effects.status.StunEffect;
 import com.chaosbuffalo.mkcore.entities.IUpdateEngineProvider;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -18,6 +19,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.scores.Team;
+import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
@@ -40,6 +42,18 @@ public class EntityEventHandler {
             living.getCapability(CoreCapabilities.PLAYER_CAPABILITY).ifPresent(MKPlayerData::update);
         } else {
             living.getCapability(CoreCapabilities.ENTITY_CAPABILITY).ifPresent(MKEntityData::update);
+        }
+    }
+
+    @SuppressWarnings("unused")
+    @SubscribeEvent
+    public static void attachEntityCapability(AttachCapabilitiesEvent<Entity> e) {
+        if (e.getObject() instanceof Player) {
+            Player playerEntity = (Player) e.getObject();
+            CoreCapabilities.PlayerDataProvider.attach(e, playerEntity);
+        } else if (e.getObject() instanceof LivingEntity) {
+            LivingEntity livingEntity = (LivingEntity) e.getObject();
+            CoreCapabilities.EntityDataProvider.attach(e, livingEntity);
         }
     }
 

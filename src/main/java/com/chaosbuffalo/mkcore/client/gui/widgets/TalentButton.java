@@ -10,6 +10,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
@@ -67,8 +68,9 @@ public class TalentButton extends MKButton {
     public void draw(PoseStack matrixStack, Minecraft minecraft, int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks) {
         if (this.isVisible()) {
             Font fontrenderer = minecraft.font;
-            minecraft.getTextureManager().bind(TALENT_SLOT_GRAPHIC);
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.setShader(GameRenderer::getPositionTexShader);
+            RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+            RenderSystem.setShaderTexture(0, TALENT_SLOT_GRAPHIC);
             RenderSystem.enableBlend();
             mkBlitUVSizeSame(matrixStack, this.getX() + SLOT_X_OFFSET,
                     this.getY() + SLOT_Y_OFFSET,
@@ -81,13 +83,13 @@ public class TalentButton extends MKButton {
             } else {
                 icon = record.getNode().getTalent().getIcon();
             }
-            minecraft.getTextureManager().bind(icon);
+            RenderSystem.setShaderTexture(0, icon);
             mkBlitUVSizeSame(matrixStack, this.getX() + SLOT_X_OFFSET,
                     this.getY() + SLOT_Y_OFFSET,
                     0, 0,
                     SLOT_WIDTH, SLOT_HEIGHT, SLOT_WIDTH, SLOT_HEIGHT);
             if (record.getRank() == record.getNode().getMaxRanks()) {
-                minecraft.getTextureManager().bind(TALENT_SLOT_OVERLAY);
+                RenderSystem.setShaderTexture(0, TALENT_SLOT_OVERLAY);
                 mkBlitUVSizeSame(matrixStack,
                         this.getX() + SLOT_X_OFFSET - OVERLAY_WIDTH / 2,
                         this.getY() + SLOT_Y_OFFSET - OVERLAY_HEIGHT / 2,

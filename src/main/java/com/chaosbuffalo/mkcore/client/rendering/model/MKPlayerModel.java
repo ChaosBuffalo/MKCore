@@ -8,6 +8,7 @@ import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.world.entity.player.Player;
 
@@ -15,8 +16,8 @@ public class MKPlayerModel extends PlayerModel<AbstractClientPlayer> {
     private final BipedCastAnimation<Player> castAnimation = new BipedCastAnimation<>(this);
     private final PlayerCompleteCastAnimation completeCastAnimation = new PlayerCompleteCastAnimation(this);
 
-    public MKPlayerModel(float modelSize, boolean smallArmsIn) {
-        super(modelSize, smallArmsIn);
+    public MKPlayerModel(ModelPart p_170821_, boolean p_170822_) {
+        super(p_170821_, p_170822_);
     }
 
     @Override

@@ -19,6 +19,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
@@ -133,8 +134,9 @@ public class MKOverlay {
         if (current_hp > 0 && barSize < 1) {
             barSize = 1;
         }
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
         GuiTextures.CORE_TEXTURES.bind(mc);
-        RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
         GuiTextures.CORE_TEXTURES.drawRegionAtPosPartialWidth(matrixStack, textureName, x, y, barSize);
         GuiTextures.CORE_TEXTURES.drawRegionAtPos(matrixStack, GuiTextures.SHORT_BAR_OUTLINE, x, y - 1);
         if (absorption > 0.0f) {
@@ -165,8 +167,9 @@ public class MKOverlay {
         if (currentMana > 0 && barSize < 1) {
             barSize = 1;
         }
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
         GuiTextures.CORE_TEXTURES.bind(mc);
-        RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
         GuiTextures.CORE_TEXTURES.drawRegionAtPosPartialWidth(matrixStack, textureName, x, y, barSize);
         GuiTextures.CORE_TEXTURES.drawRegionAtPos(matrixStack, GuiTextures.SHORT_BAR_OUTLINE, x, y - 1);
     }
@@ -188,8 +191,9 @@ public class MKOverlay {
         int winWidth = mc.getWindow().getGuiScaledWidth();
         int castStartY = height - 34;
         int castStartX = (winWidth / 2) - 89;
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
         GuiTextures.CORE_TEXTURES.bind(mc);
-        RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
         GuiTextures.CORE_TEXTURES.drawRegionAtPosPartialWidth(matrixStack, textureName, castStartX, castStartY, barSize);
         GuiTextures.CORE_TEXTURES.drawRegionAtPos(matrixStack, GuiTextures.PLAYER_BAR_OUTLINE, castStartX, castStartY - 1);
     }
@@ -231,8 +235,9 @@ public class MKOverlay {
                 castStartY = height - 14;
             }
 
+            RenderSystem.setShader(GameRenderer::getPositionTexShader);
+            RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
             GuiTextures.CORE_TEXTURES.bind(mc);
-            RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
             GuiTextures.CORE_TEXTURES.drawRegionAtPosPartialWidth(matrixStack, isBroken ? GuiTextures.POISE_BREAK : GuiTextures.POISE_BAR, castStartX, castStartY, barSize);
             GuiTextures.CORE_TEXTURES.drawRegionAtPos(matrixStack, GuiTextures.SHORT_BAR_OUTLINE, castStartX, castStartY - 1);
         }
@@ -257,8 +262,9 @@ public class MKOverlay {
         int winWidth = mc.getWindow().getGuiScaledWidth();
         int castStartY = height - 40;
         int castStartX = (winWidth / 2) - 89;
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
         GuiTextures.CORE_TEXTURES.bind(mc);
-        RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
         GuiTextures.CORE_TEXTURES.drawRegionAtPosPartialWidth(matrixStack, textureName, castStartX, castStartY, barSize);
         GuiTextures.CORE_TEXTURES.drawRegionAtPos(matrixStack, GuiTextures.PLAYER_BAR_OUTLINE, castStartX, castStartY - 1);
         if (absorption > 0.0f) {
@@ -296,9 +302,9 @@ public class MKOverlay {
         int width = 50;
         int barSize = width * executor.getCastTicks() / castTime;
         int castStartX = mc.getWindow().getGuiScaledWidth() / 2 - barSize / 2;
-
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
         GuiTextures.CORE_TEXTURES.bind(mc);
-        RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
         GuiTextures.CORE_TEXTURES.drawRegionAtPosPartialWidth(matrixStack, GuiTextures.CAST_BAR_REGION, castStartX, castStartY, barSize);
     }
 
@@ -334,7 +340,8 @@ public class MKOverlay {
     }
 
     private int drawAbilities(PoseStack matrixStack, MKPlayerData data, AbilityGroupId group, int startingSlot, int totalSlots, float partialTicks) {
-        RenderSystem.disableLighting();
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
 
@@ -361,18 +368,18 @@ public class MKOverlay {
 
             float manaCost = data.getStats().getAbilityManaCost(ability);
             if (!executor.isCasting() && data.getStats().getMana() >= manaCost) {
-                RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             } else {
-                RenderSystem.color4f(0.5f, 0.5f, 0.5f, 1.0F);
+                RenderSystem.setShaderColor(0.5f, 0.5f, 0.5f, 1.0F);
             }
 
             int slotX = slotAbilityOffsetX;
             int slotY = barStartY + slotAbilityOffsetY - (startingSlot + i) + ((startingSlot + i) * SLOT_HEIGHT);
 
-            mc.getTextureManager().bind(ability.getAbilityIcon());
+            RenderSystem.setShaderTexture(0, ability.getAbilityIcon());
             GuiComponent.blit(matrixStack, slotX, slotY, 0, 0, ABILITY_ICON_SIZE, ABILITY_ICON_SIZE, ABILITY_ICON_SIZE, ABILITY_ICON_SIZE);
 
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             float cooldownFactor = executor.getCurrentAbilityCooldownPercent(abilityId, partialTicks);
             if (globalCooldown > 0.0f && cooldownFactor == 0) {
                 cooldownFactor = globalCooldown / ClientEventHandler.getTotalGlobalCooldown();
@@ -384,7 +391,7 @@ public class MKOverlay {
                 if (coolDownHeight < 1) {
                     coolDownHeight = 1;
                 }
-                mc.getTextureManager().bind(COOLDOWN_ICON);
+                RenderSystem.setShaderTexture(0, COOLDOWN_ICON);
                 GuiComponent.blit(matrixStack, slotX, slotY, 0, 0, ABILITY_ICON_SIZE, coolDownHeight, ABILITY_ICON_SIZE, coolDownHeight);
             }
 
@@ -398,11 +405,12 @@ public class MKOverlay {
     @SuppressWarnings("unused")
     @SubscribeEvent
     public void onRender(RenderGameOverlayEvent.Pre event) {
-        if (event.getType() == RenderGameOverlayEvent.ElementType.HEALTH) {
-            event.setCanceled(true);
-            ForgeIngameGui.left_height += 13;
-            return;
-        }
+        // FIXME: look into where this went, looks like this moves to the overlay registry setup, should be able to disable in ClientSetupEvent
+//        if (event.getType() == RenderGameOverlayEvent.ElementType.HEALTH) {
+//            event.setCanceled(true);
+//            ForgeIngameGui.left_height += 13;
+//            return;
+//        }
         if (event.getType() != RenderGameOverlayEvent.ElementType.ALL) {
             return;
         }
@@ -411,8 +419,8 @@ public class MKOverlay {
             return;
 
         mc.player.getCapability(CoreCapabilities.PLAYER_CAPABILITY).ifPresent(cap -> {
-
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.setShader(GameRenderer::getPositionTexShader);
+            RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
             if (mc.gameMode != null && mc.gameMode.canHurtPlayer() && mc.getCameraEntity() instanceof Player) {
                 drawHP(event.getMatrixStack(), cap, event.getPartialTicks());
                 drawMana(event.getMatrixStack(), cap);

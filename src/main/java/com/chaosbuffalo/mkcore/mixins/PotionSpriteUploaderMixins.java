@@ -29,7 +29,13 @@ public abstract class PotionSpriteUploaderMixins extends TextureAtlasHolder {
      */
     @Overwrite
     protected Stream<ResourceLocation> getResourcesToLoad() {
-        return Streams.concat(Registry.MOB_EFFECT.keySet().stream(), MKCoreRegistry.EFFECTS.getKeys().stream());
+        // FIXME: Figure out why effects is null on first call of prepare now
+        if (MKCoreRegistry.EFFECTS != null) {
+            return Streams.concat(Registry.MOB_EFFECT.keySet().stream(), MKCoreRegistry.EFFECTS.getKeys().stream());
+        } else {
+            return Registry.MOB_EFFECT.keySet().stream();
+        }
+
     }
 
     /**

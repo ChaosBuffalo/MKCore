@@ -9,6 +9,7 @@ import com.chaosbuffalo.mkcore.core.player.PlayerAnimationModule;
 import com.chaosbuffalo.mkcore.fx.particles.ParticleAnimation;
 import com.chaosbuffalo.mkcore.fx.particles.ParticleAnimationManager;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -27,7 +28,7 @@ public class MKPlayerRenderer extends PlayerRenderer {
 
     public MKPlayerRenderer(EntityRendererProvider.Context context, boolean useSmallArms) {
         super(context, useSmallArms);
-        this.model = new MKPlayerModel(0.0f, useSmallArms);
+        this.model = new MKPlayerModel(context.bakeLayer(useSmallArms ? ModelLayers.PLAYER_SLIM : ModelLayers.PLAYER), useSmallArms);
         this.skeleton = new BipedSkeleton<>((MKPlayerModel) model);
     }
 
