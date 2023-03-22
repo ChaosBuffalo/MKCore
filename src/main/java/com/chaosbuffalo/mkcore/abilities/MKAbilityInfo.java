@@ -4,6 +4,7 @@ import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.sync.IMKSerializable;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.util.Constants;
 
@@ -96,7 +97,7 @@ public class MKAbilityInfo implements IMKSerializable<CompoundTag> {
     public boolean deserialize(CompoundTag tag) {
         sources.clear();
         if (tag.contains("sources")) {
-            ListTag list = tag.getList("sources", Constants.NBT.TAG_STRING);
+            ListTag list = tag.getList("sources", Tag.TAG_STRING);
             for (int i = 0; i < list.size(); i++) {
                 AbilitySource source = AbilitySource.deserialize(list.getString(i));
                 if (source == null) {

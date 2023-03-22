@@ -33,7 +33,7 @@ public class PhoenixAspectEffect extends MKEffect {
     public void enableFlying(LivingEntity target) {
         if (target instanceof ServerPlayer) {
             ServerPlayer player = (ServerPlayer) target;
-            player.abilities.mayfly = true;
+            player.getAbilities().mayfly = true;
             player.onUpdateAbilities();
         }
     }
@@ -55,8 +55,8 @@ public class PhoenixAspectEffect extends MKEffect {
         super.onInstanceRemoved(targetData, expiredEffect);
         if (targetData.getEntity() instanceof ServerPlayer) {
             ServerPlayer player = (ServerPlayer) targetData.getEntity();
-            player.abilities.mayfly = false;
-            player.abilities.flying = false;
+            player.getAbilities().mayfly = false;
+            player.getAbilities().flying = false;
             player.onUpdateAbilities();
         }
     }

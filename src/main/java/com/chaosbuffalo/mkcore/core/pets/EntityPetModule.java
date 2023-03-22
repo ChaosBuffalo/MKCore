@@ -8,6 +8,7 @@ import com.chaosbuffalo.mkcore.sync.SyncBool;
 import com.chaosbuffalo.mkcore.sync.SyncEntity;
 import com.chaosbuffalo.mkcore.sync.SyncMapUpdater;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 
 import javax.annotation.Nullable;
@@ -103,7 +104,7 @@ public class EntityPetModule implements IPlayerSyncComponentProvider {
     public void onDeath() {
         pets.values().forEach(x -> {
             if (x.getEntity() != null) {
-                x.getEntity().remove();
+                x.getEntity().remove(Entity.RemovalReason.KILLED);
             }
         });
     }

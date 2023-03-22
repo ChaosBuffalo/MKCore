@@ -133,7 +133,7 @@ public class MKPet<T extends LivingEntity & IMKPet> {
         if (isActive() && hasDuration()) {
             duration--;
             if (duration < 0) {
-                entity.remove();
+                entity.remove(Entity.RemovalReason.KILLED);
                 entity = null;
                 return true;
             }

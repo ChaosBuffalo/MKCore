@@ -199,7 +199,7 @@ public class EntityEffectHandler {
 
         public void deserializeStorage(CompoundTag nbt, String tagName) {
 
-            ListTag list = nbt.getList(tagName, Constants.NBT.TAG_COMPOUND);
+            ListTag list = nbt.getList(tagName, Tag.TAG_COMPOUND);
             for (int i = 0; i < list.size(); i++) {
                 CompoundTag entry = list.getCompound(i);
                 MKActiveEffect instance = MKActiveEffect.deserializeStorage(sourceId, entry);
@@ -336,7 +336,7 @@ public class EntityEffectHandler {
     }
 
     public void deserialize(CompoundTag nbt) {
-        ListTag list = nbt.getList("sources", Constants.NBT.TAG_COMPOUND);
+        ListTag list = nbt.getList("sources", Tag.TAG_COMPOUND);
         for (int i = 0; i < list.size(); i++) {
             CompoundTag entry = list.getCompound(i);
             UUID sourceId = entry.getUUID("uuid");

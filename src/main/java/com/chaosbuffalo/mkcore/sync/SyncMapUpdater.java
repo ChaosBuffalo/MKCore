@@ -102,7 +102,7 @@ public class SyncMapUpdater<K, V extends IMKSerializable<CompoundTag>> implement
 
         if (root.contains("r")) {
             // server has deleted entries, so remove them from the local map
-            processDirtyRemovals(root.getList("r", Constants.NBT.TAG_STRING));
+            processDirtyRemovals(root.getList("r", Tag.TAG_STRING));
         }
 
         if (root.contains("l")) {

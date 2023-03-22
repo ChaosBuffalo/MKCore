@@ -26,16 +26,6 @@ public class MKRenderers {
         evt.registerEntityRenderer(PointEffectEntity.TYPE, BaseEffectEntityRenderer::new);
     }
 
-    public static void registerPlayerRenderers() {
-        if (MKConfig.CLIENT.enablePlayerCastAnimations.get()) {
-            Minecraft.getInstance().getEntityRenderDispatcher().playerRenderers.put("default",
-                    new MKPlayerRenderer(Minecraft.getInstance().getEntityRenderDispatcher(), false));
-            Minecraft.getInstance().getEntityRenderDispatcher().playerRenderers.put("slim",
-                    new MKPlayerRenderer(Minecraft.getInstance().getEntityRenderDispatcher(), true));
-        }
-    }
-
-
     @SubscribeEvent
     public static void registerParticleFactory(ParticleFactoryRegisterEvent evt) {
         Minecraft.getInstance().particleEngine.register(CoreParticles.MAGIC_CROSS,

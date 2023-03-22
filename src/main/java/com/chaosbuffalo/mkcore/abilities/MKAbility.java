@@ -361,7 +361,7 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> implements
         startPos.add(Vec3.directionFromRotation(entity.getRotationVector()).multiply(.5, 0.0, .5));
         projectileEntity.setPos(startPos.x, startPos.y, startPos.z);
         if (entity instanceof Player) {
-            projectileEntity.shoot(entity, entity.xRot, entity.yRot, 0, velocity, accuracy);
+            projectileEntity.shoot(entity, entity.getXRot(), entity.getYRot(), 0, velocity, accuracy);
         } else {
             context.getMemory(MKAbilityMemories.ABILITY_TARGET).ifPresent(targetEntity ->
                     EntityUtils.shootProjectileAtTarget(projectileEntity, targetEntity, velocity, accuracy));

@@ -96,7 +96,7 @@ public abstract class MCBone {
             Vec3 bonePos = MCBone.getOffsetForBone(bone);
 
             if (swimTime > 0.0f) {
-                float entPitch = entityIn.isInWater() ? -90.0F - entityIn.xRot : -90.0F;
+                float entPitch = entityIn.isInWater() ? -90.0F - entityIn.getXRot() : -90.0F;
                 float lerpSwim = Mth.lerp(swimTime, 0.0F, entPitch);
                 pitch = ((float) Math.PI / 180F) * lerpSwim;
                 if (entityIn.isVisuallySwimming()) {

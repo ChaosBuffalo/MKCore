@@ -10,6 +10,7 @@ import com.mojang.serialization.DynamicOps;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
 import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nonnull;
@@ -283,7 +284,7 @@ public class TalentTreeRecord {
                         MKCore.LOGGER.warn("TalentTreeUpdater.deserializeUpdate unknown line {}", line);
                         continue;
                     }
-                    updated.getList(line, Constants.NBT.TAG_COMPOUND).forEach(nbt -> {
+                    updated.getList(line, Tag.TAG_COMPOUND).forEach(nbt -> {
                         int index = ((CompoundTag) nbt).getInt("i");
                         TalentRecord record = lineRecord.getRecord(index);
                         if (record != null) {

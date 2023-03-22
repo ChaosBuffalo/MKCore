@@ -97,7 +97,7 @@ public class EntityEntitlementsKnowledge implements IMKEntityEntitlements {
     @Override
     public boolean deserialize(CompoundTag tag) {
         clearEntitlements();
-        ListTag entitlementsTag = tag.getList("entitlements", Constants.NBT.TAG_COMPOUND);
+        ListTag entitlementsTag = tag.getList("entitlements", Tag.TAG_COMPOUND);
         for (Tag entNbt : entitlementsTag) {
             EntitlementInstance newEnt = new EntitlementInstance(new Dynamic<>(NbtOps.INSTANCE, entNbt));
             if (newEnt.isValid()) {

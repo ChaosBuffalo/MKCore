@@ -50,7 +50,7 @@ public class SyncListUpdater<T> implements ISyncObject {
         }
 
         if (root.contains("s")) {
-            deserializeSparseListUpdate(root.getList("s", Constants.NBT.TAG_COMPOUND));
+            deserializeSparseListUpdate(root.getList("s", Tag.TAG_COMPOUND));
         } else if (root.contains("l")) {
             deserializeStorage(root.get("l"));
         }

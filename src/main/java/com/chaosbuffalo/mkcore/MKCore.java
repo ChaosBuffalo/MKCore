@@ -116,7 +116,6 @@ public class MKCore {
         MinecraftForge.EVENT_BUS.register(new MKOverlay());
         ClientEventHandler.initKeybindings();
         PlayerPageRegistry.init();
-        MKRenderers.registerPlayerRenderers();
         CoreItems.registerItemProperties();
         ClientEventHandler.setupAttributeRenderers();
     }

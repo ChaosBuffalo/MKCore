@@ -75,7 +75,7 @@ public class ParticleEffectInstanceTracker implements ISyncObject {
     public void deserializeUpdate(CompoundTag tag) {
         if (tag.contains("effectInstances")) {
             particleInstances.clear();
-            ListTag effectsNbt = tag.getList("effectInstances", Constants.NBT.TAG_COMPOUND);
+            ListTag effectsNbt = tag.getList("effectInstances", Tag.TAG_COMPOUND);
             for (Tag effNbt : effectsNbt) {
                 Dynamic<?> dyn = new Dynamic<>(NbtOps.INSTANCE, effNbt);
                 ResourceLocation type = ParticleEffectInstance.getType(dyn);
@@ -87,7 +87,7 @@ public class ParticleEffectInstanceTracker implements ISyncObject {
             }
         }
         if (tag.contains("effectInstancesAdd")) {
-            ListTag effectsNbt = tag.getList("effectInstancesAdd", Constants.NBT.TAG_COMPOUND);
+            ListTag effectsNbt = tag.getList("effectInstancesAdd", Tag.TAG_COMPOUND);
             for (Tag effNbt : effectsNbt) {
                 Dynamic<?> dyn = new Dynamic<>(NbtOps.INSTANCE, effNbt);
                 ResourceLocation type = ParticleEffectInstance.getType(dyn);
@@ -99,7 +99,7 @@ public class ParticleEffectInstanceTracker implements ISyncObject {
             }
         }
         if (tag.contains("effectInstancesRemove")) {
-            ListTag toRemoveNbt = tag.getList("effectInstancesRemove", Constants.NBT.TAG_STRING);
+            ListTag toRemoveNbt = tag.getList("effectInstancesRemove", Tag.TAG_STRING);
             for (Tag inbt : toRemoveNbt) {
                 UUID id = UUID.fromString(inbt.getAsString());
                 removeParticleInstance(id);

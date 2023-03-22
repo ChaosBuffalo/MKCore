@@ -329,25 +329,26 @@ public class MKActiveEffect {
                 return Math.max(0, effectInstance.getStackCount() - 1);
             }
 
-            @Override
-            public void renderHUDEffect(GuiComponent gui, PoseStack mStack, int x, int y, float z, float alpha) {
-                super.renderHUDEffect(gui, mStack, x, y, z, alpha);
-            }
+//FIXME: wtf where did this go
+//            @Override
+//            public void renderHUDEffect(GuiComponent gui, PoseStack mStack, int x, int y, float z, float alpha) {
+//                super.renderHUDEffect(gui, mStack, x, y, z, alpha);
+//            }
 
-            @Override
-            public boolean shouldRender() {
-                return effectInstance.getEffect().shouldRender(effectInstance);
-            }
-
-            @Override
-            public boolean shouldRenderHUD() {
-                return effectInstance.getEffect().shouldRenderHUD(effectInstance);
-            }
-
-            @Override
-            public boolean shouldRenderInvText() {
-                return effectInstance.getEffect().shouldRenderInvText(effectInstance);
-            }
+//            @Override
+//            public boolean shouldRender() {
+//                return effectInstance.getEffect().shouldRender(effectInstance);
+//            }
+//
+//            @Override
+//            public boolean shouldRenderHUD() {
+//                return effectInstance.getEffect().shouldRenderHUD(effectInstance);
+//            }
+//
+//            @Override
+//            public boolean shouldRenderInvText() {
+//                return effectInstance.getEffect().shouldRenderInvText(effectInstance);
+//            }
         };
     }
 }
