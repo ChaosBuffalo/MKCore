@@ -18,8 +18,11 @@ import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.EffectRenderer;
 import net.minecraftforge.common.util.Lazy;
+import net.minecraftforge.fml.loading.FMLEnvironment;
+import net.minecraftforge.fml.loading.FMLLoader;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
 import javax.annotation.Nonnull;
@@ -225,10 +228,27 @@ public abstract class MKEffect extends ForgeRegistryEntry<MKEffect> {
     public static class WrapperEffect extends MobEffect {
 
         private final MKEffect effect;
+        private Object effectRendererReal;
 
         protected WrapperEffect(MKEffect effect) {
             super(effect.effectType, 0);
             this.effect = effect;
+            initClientReal();
+        }
+
+        private void initClientReal() {
+            // we gotta do this again
+            // Minecraft instance isn't available in datagen, so don't call initializeClient if in datagen
+            if (FMLEnvironment.dist == Dist.CLIENT && !FMLLoader.getLaunchHandler().isData()) {
+                initializeClient(properties -> {
+                    this.effectRendererReal = properties;
+                });
+            }
+        }
+
+        @Override
+        public Object getEffectRendererInternal() {
+            return effectRendererReal;
         }
 
         public MKEffect getMKEffect() {
