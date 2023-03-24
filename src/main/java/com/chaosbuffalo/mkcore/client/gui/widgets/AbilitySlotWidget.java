@@ -20,10 +20,10 @@ import com.chaosbuffalo.mkwidgets.client.gui.layouts.MKLayout;
 import com.chaosbuffalo.mkwidgets.client.gui.math.IntColor;
 import com.chaosbuffalo.mkwidgets.client.gui.math.Vec2i;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKImage;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 
 public class AbilitySlotWidget extends MKLayout {
     private final AbilityGroupId slotGroup;
@@ -64,7 +64,7 @@ public class AbilitySlotWidget extends MKLayout {
     }
 
     private void refreshSlot() {
-        PlayerEntity playerEntity = Minecraft.getInstance().player;
+        Player playerEntity = Minecraft.getInstance().player;
         if (playerEntity == null)
             return;
         MKCore.getPlayer(playerEntity).ifPresent(playerData -> {
@@ -165,7 +165,7 @@ public class AbilitySlotWidget extends MKLayout {
     }
 
     @Override
-    public void postDraw(MatrixStack matrixStack, Minecraft mc, int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks) {
+    public void postDraw(PoseStack matrixStack, Minecraft mc, int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks) {
         if (isHovered()) {
             if (getScreen() != null) {
                 if (!getAbilityId().equals(MKCoreRegistry.INVALID_ABILITY)) {

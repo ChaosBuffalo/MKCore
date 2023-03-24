@@ -16,15 +16,20 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.JsonOps;
-import net.minecraft.data.*;
-import net.minecraft.item.Item;
-import net.minecraft.item.Items;
-import net.minecraft.tags.ITag;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.data.DataGenerator;
+import net.minecraft.data.DataProvider;
+import net.minecraft.data.HashCache;
+import net.minecraft.data.tags.BlockTagsProvider;
+import net.minecraft.data.tags.ItemTagsProvider;
+import net.minecraft.data.tags.TagsProvider;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.Tag;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
+import net.minecraftforge.forge.event.lifecycle.GatherDataEvent;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -49,7 +54,7 @@ public class DataGenerators {
         }
     }
 
-    public abstract static class ParticleAnimationDataGenerator implements IDataProvider {
+    public abstract static class ParticleAnimationDataGenerator implements DataProvider {
         private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
         private final DataGenerator generator;
 
@@ -57,20 +62,20 @@ public class DataGenerators {
             this.generator = generator;
         }
 
-        public void writeDefinition(ResourceLocation name, ParticleAnimation animation, @Nonnull DirectoryCache cache) {
+        public void writeDefinition(ResourceLocation name, ParticleAnimation animation, @Nonnull HashCache cache) {
             Path outputFolder = this.generator.getOutputFolder();
             Path local = Paths.get("data", name.getNamespace(), ParticleAnimationManager.DEFINITION_FOLDER, name.getPath() + ".json");
             Path path = outputFolder.resolve(local);
             try {
                 JsonElement element = animation.serialize(JsonOps.INSTANCE);
-                IDataProvider.save(GSON, cache, element, path);
+                DataProvider.save(GSON, cache, element, path);
             } catch (IOException e) {
                 MKCore.LOGGER.error("Couldn't write particle animation {}", path, e);
             }
         }
     }
 
-    public abstract static class TalentTreeDataGenerator implements IDataProvider {
+    public abstract static class TalentTreeDataGenerator implements DataProvider {
         private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
         private final DataGenerator generator;
 
@@ -78,14 +83,14 @@ public class DataGenerators {
             this.generator = generator;
         }
 
-        public void writeDefinition(TalentTreeDefinition definition, @Nonnull DirectoryCache cache) {
+        public void writeDefinition(TalentTreeDefinition definition, @Nonnull HashCache cache) {
             Path outputFolder = this.generator.getOutputFolder();
             ResourceLocation key = definition.getTreeId();
             Path local = Paths.get("data", key.getNamespace(), TalentManager.DEFINITION_FOLDER, key.getPath() + ".json");
             Path path = outputFolder.resolve(local);
             try {
                 JsonElement element = definition.serialize(JsonOps.INSTANCE);
-                IDataProvider.save(GSON, cache, element, path);
+                DataProvider.save(GSON, cache, element, path);
             } catch (IOException e) {
                 MKCore.LOGGER.error("Couldn't write talent tree definition {}", path, e);
             }
@@ -99,7 +104,7 @@ public class DataGenerators {
         }
 
         @Override
-        public void act(@Nonnull DirectoryCache cache) {
+        public void run(@Nonnull HashCache cache) {
             writeBlueMagicTest(cache);
         }
 
@@ -109,7 +114,7 @@ public class DataGenerators {
             return "MKCore Particle Animations";
         }
 
-        public void writeBlueMagicTest(@Nonnull DirectoryCache cache) {
+        public void writeBlueMagicTest(@Nonnull HashCache cache) {
             ParticleAnimation anim = new ParticleAnimation()
                     .withKeyFrame(new ParticleKeyFrame()
                             .withColor(0.0f, 1.0f, 242.0f / 255.0f)
@@ -141,7 +146,7 @@ public class DataGenerators {
         }
 
         @Override
-        public void act(@Nonnull DirectoryCache cache) {
+        public void run(@Nonnull HashCache cache) {
             TalentTreeDefinition test = new TalentTreeDefinition(MKCore.makeRL("knight"));
             test.setVersion(1);
             TalentLineDefinition line = new TalentLineDefinition(test, "knight_1");
@@ -158,7 +163,7 @@ public class DataGenerators {
         }
     }
 
-    public static class AbilityDataGenerator implements IDataProvider {
+    public static class AbilityDataGenerator implements DataProvider {
         private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
         private final DataGenerator generator;
         private final String modId;
@@ -169,7 +174,7 @@ public class DataGenerators {
         }
 
         @Override
-        public void act(@Nonnull DirectoryCache cache) {
+        public void run(@Nonnull HashCache cache) {
             Path outputFolder = this.generator.getOutputFolder();
             MKCoreRegistry.ABILITIES.forEach(ability -> {
                 ResourceLocation key = ability.getAbilityId();
@@ -187,7 +192,7 @@ public class DataGenerators {
                 Path path = outputFolder.resolve(local);
                 try {
                     JsonElement element = ability.serializeDynamic(JsonOps.INSTANCE);
-                    IDataProvider.save(GSON, cache, element, path);
+                    DataProvider.save(GSON, cache, element, path);
                 } catch (IOException e) {
                     MKCore.LOGGER.error("Couldn't write ability {}", path, e);
                 }
@@ -209,7 +214,7 @@ public class DataGenerators {
         }
 
         @Override
-        protected void registerTags() {
+        protected void addTags() {
         }
     }
 
@@ -220,7 +225,7 @@ public class DataGenerators {
         }
 
         @Override
-        protected void registerTags() {
+        protected void addTags() {
             tag(CoreTags.Items.LIGHT_ARMOR)
                     .add(Items.LEATHER_HELMET, Items.LEATHER_CHESTPLATE, Items.LEATHER_LEGGINGS, Items.LEATHER_BOOTS);
             tag(CoreTags.Items.MEDIUM_ARMOR)
@@ -233,10 +238,6 @@ public class DataGenerators {
                     .addTag(CoreTags.Items.LIGHT_ARMOR)
                     .addTag(CoreTags.Items.MEDIUM_ARMOR)
                     .addTag(CoreTags.Items.HEAVY_ARMOR);
-        }
-
-        private TagsProvider.Builder<Item> tag(ITag.INamedTag<Item> tag) {
-            return this.getOrCreateBuilder(tag);
         }
 
         @Nonnull

@@ -23,14 +23,14 @@ import com.chaosbuffalo.mkwidgets.client.gui.math.IntColor;
 import com.chaosbuffalo.mkwidgets.client.gui.screens.MKScreen;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.*;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.I18n;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.particles.ParticleType;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.resources.language.I18n;
+import net.minecraft.core.particles.ParticleType;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 import java.util.Map;
@@ -50,15 +50,15 @@ public class ParticleEditorScreen extends MKScreen {
     private boolean dirty;
 
     public ParticleEditorScreen() {
-        super(new TranslationTextComponent("mk.editors.particle_editor.name"));
+        super(new TranslatableComponent("mk.editors.particle_editor.name"));
         editing = ParticleAnimationManager.ANIMATIONS.get(
                 new ResourceLocation(MKCore.MOD_ID, "particle_anim.blue_magic")).copy();
         currentFrame = null;
         dirty = false;
-        PlayerEntity player = Minecraft.getInstance().player;
-        if (player != null){
+        Player player = Minecraft.getInstance().player;
+        if (player != null) {
             MKCore.getPlayer(player).ifPresent(x -> {
-                if (x.getEditor().getParticleEditorData().getAnimation() != null){
+                if (x.getEditor().getParticleEditorData().getAnimation() != null) {
                     this.editing = x.getEditor().getParticleEditorData().getAnimation();
                 }
             });
@@ -92,7 +92,7 @@ public class ParticleEditorScreen extends MKScreen {
         markDirty();
     }
 
-    public void markDirty(){
+    public void markDirty() {
         this.dirty = true;
     }
 
@@ -108,17 +108,17 @@ public class ParticleEditorScreen extends MKScreen {
         pushState("base");
     }
 
-    public boolean deleteTrackButton(ParticleAnimationTrack.AnimationTrackType trackType){
+    public boolean deleteTrackButton(ParticleAnimationTrack.AnimationTrackType trackType) {
         currentFrame.deleteTrack(trackType);
         currentPanel.setup();
         markDirty();
         return true;
     }
 
-    public void setTrackForType(ParticleAnimationTrack.AnimationTrackType type, ResourceLocation trackName){
-        if (currentFrame != null){
+    public void setTrackForType(ParticleAnimationTrack.AnimationTrackType type, ResourceLocation trackName) {
+        if (currentFrame != null) {
             ParticleAnimationTrack track = ParticleAnimationManager.getAnimationTrack(trackName);
-            switch (type){
+            switch (type) {
                 case SCALE:
                     currentFrame.setScaleTrack((ParticleRenderScaleAnimationTrack) track);
                     break;
@@ -134,7 +134,7 @@ public class ParticleEditorScreen extends MKScreen {
         }
     }
 
-    public void selectKeyFrame(ParticleKeyFrame frame){
+    public void selectKeyFrame(ParticleKeyFrame frame) {
         currentFrame = frame;
         currentPanel.setParticleKeyFrame(frame);
         markDirty();
@@ -148,26 +148,26 @@ public class ParticleEditorScreen extends MKScreen {
         return editing.getParticleType();
     }
 
-    public void setParticleType(ResourceLocation typeName, ParticleType<MKParticleData> particleType){
+    public void setParticleType(ResourceLocation typeName, ParticleType<MKParticleData> particleType) {
         editing.setParticleType(particleType);
         this.particleName = typeName;
-        if (this.spawnWidget != null){
+        if (this.spawnWidget != null) {
             spawnWidget.setup();
         }
         markDirty();
     }
 
-    public void promptChangeParticleType(){
+    public void promptChangeParticleType() {
         int xPos = (KEY_EDITOR_WIDTH - POPUP_WIDTH) / 2;
         int yPos = (height - POPUP_HEIGHT) / 2;
         MKModal popup = new MKModal();
         MKImage background = GuiTextures.CORE_TEXTURES.getImageForRegion(
                 GuiTextures.BACKGROUND_180_200, xPos, yPos, POPUP_WIDTH, POPUP_HEIGHT);
-        if (background != null){
+        if (background != null) {
             background.setColor(new IntColor(0x99555555));
             popup.addWidget(background);
         }
-        String promptText = I18n.format("mkcore.particle_editor.choose_particle_type");
+        String promptText = I18n.get("mkcore.particle_editor.choose_particle_type");
         MKText prompt = new MKText(font, promptText, xPos + 6, yPos + 6);
         prompt.setColor(0xffffffff);
         prompt.setWidth(POPUP_WIDTH - 10);
@@ -182,7 +182,7 @@ public class ParticleEditorScreen extends MKScreen {
         names.setMargins(2, 2, 2, 2);
         names.doSetChildWidth(true);
         ParticleAnimationManager.PARTICLE_TYPES_FOR_EDITOR.forEach((key, value) -> {
-            MKButton button = new MKButton(0, 0, new StringTextComponent(key.toString()));
+            MKButton button = new MKButton(0, 0, new TextComponent(key.toString()));
             button.setPressedCallback((but, click) -> {
                 setParticleType(key, value);
                 closeModal(popup);
@@ -196,17 +196,17 @@ public class ParticleEditorScreen extends MKScreen {
         addModal(popup);
     }
 
-    public boolean promptSetSpawnPattern(){
+    public boolean promptSetSpawnPattern() {
         int xPos = (KEY_EDITOR_WIDTH - POPUP_WIDTH) / 2;
         int yPos = (height - POPUP_HEIGHT) / 2;
         MKModal popup = new MKModal();
         MKImage background = GuiTextures.CORE_TEXTURES.getImageForRegion(
                 GuiTextures.BACKGROUND_180_200, xPos, yPos, POPUP_WIDTH, POPUP_HEIGHT);
-        if (background != null){
+        if (background != null) {
             background.setColor(new IntColor(0x99555555));
             popup.addWidget(background);
         }
-        String promptText = I18n.format("mkcore.particle_editor.choose_spawn_pattern");
+        String promptText = I18n.get("mkcore.particle_editor.choose_spawn_pattern");
         MKText prompt = new MKText(font, promptText, xPos + 6, yPos + 6);
         prompt.setColor(0xffffffff);
         prompt.setWidth(POPUP_WIDTH - 10);
@@ -223,7 +223,7 @@ public class ParticleEditorScreen extends MKScreen {
         ParticleAnimationManager.SPAWN_PATTERN_DESERIALIZERS.keySet().forEach(x -> {
             ParticleSpawnPattern spawnPattern = ParticleAnimationManager.SPAWN_PATTERN_DESERIALIZERS.get(x).get();
             MKButton button = new MKButton(0, 0, spawnPattern.getDescription());
-            button.setPressedCallback((but, click)-> {
+            button.setPressedCallback((but, click) -> {
                 setSpawnPattern(spawnPattern);
                 markDirty();
                 closeModal(popup);
@@ -238,16 +238,16 @@ public class ParticleEditorScreen extends MKScreen {
         return true;
     }
 
-    public void requestSpawn(){
-        PlayerEntity player = Minecraft.getInstance().player;
-        if (player != null){
-            Vector3d eyePos = player.getEyePosition(1.0f);
-            Vector3d to = eyePos.add(player.getLookVec().scale(4.0));
-            RayTraceResult result = RayTraceUtils.rayTraceBlocks(player, eyePos, to, true);
-            if (result.getType() == RayTraceResult.Type.BLOCK){
-                to = result.getHitVec();
+    public void requestSpawn() {
+        Player player = Minecraft.getInstance().player;
+        if (player != null) {
+            Vec3 eyePos = player.getEyePosition(1.0f);
+            Vec3 to = eyePos.add(player.getLookAngle().scale(4.0));
+            HitResult result = RayTraceUtils.rayTraceBlocks(player, eyePos, to, true);
+            if (result.getType() == HitResult.Type.BLOCK) {
+                to = result.getLocation();
             }
-            if (editing != null && editing.hasSpawnPattern()){
+            if (editing != null && editing.hasSpawnPattern()) {
                 PacketHandler.sendMessageToServer(new MKParticleEffectEditorSpawnPacket(to, editing));
             }
         }
@@ -258,18 +258,18 @@ public class ParticleEditorScreen extends MKScreen {
         return false;
     }
 
-    public boolean promptAddTrack(ParticleAnimationTrack.AnimationTrackType trackType){
+    public boolean promptAddTrack(ParticleAnimationTrack.AnimationTrackType trackType) {
 
         int xPos = (KEY_EDITOR_WIDTH - POPUP_WIDTH) / 2;
         int yPos = (height - POPUP_HEIGHT) / 2;
         MKModal popup = new MKModal();
         MKImage background = GuiTextures.CORE_TEXTURES.getImageForRegion(
                 GuiTextures.BACKGROUND_180_200, xPos, yPos, POPUP_WIDTH, POPUP_HEIGHT);
-        if (background != null){
+        if (background != null) {
             background.setColor(new IntColor(0x99555555));
             popup.addWidget(background);
         }
-        String promptText = I18n.format("mkcore.particle_editor.choose_track");
+        String promptText = I18n.get("mkcore.particle_editor.choose_track");
         MKText prompt = new MKText(font, promptText, xPos + 6, yPos + 6);
         prompt.setColor(0xffffffff);
         prompt.setWidth(POPUP_WIDTH - 10);
@@ -299,24 +299,24 @@ public class ParticleEditorScreen extends MKScreen {
         return true;
     }
 
-    public void updateFrameView(){
+    public void updateFrameView() {
         frameView.setup();
     }
 
-    protected MKLayout getBase(){
-        MKLayout root = new MKLayout(0 , 0, width, height);
+    protected MKLayout getBase() {
+        MKLayout root = new MKLayout(0, 0, width, height);
         root.addWidget(getKeyFrameEditor());
         root.addWidget(getControlPanel());
         root.addWidget(getKeyFrameView());
         return root;
     }
 
-    protected MKLayout getControlPanel(){
+    protected MKLayout getControlPanel() {
         MKLayout root = new MKLayout(0, height - KEYFRAME_VIEW_HEIGHT, KEY_EDITOR_WIDTH, KEYFRAME_VIEW_HEIGHT);
         MKRectangle background = new MKRectangle(root.getX(), root.getY(), root.getWidth(), root.getHeight(), 0xdd111111);
         root.addWidget(background);
         MKStackLayoutVertical layout = new MKStackLayoutVertical(root.getX(), root.getY(), root.getWidth());
-        layout.setMargins(10, 10 ,10, 10);
+        layout.setMargins(10, 10, 10, 10);
         layout.setPaddings(0, 0, 2, 2);
         root.addWidget(layout);
 
@@ -347,30 +347,30 @@ public class ParticleEditorScreen extends MKScreen {
         return root;
     }
 
-    public void savePromot(){
+    public void savePromot() {
         int xPos = (width - POPUP_WIDTH) / 2;
         int yPos = (height - POPUP_HEIGHT) / 2;
         MKModal popup = new MKModal();
         MKImage background = GuiTextures.CORE_TEXTURES.getImageForRegion(
                 GuiTextures.BACKGROUND_180_200, xPos, yPos, POPUP_WIDTH, POPUP_HEIGHT);
-        if (background != null){
+        if (background != null) {
             background.setColor(new IntColor(0x99555555));
             popup.addWidget(background);
         }
         MKStackLayoutVertical layout = new MKStackLayoutVertical(xPos, yPos, POPUP_WIDTH);
         layout.setMargins(5, 5, 5, 5);
         layout.setPaddings(0, 0, 5, 5);
-        String promptText = I18n.format("mkcore.particle_editor.prompt_save");
+        String promptText = I18n.get("mkcore.particle_editor.prompt_save");
         MKText prompt = new MKText(font, promptText, 0, 0);
         prompt.setColor(0xffffffff);
         prompt.setWidth(POPUP_WIDTH - 10);
         prompt.setMultiline(true);
         layout.addWidget(prompt);
         MKTextFieldWidget textFieldWidget = new MKTextFieldWidget(font, xPos + 2, yPos + 24,
-                POPUP_WIDTH - 10, font.FONT_HEIGHT + 2, new StringTextComponent(promptText));
-        textFieldWidget.getContainedWidget().setMaxStringLength(500);
+                POPUP_WIDTH - 10, font.lineHeight + 2, new TextComponent(promptText));
+        textFieldWidget.getContainedWidget().setMaxLength(500);
         layout.addWidget(textFieldWidget);
-        MKButton button = new MKButton(0, 0, "Save"){
+        MKButton button = new MKButton(0, 0, "Save") {
             @Override
             public boolean isEnabled() {
                 return super.isEnabled() && !textFieldWidget.getText().isEmpty();
@@ -393,13 +393,13 @@ public class ParticleEditorScreen extends MKScreen {
     }
 
 
-    public void loadPrompt(){
+    public void loadPrompt() {
         int xPos = (width - POPUP_WIDTH) / 2;
         int yPos = (height - POPUP_HEIGHT) / 2;
         MKModal popup = new MKModal();
         MKImage background = GuiTextures.CORE_TEXTURES.getImageForRegion(
                 GuiTextures.BACKGROUND_180_200, xPos, yPos, POPUP_WIDTH, POPUP_HEIGHT);
-        if (background != null){
+        if (background != null) {
             background.setColor(new IntColor(0x99555555));
             popup.addWidget(background);
         }
@@ -409,7 +409,7 @@ public class ParticleEditorScreen extends MKScreen {
         MKScrollView scrollView = new MKScrollView(xPos, yPos, POPUP_WIDTH, POPUP_HEIGHT - 20, true);
         scrollView.addWidget(layout);
         popup.addWidget(scrollView);
-        for (Map.Entry<ResourceLocation, ParticleAnimation> anim : ParticleAnimationManager.ANIMATIONS.entrySet()){
+        for (Map.Entry<ResourceLocation, ParticleAnimation> anim : ParticleAnimationManager.ANIMATIONS.entrySet()) {
             MKButton button = new MKButton(0, 0, anim.getKey().toString());
             button.setWidth(POPUP_WIDTH - 10);
             button.setPressedCallback((btn, click) -> {
@@ -422,7 +422,7 @@ public class ParticleEditorScreen extends MKScreen {
         addModal(popup);
     }
 
-    protected MKLayout getKeyFrameView(){
+    protected MKLayout getKeyFrameView() {
         MKLayout root = new MKLayout(KEY_EDITOR_WIDTH, height - KEYFRAME_VIEW_HEIGHT,
                 width - KEY_EDITOR_WIDTH, KEYFRAME_VIEW_HEIGHT);
         MKRectangle background = new MKRectangle(root.getX(), root.getY(), root.getWidth(), root.getHeight(), 0xdd000000);
@@ -433,8 +433,8 @@ public class ParticleEditorScreen extends MKScreen {
         return root;
     }
 
-    public void deleteKeyFrame(ParticleKeyFrame frame){
-        if (editing != null){
+    public void deleteKeyFrame(ParticleKeyFrame frame) {
+        if (editing != null) {
             editing.deleteKeyFrame(frame);
             currentPanel.setParticleKeyFrame(null);
             frameView.setup();
@@ -442,8 +442,8 @@ public class ParticleEditorScreen extends MKScreen {
         }
     }
 
-    protected MKLayout getKeyFrameEditor(){
-        MKLayout root = new MKLayout(0,  0, KEY_EDITOR_WIDTH, height - KEYFRAME_VIEW_HEIGHT);
+    protected MKLayout getKeyFrameEditor() {
+        MKLayout root = new MKLayout(0, 0, KEY_EDITOR_WIDTH, height - KEYFRAME_VIEW_HEIGHT);
         MKRectangle background = new MKRectangle(0, 0, root.getWidth(), root.getHeight(), 0xdd000000);
         ParticleKeyFramePanel panel = new ParticleKeyFramePanel(0, 0,
                 root.getWidth(), root.getHeight(), currentFrame, font, this);
@@ -457,9 +457,9 @@ public class ParticleEditorScreen extends MKScreen {
     @Override
     public void tick() {
         super.tick();
-        if (dirty){
-            PlayerEntity player = Minecraft.getInstance().player;
-            if (player != null){
+        if (dirty) {
+            Player player = Minecraft.getInstance().player;
+            if (player != null) {
                 MKCore.getPlayer(player).ifPresent(data -> {
                     data.getEditor().getParticleEditorData().update(editing, 0, true);
                 });

@@ -3,16 +3,19 @@ package com.chaosbuffalo.mkcore.core;
 import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
-import com.chaosbuffalo.mkcore.abilities.*;
+import com.chaosbuffalo.mkcore.abilities.AbilityContext;
+import com.chaosbuffalo.mkcore.abilities.MKAbility;
+import com.chaosbuffalo.mkcore.abilities.MKAbilityInfo;
+import com.chaosbuffalo.mkcore.abilities.MKToggleAbility;
 import com.chaosbuffalo.mkcore.client.sound.MovingSoundCasting;
 import com.chaosbuffalo.mkcore.events.EntityAbilityEvent;
 import com.chaosbuffalo.mkcore.network.EntityCastPacket;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.utils.SoundUtils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundEvent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.common.MinecraftForge;
 
 import javax.annotation.Nullable;
@@ -82,7 +85,7 @@ public class AbilityExecutor {
     }
 
     public boolean canActivateAbility(MKAbility ability) {
-        if (isCasting() || entityData.getEntity().isActiveItemStackBlocking())
+        if (isCasting() || entityData.getEntity().isBlocking())
             return false;
 
         if (isOnGlobalCooldown())
@@ -219,7 +222,7 @@ public class AbilityExecutor {
         setCooldown(ability.getAbilityId(), cooldown);
         SoundEvent sound = ability.getSpellCompleteSoundEvent();
         if (sound != null) {
-            SoundUtils.serverPlaySoundAtEntity(entityData.getEntity(), sound, entityData.getEntity().getSoundCategory());
+            SoundUtils.serverPlaySoundAtEntity(entityData.getEntity(), sound, entityData.getEntity().getSoundSource());
         }
         clearCastingAbility();
         MinecraftForge.EVENT_BUS.post(new EntityAbilityEvent.EntityCompleteAbilityEvent(ability, entityData));
@@ -332,7 +335,7 @@ public class AbilityExecutor {
 
         private void stopSound() {
             if (playing && sound != null) {
-                Minecraft.getInstance().getSoundHandler().stop(sound);
+                Minecraft.getInstance().getSoundManager().stop(sound);
                 playing = false;
             }
         }
@@ -343,7 +346,7 @@ public class AbilityExecutor {
             SoundEvent event = ability.getCastingSoundEvent();
             if (event != null) {
                 sound = new MovingSoundCasting(executor.entityData.getEntity(), event, castTicks);
-                Minecraft.getInstance().getSoundHandler().play(sound);
+                Minecraft.getInstance().getSoundManager().play(sound);
                 playing = true;
             }
         }

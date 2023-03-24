@@ -4,13 +4,13 @@ import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.events.PersonaEvent;
 import com.chaosbuffalo.mkcore.sync.IMKSerializable;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.common.MinecraftForge;
 
 import java.util.*;
 
-public class PersonaManager implements IMKSerializable<CompoundNBT> {
+public class PersonaManager implements IMKSerializable<CompoundTag> {
     private static final List<IPersonaExtensionProvider> extensionProviders = new ArrayList<>(4);
     public static final String DEFAULT_PERSONA_NAME = "default";
 
@@ -27,11 +27,11 @@ public class PersonaManager implements IMKSerializable<CompoundNBT> {
     }
 
     @Override
-    public CompoundNBT serialize() {
+    public CompoundTag serialize() {
         ensurePersonaLoaded();
 
-        CompoundNBT tag = new CompoundNBT();
-        CompoundNBT personaRoot = new CompoundNBT();
+        CompoundTag tag = new CompoundTag();
+        CompoundTag personaRoot = new CompoundTag();
         personas.forEach((name, persona) -> personaRoot.put(name, persona.serialize()));
         tag.put("personas", personaRoot);
         tag.putString("activePersona", getActivePersona().getName());
@@ -51,10 +51,10 @@ public class PersonaManager implements IMKSerializable<CompoundNBT> {
     }
 
     @Override
-    public boolean deserialize(CompoundNBT tag) {
-        CompoundNBT personaRoot = tag.getCompound("personas");
-        for (String name : personaRoot.keySet()) {
-            CompoundNBT personaTag = personaRoot.getCompound(name);
+    public boolean deserialize(CompoundTag tag) {
+        CompoundTag personaRoot = tag.getCompound("personas");
+        for (String name : personaRoot.getAllKeys()) {
+            CompoundTag personaTag = personaRoot.getCompound(name);
             Persona persona = createNewPersona(name);
             if (!persona.deserialize(personaTag)) {
                 MKCore.LOGGER.error("Failed to deserialize persona {} for {}", name, playerData.getEntity());
@@ -165,7 +165,7 @@ public class PersonaManager implements IMKSerializable<CompoundNBT> {
     }
 
     public static PersonaManager getPersonaManager(MKPlayerData playerData) {
-        if (playerData.getEntity() instanceof ServerPlayerEntity) {
+        if (playerData.getEntity() instanceof ServerPlayer) {
             return new PersonaManager(playerData);
         } else {
             return new ClientPersonaManager(playerData);

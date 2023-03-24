@@ -3,10 +3,9 @@ package com.chaosbuffalo.mkcore.fx.particles.spawn_patterns;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.fx.particles.MKParticleData;
 import com.chaosbuffalo.mkcore.serialization.attributes.DoubleAttribute;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Tuple;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -24,7 +23,7 @@ public class CircleSpawnPattern extends ParticleSpawnPattern {
         addAttributes(xRadius, yRadius, zRadius, speed);
     }
 
-    public CircleSpawnPattern(int count, Vector3d radii, double speed){
+    public CircleSpawnPattern(int count, Vec3 radii, double speed) {
         this();
         this.count.setValue(count);
         xRadius.setValue(radii.x);
@@ -35,18 +34,18 @@ public class CircleSpawnPattern extends ParticleSpawnPattern {
 
     @Override
     public ParticleSpawnPattern copy() {
-        return new CircleSpawnPattern(count.value(), new Vector3d(xRadius.value(), yRadius.value(), zRadius.value()),
+        return new CircleSpawnPattern(count.value(), new Vec3(xRadius.value(), yRadius.value(), zRadius.value()),
                 speed.value());
     }
 
     @Override
-    public void produceParticlesForIndex(Vector3d origin, int particleNumber, @Nullable List<Vector3d> additionalLocs,
-                                         World world, Function<Vector3d, MKParticleData> particleDataSupplier,
+    public void produceParticlesForIndex(Vec3 origin, int particleNumber, @Nullable List<Vec3> additionalLocs,
+                                         Level world, Function<Vec3, MKParticleData> particleDataSupplier,
                                          List<ParticleSpawnEntry> finalParticles) {
         double degrees = (360.0 / count.value()) * particleNumber;
-        Vector3d posVec = new Vector3d(origin.x + xRadius.value() * Math.cos(Math.toRadians(degrees)),
+        Vec3 posVec = new Vec3(origin.x + xRadius.value() * Math.cos(Math.toRadians(degrees)),
                 origin.y + yRadius.value(), origin.z + zRadius.value() * Math.sin(Math.toRadians(degrees)));
-        Vector3d diffVec = posVec.subtract(origin).normalize();
+        Vec3 diffVec = posVec.subtract(origin).normalize();
         finalParticles.add(new ParticleSpawnEntry(particleDataSupplier.apply(origin), posVec, diffVec.scale(speed.value())));
     }
 

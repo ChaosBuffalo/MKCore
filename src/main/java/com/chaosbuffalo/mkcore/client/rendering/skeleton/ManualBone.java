@@ -1,22 +1,22 @@
 package com.chaosbuffalo.mkcore.client.rendering.skeleton;
 
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 
-public class ManualBone extends MCBone{
+public class ManualBone extends MCBone {
     private float yaw;
     private float pitch;
     private float roll;
 
-    public ManualBone(String boneName, Vector3d boneLocation, float yaw, float pitch, float roll, @Nullable MCBone parent) {
+    public ManualBone(String boneName, Vec3 boneLocation, float yaw, float pitch, float roll, @Nullable MCBone parent) {
         super(boneName, boneLocation, parent);
         this.yaw = yaw;
         this.pitch = pitch;
         this.roll = roll;
     }
 
-    public ManualBone(String boneName, Vector3d boneLocation, @Nullable MCBone parent){
+    public ManualBone(String boneName, Vec3 boneLocation, @Nullable MCBone parent) {
         this(boneName, boneLocation, 0.0f, 0.0f, 0.0f, parent);
     }
 

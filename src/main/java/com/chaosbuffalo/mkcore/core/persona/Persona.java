@@ -3,13 +3,13 @@ package com.chaosbuffalo.mkcore.core.persona;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.player.PlayerKnowledge;
 import com.chaosbuffalo.mkcore.sync.IMKSerializable;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
 
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class Persona implements IMKSerializable<CompoundNBT> {
+public class Persona implements IMKSerializable<CompoundTag> {
     private final String name;
     private final PlayerKnowledge knowledge;
     private final MKPlayerData data;
@@ -63,10 +63,10 @@ public class Persona implements IMKSerializable<CompoundNBT> {
         extensions.values().forEach(IPersonaExtension::onPersonaDeactivated);
     }
 
-    private CompoundNBT serializeExtensions() {
-        CompoundNBT root = new CompoundNBT();
+    private CompoundTag serializeExtensions() {
+        CompoundTag root = new CompoundTag();
         extensions.values().forEach(extension -> {
-            CompoundNBT output = extension.serialize();
+            CompoundTag output = extension.serialize();
             if (output != null) {
                 root.put(extension.getName().toString(), output);
             }
@@ -74,7 +74,7 @@ public class Persona implements IMKSerializable<CompoundNBT> {
         return root;
     }
 
-    private void deserializeExtensions(CompoundNBT root) {
+    private void deserializeExtensions(CompoundTag root) {
         if (root.isEmpty())
             return;
 
@@ -87,20 +87,20 @@ public class Persona implements IMKSerializable<CompoundNBT> {
     }
 
     @Override
-    public CompoundNBT serialize() {
-        CompoundNBT tag = new CompoundNBT();
+    public CompoundTag serialize() {
+        CompoundTag tag = new CompoundTag();
         tag.put("knowledge", knowledge.serialize());
         tag.put("extensions", serializeExtensions());
-        tag.putUniqueId("personaId", personaId);
+        tag.putUUID("personaId", personaId);
         return tag;
     }
 
     @Override
-    public boolean deserialize(CompoundNBT tag) {
+    public boolean deserialize(CompoundTag tag) {
         knowledge.deserialize(tag.getCompound("knowledge"));
         deserializeExtensions(tag.getCompound("extensions"));
         if (tag.contains("personaId")) {
-            personaId = tag.getUniqueId("personaId");
+            personaId = tag.getUUID("personaId");
         }
         return true;
     }

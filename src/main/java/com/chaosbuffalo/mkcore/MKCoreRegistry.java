@@ -5,7 +5,7 @@ import com.chaosbuffalo.mkcore.core.damage.MKDamageType;
 import com.chaosbuffalo.mkcore.core.entitlements.MKEntitlement;
 import com.chaosbuffalo.mkcore.core.talents.MKTalent;
 import com.chaosbuffalo.mkcore.effects.MKEffect;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -36,7 +36,7 @@ public class MKCoreRegistry {
     }
 
     @Nullable
-    public static MKEntitlement getEntitlement(ResourceLocation entitlementId){
+    public static MKEntitlement getEntitlement(ResourceLocation entitlementId) {
         return ENTITLEMENTS.getValue(entitlementId);
     }
 

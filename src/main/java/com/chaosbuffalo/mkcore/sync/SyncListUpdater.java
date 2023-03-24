@@ -1,9 +1,9 @@
 package com.chaosbuffalo.mkcore.sync;
 
 import com.chaosbuffalo.mkcore.MKCore;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
-import net.minecraft.nbt.ListNBT;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraftforge.common.util.Constants;
 
 import java.util.BitSet;
@@ -14,12 +14,12 @@ import java.util.function.Supplier;
 public class SyncListUpdater<T> implements ISyncObject {
     private final Supplier<List<T>> parent;
     private final String name;
-    private final Function<T, INBT> valueEncoder;
-    private final Function<INBT, T> valueDecoder;
+    private final Function<T, Tag> valueEncoder;
+    private final Function<Tag, T> valueDecoder;
     private final BitSet dirtyEntries = new BitSet();
     private ISyncNotifier parentNotifier = ISyncNotifier.NONE;
 
-    public SyncListUpdater(String name, Supplier<List<T>> list, Function<T, INBT> valueEncoder, Function<INBT, T> valueDecoder) {
+    public SyncListUpdater(String name, Supplier<List<T>> list, Function<T, Tag> valueEncoder, Function<Tag, T> valueDecoder) {
         this.name = name;
         this.parent = list;
         this.valueDecoder = valueDecoder;
@@ -42,34 +42,34 @@ public class SyncListUpdater<T> implements ISyncObject {
     }
 
     @Override
-    public void deserializeUpdate(CompoundNBT tag) {
-        CompoundNBT root = tag.getCompound(name);
+    public void deserializeUpdate(CompoundTag tag) {
+        CompoundTag root = tag.getCompound(name);
 
         if (root.getBoolean("f")) {
             parent.get().clear();
         }
 
         if (root.contains("s")) {
-            deserializeSparseListUpdate(root.getList("s", Constants.NBT.TAG_COMPOUND));
+            deserializeSparseListUpdate(root.getList("s", Tag.TAG_COMPOUND));
         } else if (root.contains("l")) {
             deserializeStorage(root.get("l"));
         }
     }
 
     @Override
-    public void serializeUpdate(CompoundNBT tag) {
+    public void serializeUpdate(CompoundTag tag) {
         if (dirtyEntries.isEmpty())
             return;
 
-        CompoundNBT root = new CompoundNBT();
+        CompoundTag root = new CompoundTag();
         root.put("s", serializeSparseList(dirtyEntries));
         tag.put(name, root);
         dirtyEntries.clear();
     }
 
     @Override
-    public void serializeFull(CompoundNBT tag) {
-        CompoundNBT root = new CompoundNBT();
+    public void serializeFull(CompoundTag tag) {
+        CompoundTag root = new CompoundTag();
 
         root.putBoolean("f", true);
         root.put("l", serializeStorage());
@@ -77,35 +77,35 @@ public class SyncListUpdater<T> implements ISyncObject {
         dirtyEntries.clear();
     }
 
-    private CompoundNBT makeSparseEntry(int index, T value) {
-        CompoundNBT tag = new CompoundNBT();
+    private CompoundTag makeSparseEntry(int index, T value) {
+        CompoundTag tag = new CompoundTag();
         tag.putInt("i", index);
         tag.put("v", valueEncoder.apply(value));
         return tag;
     }
 
-    private ListNBT serializeSparseList(BitSet dirtyEntries) {
+    private ListTag serializeSparseList(BitSet dirtyEntries) {
         List<T> fullList = parent.get();
-        ListNBT list = new ListNBT();
+        ListTag list = new ListTag();
         dirtyEntries.stream().forEach(i -> list.add(makeSparseEntry(i, fullList.get(i))));
         return list;
     }
 
-    private void deserializeFullList(ListNBT list) {
+    private void deserializeFullList(ListTag list) {
         for (int i = 0; i < list.size(); i++) {
             setValueInternal(i, list.get(i));
         }
     }
 
-    private void deserializeSparseListUpdate(ListNBT list) {
+    private void deserializeSparseListUpdate(ListTag list) {
         for (int i = 0; i < list.size(); i++) {
-            CompoundNBT entry = list.getCompound(i);
+            CompoundTag entry = list.getCompound(i);
             int index = entry.getInt("i");
             setValueInternal(index, entry.get("v"));
         }
     }
 
-    private void setValueInternal(int index, INBT encodedValue) {
+    private void setValueInternal(int index, Tag encodedValue) {
         T decoded = valueDecoder.apply(encodedValue);
         List<T> list = parent.get();
         if (decoded != null) {
@@ -119,15 +119,15 @@ public class SyncListUpdater<T> implements ISyncObject {
         }
     }
 
-    public INBT serializeStorage() {
-        ListNBT list = new ListNBT();
+    public Tag serializeStorage() {
+        ListTag list = new ListTag();
         parent.get().forEach(r -> list.add(valueEncoder.apply(r)));
         return list;
     }
 
-    public void deserializeStorage(INBT tag) {
-        if (tag instanceof ListNBT) {
-            ListNBT list = (ListNBT) tag;
+    public void deserializeStorage(Tag tag) {
+        if (tag instanceof ListTag) {
+            ListTag list = (ListTag) tag;
             deserializeFullList(list);
         }
     }

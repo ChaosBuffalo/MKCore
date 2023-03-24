@@ -1,10 +1,10 @@
 package com.chaosbuffalo.mkcore.core.talents;
 
 import com.mojang.serialization.Dynamic;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
 import javax.annotation.Nonnull;
@@ -28,19 +28,19 @@ public abstract class MKTalent extends ForgeRegistryEntry<MKTalent> {
         return Objects.requireNonNull(getRegistryName());
     }
 
-    public ITextComponent getTalentName() {
+    public Component getTalentName() {
         ResourceLocation talentId = getTalentId();
-        return new TranslationTextComponent(String.format("%s.%s.name", talentId.getNamespace(), talentId.getPath()));
+        return new TranslatableComponent(String.format("%s.%s.name", talentId.getNamespace(), talentId.getPath()));
     }
 
-    public ITextComponent getTalentDescription(TalentRecord record) {
+    public Component getTalentDescription(TalentRecord record) {
         ResourceLocation talentId = getTalentId();
-        TranslationTextComponent comp = new TranslationTextComponent(String.format("%s.%s.description", talentId.getNamespace(), talentId.getPath()));
-        return comp.mergeStyle(TextFormatting.GRAY);
+        TranslatableComponent comp = new TranslatableComponent(String.format("%s.%s.description", talentId.getNamespace(), talentId.getPath()));
+        return comp.withStyle(ChatFormatting.GRAY);
     }
 
-    public ITextComponent getTalentTypeName() {
-        return getTalentType().getDisplayName().mergeStyle(TextFormatting.GOLD);
+    public Component getTalentTypeName() {
+        return getTalentType().getDisplayName().withStyle(ChatFormatting.GOLD);
     }
 
     public ResourceLocation getIcon() {

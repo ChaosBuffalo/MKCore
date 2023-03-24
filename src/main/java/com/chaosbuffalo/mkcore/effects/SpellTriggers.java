@@ -1,13 +1,12 @@
 package com.chaosbuffalo.mkcore.effects;
 
 import com.chaosbuffalo.mkcore.MKCore;
-import com.chaosbuffalo.mkcore.core.damage.MKDamageSource;
 import com.chaosbuffalo.mkcore.effects.triggers.*;
 import com.chaosbuffalo.mkcore.utils.DamageUtils;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.DamageSource;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -40,7 +39,7 @@ public class SpellTriggers {
             if (!hasTriggers())
                 return true;
 
-            if (source instanceof PlayerEntity) {
+            if (source instanceof Player) {
                 return MKCore.getPlayer(source).map(cap -> {
                     if (cap.getCombatExtension().hasSpellTag(tag)) {
                         return true;
@@ -53,7 +52,7 @@ public class SpellTriggers {
         }
 
         protected void endTrigger(Entity source, String tag) {
-            if (source instanceof PlayerEntity) {
+            if (source instanceof Player) {
                 MKCore.getPlayer(source).ifPresent(cap -> cap.getCombatExtension().removeSpellTag(tag));
             }
         }

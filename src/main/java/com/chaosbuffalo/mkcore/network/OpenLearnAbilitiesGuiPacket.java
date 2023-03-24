@@ -6,9 +6,9 @@ import com.chaosbuffalo.mkcore.abilities.training.IAbilityTrainer;
 import com.chaosbuffalo.mkcore.client.gui.LearnAbilityPage;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +27,7 @@ public class OpenLearnAbilitiesGuiPacket {
         });
     }
 
-    public OpenLearnAbilitiesGuiPacket(PacketBuffer buffer) {
+    public OpenLearnAbilitiesGuiPacket(FriendlyByteBuf buffer) {
         entityId = buffer.readInt();
         int count = buffer.readVarInt();
         abilities = new ArrayList<>(count);
@@ -39,7 +39,7 @@ public class OpenLearnAbilitiesGuiPacket {
         }
     }
 
-    public void toBytes(PacketBuffer buffer) {
+    public void toBytes(FriendlyByteBuf buffer) {
         buffer.writeInt(entityId);
         buffer.writeVarInt(abilities.size());
         abilities.forEach(offer -> offer.write(buffer));
@@ -53,11 +53,11 @@ public class OpenLearnAbilitiesGuiPacket {
 
     static class ClientHandler {
         public static void handleClient(OpenLearnAbilitiesGuiPacket packet) {
-            PlayerEntity player = Minecraft.getInstance().player;
+            Player player = Minecraft.getInstance().player;
             if (player == null)
                 return;
             MKCore.getPlayer(player).ifPresent(playerData ->
-                    Minecraft.getInstance().displayGuiScreen(new LearnAbilityPage(playerData, packet.abilities, packet.entityId)));
+                    Minecraft.getInstance().setScreen(new LearnAbilityPage(playerData, packet.abilities, packet.entityId)));
 
         }
     }

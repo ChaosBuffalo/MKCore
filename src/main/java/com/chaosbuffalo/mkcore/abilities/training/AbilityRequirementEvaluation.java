@@ -1,15 +1,15 @@
 package com.chaosbuffalo.mkcore.abilities.training;
 
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 
 
 // TODO: Might be a good candidate for a record in J16
 public class AbilityRequirementEvaluation {
-    private final ITextComponent requirementDescription;
+    private final Component requirementDescription;
     private final boolean isMet;
 
-    public AbilityRequirementEvaluation(ITextComponent description, boolean isMet) {
+    public AbilityRequirementEvaluation(Component description, boolean isMet) {
         this.requirementDescription = description;
         this.isMet = isMet;
     }
@@ -18,16 +18,16 @@ public class AbilityRequirementEvaluation {
         return isMet;
     }
 
-    public ITextComponent description() {
+    public Component description() {
         return requirementDescription;
     }
 
-    public void write(PacketBuffer buffer) {
-        buffer.writeTextComponent(requirementDescription);
+    public void write(FriendlyByteBuf buffer) {
+        buffer.writeComponent(requirementDescription);
         buffer.writeBoolean(isMet);
     }
 
-    public static AbilityRequirementEvaluation read(PacketBuffer buffer) {
-        return new AbilityRequirementEvaluation(buffer.readTextComponent(), buffer.readBoolean());
+    public static AbilityRequirementEvaluation read(FriendlyByteBuf buffer) {
+        return new AbilityRequirementEvaluation(buffer.readComponent(), buffer.readBoolean());
     }
 }

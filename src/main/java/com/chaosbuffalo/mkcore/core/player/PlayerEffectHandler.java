@@ -2,7 +2,7 @@ package com.chaosbuffalo.mkcore.core.player;
 
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.entity.EntityEffectHandler;
-import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
 
 public class PlayerEffectHandler extends EntityEffectHandler {
 
@@ -17,7 +17,7 @@ public class PlayerEffectHandler extends EntityEffectHandler {
     @Override
     public void onJoinWorld() {
         if (getPlayerData().isServerSide()) {
-            sendAllEffectsToPlayer((ServerPlayerEntity) entityData.getEntity());
+            sendAllEffectsToPlayer((ServerPlayer) entityData.getEntity());
         }
         super.onJoinWorld();
     }

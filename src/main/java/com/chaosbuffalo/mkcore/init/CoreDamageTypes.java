@@ -5,7 +5,7 @@ import com.chaosbuffalo.mkcore.core.MKAttributes;
 import com.chaosbuffalo.mkcore.core.damage.MKDamageType;
 import com.chaosbuffalo.mkcore.core.damage.MeleeDamageType;
 import com.chaosbuffalo.mkcore.core.damage.RangedDamageType;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.ChatFormatting;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -16,37 +16,37 @@ public class CoreDamageTypes {
     public static final MKDamageType FireDamage = new MKDamageType(MKCore.makeRL("damage.fire"),
             MKAttributes.FIRE_DAMAGE, MKAttributes.FIRE_RESISTANCE,
             MKAttributes.SPELL_CRIT, MKAttributes.SPELL_CRIT_MULTIPLIER,
-            TextFormatting.RED);
+            ChatFormatting.RED);
 
     public static final MKDamageType FrostDamage = new MKDamageType(MKCore.makeRL("damage.frost"),
             MKAttributes.FROST_DAMAGE, MKAttributes.FROST_RESISTANCE,
             MKAttributes.SPELL_CRIT, MKAttributes.SPELL_CRIT_MULTIPLIER,
-            TextFormatting.AQUA);
+            ChatFormatting.AQUA);
 
     public static final MKDamageType HolyDamage = new MKDamageType(MKCore.makeRL("damage.holy"),
             MKAttributes.HOLY_DAMAGE, MKAttributes.HOLY_RESISTANCE,
             MKAttributes.SPELL_CRIT, MKAttributes.SPELL_CRIT_MULTIPLIER,
-            TextFormatting.GOLD).setCritMultiplier(2.0f);
+            ChatFormatting.GOLD).setCritMultiplier(2.0f);
 
     public static final MKDamageType PoisonDamage = new MKDamageType(MKCore.makeRL("damage.poison"),
             MKAttributes.POISON_DAMAGE, MKAttributes.POISON_RESISTANCE,
             MKAttributes.SPELL_CRIT, MKAttributes.SPELL_CRIT_MULTIPLIER,
-            TextFormatting.GREEN);
+            ChatFormatting.GREEN);
 
     public static final MKDamageType ShadowDamage = new MKDamageType(MKCore.makeRL("damage.shadow"),
             MKAttributes.SHADOW_DAMAGE, MKAttributes.SHADOW_RESISTANCE,
             MKAttributes.SPELL_CRIT, MKAttributes.SPELL_CRIT_MULTIPLIER,
-            TextFormatting.DARK_PURPLE);
+            ChatFormatting.DARK_PURPLE);
 
     public static final MKDamageType ArcaneDamage = new MKDamageType(MKCore.makeRL("damage.arcane"),
             MKAttributes.ARCANE_DAMAGE, MKAttributes.ARCANE_RESISTANCE,
             MKAttributes.SPELL_CRIT, MKAttributes.SPELL_CRIT_MULTIPLIER,
-            TextFormatting.LIGHT_PURPLE);
+            ChatFormatting.LIGHT_PURPLE);
 
     public static final MKDamageType NatureDamage = new MKDamageType(MKCore.makeRL("damage.nature"),
             MKAttributes.NATURE_DAMAGE, MKAttributes.NATURE_RESISTANCE,
             MKAttributes.SPELL_CRIT, MKAttributes.SPELL_CRIT_MULTIPLIER,
-            TextFormatting.DARK_GREEN);
+            ChatFormatting.DARK_GREEN);
 
     public static final MKDamageType MeleeDamage = new MeleeDamageType(MKCore.makeRL("damage.melee"));
 
@@ -55,7 +55,7 @@ public class CoreDamageTypes {
     public static final MKDamageType BleedDamage = new MKDamageType(MKCore.makeRL("damage.bleed"),
             MKAttributes.BLEED_DAMAGE, MKAttributes.BLEED_RESISTANCE,
             MKAttributes.MELEE_CRIT, MKAttributes.MELEE_CRIT_MULTIPLIER,
-            TextFormatting.DARK_RED);
+            ChatFormatting.DARK_RED);
 
     @SubscribeEvent
     public static void registerDamageTypes(RegistryEvent.Register<MKDamageType> evt) {

@@ -6,10 +6,10 @@ import com.chaosbuffalo.mkcore.abilities.training.AbilityTrainingRequirement;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.serialization.attributes.IntAttribute;
 import com.mojang.serialization.Dynamic;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 
 public class ExperienceLevelRequirement extends AbilityTrainingRequirement {
     public final static ResourceLocation TYPE_NAME = new ResourceLocation(MKCore.MOD_ID, "training_req.exp_level");
@@ -21,7 +21,7 @@ public class ExperienceLevelRequirement extends AbilityTrainingRequirement {
     }
 
 
-    public <D> ExperienceLevelRequirement(Dynamic<D> dynamic){
+    public <D> ExperienceLevelRequirement(Dynamic<D> dynamic) {
         super(TYPE_NAME, dynamic);
     }
 
@@ -33,19 +33,19 @@ public class ExperienceLevelRequirement extends AbilityTrainingRequirement {
 
     @Override
     public boolean check(MKPlayerData playerData, MKAbility ability) {
-        PlayerEntity playerEntity = playerData.getEntity();
+        Player playerEntity = playerData.getEntity();
         return playerEntity.experienceLevel >= requiredLevel.value();
     }
 
     @Override
     public void onLearned(MKPlayerData playerData, MKAbility ability) {
-        PlayerEntity playerEntity = playerData.getEntity();
-        playerEntity.addExperienceLevel(-requiredLevel.value());
+        Player playerEntity = playerData.getEntity();
+        playerEntity.giveExperienceLevels(-requiredLevel.value());
     }
 
     @Override
-    public IFormattableTextComponent describe(MKPlayerData playerData) {
-        return new StringTextComponent(String.format("You must be at least level %d", requiredLevel.value()));
+    public MutableComponent describe(MKPlayerData playerData) {
+        return new TextComponent(String.format("You must be at least level %d", requiredLevel.value()));
     }
 
 

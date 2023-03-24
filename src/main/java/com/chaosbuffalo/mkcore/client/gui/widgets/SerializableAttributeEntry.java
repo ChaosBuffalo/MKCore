@@ -4,8 +4,8 @@ import com.chaosbuffalo.mkcore.serialization.attributes.ISerializableAttribute;
 import com.chaosbuffalo.mkwidgets.client.gui.layouts.MKStackLayoutHorizontal;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKText;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKTextFieldWidget;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.client.gui.Font;
+import net.minecraft.network.chat.TextComponent;
 
 import java.util.function.Consumer;
 
@@ -13,25 +13,25 @@ public class SerializableAttributeEntry extends MKStackLayoutHorizontal {
     private final ISerializableAttribute<?> attr;
     private Consumer<ISerializableAttribute<?>> callback;
 
-    public SerializableAttributeEntry(int x, int y, ISerializableAttribute<?> attr, FontRenderer renderer) {
-        super(x, y, renderer.FONT_HEIGHT + 4);
+    public SerializableAttributeEntry(int x, int y, ISerializableAttribute<?> attr, Font renderer) {
+        super(x, y, renderer.lineHeight + 4);
         this.attr = attr;
         setMargins(3, 2, 2, 2);
         setPaddings(20, 2, 2, 2);
         MKText nameText = new MKText(renderer, attr.getName(), 100);
         nameText.setColor(0xffffffff);
-        MKTextFieldWidget textField = new MKTextFieldWidget(renderer, x, y, 50, renderer.FONT_HEIGHT + 2,
-                new StringTextComponent(attr.getName()));
+        MKTextFieldWidget textField = new MKTextFieldWidget(renderer, x, y, 50, renderer.lineHeight + 2,
+                new TextComponent(attr.getName()));
         textField.setText(attr.valueAsString());
-        textField.getContainedWidget().setCursorPositionZero();
+        textField.getContainedWidget().moveCursorToStart();
         textField.setSubmitCallback((wid, str) -> {
-            if (!attr.isEmptyStringInput(str)){
+            if (!attr.isEmptyStringInput(str)) {
                 attr.setValueFromString(str);
             } else {
                 attr.reset();
                 textField.setText(attr.valueAsString());
             }
-            if (callback != null){
+            if (callback != null) {
                 callback.accept(attr);
             }
         });

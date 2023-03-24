@@ -2,22 +2,22 @@ package com.chaosbuffalo.mkcore.core.player;
 
 import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.MKCore;
-import com.chaosbuffalo.mkcore.core.CastInterruptReason;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
+import com.chaosbuffalo.mkcore.core.CastInterruptReason;
 import com.chaosbuffalo.mkcore.core.MKAttributes;
 import com.chaosbuffalo.mkcore.core.MKCombatFormulas;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.entity.EntityStats;
 import com.chaosbuffalo.mkcore.sync.SyncFloat;
 import com.chaosbuffalo.mkcore.utils.ChatUtils;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.Attribute;
-import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.util.Tuple;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;
@@ -43,8 +43,8 @@ public class PlayerStats extends EntityStats implements IPlayerSyncComponentProv
         return sync;
     }
 
-    private PlayerEntity getPlayer() {
-        return (PlayerEntity) getEntity();
+    private Player getPlayer() {
+        return (Player) getEntity();
     }
 
     private MKPlayerData getPlayerData() {
@@ -53,7 +53,7 @@ public class PlayerStats extends EntityStats implements IPlayerSyncComponentProv
 
     // Mostly to shut up warning about null returns from getAttribute. Only use this for attrs you know will be present
     @Nonnull
-    protected ModifiableAttributeInstance requiredAttribute(Attribute attribute) {
+    protected AttributeInstance requiredAttribute(Attribute attribute) {
         return Objects.requireNonNull(getEntity().getAttribute(attribute));
     }
 
@@ -68,7 +68,7 @@ public class PlayerStats extends EntityStats implements IPlayerSyncComponentProv
     private void setMana(float value, boolean sendUpdate) {
         // Here we're using isAddedToWorld as a proxy to know that attribute deserialization is done and max mana is available
         if (getEntity().isAddedToWorld()) {
-            value = MathHelper.clamp(value, 0, getMaxMana());
+            value = Mth.clamp(value, 0, getMaxMana());
         }
         mana.set(value, sendUpdate);
     }
@@ -92,7 +92,7 @@ public class PlayerStats extends EntityStats implements IPlayerSyncComponentProv
 
     private void setPoise(float value, boolean sendUpdate) {
         if (getEntity().isAddedToWorld()) {
-            value = MathHelper.clamp(value, 0, getMaxPoise());
+            value = Mth.clamp(value, 0, getMaxPoise());
         }
         poise.set(value, sendUpdate);
     }
@@ -130,7 +130,7 @@ public class PlayerStats extends EntityStats implements IPlayerSyncComponentProv
     private void addBaseStat(Attribute attribute, double value) {
         LivingEntity entity = getEntity();
 
-        ModifiableAttributeInstance instance = entity.getAttribute(attribute);
+        AttributeInstance instance = entity.getAttribute(attribute);
         if (instance != null) {
             instance.setBaseValue(value);
         } else {
@@ -159,7 +159,7 @@ public class PlayerStats extends EntityStats implements IPlayerSyncComponentProv
     public void breakPoise() {
         setPoise(0);
         setTimer(POISE_BREAK_TIMER, getPoiseBreakCooldownTicks());
-        getEntity().stopActiveHand();
+        getEntity().releaseUsingItem();
     }
 
     public boolean isPoiseBroke() {
@@ -168,12 +168,12 @@ public class PlayerStats extends EntityStats implements IPlayerSyncComponentProv
 
     private void updatePoise() {
         boolean isBroken = isPoiseBroke();
-        if (getEntity().isActiveItemStackBlocking()) {
+        if (getEntity().isBlocking()) {
             if (entityData.getAbilityExecutor().isCasting()) {
                 entityData.getAbilityExecutor().interruptCast(CastInterruptReason.StartedBlocking);
             }
             if (isBroken) {
-                getEntity().stopActiveHand();
+                getEntity().releaseUsingItem();
             }
             return;
         }
@@ -242,7 +242,7 @@ public class PlayerStats extends EntityStats implements IPlayerSyncComponentProv
             breakPoise();
             return new Tuple<>(remainder + blockPortion - poise, true);
         } else {
-            if (getEntity().getItemInUseMaxCount() < 6) {
+            if (getEntity().getTicksUsingItem() < 6) {
                 blockPortion *= 0.25f;
             }
             setPoise(poise - blockPortion);
@@ -280,7 +280,7 @@ public class PlayerStats extends EntityStats implements IPlayerSyncComponentProv
 
     public void refreshStats() {
         if (getHealth() > getMaxHealth()) {
-            setHealth(MathHelper.clamp(getHealth(), 0, getMaxHealth()));
+            setHealth(Mth.clamp(getHealth(), 0, getMaxHealth()));
         }
         if (getMana() > getMaxMana()) {
             setMana(getMana());
@@ -299,15 +299,15 @@ public class PlayerStats extends EntityStats implements IPlayerSyncComponentProv
     }
 
     @Override
-    public CompoundNBT serialize() {
-        CompoundNBT tag = new CompoundNBT();
+    public CompoundTag serialize() {
+        CompoundTag tag = new CompoundTag();
         tag.put("cooldowns", abilityTracker.serialize());
         tag.putFloat("mana", mana.get());
         return tag;
     }
 
     @Override
-    public void deserialize(CompoundNBT tag) {
+    public void deserialize(CompoundTag tag) {
         abilityTracker.deserialize(tag.getCompound("cooldowns"));
         if (tag.contains("mana")) {
             setMana(tag.getFloat("mana"));

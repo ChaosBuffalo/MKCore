@@ -3,16 +3,16 @@ package com.chaosbuffalo.mkcore.core.pets;
 
 import com.chaosbuffalo.mkcore.sync.IMKSerializable;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 
 import javax.annotation.Nullable;
 
 public class MKPet<T extends LivingEntity & IMKPet> {
 
-    public static class ClientMKPet implements IMKSerializable<CompoundNBT> {
+    public static class ClientMKPet implements IMKSerializable<CompoundTag> {
         @Nullable
         protected Entity entity;
         protected int duration;
@@ -51,24 +51,24 @@ public class MKPet<T extends LivingEntity & IMKPet> {
         }
 
         @Override
-        public CompoundNBT serialize() {
-            CompoundNBT tag = new CompoundNBT();
+        public CompoundTag serialize() {
+            CompoundTag tag = new CompoundTag();
             tag.putString("name", name.toString());
             if (hasDuration()) {
                 tag.putInt("dur", duration);
             }
-            tag.putInt("entId", entity != null ? entity.getEntityId() : -1);
+            tag.putInt("entId", entity != null ? entity.getId() : -1);
             return tag;
         }
 
         public void tick() {
-            if (isActive() && hasDuration()){
+            if (isActive() && hasDuration()) {
                 duration--;
             }
         }
 
         @Override
-        public boolean deserialize(CompoundNBT tag) {
+        public boolean deserialize(CompoundTag tag) {
             int id = tag.getInt("entId");
             name = new ResourceLocation(tag.getString("name"));
             if (id != -1) {
@@ -118,7 +118,7 @@ public class MKPet<T extends LivingEntity & IMKPet> {
         return pet;
     }
 
-    public void addThreat(LivingEntity source, float threat, boolean propagate){
+    public void addThreat(LivingEntity source, float threat, boolean propagate) {
         if (isActive()) {
             entity.addThreat(source, threat, propagate);
         }
@@ -133,7 +133,7 @@ public class MKPet<T extends LivingEntity & IMKPet> {
         if (isActive() && hasDuration()) {
             duration--;
             if (duration < 0) {
-                entity.remove();
+                entity.remove(Entity.RemovalReason.KILLED);
                 entity = null;
                 return true;
             }
@@ -151,9 +151,9 @@ public class MKPet<T extends LivingEntity & IMKPet> {
     static class ClientHandler {
         public static Entity handleClient(int entityId) {
             Minecraft mc = Minecraft.getInstance();
-            if (mc.world == null)
+            if (mc.level == null)
                 return null;
-            return mc.world.getEntityByID(entityId);
+            return mc.level.getEntity(entityId);
         }
     }
 

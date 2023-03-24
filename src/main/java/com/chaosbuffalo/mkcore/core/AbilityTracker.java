@@ -2,11 +2,11 @@ package com.chaosbuffalo.mkcore.core;
 
 import com.chaosbuffalo.mkcore.sync.ISyncNotifier;
 import com.chaosbuffalo.mkcore.sync.ISyncObject;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.LivingEntity;
 
 import java.util.*;
 import java.util.function.ObjIntConsumer;
@@ -27,7 +27,7 @@ public class AbilityTracker implements ISyncObject {
         if (timer != null) {
             float totalCooldown = timer.getMaxTicks();
             float currentCooldown = (float) timer.expireTicks - ((float) this.ticks + partialTicks);
-            return MathHelper.clamp(currentCooldown / totalCooldown, 0.0F, 1.0F);
+            return Mth.clamp(currentCooldown / totalCooldown, 0.0F, 1.0F);
         } else {
             return 0.0F;
         }
@@ -90,10 +90,10 @@ public class AbilityTracker implements ISyncObject {
     protected void onTimerRemoved(ResourceLocation timerId, boolean local) {
     }
 
-    public CompoundNBT serialize() {
-        CompoundNBT root = new CompoundNBT();
-        CompoundNBT sync = new CompoundNBT();
-        CompoundNBT local = new CompoundNBT();
+    public CompoundTag serialize() {
+        CompoundTag root = new CompoundTag();
+        CompoundTag sync = new CompoundTag();
+        CompoundTag local = new CompoundTag();
 
         iterateActiveEntries(e -> true, (entry, remaining) -> {
             ResourceLocation timerId = entry.getKey();
@@ -114,7 +114,7 @@ public class AbilityTracker implements ISyncObject {
         return root;
     }
 
-    public void deserialize(CompoundNBT root) {
+    public void deserialize(CompoundTag root) {
         if (root.contains("sync")) {
             deserializeList(root.getCompound("sync"), false);
         }
@@ -123,8 +123,8 @@ public class AbilityTracker implements ISyncObject {
         }
     }
 
-    private void deserializeList(CompoundNBT root, boolean local) {
-        for (String key : root.keySet()) {
+    private void deserializeList(CompoundTag root, boolean local) {
+        for (String key : root.getAllKeys()) {
             setTimer(new ResourceLocation(key), root.getInt(key), local);
         }
     }
@@ -225,16 +225,16 @@ public class AbilityTracker implements ISyncObject {
         }
 
         @Override
-        public void serializeUpdate(CompoundNBT tag) {
-            CompoundNBT root = new CompoundNBT();
+        public void serializeUpdate(CompoundTag tag) {
+            CompoundTag root = new CompoundTag();
             dirty.forEach(id -> root.putInt(id.toString(), getTimerTicksRemaining(id)));
             tag.put("cooldowns", root);
             dirty.clear();
         }
 
         @Override
-        public void serializeFull(CompoundNBT tag) {
-            CompoundNBT root = new CompoundNBT();
+        public void serializeFull(CompoundTag tag) {
+            CompoundTag root = new CompoundTag();
             iterateActiveEntries(e -> {
                 return !e.getValue().isLocal();
             }, (entry, cd) -> {
@@ -247,7 +247,7 @@ public class AbilityTracker implements ISyncObject {
 
 
     public static AbilityTracker getTracker(LivingEntity entity) {
-        if (entity instanceof ServerPlayerEntity) {
+        if (entity instanceof ServerPlayer) {
             return new AbilityTrackerServer();
         } else {
             return new AbilityTracker();
@@ -265,17 +265,17 @@ public class AbilityTracker implements ISyncObject {
     }
 
     @Override
-    public void deserializeUpdate(CompoundNBT tag) {
+    public void deserializeUpdate(CompoundTag tag) {
         deserializeList(tag.getCompound("cooldowns"), false);
     }
 
     @Override
-    public void serializeUpdate(CompoundNBT tag) {
+    public void serializeUpdate(CompoundTag tag) {
 
     }
 
     @Override
-    public void serializeFull(CompoundNBT tag) {
+    public void serializeFull(CompoundTag tag) {
 
     }
 }

@@ -3,7 +3,7 @@ package com.chaosbuffalo.mkcore.abilities.training;
 import com.chaosbuffalo.mkcore.abilities.AbilitySource;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
-import net.minecraft.entity.Entity;
+import net.minecraft.world.entity.Entity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +20,7 @@ public class EntityAbilityTrainer implements IAbilityTrainer {
 
     @Override
     public int getEntityId() {
-        return hostEntity.getEntityId();
+        return hostEntity.getId();
     }
 
     @Override

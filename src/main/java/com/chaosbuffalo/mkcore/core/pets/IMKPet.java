@@ -1,6 +1,6 @@
 package com.chaosbuffalo.mkcore.core.pets;
 
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.world.entity.LivingEntity;
 
 public interface IMKPet {
 

@@ -5,16 +5,16 @@ import com.chaosbuffalo.mkcore.core.talents.TalentTreeRecord;
 import com.chaosbuffalo.mkwidgets.client.gui.constraints.CenterYWithOffsetConstraint;
 import com.chaosbuffalo.mkwidgets.client.gui.layouts.MKStackLayoutHorizontal;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKText;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.Font;
 
 public class TalentListEntry extends MKStackLayoutHorizontal {
 
     private final TalentTreeRecord record;
     private final TalentPage screen;
 
-    public TalentListEntry(int x, int y, int height, FontRenderer font, TalentPage screen, TalentTreeRecord record) {
+    public TalentListEntry(int x, int y, int height, Font font, TalentPage screen, TalentTreeRecord record) {
         super(x, y, height);
         this.record = record;
         this.screen = screen;
@@ -35,7 +35,7 @@ public class TalentListEntry extends MKStackLayoutHorizontal {
     }
 
     @Override
-    public void postDraw(MatrixStack matrixStack, Minecraft mc, int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks) {
+    public void postDraw(PoseStack matrixStack, Minecraft mc, int x, int y, int width, int height, int mouseX, int mouseY, float partialTicks) {
         if (isHovered()) {
             mkFill(matrixStack, x, y, x + width, y + height, 0x55ffffff);
         }

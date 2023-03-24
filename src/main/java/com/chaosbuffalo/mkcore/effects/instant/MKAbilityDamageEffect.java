@@ -8,9 +8,9 @@ import com.chaosbuffalo.mkcore.effects.MKActiveEffect;
 import com.chaosbuffalo.mkcore.effects.MKEffect;
 import com.chaosbuffalo.mkcore.effects.MKEffectBuilder;
 import com.chaosbuffalo.mkcore.effects.ScalingValueEffectState;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.potion.EffectType;
-import net.minecraft.util.DamageSource;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -22,7 +22,7 @@ public class MKAbilityDamageEffect extends MKEffect {
 
 
     public MKAbilityDamageEffect() {
-        super(EffectType.HARMFUL);
+        super(MobEffectCategory.HARMFUL);
         setRegistryName(MKCore.makeRL("effect.ability_damage"));
     }
 
@@ -67,7 +67,7 @@ public class MKAbilityDamageEffect extends MKEffect {
                     activeEffect.getDirectEntity(), activeEffect.getSourceEntity(), getModifierScale());
 
             float value = getScaledValue(activeEffect.getStackCount(), activeEffect.getSkillLevel());
-            targetData.getEntity().attackEntityFrom(damage, value);
+            targetData.getEntity().hurt(damage, value);
             return true;
         }
     }

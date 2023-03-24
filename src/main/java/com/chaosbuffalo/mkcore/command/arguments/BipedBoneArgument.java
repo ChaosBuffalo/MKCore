@@ -7,7 +7,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import net.minecraft.command.ISuggestionProvider;
+import net.minecraft.commands.SharedSuggestionProvider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +48,6 @@ public class BipedBoneArgument implements ArgumentType<String> {
     @Override
     public <S> CompletableFuture<Suggestions> listSuggestions(final CommandContext<S> context, final SuggestionsBuilder builder) {
         Stream<String> values = bones.stream();
-        return ISuggestionProvider.suggest(values, builder);
+        return SharedSuggestionProvider.suggest(values, builder);
     }
 }

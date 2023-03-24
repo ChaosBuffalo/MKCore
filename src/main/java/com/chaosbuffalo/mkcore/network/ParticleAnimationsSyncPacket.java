@@ -4,26 +4,26 @@ import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.fx.particles.ParticleAnimation;
 import com.chaosbuffalo.mkcore.fx.particles.ParticleAnimationManager;
 import com.mojang.serialization.Dynamic;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
-import net.minecraft.nbt.NBTDynamicOps;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
 public class ParticleAnimationsSyncPacket {
-    private final Map<ResourceLocation, CompoundNBT> data;
+    private final Map<ResourceLocation, CompoundTag> data;
 
     public ParticleAnimationsSyncPacket(Map<ResourceLocation, ParticleAnimation> animations) {
         data = new HashMap<>();
         for (Map.Entry<ResourceLocation, ParticleAnimation> entry : animations.entrySet()) {
-            INBT dyn = entry.getValue().serialize(NBTDynamicOps.INSTANCE);
-            if (dyn instanceof CompoundNBT) {
-                data.put(entry.getKey(), (CompoundNBT) dyn);
+            Tag dyn = entry.getValue().serialize(NbtOps.INSTANCE);
+            if (dyn instanceof CompoundTag) {
+                data.put(entry.getKey(), (CompoundTag) dyn);
             } else {
                 throw new RuntimeException(String.format(
                         "Particle Animation %s did not serialize to a CompoundNBT!", entry.getKey()));
@@ -32,20 +32,20 @@ public class ParticleAnimationsSyncPacket {
     }
 
 
-    public void toBytes(PacketBuffer buffer) {
+    public void toBytes(FriendlyByteBuf buffer) {
         buffer.writeInt(data.size());
-        for (Map.Entry<ResourceLocation, CompoundNBT> animData : data.entrySet()) {
+        for (Map.Entry<ResourceLocation, CompoundTag> animData : data.entrySet()) {
             buffer.writeResourceLocation(animData.getKey());
-            buffer.writeCompoundTag(animData.getValue());
+            buffer.writeNbt(animData.getValue());
         }
     }
 
-    public ParticleAnimationsSyncPacket(PacketBuffer buffer) {
+    public ParticleAnimationsSyncPacket(FriendlyByteBuf buffer) {
         int count = buffer.readInt();
         data = new HashMap<>();
         for (int i = 0; i < count; i++) {
             ResourceLocation animName = buffer.readResourceLocation();
-            CompoundNBT animData = buffer.readCompoundTag();
+            CompoundTag animData = buffer.readNbt();
             data.put(animName, animData);
         }
     }
@@ -54,9 +54,9 @@ public class ParticleAnimationsSyncPacket {
         NetworkEvent.Context ctx = supplier.get();
         MKCore.LOGGER.debug("Handling particle animation sync packet");
         ctx.enqueueWork(() -> {
-            for (Map.Entry<ResourceLocation, CompoundNBT> animData : data.entrySet()) {
+            for (Map.Entry<ResourceLocation, CompoundTag> animData : data.entrySet()) {
                 ParticleAnimation anim = ParticleAnimation.deserializeFromDynamic(animData.getKey(),
-                        new Dynamic<>(NBTDynamicOps.INSTANCE, animData.getValue()));
+                        new Dynamic<>(NbtOps.INSTANCE, animData.getValue()));
                 ParticleAnimationManager.ANIMATIONS.put(animData.getKey(), anim);
             }
         });

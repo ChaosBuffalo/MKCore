@@ -11,10 +11,9 @@ import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.ParticleEffectSpawnPacket;
 import com.chaosbuffalo.targeting_api.TargetingContext;
 import com.chaosbuffalo.targeting_api.TargetingContexts;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.particles.IParticleData;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.world.entity.LivingEntity;
 
 public abstract class MKSongAbility extends MKToggleAbility {
     public MKSongAbility() {
@@ -65,7 +64,7 @@ public abstract class MKSongAbility extends MKToggleAbility {
         return 10f;
     }
 
-    public IParticleData getSongPulseParticle() {
+    public ParticleOptions getSongPulseParticle() {
         return ParticleTypes.NOTE;
     }
 
@@ -79,9 +78,9 @@ public abstract class MKSongAbility extends MKToggleAbility {
         PacketHandler.sendToTrackingAndSelf(new ParticleEffectSpawnPacket(
                 ParticleTypes.NOTE,
                 ParticleEffects.SPHERE_MOTION, 50, 5,
-                entity.getPosX(), entity.getPosY() + 1.0,
-                entity.getPosZ(), 1.0, 1.0, 1.0, 1.0f,
-                entity.getLookVec()), entity);
+                entity.getX(), entity.getY() + 1.0,
+                entity.getZ(), 1.0, 1.0, 1.0, 1.0f,
+                entity.getLookAngle()), entity);
     }
 
     public void addPulseAreaEffects(IMKEntityData casterData, AreaEffectBuilder addEffect) {

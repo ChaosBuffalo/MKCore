@@ -1,6 +1,5 @@
 package com.chaosbuffalo.mkcore.abilities.training;
 
-import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.abilities.AbilityManager;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
@@ -11,10 +10,13 @@ import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.DynamicOps;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.ResourceLocation;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 
 public abstract class AbilityTrainingRequirement implements ISerializableAttributeContainer, IDynamicMapTypedSerializer {
@@ -59,7 +61,7 @@ public abstract class AbilityTrainingRequirement implements ISerializableAttribu
 
     public abstract void onLearned(MKPlayerData playerData, MKAbility ability);
 
-    public abstract IFormattableTextComponent describe(MKPlayerData playerData);
+    public abstract MutableComponent describe(MKPlayerData playerData);
 
     public <D> void readAdditionalData(Dynamic<D> dynamic) {
         deserializeAttributeMap(dynamic, "attributes");

@@ -12,10 +12,10 @@ import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKRectangle;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKText;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKWidget;
 import com.chaosbuffalo.mkwidgets.utils.TextureRegion;
-import net.minecraft.client.resources.I18n;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nonnull;
 import java.util.Comparator;
@@ -27,7 +27,7 @@ public class TalentPage extends PlayerPageBase {
     private ScrollingListPanelLayout talentScrollPanel;
 
     public TalentPage(MKPlayerData playerData) {
-        super(playerData, new StringTextComponent("Talents"));
+        super(playerData, new TextComponent("Talents"));
     }
 
     @Override
@@ -105,8 +105,8 @@ public class TalentPage extends PlayerPageBase {
     private MKStackLayoutHorizontal createXpBar(MKPlayerData pData, int contentX, int contentY) {
         MKStackLayoutHorizontal xpBarTray = new MKStackLayoutHorizontal(contentX, contentY - 36, 11);
         xpBarTray.setPaddingLeft(10);
-        MKText xpBarText = new MKText(font, new TranslationTextComponent("mkcore.gui.xp_bar.name"));
-        xpBarText.setWidth(font.getStringWidth(I18n.format("mkcore.gui.xp_bar.name")));
+        MKText xpBarText = new MKText(font, new TranslatableComponent("mkcore.gui.xp_bar.name"));
+        xpBarText.setWidth(font.width(I18n.get("mkcore.gui.xp_bar.name")));
         xpBarTray.setMarginLeft(11);
         xpBarTray.addWidget(xpBarText);
         xpBarTray.addConstraintToWidget(new OffsetConstraint(0, 2, false, true), xpBarText);

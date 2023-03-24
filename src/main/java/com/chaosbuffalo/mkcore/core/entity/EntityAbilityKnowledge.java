@@ -9,13 +9,13 @@ import com.chaosbuffalo.mkcore.core.IMKAbilityKnowledge;
 import com.chaosbuffalo.mkcore.core.IMKEntityKnowledge;
 import com.chaosbuffalo.mkcore.core.MKEntityData;
 import com.chaosbuffalo.mkcore.sync.IMKSerializable;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nullable;
 import java.util.*;
 
-public class EntityAbilityKnowledge implements IMKEntityKnowledge, IMKAbilityKnowledge, IMKSerializable<CompoundNBT> {
+public class EntityAbilityKnowledge implements IMKEntityKnowledge, IMKAbilityKnowledge, IMKSerializable<CompoundTag> {
     private final MKEntityData entityData;
     private final Map<ResourceLocation, MKAbilityInfo> abilityInfoMap = new HashMap<>();
     private final Map<ResourceLocation, Integer> abilityPriorities = new HashMap<>();
@@ -104,12 +104,12 @@ public class EntityAbilityKnowledge implements IMKEntityKnowledge, IMKAbilityKno
     }
 
     @Override
-    public CompoundNBT serialize() {
-        CompoundNBT tag = new CompoundNBT();
-        CompoundNBT abilityInfos = new CompoundNBT();
+    public CompoundTag serialize() {
+        CompoundTag tag = new CompoundTag();
+        CompoundTag abilityInfos = new CompoundTag();
         abilityInfoMap.forEach((key, value) -> abilityInfos.put(key.toString(), value.serialize()));
         tag.put("abilities", abilityInfos);
-        CompoundNBT priorities = new CompoundNBT();
+        CompoundTag priorities = new CompoundTag();
         abilityPriorities.forEach((key, value) -> priorities.putInt(key.toString(), value));
         tag.put("priorities", priorities);
         return tag;
@@ -124,10 +124,10 @@ public class EntityAbilityKnowledge implements IMKEntityKnowledge, IMKAbilityKno
     }
 
     @Override
-    public boolean deserialize(CompoundNBT tag) {
+    public boolean deserialize(CompoundTag tag) {
         if (tag.contains("abilities")) {
-            CompoundNBT abilityInfo = tag.getCompound("abilities");
-            for (String key : abilityInfo.keySet()) {
+            CompoundTag abilityInfo = tag.getCompound("abilities");
+            for (String key : abilityInfo.getAllKeys()) {
                 ResourceLocation loc = new ResourceLocation(key);
                 MKAbilityInfo info = createAbilityInfo(loc);
                 if (info != null) {
@@ -138,8 +138,8 @@ public class EntityAbilityKnowledge implements IMKEntityKnowledge, IMKAbilityKno
             }
         }
         if (tag.contains("priorities")) {
-            CompoundNBT priorityInfo = tag.getCompound("priorities");
-            for (String key : priorityInfo.keySet()) {
+            CompoundTag priorityInfo = tag.getCompound("priorities");
+            for (String key : priorityInfo.getAllKeys()) {
                 ResourceLocation loc = new ResourceLocation(key);
                 abilityPriorities.put(loc, priorityInfo.getInt(key));
             }

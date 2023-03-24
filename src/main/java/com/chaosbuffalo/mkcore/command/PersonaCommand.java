@@ -10,10 +10,10 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.Commands;
-import net.minecraft.command.ISuggestionProvider;
-import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.SharedSuggestionProvider;
+import net.minecraft.server.level.ServerPlayer;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -21,7 +21,7 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 public class PersonaCommand {
-    public static LiteralArgumentBuilder<CommandSource> register() {
+    public static LiteralArgumentBuilder<CommandSourceStack> register() {
         return Commands.literal("persona")
                 .then(Commands.literal("list")
                         .executes(PersonaCommand::listPersonas))
@@ -39,17 +39,17 @@ public class PersonaCommand {
                 ;
     }
 
-    static CompletableFuture<Suggestions> suggestKnownPersonas(final CommandContext<CommandSource> context, final SuggestionsBuilder builder) throws CommandSyntaxException {
+    static CompletableFuture<Suggestions> suggestKnownPersonas(final CommandContext<CommandSourceStack> context, final SuggestionsBuilder builder) throws CommandSyntaxException {
         return suggestPersonas(context, builder, false);
     }
 
-    static CompletableFuture<Suggestions> suggestInactivePersonas(final CommandContext<CommandSource> context, final SuggestionsBuilder builder) throws CommandSyntaxException {
+    static CompletableFuture<Suggestions> suggestInactivePersonas(final CommandContext<CommandSourceStack> context, final SuggestionsBuilder builder) throws CommandSyntaxException {
         return suggestPersonas(context, builder, true);
     }
 
-    static CompletableFuture<Suggestions> suggestPersonas(final CommandContext<CommandSource> context, final SuggestionsBuilder builder, boolean inactive) throws CommandSyntaxException {
-        ServerPlayerEntity player = context.getSource().asPlayer();
-        return ISuggestionProvider.suggest(MKCore.getPlayer(player).map(playerData -> {
+    static CompletableFuture<Suggestions> suggestPersonas(final CommandContext<CommandSourceStack> context, final SuggestionsBuilder builder, boolean inactive) throws CommandSyntaxException {
+        ServerPlayer player = context.getSource().getPlayerOrException();
+        return SharedSuggestionProvider.suggest(MKCore.getPlayer(player).map(playerData -> {
             PersonaManager manager = playerData.getPersonaManager();
             Set<String> names = new HashSet<>(manager.getPersonaNames());
             if (inactive) {
@@ -59,8 +59,8 @@ public class PersonaCommand {
         }).orElse(Collections.emptySet()), builder);
     }
 
-    static int listPersonas(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
-        ServerPlayerEntity player = ctx.getSource().asPlayer();
+    static int listPersonas(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        ServerPlayer player = ctx.getSource().getPlayerOrException();
         MKCore.getPlayer(player).ifPresent(playerData -> {
             PersonaManager personaManager = playerData.getPersonaManager();
 
@@ -76,8 +76,8 @@ public class PersonaCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    static int createPersona(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
-        ServerPlayerEntity player = ctx.getSource().asPlayer();
+    static int createPersona(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        ServerPlayer player = ctx.getSource().getPlayerOrException();
         MKCore.getPlayer(player).ifPresent(playerData -> {
             String name = StringArgumentType.getString(ctx, "name");
 
@@ -95,8 +95,8 @@ public class PersonaCommand {
     }
 
 
-    static int switchPersona(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
-        ServerPlayerEntity player = ctx.getSource().asPlayer();
+    static int switchPersona(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        ServerPlayer player = ctx.getSource().getPlayerOrException();
         MKCore.getPlayer(player).ifPresent(playerData -> {
             String name = StringArgumentType.getString(ctx, "name");
 
@@ -115,8 +115,8 @@ public class PersonaCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    static int deletePersona(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
-        ServerPlayerEntity player = ctx.getSource().asPlayer();
+    static int deletePersona(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        ServerPlayer player = ctx.getSource().getPlayerOrException();
         MKCore.getPlayer(player).ifPresent(playerData -> {
             String name = StringArgumentType.getString(ctx, "name");
 

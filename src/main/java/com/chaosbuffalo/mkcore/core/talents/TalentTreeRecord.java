@@ -7,9 +7,10 @@ import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.DynamicOps;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.nbt.NBTDynamicOps;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
 import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nonnull;
@@ -267,54 +268,54 @@ public class TalentTreeRecord {
         }
 
         @Override
-        public void deserializeUpdate(CompoundNBT tag) {
-            CompoundNBT root = tag.getCompound(getTreeDefinition().getTreeId().toString());
+        public void deserializeUpdate(CompoundTag tag) {
+            CompoundTag root = tag.getCompound(getTreeDefinition().getTreeId().toString());
 
             if (root.getBoolean("f")) {
                 lines.clear();
             }
 
             if (root.contains("u")) {
-                CompoundNBT updated = root.getCompound("u");
+                CompoundTag updated = root.getCompound("u");
 
-                for (String line : updated.keySet()) {
+                for (String line : updated.getAllKeys()) {
                     TalentLineRecord lineRecord = getLineRecord(line);
                     if (lineRecord == null) {
                         MKCore.LOGGER.warn("TalentTreeUpdater.deserializeUpdate unknown line {}", line);
                         continue;
                     }
-                    updated.getList(line, Constants.NBT.TAG_COMPOUND).forEach(nbt -> {
-                        int index = ((CompoundNBT) nbt).getInt("i");
+                    updated.getList(line, Tag.TAG_COMPOUND).forEach(nbt -> {
+                        int index = ((CompoundTag) nbt).getInt("i");
                         TalentRecord record = lineRecord.getRecord(index);
                         if (record != null) {
-                            record.deserialize(new Dynamic<>(NBTDynamicOps.INSTANCE, nbt));
+                            record.deserialize(new Dynamic<>(NbtOps.INSTANCE, nbt));
                         }
                     });
                 }
             }
         }
 
-        private CompoundNBT writeNode(TalentRecord rec) {
-            CompoundNBT recTag = (CompoundNBT) rec.serialize(NBTDynamicOps.INSTANCE);
+        private CompoundTag writeNode(TalentRecord rec) {
+            CompoundTag recTag = (CompoundTag) rec.serialize(NbtOps.INSTANCE);
             recTag.putInt("i", rec.getNode().getIndex());
             return recTag;
         }
 
         @Override
-        public void serializeUpdate(CompoundNBT tag) {
-            CompoundNBT root = new CompoundNBT();
+        public void serializeUpdate(CompoundTag tag) {
+            CompoundTag root = new CompoundTag();
 
-            CompoundNBT updateTag = new CompoundNBT();
+            CompoundTag updateTag = new CompoundTag();
             updatedLines.forEach((key, bits) -> {
                 TalentLineRecord lineRecord = getLineRecord(key);
                 if (lineRecord == null) {
                     return;
                 }
 
-                ListNBT list = bits.stream()
+                ListTag list = bits.stream()
                         .mapToObj(lineRecord::getRecord)
                         .map(this::writeNode)
-                        .collect(Collectors.toCollection(ListNBT::new));
+                        .collect(Collectors.toCollection(ListTag::new));
                 updateTag.put(key, list);
             });
 
@@ -325,17 +326,17 @@ public class TalentTreeRecord {
         }
 
         @Override
-        public void serializeFull(CompoundNBT tag) {
-            CompoundNBT root = new CompoundNBT();
+        public void serializeFull(CompoundTag tag) {
+            CompoundTag root = new CompoundTag();
             root.putBoolean("f", true);
 
-            CompoundNBT updateTag = new CompoundNBT();
+            CompoundTag updateTag = new CompoundTag();
 
             lines.values().forEach(line -> {
                 String lineName = line.getLineDefinition().getName();
-                ListNBT list = line.getRecords().stream()
+                ListTag list = line.getRecords().stream()
                         .map(this::writeNode)
-                        .collect(Collectors.toCollection(ListNBT::new));
+                        .collect(Collectors.toCollection(ListTag::new));
                 updateTag.put(lineName, list);
             });
 

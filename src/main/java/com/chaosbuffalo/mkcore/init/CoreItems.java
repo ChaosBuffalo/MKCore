@@ -4,15 +4,12 @@ import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.core.IMKAbilityProvider;
 import com.chaosbuffalo.mkcore.test.MKTestAbilities;
-import com.chaosbuffalo.mkcore.test.abilities.EmberAbility;
-import com.chaosbuffalo.mkcore.test.abilities.WhirlwindBlades;
-import com.chaosbuffalo.mkcore.test.abilities.NewBurningSoul;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.*;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.renderer.item.ItemProperties;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.*;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ObjectHolder;
 
@@ -30,18 +27,18 @@ public class CoreItems {
     @SubscribeEvent
     public static void registerItems(RegistryEvent.Register<Item> event) {
         event.getRegistry().register(
-                new AbilityArmor(ArmorMaterial.IRON, EquipmentSlotType.CHEST, new Item.Properties(), MKTestAbilities.TEST_NEW_BURNING_SOUL)
+                new AbilityArmor(ArmorMaterials.IRON, EquipmentSlot.CHEST, new Item.Properties(), MKTestAbilities.TEST_NEW_BURNING_SOUL)
                         .setRegistryName(MKCore.makeRL("ability_chest")));
         event.getRegistry().register(new AbilitySword().setRegistryName(MKCore.makeRL("ability_sword")));
         event.getRegistry().register(
-                new AbilityArmor(ArmorMaterial.IRON, EquipmentSlotType.FEET, new Item.Properties(), MKTestAbilities.TEST_EMBER)
+                new AbilityArmor(ArmorMaterials.IRON, EquipmentSlot.FEET, new Item.Properties(), MKTestAbilities.TEST_EMBER)
                         .setRegistryName(MKCore.makeRL("ability_boots")));
     }
 
     public static class AbilityArmor extends ArmorItem implements IMKAbilityProvider {
         private final Supplier<? extends MKAbility> ability;
 
-        public AbilityArmor(IArmorMaterial materialIn, EquipmentSlotType slot, Properties builder, Supplier<? extends MKAbility>  ability) {
+        public AbilityArmor(ArmorMaterial materialIn, EquipmentSlot slot, Properties builder, Supplier<? extends MKAbility> ability) {
             super(materialIn, slot, builder);
             this.ability = ability;
         }
@@ -55,7 +52,7 @@ public class CoreItems {
     public static class AbilitySword extends SwordItem implements IMKAbilityProvider {
 
         public AbilitySword() {
-            super(ItemTier.IRON, 3, -2.4F, (new Item.Properties()).group(ItemGroup.COMBAT));
+            super(Tiers.IRON, 3, -2.4F, (new Item.Properties()).tab(CreativeModeTab.TAB_COMBAT));
         }
 
         @Override
@@ -64,7 +61,7 @@ public class CoreItems {
         }
     }
 
-    public static void registerItemProperties(){
+    public static void registerItemProperties() {
         List<Item> swordsToAddBlocking = new ArrayList<>();
         swordsToAddBlocking.add(Items.DIAMOND_SWORD);
         swordsToAddBlocking.add(Items.WOODEN_SWORD);
@@ -72,11 +69,12 @@ public class CoreItems {
         swordsToAddBlocking.add(Items.IRON_SWORD);
         swordsToAddBlocking.add(Items.GOLDEN_SWORD);
         swordsToAddBlocking.add(Items.NETHERITE_SWORD);
-        for (Item sword : swordsToAddBlocking){
+        for (Item sword : swordsToAddBlocking) {
 
-            ItemModelsProperties.registerProperty(sword, new ResourceLocation("blocking"),
-                    (itemStack, world, entity) -> entity != null && entity.isHandActive()
-                            && entity.getActiveItemStack() == itemStack ? 1.0F : 0.0F);
+            //ItemStack p_174676_, @Nullable ClientLevel p_174677_, @Nullable LivingEntity p_174678_, int p_174679_
+            ItemProperties.register(sword, new ResourceLocation("blocking"),
+                    (itemStack, world, entity, p_174679_) -> entity != null && entity.isUsingItem()
+                            && entity.getUseItem() == itemStack ? 1.0F : 0.0F);
         }
 
 

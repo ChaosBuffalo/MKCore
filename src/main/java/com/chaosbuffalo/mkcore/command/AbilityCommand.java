@@ -18,11 +18,11 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.Commands;
-import net.minecraft.command.ISuggestionProvider;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.SharedSuggestionProvider;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,7 +32,7 @@ import java.util.stream.Stream;
 
 public class AbilityCommand {
 
-    public static LiteralArgumentBuilder<CommandSource> register() {
+    public static LiteralArgumentBuilder<CommandSourceStack> register() {
         return Commands.literal("ability")
                 .then(Commands.literal("learn")
                         .then(Commands.argument("ability", AbilityIdArgument.ability())
@@ -59,10 +59,10 @@ public class AbilityCommand {
                 ;
     }
 
-    public static CompletableFuture<Suggestions> suggestForgettableAbilities(final CommandContext<CommandSource> context,
+    public static CompletableFuture<Suggestions> suggestForgettableAbilities(final CommandContext<CommandSourceStack> context,
                                                                              final SuggestionsBuilder builder) throws CommandSyntaxException {
-        ServerPlayerEntity player = context.getSource().asPlayer();
-        return ISuggestionProvider.suggest(MKCore.getPlayer(player)
+        ServerPlayer player = context.getSource().getPlayerOrException();
+        return SharedSuggestionProvider.suggest(MKCore.getPlayer(player)
                         .map(playerData -> playerData.getAbilities()
                                 .getKnownStream()
                                 .filter(info -> info.getSources().stream().anyMatch(s -> s.getSourceType().isSimple()))
@@ -72,10 +72,10 @@ public class AbilityCommand {
                 builder);
     }
 
-    static CompletableFuture<Suggestions> suggestUnknownAbilities(final CommandContext<CommandSource> context,
+    static CompletableFuture<Suggestions> suggestUnknownAbilities(final CommandContext<CommandSourceStack> context,
                                                                   final SuggestionsBuilder builder) throws CommandSyntaxException {
-        ServerPlayerEntity player = context.getSource().asPlayer();
-        return ISuggestionProvider.suggest(MKCore.getPlayer(player)
+        ServerPlayer player = context.getSource().getPlayerOrException();
+        return SharedSuggestionProvider.suggest(MKCore.getPlayer(player)
                         .map(playerData -> MKCoreRegistry.ABILITIES.getKeys().stream()
                                 .filter(abilityId -> !playerData.getAbilities().knowsAbility(abilityId))
                                 .map(ResourceLocation::toString))
@@ -83,8 +83,8 @@ public class AbilityCommand {
                 builder);
     }
 
-    static int learnAbility(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
-        ServerPlayerEntity player = ctx.getSource().asPlayer();
+    static int learnAbility(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        ServerPlayer player = ctx.getSource().getPlayerOrException();
         ResourceLocation abilityId = ctx.getArgument("ability", ResourceLocation.class);
 
         MKAbility ability = MKCoreRegistry.getAbility(abilityId);
@@ -95,8 +95,8 @@ public class AbilityCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    static int learnAbilityWithType(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
-        ServerPlayerEntity player = ctx.getSource().asPlayer();
+    static int learnAbilityWithType(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        ServerPlayer player = ctx.getSource().getPlayerOrException();
         ResourceLocation abilityId = ctx.getArgument("ability", ResourceLocation.class);
         AbilitySourceType type = ctx.getArgument("type", AbilitySourceType.class);
 
@@ -112,8 +112,8 @@ public class AbilityCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    static int learnAllAbilities(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
-        ServerPlayerEntity player = ctx.getSource().asPlayer();
+    static int learnAllAbilities(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        ServerPlayer player = ctx.getSource().getPlayerOrException();
 
         MKCore.getPlayer(player).ifPresent(playerData ->
                 MKCoreRegistry.ABILITIES.forEach(ability ->
@@ -122,8 +122,8 @@ public class AbilityCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    static int unlearnAllAbilities(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
-        ServerPlayerEntity player = ctx.getSource().asPlayer();
+    static int unlearnAllAbilities(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        ServerPlayer player = ctx.getSource().getPlayerOrException();
 
         MKCore.getPlayer(player).ifPresent(playerData -> {
             List<MKAbilityInfo> allAbilities = new ArrayList<>(playerData.getAbilities().getAllAbilities());
@@ -133,15 +133,15 @@ public class AbilityCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    static int setSlotCount(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
-        ServerPlayerEntity player = ctx.getSource().asPlayer();
+    static int setSlotCount(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        ServerPlayer player = ctx.getSource().getPlayerOrException();
         int size = IntegerArgumentType.getInteger(ctx, "size");
         MKCore.getPlayer(player).ifPresent(cap -> cap.getAbilities().setAbilityPoolSize(size));
         return Command.SINGLE_SUCCESS;
     }
 
-    static int showSlotCount(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
-        ServerPlayerEntity player = ctx.getSource().asPlayer();
+    static int showSlotCount(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        ServerPlayer player = ctx.getSource().getPlayerOrException();
         MKCore.getPlayer(player).ifPresent(cap -> {
             PlayerAbilityKnowledge abilityKnowledge = cap.getAbilities();
             int currentSize = abilityKnowledge.getCurrentPoolCount();
@@ -151,8 +151,8 @@ public class AbilityCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    static int showPool(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
-        ServerPlayerEntity player = ctx.getSource().asPlayer();
+    static int showPool(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        ServerPlayer player = ctx.getSource().getPlayerOrException();
         MKCore.getPlayer(player).ifPresent(cap -> {
             PlayerAbilityKnowledge abilityKnowledge = cap.getAbilities();
             int currentSize = abilityKnowledge.getCurrentPoolCount();
@@ -165,8 +165,8 @@ public class AbilityCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    static int unlearnAbility(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
-        ServerPlayerEntity player = ctx.getSource().asPlayer();
+    static int unlearnAbility(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        ServerPlayer player = ctx.getSource().getPlayerOrException();
         ResourceLocation abilityId = ctx.getArgument("ability", ResourceLocation.class);
 
         MKCore.getPlayer(player).ifPresent(playerData -> {
@@ -184,8 +184,8 @@ public class AbilityCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    static int listAbilities(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
-        ServerPlayerEntity player = ctx.getSource().asPlayer();
+    static int listAbilities(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        ServerPlayer player = ctx.getSource().getPlayerOrException();
 
         MKCore.getPlayer(player).ifPresent(cap -> {
             PlayerAbilityKnowledge abilityKnowledge = cap.getAbilities();

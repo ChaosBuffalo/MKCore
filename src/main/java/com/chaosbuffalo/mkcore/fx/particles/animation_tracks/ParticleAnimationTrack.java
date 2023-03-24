@@ -6,20 +6,16 @@ import com.chaosbuffalo.mkcore.serialization.IDynamicMapTypedSerializer;
 import com.chaosbuffalo.mkcore.serialization.ISerializableAttributeContainer;
 import com.chaosbuffalo.mkcore.serialization.attributes.ISerializableAttribute;
 import com.google.common.collect.ImmutableMap;
-import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.DynamicOps;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public abstract class ParticleAnimationTrack implements ISerializableAttributeContainer, IDynamicMapTypedSerializer {
     private static final String TYPE_NAME_FIELD = "trackType";
@@ -37,7 +33,7 @@ public abstract class ParticleAnimationTrack implements ISerializableAttributeCo
         COLOR
     }
 
-    public ParticleAnimationTrack(ResourceLocation typeName, AnimationTrackType trackType){
+    public ParticleAnimationTrack(ResourceLocation typeName, AnimationTrackType trackType) {
         this.typeName = typeName;
         this.attributes = new ArrayList<>();
         this.trackType = trackType;
@@ -49,13 +45,13 @@ public abstract class ParticleAnimationTrack implements ISerializableAttributeCo
 
     public abstract ParticleAnimationTrack copy();
 
-    public ITextComponent getDescription(){
-        return new TranslationTextComponent(String.format("%s.anim_track.%s.name",
+    public Component getDescription() {
+        return new TranslatableComponent(String.format("%s.anim_track.%s.name",
                 getTypeName().getNamespace(), getTypeName().getPath()));
     }
 
-    public static ITextComponent getDescriptionFromType(ResourceLocation type){
-        return new TranslationTextComponent(String.format("%s.anim_track.%s.name",
+    public static Component getDescriptionFromType(ResourceLocation type) {
+        return new TranslatableComponent(String.format("%s.anim_track.%s.name",
                 type.getNamespace(), type.getPath()));
     }
 
@@ -63,7 +59,7 @@ public abstract class ParticleAnimationTrack implements ISerializableAttributeCo
         return trackType;
     }
 
-    public void animate(MKParticle particle, float time, int trackTick, int duration, float partialTicks){
+    public void animate(MKParticle particle, float time, int trackTick, int duration, float partialTicks) {
 
     }
 
@@ -82,7 +78,7 @@ public abstract class ParticleAnimationTrack implements ISerializableAttributeCo
         this.attributes.addAll(Arrays.asList(attributes));
     }
 
-    public void begin(MKParticle particle, int duration){
+    public void begin(MKParticle particle, int duration) {
 
     }
 
@@ -90,16 +86,16 @@ public abstract class ParticleAnimationTrack implements ISerializableAttributeCo
 
     }
 
-    public void end(MKParticle particle){
+    public void end(MKParticle particle) {
 
     }
 
-    public float generateVariance(MKParticle particle){
+    public float generateVariance(MKParticle particle) {
         return (particle.getRand().nextFloat() * 2.0f) - 1.0f;
     }
 
-    public Vector3d generateVarianceVector(MKParticle particle){
-        return new Vector3d(generateVariance(particle), generateVariance(particle), generateVariance(particle));
+    public Vec3 generateVarianceVector(MKParticle particle) {
+        return new Vec3(generateVariance(particle), generateVariance(particle), generateVariance(particle));
     }
 
 

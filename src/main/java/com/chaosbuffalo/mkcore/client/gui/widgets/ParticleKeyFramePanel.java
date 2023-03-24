@@ -8,16 +8,16 @@ import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKButton;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKRectangle;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKScrollView;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKText;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.client.gui.Font;
+import net.minecraft.network.chat.TextComponent;
 
 public class ParticleKeyFramePanel extends MKScrollView {
     private ParticleKeyFrame particleKeyFrame;
     private final ParticleEditorScreen particleEditor;
-    private final FontRenderer font;
+    private final Font font;
 
     public ParticleKeyFramePanel(int x, int y, int width, int height, ParticleKeyFrame frame,
-                                 FontRenderer font, ParticleEditorScreen particleEditor) {
+                                 Font font, ParticleEditorScreen particleEditor) {
         super(x, y, width, height, true);
         this.particleKeyFrame = frame;
         this.particleEditor = particleEditor;
@@ -30,23 +30,23 @@ public class ParticleKeyFramePanel extends MKScrollView {
         setup();
     }
 
-    public void setup(){
+    public void setup() {
         clearWidgets();
         MKStackLayoutVertical layout = new MKStackLayoutVertical(getX(), getY(), getWidth());
         layout.setMargins(4, 0, 5, 5);
         layout.setPaddings(0, 0, 5, 5);
         addWidget(layout);
         particleEditor.setSpawnWidget(null);
-        if (particleKeyFrame != null){
+        if (particleKeyFrame != null) {
             MKButton backButton = new MKButton(0, 0, "Back");
             backButton.setPressedCallback((btn, click) -> {
-               particleEditor.selectKeyFrame(null);
-               return true;
+                particleEditor.selectKeyFrame(null);
+                return true;
             });
             layout.addWidget(backButton);
             SerializableAttributeContainerPanel panel = new SerializableAttributeContainerPanel(
                     0, 0, getWidth(), particleKeyFrame, font, (attr) -> {
-                        particleEditor.updateFrameView();
+                particleEditor.updateFrameView();
             });
             layout.addWidget(panel);
             MKRectangle divider2 = new MKRectangle(getX(), getY(), getWidth(), 1, 0xffffffff);
@@ -54,19 +54,19 @@ public class ParticleKeyFramePanel extends MKScrollView {
 
             AnimationTrackPanel colorPanel = new AnimationTrackPanel(getX(), getY(), getWidth(),
                     ParticleAnimationTrack.AnimationTrackType.COLOR, font, particleEditor);
-            if (particleKeyFrame.hasColorTrack()){
+            if (particleKeyFrame.hasColorTrack()) {
                 colorPanel.setTrack(particleKeyFrame.getColorTrack());
             }
             layout.addWidget(colorPanel);
             AnimationTrackPanel scalePanel = new AnimationTrackPanel(getX(), getY(), getWidth(),
                     ParticleAnimationTrack.AnimationTrackType.SCALE, font, particleEditor);
-            if (particleKeyFrame.hasScaleTrack()){
+            if (particleKeyFrame.hasScaleTrack()) {
                 scalePanel.setTrack(particleKeyFrame.getScaleTrack());
             }
             layout.addWidget(scalePanel);
             AnimationTrackPanel motionPanel = new AnimationTrackPanel(getX(), getY(), getWidth(),
                     ParticleAnimationTrack.AnimationTrackType.MOTION, font, particleEditor);
-            if (particleKeyFrame.hasMotionTrack()){
+            if (particleKeyFrame.hasMotionTrack()) {
                 motionPanel.setTrack(particleKeyFrame.getMotionTrack());
             }
             layout.addWidget(motionPanel);
@@ -81,7 +81,7 @@ public class ParticleKeyFramePanel extends MKScrollView {
                     getWidth(), particleEditor.getSpawnPattern(), font, particleEditor);
             particleEditor.setSpawnWidget(pattern);
             layout.addWidget(pattern);
-            MKText text = new MKText(font, new StringTextComponent("Click a current key frame or add a new one to edit"));
+            MKText text = new MKText(font, new TextComponent("Click a current key frame or add a new one to edit"));
             text.setColor(0xffffffff);
             text.setWidth(layout.getWidth());
             text.setMultiline(true);

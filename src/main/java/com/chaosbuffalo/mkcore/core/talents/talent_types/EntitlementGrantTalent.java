@@ -5,7 +5,7 @@ import com.chaosbuffalo.mkcore.core.talents.TalentNode;
 import com.chaosbuffalo.mkcore.core.talents.TalentType;
 import com.chaosbuffalo.mkcore.core.talents.nodes.EntitlementGrantTalentNode;
 import com.mojang.serialization.Dynamic;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 
 public class EntitlementGrantTalent extends MKTalent {
 

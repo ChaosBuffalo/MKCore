@@ -2,11 +2,10 @@ package com.chaosbuffalo.mkcore.effects;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
 
 import javax.annotation.Nullable;
 import java.util.UUID;
@@ -37,7 +36,7 @@ public abstract class MKEffectState {
     public abstract boolean performEffect(IMKEntityData targetData, MKActiveEffect instance);
 
     protected boolean isEffectSource(Entity entity, MKActiveEffect activeEffect) {
-        return entity.getUniqueID().equals(activeEffect.getSourceId());
+        return entity.getUUID().equals(activeEffect.getSourceId());
     }
 
     public void setMaxStacks(int max) {
@@ -46,11 +45,11 @@ public abstract class MKEffectState {
 
     @Deprecated
     @Nullable
-    protected Entity findEntity(Entity entity, UUID entityId, World world) {
+    protected Entity findEntity(Entity entity, UUID entityId, Level world) {
         if (entity != null)
             return entity;
-        if (!world.isRemote()) {
-            return ((ServerWorld) world).getEntityByUuid(entityId);
+        if (!world.isClientSide()) {
+            return ((ServerLevel) world).getEntity(entityId);
         }
         return null;
     }
@@ -58,7 +57,7 @@ public abstract class MKEffectState {
     @Deprecated
     @Nullable
     protected Entity findEntity(Entity entity, UUID entityId, IMKEntityData targetData) {
-        return findEntity(entity, entityId, targetData.getEntity().getEntityWorld());
+        return findEntity(entity, entityId, targetData.getEntity().getCommandSenderWorld());
     }
 
     public boolean validateOnApply(IMKEntityData targetData, MKActiveEffect activeEffect) {
@@ -69,13 +68,13 @@ public abstract class MKEffectState {
         return true;
     }
 
-    public void serializeStorage(CompoundNBT stateTag) {
+    public void serializeStorage(CompoundTag stateTag) {
         if (maxStacks != -1) {
             stateTag.putInt("maxStacks", maxStacks);
         }
     }
 
-    public void deserializeStorage(CompoundNBT tag) {
+    public void deserializeStorage(CompoundTag tag) {
         if (tag.contains("maxStacks")) {
             maxStacks = tag.getInt("maxStacks");
         }

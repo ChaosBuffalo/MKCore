@@ -5,11 +5,11 @@ import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.core.entity.EntityEffectHandler;
 import com.chaosbuffalo.mkcore.effects.MKActiveEffect;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.Entity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,7 +31,7 @@ public class EntityEffectPacket {
 
     // Server
     public EntityEffectPacket(IMKEntityData entityData, MKActiveEffect activeEffect, Action action) {
-        this.entityId = entityData.getEntity().getEntityId();
+        this.entityId = entityData.getEntity().getId();
         this.action = action;
         sourceId = activeEffect.getSourceId();
         effects.add(activeEffect);
@@ -39,22 +39,22 @@ public class EntityEffectPacket {
 
     // Server
     public EntityEffectPacket(IMKEntityData entityData, UUID sourceId, Collection<MKActiveEffect> effectInstances) {
-        this.entityId = entityData.getEntity().getEntityId();
+        this.entityId = entityData.getEntity().getId();
         this.sourceId = sourceId;
         action = Action.SET_ALL;
         effects.addAll(effectInstances);
     }
 
     // Client
-    public EntityEffectPacket(PacketBuffer buffer) {
+    public EntityEffectPacket(FriendlyByteBuf buffer) {
         entityId = buffer.readVarInt();
-        action = buffer.readEnumValue(Action.class);
-        sourceId = buffer.readUniqueId();
+        action = buffer.readEnum(Action.class);
+        sourceId = buffer.readUUID();
 
         int count = buffer.readVarInt();
         for (int i = 0; i < count; i++) {
             ResourceLocation effectId = buffer.readResourceLocation();
-            CompoundNBT data = buffer.readCompoundTag();
+            CompoundTag data = buffer.readNbt();
             if (data == null)
                 continue;
 
@@ -66,14 +66,14 @@ public class EntityEffectPacket {
     }
 
     // Server
-    public void toBytes(PacketBuffer buffer) {
+    public void toBytes(FriendlyByteBuf buffer) {
         buffer.writeVarInt(entityId);
-        buffer.writeEnumValue(action);
-        buffer.writeUniqueId(sourceId);
+        buffer.writeEnum(action);
+        buffer.writeUUID(sourceId);
         buffer.writeVarInt(effects.size());
         for (MKActiveEffect effect : effects) {
             buffer.writeResourceLocation(effect.getEffect().getId());
-            buffer.writeCompoundTag(effect.serializeClient());
+            buffer.writeNbt(effect.serializeClient());
         }
     }
 
@@ -86,10 +86,10 @@ public class EntityEffectPacket {
     static class ClientHandler {
         public static void handleClient(EntityEffectPacket packet) {
             Minecraft mc = Minecraft.getInstance();
-            if (mc.world == null)
+            if (mc.level == null)
                 return;
 
-            Entity target = mc.world.getEntityByID(packet.entityId);
+            Entity target = mc.level.getEntity(packet.entityId);
             if (target == null)
                 return;
 

@@ -16,19 +16,19 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.JsonOps;
-import net.minecraft.client.resources.JsonReloadListener;
-import net.minecraft.particles.ParticleType;
-import net.minecraft.profiler.IProfiler;
-import net.minecraft.resources.IResourceManager;
+import net.minecraft.core.particles.ParticleType;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.storage.FolderName;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.world.level.storage.LevelResource;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.OnDatapackSyncEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent;
-import net.minecraftforge.fml.event.server.FMLServerStoppingEvent;
+import net.minecraftforge.fmlserverevents.FMLServerAboutToStartEvent;
+import net.minecraftforge.fmlserverevents.FMLServerStoppingEvent;
 
 import javax.annotation.Nullable;
 import java.io.*;
@@ -40,7 +40,7 @@ import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class ParticleAnimationManager extends JsonReloadListener {
+public class ParticleAnimationManager extends SimpleJsonResourceReloadListener {
     public static final String DEFINITION_FOLDER = "particle_animations";
 
     public static final ResourceLocation RAW_EFFECT = new ResourceLocation(MKCore.MOD_ID, "particle_anim.raw_effect");
@@ -56,7 +56,7 @@ public class ParticleAnimationManager extends JsonReloadListener {
         private final ParticleAnimationTrack.AnimationTrackType trackType;
 
         public TrackDeserializerEntry(Supplier<ParticleAnimationTrack> trackSupplier,
-                                      ParticleAnimationTrack.AnimationTrackType trackType){
+                                      ParticleAnimationTrack.AnimationTrackType trackType) {
             this.trackSupplier = trackSupplier;
             this.trackType = trackType;
         }
@@ -81,8 +81,8 @@ public class ParticleAnimationManager extends JsonReloadListener {
     }
 
     public static void putParticleTypeForEditor(ResourceLocation name,
-                                                ParticleType<MKParticleData> particleType){
-        if (particleType != null){
+                                                ParticleType<MKParticleData> particleType) {
+        if (particleType != null) {
             PARTICLE_TYPES_FOR_EDITOR.put(name, particleType);
         } else {
             MKCore.LOGGER.warn("Provided null particle type for particle editor with name {}", name);
@@ -90,11 +90,11 @@ public class ParticleAnimationManager extends JsonReloadListener {
     }
 
     @Nullable
-    public static ParticleAnimation getAnimation(ResourceLocation name){
+    public static ParticleAnimation getAnimation(ResourceLocation name) {
         return ANIMATIONS.get(name);
     }
 
-    public static void setupDeserializers(){
+    public static void setupDeserializers() {
         putTrackDeserializer(ParticleRenderScaleAnimationTrack.TYPE_NAME, ParticleRenderScaleAnimationTrack::new,
                 ParticleAnimationTrack.AnimationTrackType.SCALE);
         putTrackDeserializer(ParticleLerpColorAnimationTrack.TYPE_NAME, ParticleLerpColorAnimationTrack::new,
@@ -124,27 +124,27 @@ public class ParticleAnimationManager extends JsonReloadListener {
         putEffectInstanceDeserializer(BoneEffectInstance.TYPE, BoneEffectInstance::new);
     }
 
-    public static void putEffectInstanceDeserializer(ResourceLocation name, Supplier<ParticleEffectInstance> supplier){
+    public static void putEffectInstanceDeserializer(ResourceLocation name, Supplier<ParticleEffectInstance> supplier) {
         EFFECT_INSTANCE_DESERIALIZERS.put(name, supplier);
     }
 
-    public static void putSpawnPatternDeserializer(ResourceLocation name, Supplier<ParticleSpawnPattern> supplier){
+    public static void putSpawnPatternDeserializer(ResourceLocation name, Supplier<ParticleSpawnPattern> supplier) {
         SPAWN_PATTERN_DESERIALIZERS.put(name, supplier);
     }
 
     public static void putTrackDeserializer(ResourceLocation name, Supplier<ParticleAnimationTrack> supplier,
-                                            ParticleAnimationTrack.AnimationTrackType type){
+                                            ParticleAnimationTrack.AnimationTrackType type) {
         TRACK_DESERIALIZERS.put(name, new TrackDeserializerEntry(supplier, type));
     }
 
-    public static List<ResourceLocation> getTypeNamesForTrackType(ParticleAnimationTrack.AnimationTrackType trackType){
+    public static List<ResourceLocation> getTypeNamesForTrackType(ParticleAnimationTrack.AnimationTrackType trackType) {
         return TRACK_DESERIALIZERS.entrySet().stream().filter(x -> x.getValue().trackType == trackType)
                 .map(Map.Entry::getKey).collect(Collectors.toList());
     }
 
     @Nullable
-    public static ParticleEffectInstance getEffectInstance(ResourceLocation name){
-        if (!EFFECT_INSTANCE_DESERIALIZERS.containsKey(name)){
+    public static ParticleEffectInstance getEffectInstance(ResourceLocation name) {
+        if (!EFFECT_INSTANCE_DESERIALIZERS.containsKey(name)) {
             MKCore.LOGGER.error("Failed to deserialize effect instance {}", name);
             return null;
         }
@@ -152,9 +152,9 @@ public class ParticleAnimationManager extends JsonReloadListener {
     }
 
     @Nullable
-    public static ParticleAnimationTrack getAnimationTrack(ResourceLocation name){
+    public static ParticleAnimationTrack getAnimationTrack(ResourceLocation name) {
 
-        if (!TRACK_DESERIALIZERS.containsKey(name)){
+        if (!TRACK_DESERIALIZERS.containsKey(name)) {
             MKCore.LOGGER.error("Failed to deserialize animation track {}", name);
             return null;
         }
@@ -162,8 +162,8 @@ public class ParticleAnimationManager extends JsonReloadListener {
     }
 
     @Nullable
-    public static ParticleSpawnPattern getSpawnPattern(ResourceLocation name){
-        if (!SPAWN_PATTERN_DESERIALIZERS.containsKey(name)){
+    public static ParticleSpawnPattern getSpawnPattern(ResourceLocation name) {
+        if (!SPAWN_PATTERN_DESERIALIZERS.containsKey(name)) {
             MKCore.LOGGER.error("Failed to deserialize spawn pattern {}", name);
             return null;
         }
@@ -171,17 +171,18 @@ public class ParticleAnimationManager extends JsonReloadListener {
     }
 
     @Override
-    protected void apply(Map<ResourceLocation, JsonElement> objectIn, IResourceManager resourceManagerIn, IProfiler profilerIn) {
+    protected void apply(Map<ResourceLocation, JsonElement> objectIn, ResourceManager resourceManagerIn, ProfilerFiller profilerIn) {
         ANIMATIONS.clear();
-        for(Map.Entry<ResourceLocation, JsonElement> entry : objectIn.entrySet()) {
+        for (Map.Entry<ResourceLocation, JsonElement> entry : objectIn.entrySet()) {
             ResourceLocation resourcelocation = entry.getKey();
             MKCore.LOGGER.info("Particle Animation Definition file: {}", resourcelocation);
-            if (resourcelocation.getPath().startsWith("_")) continue; //Forge: filter anything beginning with "_" as it's used for metadata.
+            if (resourcelocation.getPath().startsWith("_"))
+                continue; //Forge: filter anything beginning with "_" as it's used for metadata.
             ParticleAnimation anim = ParticleAnimation.deserializeFromDynamic(entry.getKey(),
                     new Dynamic<>(JsonOps.INSTANCE, entry.getValue()));
             ANIMATIONS.put(entry.getKey(), anim);
         }
-        if (serverStarted){
+        if (serverStarted) {
             handleWorldGenerated();
         }
     }
@@ -220,17 +221,17 @@ public class ParticleAnimationManager extends JsonReloadListener {
         }
     }
 
-    private void handleWorldGenerated( ){
-        Path dataPath = server.anvilConverterForAnvilFile.resolveFilePath(FolderName.GENERATED).normalize();
+    private void handleWorldGenerated() {
+        Path dataPath = server.storageSource.getLevelPath(LevelResource.GENERATED_DIR).normalize();
         loadAnimationsFromWorldGenerated(dataPath);
     }
 
-    public void writeAnimationToWorldGenerated(ResourceLocation location, ParticleAnimation animation){
+    public void writeAnimationToWorldGenerated(ResourceLocation location, ParticleAnimation animation) {
         ANIMATIONS.put(location, animation);
         Map<ResourceLocation, ParticleAnimation> updateMap = new HashMap<>();
         updateMap.put(location, animation);
         syncAnimations(updateMap);
-        Path dataPath = server.anvilConverterForAnvilFile.resolveFilePath(FolderName.GENERATED).normalize();
+        Path dataPath = server.storageSource.getLevelPath(LevelResource.GENERATED_DIR).normalize();
         Path loc = Paths.get(dataPath.toString(), location.getNamespace(), "particle_animations", location.getPath() + ".json");
         try {
             JsonElement element = animation.serialize(JsonOps.INSTANCE);
@@ -249,28 +250,28 @@ public class ParticleAnimationManager extends JsonReloadListener {
         }
     }
 
-    private void loadAnimationsFromWorldGenerated(Path path){
+    private void loadAnimationsFromWorldGenerated(Path path) {
         File dir = path.toFile();
         String[] rawDirectories = dir.list((dir1, name) -> new File(dir1, name).isDirectory());
         Map<ResourceLocation, JsonElement> serverOverrides = new HashMap<>();
-        if (rawDirectories != null){
+        if (rawDirectories != null) {
             Collection<String> directories = Arrays.stream(rawDirectories).collect(Collectors.toList());
             for (String modid : directories) {
                 MKCore.LOGGER.info("Found particle anim generated : {}", modid);
                 Path modPath = Paths.get(path.toString(), modid, "particle_animations");
                 MKCore.LOGGER.info("Looking for data in: {}", modPath);
                 File modFile = modPath.toFile();
-                if (modFile.exists() && modFile.isDirectory()){
+                if (modFile.exists() && modFile.isDirectory()) {
                     String[] sources = modFile.list((modDir, name) -> name.endsWith(".json") && !name.startsWith("_"));
                     if (sources != null) {
                         Collection<String> files = Arrays.stream(sources).collect(Collectors.toList());
-                        for (String file : files){
+                        for (String file : files) {
                             Path filePath = Paths.get(modPath.toString(), file);
                             ResourceLocation overrideName = new ResourceLocation(modid, file.substring(0, file.length() - ".json".length()));
                             try {
                                 InputStream fileStream = new FileInputStream(filePath.toFile());
                                 Reader reader = new BufferedReader(new InputStreamReader(fileStream, StandardCharsets.UTF_8));
-                                JsonElement jsonelement = JSONUtils.fromJson(GSON, reader, JsonElement.class);
+                                JsonElement jsonelement = GsonHelper.fromJson(GSON, reader, JsonElement.class);
                                 serverOverrides.put(overrideName, jsonelement);
                             } catch (FileNotFoundException e) {
                                 MKCore.LOGGER.error("Failed to decode {}: {}", filePath, e.getMessage());
@@ -281,7 +282,7 @@ public class ParticleAnimationManager extends JsonReloadListener {
                 }
             }
         }
-        for (Map.Entry<ResourceLocation, JsonElement> entry : serverOverrides.entrySet()){
+        for (Map.Entry<ResourceLocation, JsonElement> entry : serverOverrides.entrySet()) {
             ParticleAnimation anim = ParticleAnimation.deserializeFromDynamic(entry.getKey(),
                     new Dynamic<>(JsonOps.INSTANCE, entry.getValue()));
             ANIMATIONS.put(entry.getKey(), anim);

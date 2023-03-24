@@ -2,32 +2,32 @@ package com.chaosbuffalo.mkcore.network;
 
 import com.chaosbuffalo.mkcore.entities.IUpdateEngineProvider;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.Entity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
 public class EntityDataSyncPacket {
 
     private final int targetID;
-    private final CompoundNBT updateTag;
+    private final CompoundTag updateTag;
 
-    public EntityDataSyncPacket(int targetID, CompoundNBT updateTag) {
+    public EntityDataSyncPacket(int targetID, CompoundTag updateTag) {
         this.targetID = targetID;
         this.updateTag = updateTag;
     }
 
-    public EntityDataSyncPacket(PacketBuffer buffer) {
+    public EntityDataSyncPacket(FriendlyByteBuf buffer) {
         targetID = buffer.readInt();
-        updateTag = buffer.readCompoundTag();
+        updateTag = buffer.readNbt();
     }
 
-    public void toBytes(PacketBuffer buffer) {
+    public void toBytes(FriendlyByteBuf buffer) {
         buffer.writeInt(targetID);
-        buffer.writeCompoundTag(updateTag);
+        buffer.writeNbt(updateTag);
 //        MKCore.LOGGER.info("sync toBytes priv:{} {}", privateUpdate, updateTag);
     }
 
@@ -39,11 +39,11 @@ public class EntityDataSyncPacket {
 
     static class ClientHandler {
         public static void handleClient(EntityDataSyncPacket packet) {
-            World world = Minecraft.getInstance().world;
+            Level world = Minecraft.getInstance().level;
             if (world == null) {
                 return;
             }
-            Entity target = world.getEntityByID(packet.targetID);
+            Entity target = world.getEntity(packet.targetID);
             if (target instanceof IUpdateEngineProvider) {
                 ((IUpdateEngineProvider) target).getUpdateEngine().deserializeUpdate(packet.updateTag, false);
             }

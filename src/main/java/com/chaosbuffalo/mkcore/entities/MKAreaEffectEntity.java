@@ -2,20 +2,20 @@ package com.chaosbuffalo.mkcore.entities;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
-import com.chaosbuffalo.mkcore.effects.*;
+import com.chaosbuffalo.mkcore.effects.MKEffectBuilder;
+import com.chaosbuffalo.mkcore.effects.WorldAreaEffectEntry;
 import com.chaosbuffalo.targeting_api.TargetingContext;
-import net.minecraft.entity.*;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.IPacket;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.particles.IParticleData;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.util.EntityPredicates;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
-import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.util.Mth;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.*;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.fmllegacy.common.registry.IEntityAdditionalSpawnData;
+import net.minecraftforge.fmllegacy.network.NetworkHooks;
 import net.minecraftforge.registries.ObjectHolder;
 
 import javax.annotation.Nonnull;
@@ -23,7 +23,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MKAreaEffectEntity extends AreaEffectCloudEntity implements IEntityAdditionalSpawnData {
+public class MKAreaEffectEntity extends AreaEffectCloud implements IEntityAdditionalSpawnData {
     @ObjectHolder(MKCore.MOD_ID + ":mk_area_effect")
     public static EntityType<MKAreaEffectEntity> TYPE;
 
@@ -35,16 +35,16 @@ public class MKAreaEffectEntity extends AreaEffectCloudEntity implements IEntity
     private IMKEntityData ownerData;
 
 
-    public MKAreaEffectEntity(EntityType<? extends AreaEffectCloudEntity> entityType, World world) {
+    public MKAreaEffectEntity(EntityType<? extends AreaEffectCloud> entityType, Level world) {
         super(entityType, world);
         this.particlesDisabled = false;
         effects = new ArrayList<>();
         setRadius(DEFAULT_RADIUS);
     }
 
-    public MKAreaEffectEntity(World worldIn, double x, double y, double z) {
+    public MKAreaEffectEntity(Level worldIn, double x, double y, double z) {
         this(TYPE, worldIn);
-        this.setPosition(x, y, z);
+        this.setPos(x, y, z);
         this.duration = 600;
         this.waitTime = 20;
         this.reapplicationDelay = 20;
@@ -52,8 +52,8 @@ public class MKAreaEffectEntity extends AreaEffectCloudEntity implements IEntity
 
     @Nonnull
     @Override
-    public EntitySize getSize(@Nonnull Pose poseIn) {
-        return EntitySize.flexible(this.getRadius() * 2.0F, DEFAULT_HEIGHT);
+    public EntityDimensions getDimensions(@Nonnull Pose poseIn) {
+        return EntityDimensions.scalable(this.getRadius() * 2.0F, DEFAULT_HEIGHT);
     }
 
     public void setPeriod(int delay) {
@@ -66,60 +66,54 @@ public class MKAreaEffectEntity extends AreaEffectCloudEntity implements IEntity
     }
 
     private boolean isInWaitPhase() {
-        return shouldIgnoreRadius();
+        return isWaiting();
     }
 
     private void setInWaitPhase(boolean waitPhase) {
-        setIgnoreRadius(waitPhase);
+        setWaiting(waitPhase);
     }
 
     private void entityTick() {
-        // We don't want to call AreaEffectCloudEntity.tick because it'll do all the logic. This is what Entity.tick() does
-        if (!this.world.isRemote) {
-            this.setFlag(6, this.isGlowing());
-        }
-
         this.baseTick();
     }
 
     @Override
     public void tick() {
         entityTick();
-
-        if (this.world.isRemote()) {
+        if (this.level.isClientSide()) {
             if (!particlesDisabled) {
                 clientUpdate();
             }
         } else {
             if (serverUpdate()) {
-                remove();
+                remove(RemovalReason.KILLED);
             }
         }
     }
 
     @Override
-    protected void writeAdditional(@Nonnull CompoundNBT compound) {
-        super.writeAdditional(compound);
+    protected void addAdditionalSaveData(@Nonnull CompoundTag compound) {
+        super.addAdditionalSaveData(compound);
         compound.putBoolean("ParticlesDisabled", particlesDisabled);
     }
 
     @Override
-    protected void readAdditional(@Nonnull CompoundNBT compound) {
-        super.readAdditional(compound);
+    protected void readAdditionalSaveData(@Nonnull CompoundTag compound) {
+        super.readAdditionalSaveData(compound);
         particlesDisabled = compound.getBoolean("ParticlesDisabled");
     }
 
     @Override
-    public void writeSpawnData(PacketBuffer buffer) {
+    public void writeSpawnData(FriendlyByteBuf buffer) {
         buffer.writeBoolean(particlesDisabled);
     }
 
     @Override
-    public void readSpawnData(PacketBuffer additionalData) {
+    public void readSpawnData(FriendlyByteBuf additionalData) {
         particlesDisabled = additionalData.readBoolean();
     }
 
-    public void addEffect(EffectInstance effect, TargetingContext targetContext) {
+    public void addEffect(MobEffectInstance effect, TargetingContext targetContext) {
         this.effects.add(WorldAreaEffectEntry.forEffect(this, effect, targetContext));
     }
 
@@ -127,7 +121,7 @@ public class MKAreaEffectEntity extends AreaEffectCloudEntity implements IEntity
         this.effects.add(WorldAreaEffectEntry.forEffect(this, effect, targetContext));
     }
 
-    public void addDelayedEffect(EffectInstance effect, TargetingContext targetContext, int delayTicks) {
+    public void addDelayedEffect(MobEffectInstance effect, TargetingContext targetContext, int delayTicks) {
         WorldAreaEffectEntry entry = WorldAreaEffectEntry.forEffect(this, effect, targetContext);
         entry.setTickStart(delayTicks);
         this.effects.add(entry);
@@ -142,10 +136,10 @@ public class MKAreaEffectEntity extends AreaEffectCloudEntity implements IEntity
 
     private boolean entityCheck(LivingEntity e) {
         return e != null &&
-                EntityPredicates.NOT_SPECTATING.test(e) &&
-                EntityPredicates.IS_LIVING_ALIVE.test(e) &&
-                !reapplicationDelayMap.containsKey(e) &&
-                e.canBeHitWithPotion();
+                EntitySelector.NO_SPECTATORS.test(e) &&
+                EntitySelector.LIVING_ENTITY_STILL_ALIVE.test(e) &&
+                !victims.containsKey(e) &&
+                e.isAffectedByPotions();
     }
 
     @Nullable
@@ -157,7 +151,7 @@ public class MKAreaEffectEntity extends AreaEffectCloudEntity implements IEntity
     }
 
     private boolean serverUpdate() {
-        if (ticksExisted >= waitTime + duration) {
+        if (tickCount >= waitTime + duration) {
             return true;
         }
 
@@ -165,7 +159,7 @@ public class MKAreaEffectEntity extends AreaEffectCloudEntity implements IEntity
         if (entityData == null)
             return true;
 
-        boolean stillWaiting = ticksExisted < waitTime;
+        boolean stillWaiting = tickCount < waitTime;
 
         if (isInWaitPhase() != stillWaiting) {
             setInWaitPhase(stillWaiting);
@@ -176,20 +170,20 @@ public class MKAreaEffectEntity extends AreaEffectCloudEntity implements IEntity
         }
 
         // TODO: FUTURE: see if this can be made dynamic by inspecting the effects
-        if (ticksExisted % 5 != 0) {
+        if (tickCount % 5 != 0) {
             return false;
         }
 
-        reapplicationDelayMap.entrySet().removeIf(entry -> ticksExisted >= entry.getValue());
+        victims.entrySet().removeIf(entry -> tickCount >= entry.getValue());
 
         if (effects.isEmpty()) {
-            reapplicationDelayMap.clear();
+            victims.clear();
             return false;
         }
 
         // Copy in case callbacks try to add more effects
         List<WorldAreaEffectEntry> targetEffects = new ArrayList<>(effects);
-        List<LivingEntity> potentialTargets = this.world.getLoadedEntitiesWithinAABB(LivingEntity.class,
+        List<LivingEntity> potentialTargets = this.level.getEntitiesOfClass(LivingEntity.class,
                 getBoundingBox(), this::entityCheck);
         if (potentialTargets.isEmpty()) {
             return false;
@@ -199,18 +193,18 @@ public class MKAreaEffectEntity extends AreaEffectCloudEntity implements IEntity
         float maxRange = radius * radius;
         for (LivingEntity target : potentialTargets) {
 
-            double d0 = target.getPosX() - getPosX();
-            double d1 = target.getPosZ() - getPosZ();
+            double d0 = target.getX() - getX();
+            double d1 = target.getZ() - getZ();
             double entityDist = d0 * d0 + d1 * d1;
 
             if (entityDist > maxRange) {
                 continue;
             }
 
-            reapplicationDelayMap.put(target, ticksExisted + reapplicationDelay);
+            victims.put(target, tickCount + reapplicationDelay);
             MKCore.getEntityData(target).ifPresent(targetData ->
                     targetEffects.forEach(entry -> {
-                        if (entry.getTickStart() <= ticksExisted - waitTime) {
+                        if (entry.getTickStart() <= tickCount - waitTime) {
                             entry.apply(entityData, targetData);
                         }
                     }));
@@ -219,30 +213,30 @@ public class MKAreaEffectEntity extends AreaEffectCloudEntity implements IEntity
     }
 
     private void clientUpdate() {
-        if (ticksExisted % 5 != 0) {
+        if (tickCount % 5 != 0) {
             return;
         }
-        IParticleData particle = this.getParticleData();
+        ParticleOptions particle = this.getParticle();
 
         if (isInWaitPhase()) {
-            if (!rand.nextBoolean()) {
+            if (!random.nextBoolean()) {
                 return;
             }
 
             for (int i = 0; i < 2; i++) {
-                float f1 = rand.nextFloat() * ((float) Math.PI * 2F);
-                float f2 = MathHelper.sqrt(rand.nextFloat()) * 0.2F;
-                float xOff = MathHelper.cos(f1) * f2;
-                float zOff = MathHelper.sin(f1) * f2;
+                float f1 = random.nextFloat() * ((float) Math.PI * 2F);
+                float f2 = Mth.sqrt(random.nextFloat()) * 0.2F;
+                float xOff = Mth.cos(f1) * f2;
+                float zOff = Mth.sin(f1) * f2;
 
                 if (particle.getType() == ParticleTypes.ENTITY_EFFECT) {
-                    int color = rand.nextBoolean() ? 16777215 : getColor();
+                    int color = random.nextBoolean() ? 16777215 : getColor();
                     int r = color >> 16 & 255;
                     int g = color >> 8 & 255;
                     int b = color & 255;
-                    world.addOptionalParticle(particle, getPosX() + xOff, getPosY(), getPosZ() + zOff, r / 255f, g / 255f, b / 255f);
+                    level.addAlwaysVisibleParticle(particle, getX() + xOff, getY(), getZ() + zOff, r / 255f, g / 255f, b / 255f);
                 } else {
-                    world.addOptionalParticle(particle, getPosX() + xOff, getPosY(), getPosZ() + zOff, 0, 0, 0);
+                    level.addAlwaysVisibleParticle(particle, getX() + xOff, getY(), getZ() + zOff, 0, 0, 0);
                 }
             }
         } else {
@@ -250,21 +244,21 @@ public class MKAreaEffectEntity extends AreaEffectCloudEntity implements IEntity
             int particleCount = (int) radius * 10;
 
             for (int i = 0; i < particleCount; i++) {
-                float f6 = rand.nextFloat() * ((float) Math.PI * 2F);
-                float f7 = MathHelper.sqrt(rand.nextFloat()) * radius;
-                float xOffset = MathHelper.cos(f6) * f7;
-                float zOffset = MathHelper.sin(f6) * f7;
+                float f6 = random.nextFloat() * ((float) Math.PI * 2F);
+                float f7 = Mth.sqrt(random.nextFloat()) * radius;
+                float xOffset = Mth.cos(f6) * f7;
+                float zOffset = Mth.sin(f6) * f7;
 
                 if (particle == ParticleTypes.ENTITY_EFFECT) {
                     int color = getColor();
                     int r = color >> 16 & 255;
                     int g = color >> 8 & 255;
                     int b = color & 255;
-                    world.addOptionalParticle(particle, getPosX() + xOffset, getPosY(), getPosZ() + zOffset, r / 255f, g / 255f, b / 255f);
+                    level.addAlwaysVisibleParticle(particle, getX() + xOffset, getY(), getZ() + zOffset, r / 255f, g / 255f, b / 255f);
                 } else if (particle == ParticleTypes.NOTE) {
-                    world.addOptionalParticle(particle, getPosX() + xOffset, getPosY(), getPosZ() + zOffset, rand.nextInt(24) / 24.0f, 0.009999999776482582D, (0.5D - rand.nextDouble()) * 0.15D);
+                    level.addAlwaysVisibleParticle(particle, getX() + xOffset, getY(), getZ() + zOffset, random.nextInt(24) / 24.0f, 0.009999999776482582D, (0.5D - random.nextDouble()) * 0.15D);
                 } else {
-                    world.addOptionalParticle(particle, getPosX() + xOffset, getPosY(), getPosZ() + zOffset, (0.5D - rand.nextDouble()) * 0.15D, 0.009999999776482582D, (0.5D - rand.nextDouble()) * 0.15D);
+                    level.addAlwaysVisibleParticle(particle, getX() + xOffset, getY(), getZ() + zOffset, (0.5D - random.nextDouble()) * 0.15D, 0.009999999776482582D, (0.5D - random.nextDouble()) * 0.15D);
                 }
             }
         }
@@ -272,7 +266,7 @@ public class MKAreaEffectEntity extends AreaEffectCloudEntity implements IEntity
 
     @Nonnull
     @Override
-    public IPacket<?> createSpawnPacket() {
+    public Packet<?> getAddEntityPacket() {
         return NetworkHooks.getEntitySpawningPacket(this);
     }
 }

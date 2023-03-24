@@ -1,17 +1,17 @@
 package com.chaosbuffalo.mkcore.mixins;
 
 import com.chaosbuffalo.mkcore.MKCore;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.*;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.world.World;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.*;
+import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(SwordItem.class)
 public abstract class SwordItemMixins extends TieredItem {
 
-    public SwordItemMixins(IItemTier tierIn, Properties builder) {
+    public SwordItemMixins(Tier tierIn, Properties builder) {
         super(tierIn, builder);
     }
 
@@ -20,8 +20,8 @@ public abstract class SwordItemMixins extends TieredItem {
      * @reason change sword to block when used
      */
     @Override
-    public UseAction getUseAction(ItemStack stack) {
-        return UseAction.BLOCK;
+    public UseAnim getUseAnimation(ItemStack stack) {
+        return UseAnim.BLOCK;
     }
 
     /**
@@ -39,17 +39,17 @@ public abstract class SwordItemMixins extends TieredItem {
      * @reason make sword block only when we are not poise broke and shield is not in offhand
      */
     @Override
-    public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand handIn) {
-        ItemStack itemstack = playerIn.getHeldItem(handIn);
-        ItemStack offhand = playerIn.getHeldItemOffhand();
-        if (offhand.getItem() instanceof ShieldItem){
-            return ActionResult.resultPass(itemstack);
+    public InteractionResultHolder<ItemStack> use(Level worldIn, Player playerIn, InteractionHand handIn) {
+        ItemStack itemstack = playerIn.getItemInHand(handIn);
+        ItemStack offhand = playerIn.getOffhandItem();
+        if (offhand.getItem() instanceof ShieldItem) {
+            return InteractionResultHolder.pass(itemstack);
         }
-        if (MKCore.getPlayer(playerIn).map(x -> x.getStats().isPoiseBroke()).orElse(false)){
-            return ActionResult.resultPass(itemstack);
+        if (MKCore.getPlayer(playerIn).map(x -> x.getStats().isPoiseBroke()).orElse(false)) {
+            return InteractionResultHolder.pass(itemstack);
         } else {
-            playerIn.setActiveHand(handIn);
-            return ActionResult.resultConsume(itemstack);
+            playerIn.startUsingItem(handIn);
+            return InteractionResultHolder.consume(itemstack);
         }
     }
 }

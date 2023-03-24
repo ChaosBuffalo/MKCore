@@ -1,10 +1,10 @@
 package com.chaosbuffalo.mkcore.mixins;
 
 import com.chaosbuffalo.mkcore.utils.DamageUtils;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.DamageSource;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -19,42 +19,43 @@ public abstract class LivingEntityMixins {
     private DamageSource damageSource;
 
     @Shadow
-    protected abstract boolean canBlockDamageSource(DamageSource damageSourceIn);
+    public abstract boolean isDamageSourceBlocked(DamageSource damageSourceIn);
 
     @Shadow
-    public abstract boolean isHandActive();
+    public abstract boolean isUsingItem();
 
     @Shadow
-    protected ItemStack activeItemStack;
+    protected ItemStack useItem;
 
     @Shadow
-    protected int activeItemStackUseCount;
+    protected int useItemRemaining;
 
     @Shadow
     @Nullable
     public abstract DamageSource getLastDamageSource();
 
     @Shadow
-    protected abstract void damageEntity(DamageSource damageSrc, float damageAmount);
+    public abstract boolean hurt(DamageSource damageSrc, float damageAmount);
 
     // disable player blocking as we handle it ourselves
     @Redirect(
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;canBlockDamageSource(Lnet/minecraft/util/DamageSource;)Z"),
-            method = "Lnet/minecraft/entity/LivingEntity;attackEntityFrom(Lnet/minecraft/util/DamageSource;F)Z"
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;isDamageSourceBlocked(Lnet/minecraft/world/damagesource/DamageSource;)Z"),
+            method = "Lnet/minecraft/world/entity/LivingEntity;hurt(Lnet/minecraft/world/damagesource/DamageSource;F)Z"
     )
-    private boolean proxyCanBlockDamageSource(LivingEntity entity, DamageSource damageSourceIn) {
-        if (entity instanceof PlayerEntity) {
+    private boolean proxyIsDamageSourceBlocked(LivingEntity entity, DamageSource damageSourceIn) {
+        if (entity instanceof Player) {
             return false;
         } else {
-            return canBlockDamageSource(damageSourceIn);
+            return isDamageSourceBlocked(damageSourceIn);
         }
     }
 
     @ModifyVariable(
-            method = "Lnet/minecraft/entity/LivingEntity;attackEntityFrom(Lnet/minecraft/util/DamageSource;F)Z",
+            method = "Lnet/minecraft/world/entity/LivingEntity;hurt(Lnet/minecraft/world/damagesource/DamageSource;F)Z",
             at = @At("HEAD"),
             index = 1,
-            ordinal = 0
+            ordinal = 0,
+            argsOnly = true
     )
     private DamageSource captureSource(DamageSource source) {
         this.damageSource = source;
@@ -62,7 +63,7 @@ public abstract class LivingEntityMixins {
     }
 
     @ModifyConstant(
-            method = "Lnet/minecraft/entity/LivingEntity;attackEntityFrom(Lnet/minecraft/util/DamageSource;F)Z",
+            method = "Lnet/minecraft/world/entity/LivingEntity;hurt(Lnet/minecraft/world/damagesource/DamageSource;F)Z",
             constant = @Constant(floatValue = 10.0f)
     )
     private float calculateInvulnerability(float value) {
@@ -75,7 +76,7 @@ public abstract class LivingEntityMixins {
     }
 
     @ModifyConstant(
-            method = "Lnet/minecraft/entity/LivingEntity;isActiveItemStackBlocking()Z",
+            method = "Lnet/minecraft/world/entity/LivingEntity;isBlocking()Z",
             constant = @Constant(intValue = 5)
     )
     private int calculateBlockDelay(int value) {

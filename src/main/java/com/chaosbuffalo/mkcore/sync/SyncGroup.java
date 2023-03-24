@@ -1,7 +1,7 @@
 package com.chaosbuffalo.mkcore.sync;
 
 import com.chaosbuffalo.mkcore.MKCore;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -65,29 +65,29 @@ public class SyncGroup implements ISyncObject, ISyncNotifier {
         return forceFull || !dirty.isEmpty();
     }
 
-    private CompoundNBT getUpdateRootTag(CompoundNBT tag) {
+    private CompoundTag getUpdateRootTag(CompoundTag tag) {
         return nestedName != null ? tag.getCompound(nestedName) : tag;
     }
 
-    private void writeUpdateRootTag(CompoundNBT tag, CompoundNBT filledRoot) {
+    private void writeUpdateRootTag(CompoundTag tag, CompoundTag filledRoot) {
         if (nestedName != null && filledRoot.size() > 0) {
             tag.put(nestedName, filledRoot);
         }
     }
 
     @Override
-    public void deserializeUpdate(CompoundNBT tag) {
-        CompoundNBT root = getUpdateRootTag(tag);
+    public void deserializeUpdate(CompoundTag tag) {
+        CompoundTag root = getUpdateRootTag(tag);
         components.forEach(c -> c.deserializeUpdate(root));
     }
 
     @Override
-    public void serializeUpdate(CompoundNBT tag) {
+    public void serializeUpdate(CompoundTag tag) {
         if (forceFull) {
             MKCore.LOGGER.debug("SyncGroup.serializeUpdate({}) forced full", nestedName);
             serializeFull(tag);
         } else {
-            CompoundNBT root = getUpdateRootTag(tag);
+            CompoundTag root = getUpdateRootTag(tag);
             dirty.stream()
                     .filter(ISyncObject::isDirty)
                     .forEach(c -> c.serializeUpdate(root));
@@ -99,8 +99,8 @@ public class SyncGroup implements ISyncObject, ISyncNotifier {
     }
 
     @Override
-    public void serializeFull(CompoundNBT tag) {
-        CompoundNBT root = getUpdateRootTag(tag);
+    public void serializeFull(CompoundTag tag) {
+        CompoundTag root = getUpdateRootTag(tag);
         components.forEach(c -> c.serializeFull(root));
         writeUpdateRootTag(tag, root);
         dirty.clear();

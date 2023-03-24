@@ -1,18 +1,18 @@
 package com.chaosbuffalo.mkcore.utils;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
 
 public class EntityCollectionRayTraceResult<E extends Entity> {
 
-    public static class TraceEntry<E>{
+    public static class TraceEntry<E> {
         public E entity;
         public double distance;
-        public Vector3d intercept;
+        public Vec3 intercept;
 
-        public TraceEntry(E entity, double distance, Vector3d intercept){
+        public TraceEntry(E entity, double distance, Vec3 intercept) {
             this.entity = entity;
             this.distance = distance;
             this.intercept = intercept;

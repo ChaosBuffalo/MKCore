@@ -9,10 +9,10 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.JsonOps;
-import net.minecraft.client.resources.JsonReloadListener;
-import net.minecraft.profiler.IProfiler;
-import net.minecraft.resources.IResourceManager;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
+import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.OnDatapackSyncEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class TalentManager extends JsonReloadListener {
+public class TalentManager extends SimpleJsonResourceReloadListener {
     public static final String DEFINITION_FOLDER = "player_talents";
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
@@ -40,8 +40,8 @@ public class TalentManager extends JsonReloadListener {
 
     @Override
     protected void apply(@Nonnull Map<ResourceLocation, JsonElement> objectIn,
-                         @Nonnull IResourceManager resourceManagerIn,
-                         @Nonnull IProfiler profilerIn) {
+                         @Nonnull ResourceManager resourceManagerIn,
+                         @Nonnull ProfilerFiller profilerIn) {
 
         MKCore.LOGGER.info("Loading Talent definitions from json");
         for (Map.Entry<ResourceLocation, JsonElement> entry : objectIn.entrySet()) {

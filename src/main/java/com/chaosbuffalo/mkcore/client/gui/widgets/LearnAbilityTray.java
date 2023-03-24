@@ -8,11 +8,11 @@ import com.chaosbuffalo.mkwidgets.client.gui.layouts.MKStackLayoutHorizontal;
 import com.chaosbuffalo.mkwidgets.client.gui.layouts.MKStackLayoutVertical;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKScrollView;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKText;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.resources.I18n;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,10 +21,10 @@ public class LearnAbilityTray extends MKStackLayoutVertical {
     private MKAbility ability;
     private AbilityTrainingEvaluation evaluation;
     private final MKPlayerData playerData;
-    private final FontRenderer font;
+    private final Font font;
     private final int trainerEntityId;
 
-    public LearnAbilityTray(int x, int y, int width, MKPlayerData playerData, FontRenderer font, int trainerEntityId) {
+    public LearnAbilityTray(int x, int y, int width, MKPlayerData playerData, Font font, int trainerEntityId) {
         super(x, y, width);
         this.playerData = playerData;
         this.trainerEntityId = trainerEntityId;
@@ -60,14 +60,14 @@ public class LearnAbilityTray extends MKStackLayoutVertical {
             boolean canLearn = evaluation.canLearn();
             String knowText;
             if (isKnown) {
-                knowText = I18n.format("mkcore.gui.character.already_known");
+                knowText = I18n.get("mkcore.gui.character.already_known");
             } else if (!canLearn) {
-                knowText = I18n.format("mkcore.gui.character.unmet_req");
+                knowText = I18n.get("mkcore.gui.character.unmet_req");
             } else {
-                knowText = I18n.format("mkcore.gui.character.can_learn");
+                knowText = I18n.get("mkcore.gui.character.can_learn");
             }
             MKText doesKnowWid = new MKText(font, knowText);
-            doesKnowWid.setWidth(font.getStringWidth(knowText));
+            doesKnowWid.setWidth(font.width(knowText));
             addWidget(doesKnowWid);
 
             MKScrollView reqScrollView = new MKScrollView(0, 0, getWidth(), 36, true);
@@ -77,12 +77,12 @@ public class LearnAbilityTray extends MKStackLayoutVertical {
             reqlayout.setPaddingBot(1);
             reqlayout.setPaddingTop(1);
             reqScrollView.addWidget(reqlayout);
-            List<ITextComponent> texts = evaluation.getRequirements().stream()
-                    .map(req -> new StringTextComponent("  - ")
-                            .appendSibling(req.description())
-                            .mergeStyle(req.isMet() ? TextFormatting.DARK_GREEN : TextFormatting.BLACK))
+            List<Component> texts = evaluation.getRequirements().stream()
+                    .map(req -> new TextComponent("  - ")
+                            .append(req.description())
+                            .withStyle(req.isMet() ? ChatFormatting.DARK_GREEN : ChatFormatting.BLACK))
                     .collect(Collectors.toList());
-            for (ITextComponent text : texts) {
+            for (Component text : texts) {
                 MKText reqText = new MKText(font, text);
                 reqText.setMultiline(true);
                 reqlayout.addConstraintToWidget(new LayoutRelativeWidthConstraint(1.0f), reqText);
@@ -90,7 +90,7 @@ public class LearnAbilityTray extends MKStackLayoutVertical {
             }
             reqlayout.manualRecompute();
         } else {
-            MKText prompt = new MKText(font, I18n.format("mkcore.gui.character.learn_ability_prompt"));
+            MKText prompt = new MKText(font, I18n.get("mkcore.gui.character.learn_ability_prompt"));
             addWidget(prompt);
         }
     }

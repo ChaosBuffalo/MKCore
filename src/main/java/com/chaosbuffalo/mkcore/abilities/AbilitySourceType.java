@@ -2,11 +2,10 @@ package com.chaosbuffalo.mkcore.abilities;
 
 import java.util.EnumSet;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 
 public enum AbilitySourceType {
-    ITEM(AbilitySource.ItemAbilitySource::decode,  1, SourceFlags.HasComplexAcquisition, SourceFlags.Persistent),
-    TRAINED(AbilitySource::decode,2, SourceFlags.PlaceOnBarWhenLearned, SourceFlags.UseAbilityPool, SourceFlags.Persistent),
+    ITEM(AbilitySource.ItemAbilitySource::decode, 1, SourceFlags.HasComplexAcquisition, SourceFlags.Persistent),
+    TRAINED(AbilitySource::decode, 2, SourceFlags.PlaceOnBarWhenLearned, SourceFlags.UseAbilityPool, SourceFlags.Persistent),
     GRANTED(AbilitySource::decode, 3, SourceFlags.PlaceOnBarWhenLearned, SourceFlags.Persistent),
     // Talents are stored separately and this source is granted to the entity upon talent record deserialization.
     // This is mostly to support the case where the talent tree version changes and no longer provides an ability it used to.

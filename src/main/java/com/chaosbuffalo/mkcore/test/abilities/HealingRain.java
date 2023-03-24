@@ -17,9 +17,9 @@ import com.chaosbuffalo.mkcore.network.ParticleEffectSpawnPacket;
 import com.chaosbuffalo.mkcore.test.effects.NewHealEffect;
 import com.chaosbuffalo.targeting_api.TargetingContext;
 import com.chaosbuffalo.targeting_api.TargetingContexts;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.Vec3;
 
 public class HealingRain extends MKAbility {
     public static float BASE_AMOUNT = 2.0f;
@@ -71,8 +71,8 @@ public class HealingRain extends MKAbility {
             MKEffectBuilder<?> particlePotion = MKOldParticleEffect.from(castingEntity,
                     ParticleTypes.BUBBLE,
                     ParticleEffects.CIRCLE_MOTION, false,
-                    new Vector3d(1.0, 1.0, 1.0),
-                    new Vector3d(0.0, 1.0, 0.0),
+                    new Vec3(1.0, 1.0, 1.0),
+                    new Vec3(0.0, 1.0, 0.0),
                     10, 0, 1.0)
                     .ability(this);
 
@@ -89,9 +89,9 @@ public class HealingRain extends MKAbility {
             PacketHandler.sendToTrackingAndSelf(new ParticleEffectSpawnPacket(
                     ParticleTypes.BUBBLE,
                     ParticleEffects.RAIN_EFFECT, 30, 4,
-                    castingEntity.getPosX(), castingEntity.getPosY() + 3.0,
-                    castingEntity.getPosZ(), dist, 0.5, dist, 1.0,
-                    castingEntity.getLookVec()), castingEntity);
+                    castingEntity.getX(), castingEntity.getY() + 3.0,
+                    castingEntity.getZ(), dist, 0.5, dist, 1.0,
+                    castingEntity.getLookAngle()), castingEntity);
         }
     }
 }

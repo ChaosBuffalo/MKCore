@@ -3,18 +3,18 @@ package com.chaosbuffalo.mkcore.effects;
 
 import com.chaosbuffalo.mkcore.entities.MKAreaEffectEntity;
 import com.chaosbuffalo.targeting_api.TargetingContext;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.particles.IParticleData;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.AABB;
 
 public class AreaEffectBuilder {
 
     private final MKAreaEffectEntity areaEffectCloud;
 
     private AreaEffectBuilder(LivingEntity caster, Entity center) {
-        areaEffectCloud = new MKAreaEffectEntity(center.getEntityWorld(), center.getPosX(), center.getPosY(), center.getPosZ());
+        areaEffectCloud = new MKAreaEffectEntity(center.getCommandSenderWorld(), center.getX(), center.getY(), center.getZ());
         areaEffectCloud.setOwner(caster);
     }
 
@@ -45,7 +45,7 @@ public class AreaEffectBuilder {
         return this;
     }
 
-    public AreaEffectBuilder effect(EffectInstance effect, TargetingContext targetContext) {
+    public AreaEffectBuilder effect(MobEffectInstance effect, TargetingContext targetContext) {
         areaEffectCloud.addEffect(effect, targetContext);
         return this;
     }
@@ -65,21 +65,21 @@ public class AreaEffectBuilder {
         // setRadius calls setSize which changes the bounding box according to the width and height
         // but the default height of an AreaEffect is just 0.5
         if (makeCube) {
-            AxisAlignedBB bb = areaEffectCloud.getBoundingBox();
-            bb = bb.expand(0, radius, 0);
-            bb = bb.expand(0, -radius, 0);
+            AABB bb = areaEffectCloud.getBoundingBox();
+            bb = bb.expandTowards(0, radius, 0);
+            bb = bb.expandTowards(0, -radius, 0);
             areaEffectCloud.setBoundingBox(bb);
         }
         return this;
     }
 
     public AreaEffectBuilder color(int color) {
-        areaEffectCloud.setColor(color);
+        areaEffectCloud.setFixedColor(color);
         return this;
     }
 
-    public AreaEffectBuilder particle(IParticleData particleType) {
-        areaEffectCloud.setParticleData(particleType);
+    public AreaEffectBuilder particle(ParticleOptions particleType) {
+        areaEffectCloud.setParticle(particleType);
         return this;
     }
 
@@ -95,7 +95,7 @@ public class AreaEffectBuilder {
 
     public void spawn() {
         if (areaEffectCloud.getOwner() != null) {
-            areaEffectCloud.getOwner().world.addEntity(areaEffectCloud);
+            areaEffectCloud.getOwner().level.addFreshEntity(areaEffectCloud);
         }
 
     }

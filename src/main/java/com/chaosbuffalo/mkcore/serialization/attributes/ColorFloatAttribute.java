@@ -2,7 +2,7 @@ package com.chaosbuffalo.mkcore.serialization.attributes;
 
 import com.chaosbuffalo.mkcore.utils.MathUtils;
 
-public class ColorFloatAttribute extends FloatAttribute{
+public class ColorFloatAttribute extends FloatAttribute {
 
     public ColorFloatAttribute(String name, float defaultValue) {
         super(name, defaultValue);
@@ -28,7 +28,7 @@ public class ColorFloatAttribute extends FloatAttribute{
         if (isEmptyStringInput(stringValue)) {
             return true;
         }
-        if (MathUtils.isInteger(stringValue)){
+        if (MathUtils.isInteger(stringValue)) {
             int i = Integer.parseInt(stringValue);
             return i >= 0 && i <= 255;
         } else {

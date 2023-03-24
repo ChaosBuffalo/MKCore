@@ -4,11 +4,11 @@ import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.CastInterruptReason;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.Entity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
@@ -26,14 +26,14 @@ public class EntityCastPacket {
     }
 
     public EntityCastPacket(IMKEntityData entityData, ResourceLocation abilityId, int castTicks) {
-        entityId = entityData.getEntity().getEntityId();
+        entityId = entityData.getEntity().getId();
         this.abilityId = abilityId;
         this.castTicks = castTicks;
         action = CastAction.START;
     }
 
     public EntityCastPacket(IMKEntityData entityData, CastAction action, CastInterruptReason reason) {
-        entityId = entityData.getEntity().getEntityId();
+        entityId = entityData.getEntity().getId();
         this.action = action;
         interruptReason = reason;
     }
@@ -46,25 +46,25 @@ public class EntityCastPacket {
         return new EntityCastPacket(entityData, CastAction.INTERRUPT, reason);
     }
 
-    public EntityCastPacket(PacketBuffer buffer) {
+    public EntityCastPacket(FriendlyByteBuf buffer) {
         entityId = buffer.readInt();
-        action = buffer.readEnumValue(CastAction.class);
+        action = buffer.readEnum(CastAction.class);
         if (action == CastAction.START) {
             abilityId = buffer.readResourceLocation();
             castTicks = buffer.readInt();
         } else if (action == CastAction.INTERRUPT) {
-            interruptReason = buffer.readEnumValue(CastInterruptReason.class);
+            interruptReason = buffer.readEnum(CastInterruptReason.class);
         }
     }
 
-    public void toBytes(PacketBuffer buffer) {
+    public void toBytes(FriendlyByteBuf buffer) {
         buffer.writeInt(entityId);
-        buffer.writeEnumValue(action);
+        buffer.writeEnum(action);
         if (action == CastAction.START) {
             buffer.writeResourceLocation(abilityId);
             buffer.writeInt(castTicks);
         } else if (action == CastAction.INTERRUPT) {
-            buffer.writeEnumValue(interruptReason);
+            buffer.writeEnum(interruptReason);
         }
     }
 
@@ -76,11 +76,11 @@ public class EntityCastPacket {
 
     static class ClientHandler {
         public static void handleClient(EntityCastPacket packet) {
-            World world = Minecraft.getInstance().world;
+            Level world = Minecraft.getInstance().level;
             if (world == null)
                 return;
 
-            Entity entity = world.getEntityByID(packet.entityId);
+            Entity entity = world.getEntity(packet.entityId);
             if (entity == null)
                 return;
 

@@ -1,7 +1,7 @@
 package com.chaosbuffalo.mkcore.events;
 
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.eventbus.api.Event;
 
 public class PlayerDataEvent extends Event {
@@ -11,7 +11,7 @@ public class PlayerDataEvent extends Event {
         this.data = data;
     }
 
-    public PlayerEntity getPlayer() {
+    public Player getPlayer() {
         return getPlayerData().getEntity();
     }
 

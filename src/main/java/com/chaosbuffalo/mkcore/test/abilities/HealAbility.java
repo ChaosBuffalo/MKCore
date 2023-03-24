@@ -15,12 +15,12 @@ import com.chaosbuffalo.mkcore.test.effects.NewHealEffect;
 import com.chaosbuffalo.targeting_api.TargetingContext;
 import com.chaosbuffalo.targeting_api.TargetingContexts;
 import com.google.common.collect.ImmutableSet;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.Set;
 
@@ -44,12 +44,12 @@ public class HealAbility extends MKAbility {
     }
 
     @Override
-    protected ITextComponent getAbilityDescription(IMKEntityData casterData) {
+    protected Component getAbilityDescription(IMKEntityData casterData) {
         float level = getSkillLevel(casterData.getEntity(), MKAttributes.RESTORATION);
-        ITextComponent valueStr = getHealDescription(casterData, base.value(),
+        Component valueStr = getHealDescription(casterData, base.value(),
                 scale.value(), level,
                 modifierScaling.value());
-        return new TranslationTextComponent(getDescriptionTranslationKey(), valueStr);
+        return new TranslatableComponent(getDescriptionTranslationKey(), valueStr);
     }
 
     public FloatAttribute getModifierScaling() {
@@ -108,8 +108,8 @@ public class HealAbility extends MKAbility {
 //            targetEntity.addPotionEffect(heal.toPotionEffect(level));
 //            SoundUtils.serverPlaySoundAtEntity(targetEntity, ModSounds.spell_heal_3, targetEntity.getSoundCategory());
             PacketHandler.sendToTrackingAndSelf(new MKParticleEffectSpawnPacket(
-                            new Vector3d(0.0, 1.0, 0.0), cast_particles.getValue(),
-                            targetEntity.getEntityId()),
+                            new Vec3(0.0, 1.0, 0.0), cast_particles.getValue(),
+                            targetEntity.getId()),
                     targetEntity);
         });
     }

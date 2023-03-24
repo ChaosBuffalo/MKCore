@@ -6,11 +6,11 @@ import com.chaosbuffalo.mkcore.core.AbilityGroupId;
 import com.chaosbuffalo.mkcore.core.IMKAbilityProvider;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.item.ArmorClass;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.ArmorItem;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.UUID;
 
@@ -31,20 +31,20 @@ public class PlayerEquipment {
         this.playerData = playerData;
     }
 
-    public void onEquipmentChange(EquipmentSlotType slot, ItemStack from, ItemStack to) {
+    public void onEquipmentChange(EquipmentSlot slot, ItemStack from, ItemStack to) {
         // Currently, we only care about swapping items so modifications like durability are ignored
-        if (ItemStack.areItemsEqualIgnoreDurability(from, to))
+        if (ItemStack.isSameIgnoreDurability(from, to))
             return;
 
 //        MKCore.LOGGER.info("Equipment[{}] {} -> {}", slot, from, to);
-        if (slot.getSlotType() == EquipmentSlotType.Group.ARMOR) {
+        if (slot.getType() == EquipmentSlot.Type.ARMOR) {
             handleArmorChange(slot, from, to);
-        } else if (slot == EquipmentSlotType.MAINHAND) {
+        } else if (slot == EquipmentSlot.MAINHAND) {
             handleMainHandChange(to);
         }
     }
 
-    private void handleArmorChange(EquipmentSlotType slot, ItemStack from, ItemStack to) {
+    private void handleArmorChange(EquipmentSlot slot, ItemStack from, ItemStack to) {
         if (!from.isEmpty() && from.getItem() instanceof ArmorItem) {
             removeArmorSlot(slot, from);
         }
@@ -68,35 +68,35 @@ public class PlayerEquipment {
         }
     }
 
-    private void addArmorSlot(EquipmentSlotType slot, ItemStack to) {
+    private void addArmorSlot(EquipmentSlot slot, ItemStack to) {
         applyArmorClassBonus(slot, to);
         addItemAbility(to);
     }
 
-    private void removeArmorSlot(EquipmentSlotType slot, ItemStack from) {
+    private void removeArmorSlot(EquipmentSlot slot, ItemStack from) {
         removeArmorClassBonus(slot, from);
         removeItemAbility(from);
     }
 
-    private UUID getArmorClassSlotUUID(EquipmentSlotType slot) {
+    private UUID getArmorClassSlotUUID(EquipmentSlot slot) {
         return ARMOR_CLASS_UUID_BY_SLOT[slot.ordinal()];
     }
 
-    private void applyArmorClassBonus(EquipmentSlotType slot, ItemStack to) {
+    private void applyArmorClassBonus(EquipmentSlot slot, ItemStack to) {
         ArmorClass armorClass = ArmorClass.getItemArmorClass((ArmorItem) to.getItem());
         if (armorClass != null) {
             armorClass.getPositiveModifierMap(slot).forEach((attr, mod) -> {
                 AttributeModifier dup = createArmorClassSlotModifier(slot, mod);
-                playerData.getEntity().getAttribute(attr).applyNonPersistentModifier(dup);
+                playerData.getEntity().getAttribute(attr).addTransientModifier(dup);
             });
             armorClass.getNegativeModifierMap(slot).forEach((attr, mod) -> {
                 AttributeModifier dup = createArmorClassSlotModifier(slot, mod);
-                playerData.getEntity().getAttribute(attr).applyNonPersistentModifier(dup);
+                playerData.getEntity().getAttribute(attr).addTransientModifier(dup);
             });
         }
     }
 
-    private void removeArmorClassBonus(EquipmentSlotType slot, ItemStack from) {
+    private void removeArmorClassBonus(EquipmentSlot slot, ItemStack from) {
         ArmorClass itemClass = ArmorClass.getItemArmorClass((ArmorItem) from.getItem());
         if (itemClass != null) {
             UUID uuid = getArmorClassSlotUUID(slot);
@@ -107,7 +107,7 @@ public class PlayerEquipment {
         }
     }
 
-    private AttributeModifier createArmorClassSlotModifier(EquipmentSlotType slot, AttributeModifier template) {
+    private AttributeModifier createArmorClassSlotModifier(EquipmentSlot slot, AttributeModifier template) {
         return new AttributeModifier(getArmorClassSlotUUID(slot), template::getName, template.getAmount(), template.getOperation());
     }
 
@@ -136,21 +136,21 @@ public class PlayerEquipment {
     }
 
     public void onPersonaActivated() {
-        PlayerEntity player = playerData.getEntity();
-        ItemStack mainHand = player.getItemStackFromSlot(EquipmentSlotType.MAINHAND);
+        Player player = playerData.getEntity();
+        ItemStack mainHand = player.getItemBySlot(EquipmentSlot.MAINHAND);
         handleMainHandChange(mainHand);
-        addItemAbility(player.getItemStackFromSlot(EquipmentSlotType.HEAD));
-        addItemAbility(player.getItemStackFromSlot(EquipmentSlotType.CHEST));
-        addItemAbility(player.getItemStackFromSlot(EquipmentSlotType.LEGS));
-        addItemAbility(player.getItemStackFromSlot(EquipmentSlotType.FEET));
+        addItemAbility(player.getItemBySlot(EquipmentSlot.HEAD));
+        addItemAbility(player.getItemBySlot(EquipmentSlot.CHEST));
+        addItemAbility(player.getItemBySlot(EquipmentSlot.LEGS));
+        addItemAbility(player.getItemBySlot(EquipmentSlot.FEET));
     }
 
     public void onPersonaDeactivated() {
-        PlayerEntity player = playerData.getEntity();
+        Player player = playerData.getEntity();
         handleMainHandChange(ItemStack.EMPTY);
-        removeItemAbility(player.getItemStackFromSlot(EquipmentSlotType.HEAD));
-        removeItemAbility(player.getItemStackFromSlot(EquipmentSlotType.CHEST));
-        removeItemAbility(player.getItemStackFromSlot(EquipmentSlotType.LEGS));
-        removeItemAbility(player.getItemStackFromSlot(EquipmentSlotType.FEET));
+        removeItemAbility(player.getItemBySlot(EquipmentSlot.HEAD));
+        removeItemAbility(player.getItemBySlot(EquipmentSlot.CHEST));
+        removeItemAbility(player.getItemBySlot(EquipmentSlot.LEGS));
+        removeItemAbility(player.getItemBySlot(EquipmentSlot.FEET));
     }
 }

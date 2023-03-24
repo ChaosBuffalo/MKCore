@@ -1,8 +1,8 @@
 package com.chaosbuffalo.mkcore.sync;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.Entity;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.Entity;
 
 import javax.annotation.Nullable;
 
@@ -42,7 +42,7 @@ public class SyncEntity<T extends Entity> implements ISyncObject {
     }
 
     @Override
-    public void deserializeUpdate(CompoundNBT tag) {
+    public void deserializeUpdate(CompoundTag tag) {
         if (tag.contains(name)) {
             int id = tag.getInt(name);
             if (id != -1) {
@@ -59,7 +59,7 @@ public class SyncEntity<T extends Entity> implements ISyncObject {
     }
 
     @Override
-    public void serializeUpdate(CompoundNBT tag) {
+    public void serializeUpdate(CompoundTag tag) {
         if (dirty) {
             serializeFull(tag);
             dirty = false;
@@ -67,17 +67,17 @@ public class SyncEntity<T extends Entity> implements ISyncObject {
     }
 
     @Override
-    public void serializeFull(CompoundNBT tag) {
-        tag.putInt(name, value != null ? value.getEntityId() : -1);
+    public void serializeFull(CompoundTag tag) {
+        tag.putInt(name, value != null ? value.getId() : -1);
         dirty = false;
     }
 
     static class ClientHandler {
         public static Entity handleClient(int entityId) {
             Minecraft mc = Minecraft.getInstance();
-            if (mc.world == null)
+            if (mc.level == null)
                 return null;
-            return mc.world.getEntityByID(entityId);
+            return mc.level.getEntity(entityId);
         }
     }
 }

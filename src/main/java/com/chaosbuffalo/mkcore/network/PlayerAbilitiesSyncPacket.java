@@ -4,12 +4,12 @@ import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.mojang.serialization.Dynamic;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
-import net.minecraft.nbt.NBTDynamicOps;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -18,35 +18,35 @@ import java.util.Map.Entry;
 import java.util.function.Supplier;
 
 public class PlayerAbilitiesSyncPacket {
-    private final Map<ResourceLocation, CompoundNBT> data;
+    private final Map<ResourceLocation, CompoundTag> data;
 
 
     public PlayerAbilitiesSyncPacket(Collection<MKAbility> abilities) {
         data = new HashMap<>();
         for (MKAbility ability : abilities) {
-            INBT dyn = ability.serializeDynamic(NBTDynamicOps.INSTANCE);
-            if (dyn instanceof CompoundNBT) {
-                data.put(ability.getRegistryName(), (CompoundNBT) dyn);
+            Tag dyn = ability.serializeDynamic(NbtOps.INSTANCE);
+            if (dyn instanceof CompoundTag) {
+                data.put(ability.getRegistryName(), (CompoundTag) dyn);
             } else {
                 throw new RuntimeException(String.format("Ability %s did not serialize to a CompoundNBT!", ability.getAbilityId()));
             }
         }
     }
 
-    public void toBytes(PacketBuffer buffer) {
+    public void toBytes(FriendlyByteBuf buffer) {
         buffer.writeInt(data.size());
-        for (Entry<ResourceLocation, CompoundNBT> abilityData : data.entrySet()) {
+        for (Entry<ResourceLocation, CompoundTag> abilityData : data.entrySet()) {
             buffer.writeResourceLocation(abilityData.getKey());
-            buffer.writeCompoundTag(abilityData.getValue());
+            buffer.writeNbt(abilityData.getValue());
         }
     }
 
-    public PlayerAbilitiesSyncPacket(PacketBuffer buffer) {
+    public PlayerAbilitiesSyncPacket(FriendlyByteBuf buffer) {
         int count = buffer.readInt();
         data = new HashMap<>();
         for (int i = 0; i < count; i++) {
             ResourceLocation abilityName = buffer.readResourceLocation();
-            CompoundNBT abilityData = buffer.readCompoundTag();
+            CompoundTag abilityData = buffer.readNbt();
             data.put(abilityName, abilityData);
         }
     }
@@ -55,11 +55,11 @@ public class PlayerAbilitiesSyncPacket {
         NetworkEvent.Context ctx = supplier.get();
         MKCore.LOGGER.debug("Handling player abilities update packet");
         ctx.enqueueWork(() -> {
-            for (Entry<ResourceLocation, CompoundNBT> abilityData : data.entrySet()) {
+            for (Entry<ResourceLocation, CompoundTag> abilityData : data.entrySet()) {
                 MKAbility ability = MKCoreRegistry.ABILITIES.getValue(abilityData.getKey());
                 if (ability != null) {
                     MKCore.LOGGER.debug("Updating ability with server data: {}", abilityData.getKey());
-                    ability.deserializeDynamic(new Dynamic<>(NBTDynamicOps.INSTANCE, abilityData.getValue()));
+                    ability.deserializeDynamic(new Dynamic<>(NbtOps.INSTANCE, abilityData.getValue()));
                 } else {
                     MKCore.LOGGER.warn("Skipping ability update for {}", abilityData.getKey());
                 }

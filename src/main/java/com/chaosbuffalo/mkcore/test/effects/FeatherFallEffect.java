@@ -2,12 +2,12 @@ package com.chaosbuffalo.mkcore.test.effects;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.effects.*;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.potion.EffectType;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.Util;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.Util;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -22,7 +22,7 @@ public class FeatherFallEffect extends MKEffect {
     }
 
     private FeatherFallEffect() {
-        super(EffectType.BENEFICIAL);
+        super(MobEffectCategory.BENEFICIAL);
         setRegistryName("effect.test_featherfall");
         SpellTriggers.FALL.register(this::onFall);
     }
@@ -32,8 +32,8 @@ public class FeatherFallEffect extends MKEffect {
         MKCore.getEntityData(entity).ifPresent(targetData -> {
             if (targetData.getEffects().isEffectActive(INSTANCE)) {
                 event.setAmount(0.0f);
-                if (entity instanceof PlayerEntity) {
-                    entity.sendMessage(new StringTextComponent("My legs are OK"), Util.DUMMY_UUID);
+                if (entity instanceof Player) {
+                    entity.sendMessage(new TextComponent("My legs are OK"), Util.NIL_UUID);
                 }
             }
         });

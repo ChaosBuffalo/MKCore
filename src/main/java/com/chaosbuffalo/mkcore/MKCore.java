@@ -1,8 +1,8 @@
 package com.chaosbuffalo.mkcore;
 
 import com.chaosbuffalo.mkcore.abilities.AbilityManager;
-import com.chaosbuffalo.mkcore.client.gui.PlayerPageRegistry;
 import com.chaosbuffalo.mkcore.client.gui.MKOverlay;
+import com.chaosbuffalo.mkcore.client.gui.PlayerPageRegistry;
 import com.chaosbuffalo.mkcore.client.rendering.MKRenderers;
 import com.chaosbuffalo.mkcore.command.MKCommand;
 import com.chaosbuffalo.mkcore.core.ICoreExtension;
@@ -18,13 +18,15 @@ import com.chaosbuffalo.mkcore.init.CoreItems;
 import com.chaosbuffalo.mkcore.init.CoreParticles;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.test.MKTestAbilities;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.gui.ForgeIngameGui;
+import net.minecraftforge.client.gui.OverlayRegistry;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.AddReloadListenerEvent;
@@ -38,9 +40,9 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
-import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent;
-import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fmlserverevents.FMLServerAboutToStartEvent;
+import net.minecraftforge.fmlserverevents.FMLServerStartingEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -83,7 +85,6 @@ public class MKCore {
     private void setup(final FMLCommonSetupEvent event) {
         // some preinit code
         PacketHandler.setupHandler();
-        CoreCapabilities.registerCapabilities();
         MKCommand.registerArguments();
         ParticleAnimationManager.setupDeserializers();
         AbilityManager.setupDeserializers();
@@ -104,7 +105,7 @@ public class MKCore {
     }
 
     private void registerAttributes() {
-        Attributes.ATTACK_DAMAGE.setShouldWatch(true);
+        Attributes.ATTACK_DAMAGE.setSyncable(true);
     }
 
     @SubscribeEvent
@@ -117,9 +118,9 @@ public class MKCore {
         MinecraftForge.EVENT_BUS.register(new MKOverlay());
         ClientEventHandler.initKeybindings();
         PlayerPageRegistry.init();
-        MKRenderers.registerPlayerRenderers();
         CoreItems.registerItemProperties();
         ClientEventHandler.setupAttributeRenderers();
+        OverlayRegistry.enableOverlay(ForgeIngameGui.PLAYER_HEALTH_ELEMENT, false);
     }
 
     // You can use SubscribeEvent and let the Event Bus discover methods to call
@@ -146,19 +147,19 @@ public class MKCore {
         internalIMCStageSetup();
         DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> PlayerPageRegistry::checkClientIMC);
         event.getIMCStream().forEach(m -> {
-            if (m.getMethod().equals(PERSONA_EXTENSION)) {
-                MKCore.LOGGER.debug("IMC register persona extension from mod {} {}", m.getSenderModId(), m.getMethod());
-                IPersonaExtensionProvider factory = (IPersonaExtensionProvider) m.getMessageSupplier().get();
+            if (m.method().equals(PERSONA_EXTENSION)) {
+                MKCore.LOGGER.debug("IMC register persona extension from mod {} {}", m.senderModId(), m.method());
+                IPersonaExtensionProvider factory = (IPersonaExtensionProvider) m.messageSupplier().get();
                 PersonaManager.registerExtension(factory);
-            } else if (m.getMethod().equals(CORE_EXTENSION)){
-                MKCore.LOGGER.debug("IMC core extension from mod {} {}", m.getSenderModId(), m.getMethod());
-                ICoreExtension extension = (ICoreExtension) m.getMessageSupplier().get();
+            } else if (m.method().equals(CORE_EXTENSION)) {
+                MKCore.LOGGER.debug("IMC core extension from mod {} {}", m.senderModId(), m.method());
+                ICoreExtension extension = (ICoreExtension) m.messageSupplier().get();
                 extension.register();
             }
         });
     }
 
-    private void internalIMCStageSetup(){
+    private void internalIMCStageSetup() {
         CoreParticles.HandleEditorParticleRegistration();
     }
 
@@ -177,7 +178,7 @@ public class MKCore {
     }
 
     public static LazyOptional<? extends IMKEntityData> getEntityData(@Nullable Entity entity) {
-        if (entity instanceof PlayerEntity) {
+        if (entity instanceof Player) {
             return entity.getCapability(CoreCapabilities.PLAYER_CAPABILITY);
         } else if (entity instanceof LivingEntity) {
             return entity.getCapability(CoreCapabilities.ENTITY_CAPABILITY);
@@ -199,5 +200,7 @@ public class MKCore {
         return INSTANCE.abilityManager;
     }
 
-    public static ParticleAnimationManager getAnimationManager() { return INSTANCE.particleAnimationManager; }
+    public static ParticleAnimationManager getAnimationManager() {
+        return INSTANCE.particleAnimationManager;
+    }
 }

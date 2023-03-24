@@ -1,7 +1,7 @@
 package com.chaosbuffalo.mkcore.init;
 
 import com.chaosbuffalo.mkcore.MKCore;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 
 public class CoreRegistryNames {
     public static final ResourceLocation MAGIC_CROSS_NAME = new ResourceLocation(MKCore.MOD_ID, "magic_cross");

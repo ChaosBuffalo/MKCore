@@ -6,10 +6,10 @@ import com.chaosbuffalo.mkcore.core.IMKEntityEntitlements;
 import com.chaosbuffalo.mkcore.core.entitlements.EntitlementInstance;
 import com.chaosbuffalo.mkcore.core.entitlements.MKEntitlement;
 import com.mojang.serialization.Dynamic;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.nbt.NBTDynamicOps;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
 import net.minecraftforge.common.util.Constants;
 
 import java.util.*;
@@ -84,22 +84,22 @@ public class EntityEntitlementsKnowledge implements IMKEntityEntitlements {
     }
 
     @Override
-    public CompoundNBT serialize() {
-        CompoundNBT tag = new CompoundNBT();
-        ListNBT entitlementsTag = new ListNBT();
+    public CompoundTag serialize() {
+        CompoundTag tag = new CompoundTag();
+        ListTag entitlementsTag = new ListTag();
         for (EntitlementInstance instance : entitlements.values()) {
-            entitlementsTag.add(instance.serializeDynamic(NBTDynamicOps.INSTANCE));
+            entitlementsTag.add(instance.serializeDynamic(NbtOps.INSTANCE));
         }
         tag.put("entitlements", entitlementsTag);
         return tag;
     }
 
     @Override
-    public boolean deserialize(CompoundNBT tag) {
+    public boolean deserialize(CompoundTag tag) {
         clearEntitlements();
-        ListNBT entitlementsTag = tag.getList("entitlements", Constants.NBT.TAG_COMPOUND);
-        for (INBT entNbt : entitlementsTag) {
-            EntitlementInstance newEnt = new EntitlementInstance(new Dynamic<>(NBTDynamicOps.INSTANCE, entNbt));
+        ListTag entitlementsTag = tag.getList("entitlements", Tag.TAG_COMPOUND);
+        for (Tag entNbt : entitlementsTag) {
+            EntitlementInstance newEnt = new EntitlementInstance(new Dynamic<>(NbtOps.INSTANCE, entNbt));
             if (newEnt.isValid()) {
                 addEntitlementInternal(newEnt, false);
             }

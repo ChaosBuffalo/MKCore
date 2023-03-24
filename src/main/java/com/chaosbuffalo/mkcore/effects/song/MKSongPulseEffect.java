@@ -6,13 +6,13 @@ import com.chaosbuffalo.mkcore.effects.AreaEffectBuilder;
 import com.chaosbuffalo.mkcore.effects.MKActiveEffect;
 import com.chaosbuffalo.mkcore.effects.MKEffect;
 import com.chaosbuffalo.mkcore.effects.MKEffectBuilder;
-import net.minecraft.potion.EffectType;
+import net.minecraft.world.effect.MobEffectCategory;
 
 import java.util.UUID;
 
 public abstract class MKSongPulseEffect extends MKEffect {
     public MKSongPulseEffect() {
-        super(EffectType.NEUTRAL);
+        super(MobEffectCategory.NEUTRAL);
     }
 
     @Override

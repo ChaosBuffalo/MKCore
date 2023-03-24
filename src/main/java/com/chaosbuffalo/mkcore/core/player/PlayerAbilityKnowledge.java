@@ -10,9 +10,9 @@ import com.chaosbuffalo.mkcore.core.IMKAbilityKnowledge;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.sync.SyncInt;
 import com.chaosbuffalo.mkcore.sync.SyncMapUpdater;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -29,7 +29,7 @@ public class PlayerAbilityKnowledge implements IMKAbilityKnowledge, IPlayerSyncC
             new SyncMapUpdater<>("known",
                     () -> abilityInfoMap,
                     ResourceLocation::toString,
-                    ResourceLocation::tryCreate,
+                    ResourceLocation::tryParse,
                     PlayerAbilityKnowledge::createAbilityInfo
             );
 
@@ -60,7 +60,7 @@ public class PlayerAbilityKnowledge implements IMKAbilityKnowledge, IPlayerSyncC
     }
 
     public void setAbilityPoolSize(int count) {
-        poolSize.set(MathHelper.clamp(count, GameConstants.DEFAULT_ABILITY_POOL_SIZE, GameConstants.MAX_ABILITY_POOL_SIZE));
+        poolSize.set(Mth.clamp(count, GameConstants.DEFAULT_ABILITY_POOL_SIZE, GameConstants.MAX_ABILITY_POOL_SIZE));
     }
 
     private Stream<ResourceLocation> getPoolAbilityStream() {
@@ -175,14 +175,14 @@ public class PlayerAbilityKnowledge implements IMKAbilityKnowledge, IPlayerSyncC
         knownAbilityUpdater.markDirty(info.getId());
     }
 
-    public CompoundNBT serialize() {
-        CompoundNBT tag = new CompoundNBT();
+    public CompoundTag serialize() {
+        CompoundTag tag = new CompoundTag();
         tag.put("known", knownAbilityUpdater.serializeStorage());
         tag.putInt("poolSize", poolSize.get());
         return tag;
     }
 
-    public void deserialize(CompoundNBT tag) {
+    public void deserialize(CompoundTag tag) {
         knownAbilityUpdater.deserializeStorage(tag.get("known"));
         setAbilityPoolSize(tag.getInt("poolSize"));
     }

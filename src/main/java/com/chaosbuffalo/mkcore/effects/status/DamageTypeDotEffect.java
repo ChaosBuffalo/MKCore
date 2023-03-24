@@ -5,12 +5,12 @@ import com.chaosbuffalo.mkcore.core.damage.MKDamageSource;
 import com.chaosbuffalo.mkcore.effects.MKActiveEffect;
 import com.chaosbuffalo.mkcore.effects.MKEffect;
 import com.chaosbuffalo.mkcore.effects.ScalingValueEffectState;
-import net.minecraft.potion.EffectType;
+import net.minecraft.world.effect.MobEffectCategory;
 
 public abstract class DamageTypeDotEffect extends MKEffect {
 
     public DamageTypeDotEffect() {
-        super(EffectType.HARMFUL);
+        super(MobEffectCategory.HARMFUL);
     }
 
     public static class State extends ScalingValueEffectState {
@@ -33,7 +33,7 @@ public abstract class DamageTypeDotEffect extends MKEffect {
                 effectName = String.format("%s.%s.dot", damageType.getId().getNamespace(), damageType.getId().getPath());
             }
 
-            targetData.getEntity().attackEntityFrom(
+            targetData.getEntity().hurt(
                     MKDamageSource.causeEffectDamage(damageType, effectName, activeEffect.getDirectEntity(), activeEffect.getSourceEntity(), getModifierScale()),
                     damage);
             return true;

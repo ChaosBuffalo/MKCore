@@ -8,17 +8,17 @@ import com.chaosbuffalo.mkcore.item.IReceivesSkillChange;
 import com.chaosbuffalo.mkcore.sync.IMKSerializable;
 import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
 import it.unimi.dsi.fastutil.objects.Object2DoubleOpenCustomHashMap;
-import net.minecraft.entity.ai.attributes.Attribute;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Util;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.HashMap;
@@ -27,7 +27,7 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.function.DoubleUnaryOperator;
 
-public class PlayerSkills implements IMKSerializable<CompoundNBT> {
+public class PlayerSkills implements IMKSerializable<CompoundTag> {
     private static final UUID blockScalerUUID = UUID.fromString("8cabfe08-4ad3-4b8a-9b94-cb146f743c36");
 
     protected interface SkillChangeHandler {
@@ -35,7 +35,7 @@ public class PlayerSkills implements IMKSerializable<CompoundNBT> {
     }
 
     private final MKPlayerData playerData;
-    private final Object2DoubleMap<Attribute> skillValues = new Object2DoubleOpenCustomHashMap<>(Util.identityHashStrategy());
+    private final Object2DoubleMap<Attribute> skillValues = new Object2DoubleOpenCustomHashMap<>(Util.identityStrategy());
     private static final Map<Attribute, SkillChangeHandler> skillChangeHandlers = Util.make(() -> {
         Map<Attribute, SkillChangeHandler> map = new HashMap<>(8);
         map.put(MKAttributes.BLOCK, PlayerSkills::onBlockChange);
@@ -54,16 +54,16 @@ public class PlayerSkills implements IMKSerializable<CompoundNBT> {
     }
 
     private static void onBlockChange(MKPlayerData playerData, double value) {
-        ModifiableAttributeInstance inst = playerData.getEntity().getAttribute(MKAttributes.MAX_POISE);
+        AttributeInstance inst = playerData.getEntity().getAttribute(MKAttributes.MAX_POISE);
         if (inst != null) {
             inst.removeModifier(blockScalerUUID);
-            inst.applyNonPersistentModifier(new AttributeModifier(blockScalerUUID, "block skill",
+            inst.addTransientModifier(new AttributeModifier(blockScalerUUID, "block skill",
                     MKAbility.convertSkillToMultiplier(value), AttributeModifier.Operation.MULTIPLY_TOTAL));
         }
     }
 
     private static void onWeaponSkillChange(MKPlayerData playerData, double value) {
-        ItemStack mainHand = playerData.getEntity().getItemStackFromSlot(EquipmentSlotType.MAINHAND);
+        ItemStack mainHand = playerData.getEntity().getItemBySlot(EquipmentSlot.MAINHAND);
         if (mainHand.getItem() instanceof IReceivesSkillChange) {
             ((IReceivesSkillChange) mainHand.getItem()).onSkillChange(mainHand, playerData.getEntity());
         }
@@ -92,7 +92,7 @@ public class PlayerSkills implements IMKSerializable<CompoundNBT> {
     }
 
     private void setSkill(Attribute attribute, double skillLevel, boolean updateMapValue) {
-        ModifiableAttributeInstance attrInst = playerData.getEntity().getAttribute(attribute);
+        AttributeInstance attrInst = playerData.getEntity().getAttribute(attribute);
         if (attrInst == null) {
             return;
         }
@@ -123,11 +123,11 @@ public class PlayerSkills implements IMKSerializable<CompoundNBT> {
     public void tryIncreaseSkill(Attribute attribute, DoubleUnaryOperator chanceFormula) {
         double currentSkill = getSkillValue(attribute);
         if (currentSkill < GameConstants.NATURAL_SKILL_MAX) {
-            PlayerEntity player = playerData.getEntity();
-            if (player.getRNG().nextDouble() <= chanceFormula.applyAsDouble(currentSkill)) {
-                player.sendMessage(new TranslationTextComponent("mkcore.skill.increase",
-                        new TranslationTextComponent(attribute.getAttributeName()), currentSkill + 1.0)
-                        .mergeStyle(TextFormatting.AQUA), Util.DUMMY_UUID);
+            Player player = playerData.getEntity();
+            if (player.getRandom().nextDouble() <= chanceFormula.applyAsDouble(currentSkill)) {
+                player.sendMessage(new TranslatableComponent("mkcore.skill.increase",
+                        new TranslatableComponent(attribute.getDescriptionId()), currentSkill + 1.0)
+                        .withStyle(ChatFormatting.AQUA), Util.NIL_UUID);
                 setSkill(attribute, currentSkill + 1.0);
             }
         }
@@ -142,9 +142,9 @@ public class PlayerSkills implements IMKSerializable<CompoundNBT> {
     }
 
     @Override
-    public CompoundNBT serialize() {
-        CompoundNBT tag = new CompoundNBT();
-        CompoundNBT skillsNbt = new CompoundNBT();
+    public CompoundTag serialize() {
+        CompoundTag tag = new CompoundTag();
+        CompoundTag skillsNbt = new CompoundTag();
         for (Object2DoubleMap.Entry<Attribute> entry : skillValues.object2DoubleEntrySet()) {
             ResourceLocation attrId = Objects.requireNonNull(entry.getKey().getRegistryName());
             skillsNbt.putDouble(attrId.toString(), entry.getDoubleValue());
@@ -154,9 +154,9 @@ public class PlayerSkills implements IMKSerializable<CompoundNBT> {
     }
 
     @Override
-    public boolean deserialize(CompoundNBT tag) {
-        CompoundNBT skillsNbt = tag.getCompound("skills");
-        for (String key : skillsNbt.keySet()) {
+    public boolean deserialize(CompoundTag tag) {
+        CompoundTag skillsNbt = tag.getCompound("skills");
+        for (String key : skillsNbt.getAllKeys()) {
             Attribute attr = ForgeRegistries.ATTRIBUTES.getValue(new ResourceLocation(key));
             if (attr != null) {
                 skillValues.put(attr, skillsNbt.getDouble(key));

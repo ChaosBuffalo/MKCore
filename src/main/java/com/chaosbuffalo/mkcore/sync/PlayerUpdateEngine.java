@@ -5,16 +5,14 @@ import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.events.PlayerDataEvent;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.PlayerDataSyncPacket;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.MinecraftForge;
-
-import javax.annotation.Nullable;
 
 public class PlayerUpdateEngine extends UpdateEngine {
     private final MKPlayerData playerData;
-    private final PlayerEntity player;
+    private final Player player;
     private final SyncGroup privateUpdater = new SyncGroup();
 
     public PlayerUpdateEngine(MKPlayerData playerEntity) {
@@ -36,7 +34,7 @@ public class PlayerUpdateEngine extends UpdateEngine {
     }
 
     @Override
-    public void serializeUpdate(CompoundNBT updateTag, boolean fullSync, boolean privateUpdate) {
+    public void serializeUpdate(CompoundTag updateTag, boolean fullSync, boolean privateUpdate) {
 //        MKCore.LOGGER.info("serializeClientUpdate full:{} private:{}", fullSync, privateUpdate);
         ISyncObject updater = privateUpdate ? privateUpdater : publicUpdater;
         if (fullSync) {
@@ -47,7 +45,7 @@ public class PlayerUpdateEngine extends UpdateEngine {
     }
 
     @Override
-    public void deserializeUpdate(CompoundNBT updateTag, boolean privateUpdate) {
+    public void deserializeUpdate(CompoundTag updateTag, boolean privateUpdate) {
 //        MKCore.LOGGER.info("deserializeClientUpdatePre private:{} {}", privateUpdate, updateTag);
         publicUpdater.deserializeUpdate(updateTag);
         if (privateUpdate) {
@@ -76,28 +74,28 @@ public class PlayerUpdateEngine extends UpdateEngine {
         if (privateUpdater.isDirty()) {
             PlayerDataSyncPacket packet = getUpdateMessage(true);
             MKCore.LOGGER.info("sending private dirty update {} for {}", packet, player);
-            PacketHandler.sendMessage(packet, (ServerPlayerEntity) player);
+            PacketHandler.sendMessage(packet, (ServerPlayer) player);
         }
     }
 
     private PlayerDataSyncPacket getUpdateMessage(boolean privateUpdate) {
-        CompoundNBT tag = new CompoundNBT();
+        CompoundTag tag = new CompoundTag();
         serializeUpdate(tag, false, privateUpdate);
-        return new PlayerDataSyncPacket(player.getUniqueID(), tag, privateUpdate);
+        return new PlayerDataSyncPacket(player.getUUID(), tag, privateUpdate);
     }
 
     @Override
-    public void sendAll(ServerPlayerEntity otherPlayer) {
+    public void sendAll(ServerPlayer otherPlayer) {
         if (!playerData.isServerSide())
             return;
-        CompoundNBT tag = new CompoundNBT();
+        CompoundTag tag = new CompoundTag();
         publicUpdater.serializeFull(tag);
         boolean privateUpdate = player == otherPlayer;
         if (privateUpdate) {
             privateUpdater.serializeFull(tag);
             readyForUpdates = true;
         }
-        PlayerDataSyncPacket packet = new PlayerDataSyncPacket(player.getUniqueID(), tag, privateUpdate);
+        PlayerDataSyncPacket packet = new PlayerDataSyncPacket(player.getUUID(), tag, privateUpdate);
         MKCore.LOGGER.info("sending full sync {} for {} to {}", packet, player, otherPlayer);
         PacketHandler.sendMessage(packet, otherPlayer);
     }

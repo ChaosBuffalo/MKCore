@@ -18,9 +18,9 @@ import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKWidget;
 import com.chaosbuffalo.mkwidgets.utils.TextureRegion;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.I18n;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nonnull;
 import java.util.Collection;
@@ -36,7 +36,7 @@ public class LearnAbilityPage extends AbilityPageBase {
     private MKLayout root;
 
     public LearnAbilityPage(MKPlayerData playerData, List<AbilityTrainingEvaluation> offeredAbilities, int entityId) {
-        super(playerData, new StringTextComponent("Learn Abilities"));
+        super(playerData, new TextComponent("Learn Abilities"));
         this.offeredAbilities = ImmutableList.copyOf(offeredAbilities);
         this.entityId = entityId;
     }
@@ -96,7 +96,7 @@ public class LearnAbilityPage extends AbilityPageBase {
 
     @Nonnull
     private MKButton createLearnButton() {
-        String learnButtonText = I18n.format("mkcore.gui.character.learn");
+        String learnButtonText = I18n.get("mkcore.gui.character.learn");
         MKButton learnButton = new MKButton(0, 0, learnButtonText) {
 
             @Override
@@ -110,7 +110,7 @@ public class LearnAbilityPage extends AbilityPageBase {
                 if (requirementsTray != null && requirementsTray.getEvaluation() != null && requirementsTray.getEvaluation().getRequirements().size() > 0) {
                     if (getScreen() != null) {
                         getScreen().addPostRenderInstruction(new HoveringTextInstruction(
-                                I18n.format("mkcore.gui.character.unmet_req_tooltip"),
+                                I18n.get("mkcore.gui.character.unmet_req_tooltip"),
                                 getParentCoords(new Vec2i(mouseX, mouseY))));
                     }
                 }

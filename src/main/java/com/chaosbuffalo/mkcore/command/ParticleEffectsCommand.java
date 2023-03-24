@@ -10,21 +10,21 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.Commands;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 
 import java.util.UUID;
 
 public class ParticleEffectsCommand {
 
-    public static LiteralArgumentBuilder<CommandSource> register() {
+    public static LiteralArgumentBuilder<CommandSourceStack> register() {
         return Commands.literal("pe")
                 .then(Commands.literal("addBoneAnimation")
                         .then(Commands.argument("particleAnimation", ParticleAnimationArgument.ParticleAnimation())
                                 .then(Commands.argument("bone", BipedBoneArgument.BipedBone())
-                                    .executes(ParticleEffectsCommand::addEffectInstance)
+                                        .executes(ParticleEffectsCommand::addEffectInstance)
                                 )
                         )
                 )
@@ -33,8 +33,8 @@ public class ParticleEffectsCommand {
                 );
     }
 
-    static int addEffectInstance(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
-        ServerPlayerEntity player = ctx.getSource().asPlayer();
+    static int addEffectInstance(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        ServerPlayer player = ctx.getSource().getPlayerOrException();
         ResourceLocation particleAnimation = ctx.getArgument("particleAnimation", ResourceLocation.class);
         String bone = StringArgumentType.getString(ctx, "bone");
         BoneEffectInstance inst = new BoneEffectInstance(UUID.randomUUID(), bone, particleAnimation);
@@ -47,8 +47,8 @@ public class ParticleEffectsCommand {
     }
 
 
-    static int clearEffects(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
-        ServerPlayerEntity player = ctx.getSource().asPlayer();
+    static int clearEffects(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        ServerPlayer player = ctx.getSource().getPlayerOrException();
         MKCore.getPlayer(player).ifPresent(playerData -> playerData.getAnimationModule().getEffectInstanceTracker().clearParticleEffects());
 
         return Command.SINGLE_SUCCESS;

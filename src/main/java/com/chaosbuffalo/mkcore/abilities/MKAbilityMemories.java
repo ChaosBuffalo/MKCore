@@ -2,9 +2,9 @@ package com.chaosbuffalo.mkcore.abilities;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.utils.TargetUtil;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -25,7 +25,7 @@ public class MKAbilityMemories {
     public static void registerModuleTypes(RegistryEvent.Register<MemoryModuleType<?>> evt) {
         evt.getRegistry().register(new MemoryModuleType<LivingEntity>(Optional.empty())
                 .setRegistryName(MKCore.MOD_ID, "ability_target"));
-        evt.getRegistry().register(new MemoryModuleType<Vector3d>(Optional.empty())
+        evt.getRegistry().register(new MemoryModuleType<Vec3>(Optional.empty())
                 .setRegistryName(MKCore.MOD_ID, "ability_position_target"));
     }
 }

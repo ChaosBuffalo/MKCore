@@ -3,13 +3,13 @@ package com.chaosbuffalo.mkcore.core.damage;
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.init.CoreDamageTypes;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -32,13 +32,13 @@ public abstract class MKDamageSource extends DamageSource {
 
     @Override
     @Nullable
-    public Entity getImmediateSource() {
+    public Entity getDirectEntity() {
         return immediateSource;
     }
 
     @Override
     @Nullable
-    public Entity getTrueSource() {
+    public Entity getEntity() {
         return trueSource;
     }
 
@@ -51,7 +51,7 @@ public abstract class MKDamageSource extends DamageSource {
     }
 
     @Override
-    public boolean isDifficultyScaled() {
+    public boolean scalesWithDifficulty() {
         // We apply our own scaling
         return false;
     }
@@ -78,20 +78,20 @@ public abstract class MKDamageSource extends DamageSource {
 
         @Nonnull
         @Override
-        public ITextComponent getDeathMessage(LivingEntity killedEntity) {
+        public Component getLocalizedDeathMessage(LivingEntity killedEntity) {
             // FIXME: better message
-            IFormattableTextComponent comp = new TranslationTextComponent("%s got dropped", killedEntity.getDisplayName());
+            MutableComponent comp = new TranslatableComponent("%s got dropped", killedEntity.getDisplayName());
             if (trueSource != null) {
-                comp.appendString(" by ").appendSibling(trueSource.getDisplayName());
+                comp.append(" by ").append(trueSource.getDisplayName());
             } else {
-                comp.appendString(" anonymously");
+                comp.append(" anonymously");
             }
             if (damageType != null || damageTypeName != null) {
-                comp.appendString(" with some major ");
+                comp.append(" with some major ");
                 if (damageTypeName != null) {
-                    comp.appendSibling(new TranslationTextComponent(damageTypeName));
+                    comp.append(new TranslatableComponent(damageTypeName));
                 } else {
-                    comp.appendSibling(damageType.getDisplayName());
+                    comp.append(damageType.getDisplayName());
                 }
             }
             return comp;
@@ -122,22 +122,22 @@ public abstract class MKDamageSource extends DamageSource {
 
         @Nonnull
         @Override
-        public ITextComponent getDeathMessage(LivingEntity killedEntity) {
+        public Component getLocalizedDeathMessage(LivingEntity killedEntity) {
             // FIXME: better message
-            IFormattableTextComponent comp = new TranslationTextComponent("%s got dropped", killedEntity.getDisplayName());
+            MutableComponent comp = new TranslatableComponent("%s got dropped", killedEntity.getDisplayName());
             if (trueSource != null) {
-                comp.appendString(" by ").appendSibling(trueSource.getDisplayName());
+                comp.append(" by ").append(trueSource.getDisplayName());
             } else {
-                comp.appendString(" anonymously");
+                comp.append(" anonymously");
             }
             if (abilityId != null) {
                 MKAbility ability = MKCoreRegistry.getAbility(abilityId);
                 if (ability != null) {
-                    comp.appendString(" by ability ").appendSibling(ability.getAbilityName());
+                    comp.append(" by ability ").append(ability.getAbilityName());
                 }
             }
             if (damageType != null) {
-                comp.appendString(" with some major ").appendSibling(damageType.getDisplayName());
+                comp.append(" with some major ").append(damageType.getDisplayName());
             }
             return comp;
         }
@@ -177,7 +177,7 @@ public abstract class MKDamageSource extends DamageSource {
             return causeMeleeDamage(abilityId, immediateSource, trueSource);
         }
         return (MKDamageSource) new AbilityDamage(damageType, immediateSource, trueSource, abilityId)
-                .setDamageBypassesArmor();
+                .bypassArmor();
     }
 
     public static MKDamageSource causeAbilityDamage(MKDamageType damageType,
@@ -193,7 +193,7 @@ public abstract class MKDamageSource extends DamageSource {
                                                    @Nullable Entity immediateSource,
                                                    @Nullable Entity trueSource) {
         return (MKDamageSource) new EffectDamage(damageType, immediateSource, trueSource, effectType)
-                .setDamageBypassesArmor();
+                .bypassArmor();
     }
 
     public static MKDamageSource causeEffectDamage(MKDamageType damageType, String effectType,

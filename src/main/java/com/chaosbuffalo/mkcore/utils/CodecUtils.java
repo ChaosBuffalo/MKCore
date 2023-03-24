@@ -4,7 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.codecs.PrimitiveCodec;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.Arrays;
 import java.util.List;
@@ -47,8 +47,8 @@ public class CodecUtils {
         }
     };
 
-    public static final Codec<Vector3d> VECTOR_3D_CODEC = CodecUtils.DOUBLE_STREAM.comapFlatMap(
+    public static final Codec<Vec3> VECTOR_3D_CODEC = CodecUtils.DOUBLE_STREAM.comapFlatMap(
             (stream) -> CodecUtils.validateDoubleStreamSize(stream, 3).map(
-                    (componentArray) -> new Vector3d(componentArray[0], componentArray[1], componentArray[2])),
-            (vector) -> DoubleStream.of(vector.getX(), vector.getY(), vector.getZ()));
+                    (componentArray) -> new Vec3(componentArray[0], componentArray[1], componentArray[2])),
+            (vector) -> DoubleStream.of(vector.x(), vector.y(), vector.z()));
 }

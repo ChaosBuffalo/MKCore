@@ -1,10 +1,12 @@
 package com.chaosbuffalo.mkcore.test.effects;
 
 import com.chaosbuffalo.mkcore.MKCore;
-import com.chaosbuffalo.mkcore.effects.*;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.potion.EffectType;
+import com.chaosbuffalo.mkcore.effects.MKEffect;
+import com.chaosbuffalo.mkcore.effects.MKEffectState;
+import com.chaosbuffalo.mkcore.effects.MKSimplePassiveState;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -15,7 +17,7 @@ public class SkinLikeWoodEffect extends MKEffect {
     public static final SkinLikeWoodEffect INSTANCE = new SkinLikeWoodEffect();
 
     private SkinLikeWoodEffect() {
-        super(EffectType.BENEFICIAL);
+        super(MobEffectCategory.BENEFICIAL);
         setRegistryName("effect.v2.skin_like_wood");
         addAttribute(Attributes.ARMOR, UUID.fromString("4b488b68-1151-4bae-b99e-b381707a6964"), 2, AttributeModifier.Operation.ADDITION);
     }

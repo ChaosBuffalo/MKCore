@@ -1,7 +1,7 @@
 package com.chaosbuffalo.mkcore.sync;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerPlayer;
 
 public abstract class UpdateEngine {
     protected final SyncGroup publicUpdater = new SyncGroup();
@@ -26,11 +26,11 @@ public abstract class UpdateEngine {
 
     public abstract void syncUpdates();
 
-    public abstract void serializeUpdate(CompoundNBT updateTag, boolean fullSync, boolean privateUpdate);
+    public abstract void serializeUpdate(CompoundTag updateTag, boolean fullSync, boolean privateUpdate);
 
-    public abstract void deserializeUpdate(CompoundNBT updateTag, boolean privateUpdate);
+    public abstract void deserializeUpdate(CompoundTag updateTag, boolean privateUpdate);
 
-    public abstract void sendAll(ServerPlayerEntity otherPlayer);
+    public abstract void sendAll(ServerPlayer otherPlayer);
 
 
 }

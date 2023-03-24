@@ -17,11 +17,11 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.Commands;
-import net.minecraft.command.ISuggestionProvider;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.SharedSuggestionProvider;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 
 import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
@@ -29,7 +29,7 @@ import java.util.stream.Stream;
 
 public class HotBarCommand {
 
-    public static LiteralArgumentBuilder<CommandSource> register() {
+    public static LiteralArgumentBuilder<CommandSourceStack> register() {
         return Commands.literal("hotbar")
                 .then(Commands.literal("show")
                         .then(Commands.argument("group", AbilityGroupArgument.abilityGroup())
@@ -59,8 +59,8 @@ public class HotBarCommand {
                 ;
     }
 
-    static int setSlots(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
-        ServerPlayerEntity player = ctx.getSource().asPlayer();
+    static int setSlots(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        ServerPlayer player = ctx.getSource().getPlayerOrException();
 
         AbilityGroupId group = ctx.getArgument("group", AbilityGroupId.class);
         int count = IntegerArgumentType.getInteger(ctx, "count");
@@ -77,8 +77,8 @@ public class HotBarCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    static int setActionBar(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
-        ServerPlayerEntity player = ctx.getSource().asPlayer();
+    static int setActionBar(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        ServerPlayer player = ctx.getSource().getPlayerOrException();
 
         AbilityGroupId group = ctx.getArgument("group", AbilityGroupId.class);
         int slot = IntegerArgumentType.getInteger(ctx, "slot");
@@ -94,8 +94,8 @@ public class HotBarCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    static int addActionBar(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
-        ServerPlayerEntity player = ctx.getSource().asPlayer();
+    static int addActionBar(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        ServerPlayer player = ctx.getSource().getPlayerOrException();
 
         AbilityGroupId group = ctx.getArgument("group", AbilityGroupId.class);
         ResourceLocation abilityId = ctx.getArgument("abilityId", ResourceLocation.class);
@@ -113,8 +113,8 @@ public class HotBarCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    static int clearActionBar(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
-        ServerPlayerEntity player = ctx.getSource().asPlayer();
+    static int clearActionBar(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        ServerPlayer player = ctx.getSource().getPlayerOrException();
 
         AbilityGroupId group = ctx.getArgument("group", AbilityGroupId.class);
         int slot = IntegerArgumentType.getInteger(ctx, "slot");
@@ -125,8 +125,8 @@ public class HotBarCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    static int resetActionBar(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
-        ServerPlayerEntity player = ctx.getSource().asPlayer();
+    static int resetActionBar(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        ServerPlayer player = ctx.getSource().getPlayerOrException();
 
         AbilityGroupId group = ctx.getArgument("group", AbilityGroupId.class);
         MKCore.getPlayer(player).ifPresent(playerData ->
@@ -135,9 +135,9 @@ public class HotBarCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    static int showActionBar(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
+    static int showActionBar(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         AbilityGroupId group = ctx.getArgument("group", AbilityGroupId.class);
-        ServerPlayerEntity player = ctx.getSource().asPlayer();
+        ServerPlayer player = ctx.getSource().getPlayerOrException();
         MKCore.getPlayer(player).ifPresent(playerData -> {
             AbilityGroup container = playerData.getLoadout().getAbilityGroup(group);
             int current = container.getCurrentSlotCount();
@@ -151,10 +151,10 @@ public class HotBarCommand {
         return Command.SINGLE_SUCCESS;
     }
 
-    public static CompletableFuture<Suggestions> suggestKnownAbilities(final CommandContext<CommandSource> context, final SuggestionsBuilder builder) throws CommandSyntaxException {
+    public static CompletableFuture<Suggestions> suggestKnownAbilities(final CommandContext<CommandSourceStack> context, final SuggestionsBuilder builder) throws CommandSyntaxException {
         AbilityGroupId group = context.getArgument("group", AbilityGroupId.class);
-        ServerPlayerEntity player = context.getSource().asPlayer();
-        return ISuggestionProvider.suggest(MKCore.getPlayer(player)
+        ServerPlayer player = context.getSource().getPlayerOrException();
+        return SharedSuggestionProvider.suggest(MKCore.getPlayer(player)
                         .map(playerData -> playerData.getAbilities()
                                 .getKnownStream()
                                 .filter(info -> group.fitsAbilityType(info.getAbility().getType()))
@@ -177,7 +177,7 @@ public class HotBarCommand {
 
         @Override
         public <S> CompletableFuture<Suggestions> listSuggestions(final CommandContext<S> context, final SuggestionsBuilder builder) {
-            return ISuggestionProvider.suggest(Arrays.stream(AbilityGroupId.values()).map(Enum::toString), builder);
+            return SharedSuggestionProvider.suggest(Arrays.stream(AbilityGroupId.values()).map(Enum::toString), builder);
         }
     }
 }

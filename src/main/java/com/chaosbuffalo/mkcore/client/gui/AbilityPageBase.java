@@ -7,8 +7,8 @@ import com.chaosbuffalo.mkwidgets.client.gui.layouts.MKLayout;
 import com.chaosbuffalo.mkwidgets.client.gui.layouts.MKStackLayoutVertical;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKButton;
 import com.chaosbuffalo.mkwidgets.client.gui.widgets.MKRectangle;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 
 import javax.annotation.Nonnull;
 
@@ -19,7 +19,7 @@ public abstract class AbilityPageBase extends PlayerPageBase implements IAbility
     private MKAbility selectedAbility;
 
 
-    public AbilityPageBase(MKPlayerData playerData, ITextComponent title) {
+    public AbilityPageBase(MKPlayerData playerData, Component title) {
         super(playerData, title);
     }
 
@@ -58,7 +58,7 @@ public abstract class AbilityPageBase extends PlayerPageBase implements IAbility
     }
 
     protected MKButton createManageButton() {
-        TranslationTextComponent manageText = new TranslationTextComponent("mkcore.gui.manage_memory");
+        TranslatableComponent manageText = new TranslatableComponent("mkcore.gui.manage_memory");
         MKButton manage = new MKButton(0, 0, manageText);
         manage.setWidth(60);
 
@@ -76,10 +76,10 @@ public abstract class AbilityPageBase extends PlayerPageBase implements IAbility
 
     @Nonnull
     protected IconText createPoolUsageText() {
-        TranslationTextComponent poolUsageText = new TranslationTextComponent("mkcore.gui.memory_pool",
+        TranslatableComponent poolUsageText = new TranslatableComponent("mkcore.gui.memory_pool",
                 playerData.getAbilities().getCurrentPoolCount(), playerData.getAbilities().getAbilityPoolSize());
         IconText poolText = new IconText(0, 0, 16, poolUsageText, MKAbility.POOL_SLOT_ICON, font, 16, 2);
-        poolText.setTooltip(new TranslationTextComponent("mkcore.gui.memory_pool_tooltip"));
+        poolText.setTooltip(new TranslatableComponent("mkcore.gui.memory_pool_tooltip"));
         poolText.manualRecompute();
         int margins = 100 - poolText.getWidth();
         poolText.setMarginLeft(margins / 2);

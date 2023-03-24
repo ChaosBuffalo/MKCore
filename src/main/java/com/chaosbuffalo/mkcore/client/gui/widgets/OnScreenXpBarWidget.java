@@ -41,15 +41,15 @@ public class OnScreenXpBarWidget extends MKWidget {
         return super.setY(newY);
     }
 
-    public void syncPlayerXp(MKPlayerData playerData){
+    public void syncPlayerXp(MKPlayerData playerData) {
         int currentXp = playerData.getTalents().getTalentXp();
         int nextLevel = playerData.getTalents().getXpToNextLevel();
         float ratio = (float) currentXp / (float) nextLevel;
-        if (ratio > 1.0f){
+        if (ratio > 1.0f) {
             ratio = 1.0f;
         }
         float fifths = ratio;
-        while (fifths > 0.2f){
+        while (fifths > 0.2f) {
             fifths -= 0.2f;
         }
         yellowBar.setWidthPercentage(ratio);

@@ -1,6 +1,6 @@
 package com.chaosbuffalo.mkcore.core.healing;
 
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.event.entity.living.LivingEvent;
 
 @net.minecraftforge.eventbus.api.Cancelable

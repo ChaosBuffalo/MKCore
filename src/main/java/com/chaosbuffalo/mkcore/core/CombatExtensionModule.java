@@ -66,15 +66,15 @@ public class CombatExtensionModule {
     }
 
     public void setEntityTicksSinceLastSwing(int newTicks) {
-        getEntityData().getEntity().ticksSinceLastSwing = newTicks;
+        getEntityData().getEntity().attackStrengthTicker = newTicks;
     }
 
     public int getEntityTicksSinceLastSwing() {
-        return getEntityData().getEntity().ticksSinceLastSwing;
+        return getEntityData().getEntity().attackStrengthTicker;
     }
 
     public void addEntityTicksSinceLastSwing(int toAdd) {
-        getEntityData().getEntity().ticksSinceLastSwing += toAdd;
+        getEntityData().getEntity().attackStrengthTicker += toAdd;
     }
 
     public void recordSwing() {

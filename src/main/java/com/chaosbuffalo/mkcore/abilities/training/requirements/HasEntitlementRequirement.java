@@ -9,9 +9,9 @@ import com.chaosbuffalo.mkcore.core.entitlements.MKEntitlement;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.DynamicOps;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.NoSuchElementException;
 
@@ -60,8 +60,8 @@ public class HasEntitlementRequirement extends AbilityTrainingRequirement {
     }
 
     @Override
-    public IFormattableTextComponent describe(MKPlayerData playerData) {
-        return new StringTextComponent("You must have earned: ")
-                .appendSibling(entitlement.getDescription());
+    public MutableComponent describe(MKPlayerData playerData) {
+        return new TextComponent("You must have earned: ")
+                .append(entitlement.getDescription());
     }
 }

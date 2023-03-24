@@ -9,16 +9,16 @@ import com.chaosbuffalo.mkcore.effects.MKEffectBuilder;
 import com.chaosbuffalo.mkcore.fx.ParticleEffects;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.ParticleEffectSpawnPacket;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.potion.EffectType;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.entity.LivingEntity;
 
 import java.util.UUID;
 
 public abstract class MKSongSustainEffect extends MKEffect {
 
     public MKSongSustainEffect() {
-        super(EffectType.BENEFICIAL);
+        super(MobEffectCategory.BENEFICIAL);
     }
 
     @Override
@@ -63,9 +63,9 @@ public abstract class MKSongSustainEffect extends MKEffect {
             PacketHandler.sendToTrackingAndSelf(new ParticleEffectSpawnPacket(
                     ParticleTypes.NOTE,
                     ParticleEffects.CIRCLE_MOTION, 12, 4,
-                    target.getPosX(), target.getPosY() + 1.0f,
-                    target.getPosZ(), .25, .25, .25, .5,
-                    target.getLookVec()), target);
+                    target.getX(), target.getY() + 1.0f,
+                    target.getZ(), .25, .25, .25, .5,
+                    target.getLookAngle()), target);
             return true;
         }
     }

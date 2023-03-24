@@ -3,14 +3,14 @@ package com.chaosbuffalo.mkcore.abilities.training;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.network.OpenLearnAbilitiesGuiPacket;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
-import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
 
 public interface IAbilityTrainingEntity {
     IAbilityTrainer getAbilityTrainer();
 
-    default void openTrainingGui(ServerPlayerEntity playerEntity) {
+    default void openTrainingGui(ServerPlayer playerEntity) {
         MKCore.getPlayer(playerEntity).ifPresent(playerData -> {
-                PacketHandler.sendMessage(new OpenLearnAbilitiesGuiPacket(playerData, getAbilityTrainer()), playerEntity);
+            PacketHandler.sendMessage(new OpenLearnAbilitiesGuiPacket(playerData, getAbilityTrainer()), playerEntity);
         });
     }
 }

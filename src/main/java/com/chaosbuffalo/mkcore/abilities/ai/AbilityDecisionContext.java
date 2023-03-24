@@ -1,6 +1,6 @@
 package com.chaosbuffalo.mkcore.abilities.ai;
 
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.world.entity.LivingEntity;
 
 import java.util.List;
 

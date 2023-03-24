@@ -1,8 +1,8 @@
 package com.chaosbuffalo.mkcore.core;
 
 import com.chaosbuffalo.mkcore.utils.ItemUtils;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
 
 public class MKCombatFormulas {
 
@@ -31,7 +31,7 @@ public class MKCombatFormulas {
         return amount + mod * modifierScaling;
     }
 
-    public static float applyHealEfficiency(IMKEntityData entityData, float amount){
+    public static float applyHealEfficiency(IMKEntityData entityData, float amount) {
         float mult = entityData.getStats().getHealEfficiency();
         return amount * mult;
     }
@@ -46,6 +46,6 @@ public class MKCombatFormulas {
     }
 
     public static boolean checkCrit(LivingEntity entity, float chance) {
-        return entity.getRNG().nextFloat() >= 1.0f - chance;
+        return entity.getRandom().nextFloat() >= 1.0f - chance;
     }
 }

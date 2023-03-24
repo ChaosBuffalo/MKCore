@@ -2,27 +2,33 @@ package com.chaosbuffalo.mkcore.effects;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
+import com.chaosbuffalo.mkcore.client.effects.MKEffectRenderer;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.targeting_api.Targeting;
 import com.chaosbuffalo.targeting_api.TargetingContext;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.Attribute;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.ai.attributes.AttributeModifierManager;
-import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
-import net.minecraft.item.ItemStack;
-import net.minecraft.potion.Effect;
-import net.minecraft.potion.EffectType;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Util;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.Util;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeMap;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.EffectRenderer;
 import net.minecraftforge.common.util.Lazy;
+import net.minecraftforge.fml.loading.FMLEnvironment;
+import net.minecraftforge.fml.loading.FMLLoader;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public abstract class MKEffect extends ForgeRegistryEntry<MKEffect> {
@@ -43,11 +49,11 @@ public abstract class MKEffect extends ForgeRegistryEntry<MKEffect> {
 
     @Nullable
     protected String name;
-    protected final Lazy<Effect> wrapperEffect = Lazy.of(() -> new WrapperEffect(this));
-    protected final EffectType effectType;
+    protected final Lazy<MobEffect> wrapperEffect = Lazy.of(() -> new WrapperEffect(this));
+    protected final MobEffectCategory effectType;
     private final Map<Attribute, Modifier> attributeModifierMap = new HashMap<>();
 
-    public MKEffect(EffectType effectType) {
+    public MKEffect(MobEffectCategory effectType) {
         this.effectType = effectType;
     }
 
@@ -58,7 +64,7 @@ public abstract class MKEffect extends ForgeRegistryEntry<MKEffect> {
 
     protected String getOrCreateDescriptionId() {
         if (name == null) {
-            name = Util.makeTranslationKey("mk_effect", MKCoreRegistry.EFFECTS.getKey(this));
+            name = Util.makeDescriptionId("mk_effect", MKCoreRegistry.EFFECTS.getKey(this));
         }
         return name;
     }
@@ -67,8 +73,8 @@ public abstract class MKEffect extends ForgeRegistryEntry<MKEffect> {
         return getOrCreateDescriptionId();
     }
 
-    public ITextComponent getDisplayName() {
-        return new TranslationTextComponent(getName());
+    public Component getDisplayName() {
+        return new TranslatableComponent(getName());
     }
 
     public boolean isValidTarget(TargetingContext targetContext, IMKEntityData sourceData, IMKEntityData targetData) {
@@ -141,9 +147,9 @@ public abstract class MKEffect extends ForgeRegistryEntry<MKEffect> {
     }
 
     protected void removeAttributesModifiers(IMKEntityData targetData) {
-        AttributeModifierManager manager = targetData.getEntity().getAttributeManager();
+        AttributeMap manager = targetData.getEntity().getAttributes();
         for (Map.Entry<Attribute, Modifier> entry : getAttributeModifierMap().entrySet()) {
-            ModifiableAttributeInstance attrInstance = manager.createInstanceIfAbsent(entry.getKey());
+            AttributeInstance attrInstance = manager.getInstance(entry.getKey());
             if (attrInstance != null) {
                 attrInstance.removeModifier(entry.getValue().attributeModifier);
             }
@@ -151,13 +157,13 @@ public abstract class MKEffect extends ForgeRegistryEntry<MKEffect> {
     }
 
     protected void applyAttributesModifiers(IMKEntityData targetData, MKActiveEffect activeEffect) {
-        AttributeModifierManager manager = targetData.getEntity().getAttributeManager();
+        AttributeMap manager = targetData.getEntity().getAttributes();
         for (Map.Entry<Attribute, Modifier> entry : getAttributeModifierMap().entrySet()) {
-            ModifiableAttributeInstance attrInstance = manager.createInstanceIfAbsent(entry.getKey());
+            AttributeInstance attrInstance = manager.getInstance(entry.getKey());
             if (attrInstance != null) {
                 Modifier template = entry.getValue();
                 attrInstance.removeModifier(template.attributeModifier);
-                attrInstance.applyPersistentModifier(createModifier(template, activeEffect));
+                attrInstance.addPermanentModifier(createModifier(template, activeEffect));
             }
         }
     }
@@ -166,7 +172,7 @@ public abstract class MKEffect extends ForgeRegistryEntry<MKEffect> {
         int stacks = activeEffect.getStackCount();
 
         double amount = calculateInstanceModifierValue(template, activeEffect);
-        return new AttributeModifier(template.attributeModifier.getID(), () -> getName() + " " + stacks,
+        return new AttributeModifier(template.attributeModifier.getId(), () -> getName() + " " + stacks,
                 amount, template.attributeModifier.getOperation());
     }
 
@@ -215,17 +221,34 @@ public abstract class MKEffect extends ForgeRegistryEntry<MKEffect> {
     }
 
     // Keep this package-private so no one calls it by accident
-    Effect getVanillaWrapper() {
+    MobEffect getVanillaWrapper() {
         return wrapperEffect.get();
     }
 
-    public static class WrapperEffect extends Effect {
+    public static class WrapperEffect extends MobEffect {
 
         private final MKEffect effect;
+        private Object effectRendererReal;
 
         protected WrapperEffect(MKEffect effect) {
             super(effect.effectType, 0);
             this.effect = effect;
+            initClientReal();
+        }
+
+        private void initClientReal() {
+            // we gotta do this again
+            // Minecraft instance isn't available in datagen, so don't call initializeClient if in datagen
+            if (FMLEnvironment.dist == Dist.CLIENT && !FMLLoader.getLaunchHandler().isData()) {
+                initializeClient(properties -> {
+                    this.effectRendererReal = properties;
+                });
+            }
+        }
+
+        @Override
+        public Object getEffectRendererInternal() {
+            return effectRendererReal;
         }
 
         public MKEffect getMKEffect() {
@@ -234,19 +257,23 @@ public abstract class MKEffect extends ForgeRegistryEntry<MKEffect> {
 
         @Nonnull
         @Override
-        public String getName() {
+        public String getDescriptionId() {
             return effect.getName();
         }
 
         @Nonnull
         @Override
-        public ITextComponent getDisplayName() {
+        public Component getDisplayName() {
             return effect.getDisplayName();
         }
 
         @Override
         public List<ItemStack> getCurativeItems() {
             return Collections.emptyList();
+        }
+
+        public void initializeClient(Consumer<EffectRenderer> consumer) {
+            consumer.accept(new MKEffectRenderer(effect));
         }
     }
 }

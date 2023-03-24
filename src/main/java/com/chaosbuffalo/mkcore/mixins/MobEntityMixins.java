@@ -1,12 +1,12 @@
 package com.chaosbuffalo.mkcore.mixins;
 
-import net.minecraft.entity.MobEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 
-@Mixin(MobEntity.class)
+@Mixin(Mob.class)
 public class MobEntityMixins {
 
     /**
@@ -16,7 +16,7 @@ public class MobEntityMixins {
      * Real name maybeDisableShield
      */
     @Overwrite
-    private void func_233655_a_(PlayerEntity p_233655_1_, ItemStack p_233655_2_, ItemStack p_233655_3_) {
+    private void maybeDisableShield(Player p_233655_1_, ItemStack p_233655_2_, ItemStack p_233655_3_) {
 
     }
 }

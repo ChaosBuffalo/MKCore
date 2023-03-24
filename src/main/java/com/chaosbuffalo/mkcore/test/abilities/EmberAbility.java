@@ -15,15 +15,15 @@ import com.chaosbuffalo.mkcore.serialization.attributes.IntAttribute;
 import com.chaosbuffalo.targeting_api.TargetingContext;
 import com.chaosbuffalo.targeting_api.TargetingContexts;
 import com.google.common.collect.ImmutableSet;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.Random;
 import java.util.Set;
@@ -42,10 +42,10 @@ public class EmberAbility extends MKAbility {
     }
 
     @Override
-    protected ITextComponent getAbilityDescription(IMKEntityData casterData) {
-        ITextComponent damageStr = getDamageDescription(casterData, CoreDamageTypes.FireDamage, damage.value(), 0.0f, 0, 1.0f);
-        ITextComponent burn = new StringTextComponent(burnTime.valueAsString()).mergeStyle(TextFormatting.UNDERLINE);
-        return new TranslationTextComponent(getDescriptionTranslationKey(), damageStr, burn);
+    protected Component getAbilityDescription(IMKEntityData casterData) {
+        Component damageStr = getDamageDescription(casterData, CoreDamageTypes.FireDamage, damage.value(), 0.0f, 0, 1.0f);
+        Component burn = new TextComponent(burnTime.valueAsString()).withStyle(ChatFormatting.UNDERLINE);
+        return new TranslatableComponent(getDescriptionTranslationKey(), damageStr, burn);
     }
 
     @Override
@@ -62,9 +62,9 @@ public class EmberAbility extends MKAbility {
     @Override
     public void continueCastClient(LivingEntity castingEntity, IMKEntityData casterData, int castTimeLeft) {
         super.continueCastClient(castingEntity, casterData, castTimeLeft);
-        Random rand = castingEntity.getRNG();
-        castingEntity.getEntityWorld().addParticle(ParticleTypes.LAVA,
-                castingEntity.getPosX(), castingEntity.getPosY() + 0.5F, castingEntity.getPosZ(),
+        Random rand = castingEntity.getRandom();
+        castingEntity.getCommandSenderWorld().addParticle(ParticleTypes.LAVA,
+                castingEntity.getX(), castingEntity.getY() + 0.5F, castingEntity.getZ(),
                 rand.nextFloat() / 2.0F, 5.0E-5D, rand.nextFloat() / 2.0F);
     }
 
@@ -75,22 +75,22 @@ public class EmberAbility extends MKAbility {
             int burnDuration = burnTime.value();
             float amount = damage.value();
             MKCore.LOGGER.info("Ember damage {} burnTime {}", amount, burnDuration);
-            targetEntity.setFire(burnDuration);
-            targetEntity.attackEntityFrom(MKDamageSource.causeAbilityDamage(CoreDamageTypes.FireDamage,
+            targetEntity.setSecondsOnFire(burnDuration);
+            targetEntity.hurt(MKDamageSource.causeAbilityDamage(CoreDamageTypes.FireDamage,
                     getAbilityId(), castingEntity, castingEntity), amount);
 //            SoundUtils.playSoundAtEntity(targetEntity, ModSounds.spell_fire_6);
             EntityEffectBuilder.LineEffectBuilder lineBuilder = EntityEffectBuilder.createLineEffectOnEntity(castingEntity, targetEntity,
-                    new Vector3d(targetEntity.getPosX(), targetEntity.getPosYHeight(0.5), targetEntity.getPosZ()),
-                    new Vector3d(castingEntity.getPosX(), castingEntity.getPosY() + castingEntity.getEyeHeight(), castingEntity.getPosZ()));
+                    new Vec3(targetEntity.getX(), targetEntity.getY(0.5), targetEntity.getZ()),
+                    new Vec3(castingEntity.getX(), castingEntity.getY() + castingEntity.getEyeHeight(), castingEntity.getZ()));
             lineBuilder.setParticles(TEST_PARTICLES);
             lineBuilder.duration(40);
             lineBuilder.spawn();
             PacketHandler.sendToTrackingAndSelf(new ParticleEffectSpawnPacket(
                     ParticleTypes.FLAME,
                     ParticleEffects.CIRCLE_PILLAR_MOTION, 60, 10,
-                    targetEntity.getPosX(), targetEntity.getPosY() + 1.0,
-                    targetEntity.getPosZ(), 1.0, 1.0, 1.0, .25,
-                    castingEntity.getLookVec()), targetEntity);
+                    targetEntity.getX(), targetEntity.getY() + 1.0,
+                    targetEntity.getZ(), 1.0, 1.0, 1.0, .25,
+                    castingEntity.getLookAngle()), targetEntity);
         });
     }
 

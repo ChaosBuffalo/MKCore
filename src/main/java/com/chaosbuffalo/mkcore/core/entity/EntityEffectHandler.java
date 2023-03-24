@@ -9,10 +9,10 @@ import com.chaosbuffalo.mkcore.effects.MKEffectTickAction;
 import com.chaosbuffalo.mkcore.network.EntityEffectPacket;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.google.common.collect.ImmutableList;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
-import net.minecraft.nbt.ListNBT;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.common.util.Constants;
 
 import java.util.*;
@@ -179,15 +179,15 @@ public class EntityEffectHandler {
             activeEffectMap.clear();
         }
 
-        public void sendAllEffectsToPlayer(ServerPlayerEntity playerEntity) {
+        public void sendAllEffectsToPlayer(ServerPlayer playerEntity) {
             if (hasEffects()) {
                 EntityEffectPacket packet = new EntityEffectPacket(entityData, sourceId, activeEffectMap.values());
                 PacketHandler.sendMessage(packet, playerEntity);
             }
         }
 
-        public INBT serializeStorage() {
-            ListNBT list = new ListNBT();
+        public Tag serializeStorage() {
+            ListTag list = new ListTag();
             activeEffectMap.forEach((effect, activeEffect) -> {
                 if (!activeEffect.getBehaviour().isTemporary()) {
                     list.add(activeEffect.serializeStorage());
@@ -197,11 +197,11 @@ public class EntityEffectHandler {
             return list;
         }
 
-        public void deserializeStorage(CompoundNBT nbt, String tagName) {
+        public void deserializeStorage(CompoundTag nbt, String tagName) {
 
-            ListNBT list = nbt.getList(tagName, Constants.NBT.TAG_COMPOUND);
+            ListTag list = nbt.getList(tagName, Tag.TAG_COMPOUND);
             for (int i = 0; i < list.size(); i++) {
-                CompoundNBT entry = list.getCompound(i);
+                CompoundTag entry = list.getCompound(i);
                 MKActiveEffect instance = MKActiveEffect.deserializeStorage(sourceId, entry);
                 if (instance != null) {
                     loadEffect(instance);
@@ -256,7 +256,7 @@ public class EntityEffectHandler {
         }
     }
 
-    public void sendAllEffectsToPlayer(ServerPlayerEntity playerEntity) {
+    public void sendAllEffectsToPlayer(ServerPlayer playerEntity) {
         sources.forEach((sourceId, source) -> source.sendAllEffectsToPlayer(playerEntity));
     }
 
@@ -318,14 +318,14 @@ public class EntityEffectHandler {
                 .collect(Collectors.toList());
     }
 
-    public CompoundNBT serialize() {
-        CompoundNBT nbt = new CompoundNBT();
+    public CompoundTag serialize() {
+        CompoundTag nbt = new CompoundTag();
 
-        ListNBT list = new ListNBT();
+        ListTag list = new ListTag();
         sources.forEach((sourceId, source) -> {
             if (source.hasEffects()) {
-                CompoundNBT entry = new CompoundNBT();
-                entry.putUniqueId("uuid", sourceId);
+                CompoundTag entry = new CompoundTag();
+                entry.putUUID("uuid", sourceId);
                 entry.put("effects", source.serializeStorage());
                 list.add(entry);
             }
@@ -335,11 +335,11 @@ public class EntityEffectHandler {
         return nbt;
     }
 
-    public void deserialize(CompoundNBT nbt) {
-        ListNBT list = nbt.getList("sources", Constants.NBT.TAG_COMPOUND);
+    public void deserialize(CompoundTag nbt) {
+        ListTag list = nbt.getList("sources", Tag.TAG_COMPOUND);
         for (int i = 0; i < list.size(); i++) {
-            CompoundNBT entry = list.getCompound(i);
-            UUID sourceId = entry.getUniqueId("uuid");
+            CompoundTag entry = list.getCompound(i);
+            UUID sourceId = entry.getUUID("uuid");
             getOrCreateSource(sourceId).deserializeStorage(entry, "effects");
         }
     }

@@ -3,7 +3,7 @@ package com.chaosbuffalo.mkcore.abilities.ai.conditions;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.abilities.ai.AbilityDecisionContext;
 import com.chaosbuffalo.mkcore.abilities.ai.AbilityTargetingDecision;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.world.entity.LivingEntity;
 
 import javax.annotation.Nonnull;
 
@@ -23,6 +23,6 @@ public abstract class AbilityUseCondition {
 
     protected boolean isInRange(AbilityDecisionContext context, LivingEntity target) {
         float range = getAbility().getDistance(context.getCaster());
-        return target.getDistanceSq(context.getCaster()) <= range * range;
+        return target.distanceToSqr(context.getCaster()) <= range * range;
     }
 }

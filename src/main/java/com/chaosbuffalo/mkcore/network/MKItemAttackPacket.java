@@ -3,12 +3,12 @@ package com.chaosbuffalo.mkcore.network;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.MKAttributes;
 import com.chaosbuffalo.mkcore.events.PostAttackEvent;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
@@ -17,33 +17,33 @@ public class MKItemAttackPacket {
     private final int entityId;
 
     public MKItemAttackPacket(Entity entity) {
-        this.entityId = entity.getEntityId();
+        this.entityId = entity.getId();
     }
 
-    public MKItemAttackPacket(PacketBuffer buf) {
+    public MKItemAttackPacket(FriendlyByteBuf buf) {
         entityId = buf.readInt();
     }
 
-    public void toBytes(PacketBuffer buf) {
+    public void toBytes(FriendlyByteBuf buf) {
         buf.writeInt(entityId);
     }
 
     public void handle(Supplier<NetworkEvent.Context> supplier) {
         NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
-            ServerPlayerEntity entity = ctx.getSender();
+            ServerPlayer entity = ctx.getSender();
             if (entity == null) {
                 return;
             }
-            Entity target = entity.getServerWorld().getEntityByID(entityId);
-            ModifiableAttributeInstance instance = entity.getAttribute(MKAttributes.ATTACK_REACH);
+            Entity target = entity.getLevel().getEntity(entityId);
+            AttributeInstance instance = entity.getAttribute(MKAttributes.ATTACK_REACH);
             if (instance == null)
                 return;
             double reach = instance.getValue();
             if (target != null) {
-                if (entity.getDistanceSq(target) <= reach * reach) {
-                    entity.attackTargetEntityWithCurrentItem(target);
-                    entity.resetCooldown();
+                if (entity.distanceToSqr(target) <= reach * reach) {
+                    entity.attack(target);
+                    entity.resetAttackStrengthTicker();
                     MKCore.getEntityData(entity).ifPresent(cap -> cap.getCombatExtension().recordSwing());
                     MinecraftForge.EVENT_BUS.post(new PostAttackEvent(entity));
                 }

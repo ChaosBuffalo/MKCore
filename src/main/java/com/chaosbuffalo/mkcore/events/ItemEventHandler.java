@@ -1,18 +1,16 @@
 package com.chaosbuffalo.mkcore.events;
 
-import com.chaosbuffalo.mkcore.CoreCapabilities;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.MKAttributes;
 import com.chaosbuffalo.mkcore.effects.SpellTriggers;
 import com.chaosbuffalo.mkcore.utils.ItemUtils;
-import net.minecraft.entity.ai.attributes.Attribute;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.Item;
-import net.minecraft.item.ShieldItem;
-import net.minecraft.item.SwordItem;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ShieldItem;
+import net.minecraft.world.item.SwordItem;
 import net.minecraftforge.event.ItemAttributeModifierEvent;
 import net.minecraftforge.event.entity.living.LivingEquipmentChangeEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -49,10 +47,10 @@ public class ItemEventHandler {
 
     @SubscribeEvent
     public static void onEquipmentChange(LivingEquipmentChangeEvent event) {
-        if (event.getEntityLiving().getEntityWorld().isRemote()){
+        if (event.getEntityLiving().getCommandSenderWorld().isClientSide()) {
             return;
         }
-        if (event.getEntityLiving() instanceof PlayerEntity){
+        if (event.getEntityLiving() instanceof Player) {
             MKCore.getPlayer(event.getEntityLiving()).ifPresent((playerData) -> {
                 playerData.getEquipment().onEquipmentChange(event.getSlot(), event.getFrom(), event.getTo());
                 SpellTriggers.LIVING_EQUIPMENT_CHANGE.onEquipmentChange(event, playerData, playerData.getEntity());
@@ -77,9 +75,9 @@ public class ItemEventHandler {
     @SubscribeEvent
     public static void onItemAttributeModifierEvent(ItemAttributeModifierEvent event) {
         Item from = event.getItemStack().getItem();
-        if (event.getSlotType().getSlotType() == EquipmentSlotType.Group.HAND) {
+        if (event.getSlotType().getType() == EquipmentSlot.Type.HAND) {
             int handIndex = event.getSlotType().getIndex();
-            if (from instanceof SwordItem && event.getSlotType() == EquipmentSlotType.MAINHAND) {
+            if (from instanceof SwordItem && event.getSlotType() == EquipmentSlot.MAINHAND) {
                 addDefaultAttribute(event, MKAttributes.MAX_POISE,
                         () -> createDefaultSlotModifier(SWORD_POISE_MOD_UUID[handIndex],
                                 20.0,
@@ -100,7 +98,7 @@ public class ItemEventHandler {
                                 ItemUtils.getCritMultiplierForItem(event.getItemStack()),
                                 AttributeModifier.Operation.ADDITION));
             }
-            if (from instanceof ShieldItem && (event.getSlotType() == EquipmentSlotType.OFFHAND || event.getSlotType() == EquipmentSlotType.MAINHAND)) {
+            if (from instanceof ShieldItem && (event.getSlotType() == EquipmentSlot.OFFHAND || event.getSlotType() == EquipmentSlot.MAINHAND)) {
                 addDefaultAttribute(event, MKAttributes.MAX_POISE,
                         () -> createDefaultSlotModifier(SHIELD_POISE_MOD_UUID[handIndex],
                                 50.0,

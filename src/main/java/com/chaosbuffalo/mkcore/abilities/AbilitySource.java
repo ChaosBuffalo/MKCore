@@ -1,9 +1,9 @@
 package com.chaosbuffalo.mkcore.abilities;
 
 import com.chaosbuffalo.mkcore.core.talents.MKTalent;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.StringNBT;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.Objects;
 
@@ -49,8 +49,8 @@ public class AbilitySource {
         return new AbilitySource(type);
     }
 
-    public StringNBT serialize() {
-        return StringNBT.valueOf(encode());
+    public StringTag serialize() {
+        return StringTag.valueOf(encode());
     }
 
     public static AbilitySource deserialize(String encoded) {
@@ -101,7 +101,7 @@ public class AbilitySource {
                 return null;
             }
 
-            ResourceLocation sourceId = ResourceLocation.tryCreate(typeSpecificData);
+            ResourceLocation sourceId = ResourceLocation.tryParse(typeSpecificData);
             if (sourceId != null) {
                 return new ItemAbilitySource(sourceId);
             }
@@ -140,7 +140,7 @@ public class AbilitySource {
                 return null;
             }
 
-            ResourceLocation sourceId = ResourceLocation.tryCreate(typeSpecificData);
+            ResourceLocation sourceId = ResourceLocation.tryParse(typeSpecificData);
             if (sourceId != null) {
                 return new TalentSource(sourceId);
             }

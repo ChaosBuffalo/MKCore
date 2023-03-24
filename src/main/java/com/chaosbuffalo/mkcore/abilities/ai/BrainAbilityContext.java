@@ -1,9 +1,9 @@
 package com.chaosbuffalo.mkcore.abilities.ai;
 
 import com.chaosbuffalo.mkcore.abilities.AbilityContext;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.brain.Brain;
-import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.Brain;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 
 import java.util.Optional;
 

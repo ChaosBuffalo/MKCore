@@ -3,13 +3,13 @@ package com.chaosbuffalo.mkcore.core;
 import com.chaosbuffalo.mkcore.core.entitlements.EntitlementInstance;
 import com.chaosbuffalo.mkcore.core.entitlements.MKEntitlement;
 import com.chaosbuffalo.mkcore.sync.IMKSerializable;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
 
 import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-public interface IMKEntityEntitlements extends IMKSerializable<CompoundNBT> {
+public interface IMKEntityEntitlements extends IMKSerializable<CompoundTag> {
 
     boolean hasEntitlement(MKEntitlement entitlement);
 

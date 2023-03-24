@@ -4,9 +4,9 @@ import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.init.CoreSounds;
 import com.chaosbuffalo.mkcore.utils.SoundUtils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
@@ -18,11 +18,11 @@ public class ResetAttackSwingPacket {
         this.ticksToSet = ticksToSet;
     }
 
-    public ResetAttackSwingPacket(PacketBuffer buf) {
+    public ResetAttackSwingPacket(FriendlyByteBuf buf) {
         ticksToSet = buf.readInt();
     }
 
-    public void toBytes(PacketBuffer buf) {
+    public void toBytes(FriendlyByteBuf buf) {
         buf.writeInt(ticksToSet);
     }
 
@@ -34,13 +34,13 @@ public class ResetAttackSwingPacket {
 
     static class ClientHandler {
         public static void handleClient(ResetAttackSwingPacket packet) {
-            PlayerEntity entity = Minecraft.getInstance().player;
+            Player entity = Minecraft.getInstance().player;
             if (entity == null)
                 return;
             // +2 to account for the client 2 tick lag before allowing attack
             MKCore.getPlayer(entity).ifPresent(cap ->
                     cap.getCombatExtension().setEntityTicksSinceLastSwing(packet.ticksToSet + 2));
-            SoundUtils.clientPlaySoundAtPlayer(entity, CoreSounds.attack_cd_reset, entity.getSoundCategory(), 1.0f, 1.0f);
+            SoundUtils.clientPlaySoundAtPlayer(entity, CoreSounds.attack_cd_reset, entity.getSoundSource(), 1.0f, 1.0f);
         }
     }
 }

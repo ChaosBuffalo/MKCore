@@ -1,7 +1,7 @@
 package com.chaosbuffalo.mkcore.abilities.ai;
 
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.world.entity.LivingEntity;
 
 import javax.annotation.Nullable;
 

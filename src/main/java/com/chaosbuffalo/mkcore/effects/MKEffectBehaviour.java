@@ -1,7 +1,7 @@
 package com.chaosbuffalo.mkcore.effects;
 
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
 
 public class MKEffectBehaviour {
 
@@ -125,8 +125,8 @@ public class MKEffectBehaviour {
         return true;
     }
 
-    public CompoundNBT serialize() {
-        CompoundNBT tag = new CompoundNBT();
+    public CompoundTag serialize() {
+        CompoundTag tag = new CompoundTag();
         if (duration > 0) {
             tag.putInt("duration", duration);
         }
@@ -139,13 +139,13 @@ public class MKEffectBehaviour {
         return tag;
     }
 
-    public static MKEffectBehaviour deserialize(CompoundNBT tag) {
+    public static MKEffectBehaviour deserialize(CompoundTag tag) {
         MKEffectBehaviour behaviour = new MKEffectBehaviour();
         behaviour.deserializeState(tag);
         return behaviour;
     }
 
-    protected void deserializeState(CompoundNBT tag) {
+    protected void deserializeState(CompoundTag tag) {
         duration = tag.getInt("duration");
         period = tag.getInt("period");
         infinite = tag.getBoolean("infinite");

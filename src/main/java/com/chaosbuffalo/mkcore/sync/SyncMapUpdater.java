@@ -1,10 +1,10 @@
 package com.chaosbuffalo.mkcore.sync;
 
 import com.chaosbuffalo.mkcore.MKCore;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.nbt.StringNBT;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.Tag;
 import net.minecraftforge.common.util.Constants;
 
 import java.util.Collection;
@@ -16,7 +16,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 
-public class SyncMapUpdater<K, V extends IMKSerializable<CompoundNBT>> implements ISyncObject {
+public class SyncMapUpdater<K, V extends IMKSerializable<CompoundTag>> implements ISyncObject {
 
     private final String rootName;
     private final Map<K, V> backingMap;
@@ -63,15 +63,15 @@ public class SyncMapUpdater<K, V extends IMKSerializable<CompoundNBT>> implement
         return dirty.size() > 0;
     }
 
-    private ListNBT gatherDirtyRemovals() {
+    private ListTag gatherDirtyRemovals() {
         if (dirty.isEmpty())
             return null;
-        ListNBT list = new ListNBT();
+        ListTag list = new ListTag();
 
         dirty.removeIf(key -> {
             V value = backingMap.get(key);
             if (value == null) {
-                list.add(StringNBT.valueOf(keyEncoder.apply(key)));
+                list.add(StringTag.valueOf(keyEncoder.apply(key)));
                 return true;
             }
             return false;
@@ -80,7 +80,7 @@ public class SyncMapUpdater<K, V extends IMKSerializable<CompoundNBT>> implement
         return list;
     }
 
-    private void processDirtyRemovals(ListNBT list) {
+    private void processDirtyRemovals(ListTag list) {
         for (int i = 0; i < list.size(); i++) {
             String encodedKey = list.getString(i);
             if (encodedKey.isEmpty())
@@ -93,8 +93,8 @@ public class SyncMapUpdater<K, V extends IMKSerializable<CompoundNBT>> implement
     }
 
     @Override
-    public void deserializeUpdate(CompoundNBT tag) {
-        CompoundNBT root = tag.getCompound(rootName);
+    public void deserializeUpdate(CompoundTag tag) {
+        CompoundTag root = tag.getCompound(rootName);
 
         if (root.getBoolean("f")) {
             backingMap.clear();
@@ -102,7 +102,7 @@ public class SyncMapUpdater<K, V extends IMKSerializable<CompoundNBT>> implement
 
         if (root.contains("r")) {
             // server has deleted entries, so remove them from the local map
-            processDirtyRemovals(root.getList("r", Constants.NBT.TAG_STRING));
+            processDirtyRemovals(root.getList("r", Tag.TAG_STRING));
         }
 
         if (root.contains("l")) {
@@ -110,22 +110,22 @@ public class SyncMapUpdater<K, V extends IMKSerializable<CompoundNBT>> implement
         }
     }
 
-    private CompoundNBT makeSyncMap(Collection<K> keySet) {
+    private CompoundTag makeSyncMap(Collection<K> keySet) {
         return serializeMap(keySet, IMKSerializable::serializeSync, syncFilter);
     }
 
     @Override
-    public void serializeUpdate(CompoundNBT tag) {
+    public void serializeUpdate(CompoundTag tag) {
         if (dirty.isEmpty())
             return;
 
-        CompoundNBT root = new CompoundNBT();
-        ListNBT removals = gatherDirtyRemovals();
+        CompoundTag root = new CompoundTag();
+        ListTag removals = gatherDirtyRemovals();
         if (removals != null && !removals.isEmpty()) {
             root.put("r", removals);
         }
 
-        CompoundNBT updates = makeSyncMap(dirty);
+        CompoundTag updates = makeSyncMap(dirty);
         if (!updates.isEmpty()) {
             root.put("l", updates);
         }
@@ -135,8 +135,8 @@ public class SyncMapUpdater<K, V extends IMKSerializable<CompoundNBT>> implement
     }
 
     @Override
-    public void serializeFull(CompoundNBT tag) {
-        CompoundNBT root = new CompoundNBT();
+    public void serializeFull(CompoundTag tag) {
+        CompoundTag root = new CompoundTag();
         root.putBoolean("f", true);
         root.put("l", makeSyncMap(backingMap.keySet()));
         tag.put(rootName, root);
@@ -148,10 +148,10 @@ public class SyncMapUpdater<K, V extends IMKSerializable<CompoundNBT>> implement
         return true;
     }
 
-    private CompoundNBT serializeMap(Collection<K> keyCollection,
-                                     Function<V, INBT> valueSerializer,
+    private CompoundTag serializeMap(Collection<K> keyCollection,
+                                     Function<V, Tag> valueSerializer,
                                      BiPredicate<K, V> entryFilter) {
-        CompoundNBT list = new CompoundNBT();
+        CompoundTag list = new CompoundTag();
         keyCollection.forEach(key -> {
             V value = backingMap.get(key);
             if (value == null)
@@ -160,7 +160,7 @@ public class SyncMapUpdater<K, V extends IMKSerializable<CompoundNBT>> implement
             if (!entryFilter.test(key, value))
                 return;
 
-            INBT tag = valueSerializer.apply(value);
+            Tag tag = valueSerializer.apply(value);
             if (tag != null) {
                 list.put(keyEncoder.apply(key), tag);
             }
@@ -168,9 +168,9 @@ public class SyncMapUpdater<K, V extends IMKSerializable<CompoundNBT>> implement
         return list;
     }
 
-    private void deserializeMap(CompoundNBT tag,
-                                BiPredicate<V, CompoundNBT> valueDeserializer) {
-        for (String key : tag.keySet()) {
+    private void deserializeMap(CompoundTag tag,
+                                BiPredicate<V, CompoundTag> valueDeserializer) {
+        for (String key : tag.getAllKeys()) {
             K decodedKey = keyDecoder.apply(key);
             if (decodedKey == null) {
                 MKCore.LOGGER.error("Failed to decode map key {}", key);
@@ -183,7 +183,7 @@ public class SyncMapUpdater<K, V extends IMKSerializable<CompoundNBT>> implement
                 continue;
             }
 
-            CompoundNBT entryTag = tag.getCompound(key);
+            CompoundTag entryTag = tag.getCompound(key);
             if (!valueDeserializer.test(current, entryTag)) {
                 MKCore.LOGGER.error("Failed to deserialize map value for {}", decodedKey);
                 continue;
@@ -192,18 +192,18 @@ public class SyncMapUpdater<K, V extends IMKSerializable<CompoundNBT>> implement
         }
     }
 
-    public CompoundNBT serializeStorage() {
+    public CompoundTag serializeStorage() {
         return serializeStorage(storageFilter);
     }
 
-    public CompoundNBT serializeStorage(BiPredicate<K, V> entryFilter) {
+    public CompoundTag serializeStorage(BiPredicate<K, V> entryFilter) {
         return serializeMap(backingMap.keySet(), IMKSerializable::serializeStorage, entryFilter);
     }
 
-    public void deserializeStorage(INBT tag) {
-        if (tag instanceof CompoundNBT) {
+    public void deserializeStorage(Tag tag) {
+        if (tag instanceof CompoundTag) {
             backingMap.clear();
-            deserializeMap((CompoundNBT) tag, IMKSerializable::deserializeStorage);
+            deserializeMap((CompoundTag) tag, IMKSerializable::deserializeStorage);
         }
     }
 }

@@ -2,11 +2,11 @@ package com.chaosbuffalo.mkcore.network;
 
 import com.chaosbuffalo.mkcore.MKCore;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -15,24 +15,24 @@ public class PlayerDataSyncPacket {
 
     private final UUID targetUUID;
     private final boolean privateUpdate;
-    private final CompoundNBT updateTag;
+    private final CompoundTag updateTag;
 
-    public PlayerDataSyncPacket(UUID targetUUID, CompoundNBT updateTag, boolean privateUpdate) {
+    public PlayerDataSyncPacket(UUID targetUUID, CompoundTag updateTag, boolean privateUpdate) {
         this.targetUUID = targetUUID;
         this.privateUpdate = privateUpdate;
         this.updateTag = updateTag;
     }
 
-    public PlayerDataSyncPacket(PacketBuffer buffer) {
-        targetUUID = buffer.readUniqueId();
+    public PlayerDataSyncPacket(FriendlyByteBuf buffer) {
+        targetUUID = buffer.readUUID();
         privateUpdate = buffer.readBoolean();
-        updateTag = buffer.readCompoundTag();
+        updateTag = buffer.readNbt();
     }
 
-    public void toBytes(PacketBuffer buffer) {
-        buffer.writeUniqueId(targetUUID);
+    public void toBytes(FriendlyByteBuf buffer) {
+        buffer.writeUUID(targetUUID);
         buffer.writeBoolean(privateUpdate);
-        buffer.writeCompoundTag(updateTag);
+        buffer.writeNbt(updateTag);
 //        MKCore.LOGGER.info("sync toBytes priv:{} {}", privateUpdate, updateTag);
     }
 
@@ -44,11 +44,11 @@ public class PlayerDataSyncPacket {
 
     static class ClientHandler {
         public static void handleClient(PlayerDataSyncPacket packet) {
-            World world = Minecraft.getInstance().world;
+            Level world = Minecraft.getInstance().level;
             if (world == null) {
                 return;
             }
-            PlayerEntity entity = world.getPlayerByUuid(packet.targetUUID);
+            Player entity = world.getPlayerByUUID(packet.targetUUID);
             if (entity == null)
                 return;
 

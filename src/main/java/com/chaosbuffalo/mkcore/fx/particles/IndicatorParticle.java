@@ -1,80 +1,79 @@
 package com.chaosbuffalo.mkcore.fx.particles;
 
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.Camera;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
-import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.WorldRenderer;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.particles.BasicParticleType;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 
-public class IndicatorParticle extends SpriteTexturedParticle {
-    private ActiveRenderInfo renderInfo;
+public class IndicatorParticle extends TextureSheetParticle {
+    private Camera renderInfo;
 
-    private IndicatorParticle(ClientWorld world, double posX, double posY, double posZ) {
+    private IndicatorParticle(ClientLevel world, double posX, double posY, double posZ) {
         super(world, posX, posY, posZ);
         this.setSize(0.05f, 0.05f);
-        this.particleGravity = 0.00F;
-        this.maxAge = 1;
+        this.gravity = 0.00F;
+        this.lifetime = 1;
         this.renderInfo = null;
-        this.particleScale = 1.0f;
+        this.quadSize = 1.0f;
     }
 
     @Override
-    public IParticleRenderType getRenderType() {
+    public ParticleRenderType getRenderType() {
         return ParticleRenderTypes.ALWAYS_VISIBLE_RENDERER;
     }
 
     protected void expire() {
-        if (this.maxAge-- <= 0) {
-            this.setExpired();
+        if (this.lifetime-- <= 0) {
+            this.remove();
         }
     }
 
     @Override
-    public void renderParticle(IVertexBuilder buffer, ActiveRenderInfo renderInfo, float partialTicks) {
+    public void render(VertexConsumer buffer, Camera renderInfo, float partialTicks) {
         this.renderInfo = renderInfo;
-        super.renderParticle(buffer, renderInfo, partialTicks);
+        super.render(buffer, renderInfo, partialTicks);
     }
 
     @Override
-    protected int getBrightnessForRender(float partialTick) {
-        return LightTexture.packLight(15, 15);
+    protected int getLightColor(float partialTick) {
+        return LightTexture.pack(15, 15);
     }
 
     @Override
-    public float getScale(float partialTicks) {
-        if (renderInfo != null){
-            double dist = renderInfo.getProjectedView().distanceTo(new Vector3d(posX, posY, posZ));
-            if (dist > 75){
-                return (float) (dist / 75.0f) * particleScale;
+    public float getQuadSize(float partialTicks) {
+        if (renderInfo != null) {
+            double dist = renderInfo.getPosition().distanceTo(new Vec3(x, y, z));
+            if (dist > 75) {
+                return (float) (dist / 75.0f) * quadSize;
             }
         }
-        return particleScale;
+        return quadSize;
     }
 
     public void tick() {
-        this.prevPosX = this.posX;
-        this.prevPosY = this.posY;
-        this.prevPosZ = this.posZ;
+        this.xo = this.x;
+        this.yo = this.y;
+        this.zo = this.z;
         this.expire();
     }
 
-    public static class IndicatorFactory implements IParticleFactory<BasicParticleType> {
-        protected final IAnimatedSprite spriteSet;
+    public static class IndicatorFactory implements ParticleProvider<SimpleParticleType> {
+        protected final SpriteSet spriteSet;
 
-        public IndicatorFactory(IAnimatedSprite spriteSet) {
+        public IndicatorFactory(SpriteSet spriteSet) {
             this.spriteSet = spriteSet;
         }
 
         @Nullable
         @Override
-        public Particle makeParticle(BasicParticleType typeIn, ClientWorld worldIn, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
+        public Particle createParticle(SimpleParticleType typeIn, ClientLevel worldIn, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
             IndicatorParticle particle = new IndicatorParticle(worldIn, x, y, z);
-            particle.selectSpriteRandomly(this.spriteSet);
+            particle.pickSprite(this.spriteSet);
             return particle;
         }
     }

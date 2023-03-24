@@ -4,7 +4,7 @@ import com.chaosbuffalo.mkcore.serialization.ISerializableAttributeContainer;
 import com.chaosbuffalo.mkcore.serialization.attributes.ISerializableAttribute;
 import com.chaosbuffalo.mkwidgets.client.gui.constraints.OffsetConstraint;
 import com.chaosbuffalo.mkwidgets.client.gui.layouts.MKStackLayoutVertical;
-import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.Font;
 
 import java.util.function.Consumer;
 
@@ -12,12 +12,12 @@ public class SerializableAttributeContainerPanel extends MKStackLayoutVertical {
     private final ISerializableAttributeContainer container;
 
     public SerializableAttributeContainerPanel(int x, int y, int width, ISerializableAttributeContainer container,
-                                               FontRenderer font, Consumer<ISerializableAttribute<?>> callback) {
+                                               Font font, Consumer<ISerializableAttribute<?>> callback) {
         super(x, y, width);
         this.container = container;
         setMargins(1, 1, 4, 4);
         setPaddings(0, 0, 1, 1);
-        for (ISerializableAttribute<?> attr : container.getAttributes()){
+        for (ISerializableAttribute<?> attr : container.getAttributes()) {
             SerializableAttributeEntry entry = new SerializableAttributeEntry(x, y, attr, font);
             entry.setCallback(callback);
             addWidget(entry);
