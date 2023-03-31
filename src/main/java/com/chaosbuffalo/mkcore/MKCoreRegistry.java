@@ -10,6 +10,7 @@ import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraftforge.registries.NewRegistryEvent;
 import net.minecraftforge.registries.RegistryBuilder;
 
 import javax.annotation.Nullable;
@@ -19,6 +20,7 @@ public class MKCoreRegistry {
     public static final ResourceLocation INVALID_ABILITY = new ResourceLocation(MKCore.MOD_ID, "ability.invalid");
     public static final ResourceLocation INVALID_TALENT = new ResourceLocation(MKCore.MOD_ID, "talent.invalid");
     public static final ResourceLocation INVALID_ENTITLEMENT = new ResourceLocation(MKCore.MOD_ID, "entitlement.invalid");
+    public static final ResourceLocation ABILITY_REGISTRY_NAME = MKCore.makeRL("abilities");
     public static IForgeRegistry<MKAbility> ABILITIES = null;
     public static IForgeRegistry<MKDamageType> DAMAGE_TYPES = null;
     public static IForgeRegistry<MKEffect> EFFECTS = null;
@@ -41,26 +43,21 @@ public class MKCoreRegistry {
     }
 
     @SubscribeEvent
-    public static void createRegistries(RegistryEvent.NewRegistry event) {
-        ABILITIES = new RegistryBuilder<MKAbility>()
-                .setName(MKCore.makeRL("abilities"))
-                .setType(MKAbility.class)
-                .create();
-        DAMAGE_TYPES = new RegistryBuilder<MKDamageType>()
+    public static void createRegistries(NewRegistryEvent event) {
+        event.create(new RegistryBuilder<MKAbility>()
+                .setName(ABILITY_REGISTRY_NAME)
+                .setType(MKAbility.class), r -> ABILITIES = r);
+        event.create(new RegistryBuilder<MKDamageType>()
                 .setName(MKCore.makeRL("damage_types"))
-                .setType(MKDamageType.class)
-                .create();
-        EFFECTS = new RegistryBuilder<MKEffect>()
+                .setType(MKDamageType.class), r -> DAMAGE_TYPES = r);
+        event.create(new RegistryBuilder<MKEffect>()
                 .setName(MKCore.makeRL("effects"))
-                .setType(MKEffect.class)
-                .create();
-        TALENTS = new RegistryBuilder<MKTalent>()
+                .setType(MKEffect.class), r -> EFFECTS = r);
+        event.create(new RegistryBuilder<MKTalent>()
                 .setName(MKCore.makeRL("talents"))
-                .setType(MKTalent.class)
-                .create();
-        ENTITLEMENTS = new RegistryBuilder<MKEntitlement>()
+                .setType(MKTalent.class), r -> TALENTS = r);
+        event.create(new RegistryBuilder<MKEntitlement>()
                 .setName(MKCore.makeRL("entitlements"))
-                .setType(MKEntitlement.class)
-                .create();
+                .setType(MKEntitlement.class), r -> ENTITLEMENTS = r);
     }
 }

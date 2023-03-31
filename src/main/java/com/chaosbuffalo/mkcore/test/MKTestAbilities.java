@@ -1,14 +1,15 @@
 package com.chaosbuffalo.mkcore.test;
 
 import com.chaosbuffalo.mkcore.MKCore;
+import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.test.abilities.*;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fmllegacy.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.RegistryObject;
 
 public class MKTestAbilities {
-    public static final DeferredRegister<MKAbility> ABILITIES = DeferredRegister.create(MKAbility.class, MKCore.MOD_ID);
+    public static final DeferredRegister<MKAbility> ABILITIES = DeferredRegister.create(MKCoreRegistry.ABILITY_REGISTRY_NAME, MKCore.MOD_ID);
     public static final RegistryObject<EmberAbility> TEST_EMBER = ABILITIES.register("ability.test_ember", EmberAbility::new);
     public static final RegistryObject<HealAbility> TEST_HEAL = ABILITIES.register("ability.test_heal", HealAbility::new);
     public static final RegistryObject<HealingRain> TEST_HEALING_RAN = ABILITIES.register("ability.test_healing_rain", HealingRain::new);

@@ -26,9 +26,9 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.level.storage.LevelResource;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.OnDatapackSyncEvent;
+import net.minecraftforge.event.server.ServerAboutToStartEvent;
+import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fmlserverevents.FMLServerAboutToStartEvent;
-import net.minecraftforge.fmlserverevents.FMLServerStoppingEvent;
 
 import javax.annotation.Nullable;
 import java.io.*;
@@ -188,13 +188,13 @@ public class ParticleAnimationManager extends SimpleJsonResourceReloadListener {
     }
 
     @SubscribeEvent
-    public void serverStop(FMLServerStoppingEvent event) {
+    public void serverStop(ServerStoppingEvent event) {
         serverStarted = false;
         server = null;
     }
 
     @SubscribeEvent
-    public void serverStart(FMLServerAboutToStartEvent event) {
+    public void serverStart(ServerAboutToStartEvent event) {
         server = event.getServer();
         serverStarted = true;
         handleWorldGenerated();

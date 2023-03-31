@@ -6,7 +6,7 @@ import com.chaosbuffalo.mkcore.init.CoreTags;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -14,6 +14,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.Item;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.*;
 
@@ -48,7 +49,7 @@ public class ArmorClass {
     private final Map<Attribute, AttributeModifier> positiveModifierMap = new HashMap<>();
     private final Map<Attribute, AttributeModifier> negativeModifierMap = new HashMap<>();
     private final Set<ArmorMaterial> materials = new HashSet<>();
-    private final Tag.Named<Item> tag;
+    private final TagKey<Item> tag;
 
     private static ArmorClass getArmorClassForMaterial(ArmorMaterial material) {
         return CHECK_ORDER.stream()
@@ -64,7 +65,7 @@ public class ArmorClass {
                 .orElseGet(() -> getArmorClassForMaterial(item.getMaterial()));
     }
 
-    public ArmorClass(ResourceLocation location, Tag.Named<Item> tag) {
+    public ArmorClass(ResourceLocation location, TagKey<Item> tag) {
         this.location = location;
         this.tag = tag;
     }
@@ -106,7 +107,7 @@ public class ArmorClass {
     }
 
     private boolean containsItem(ArmorItem item) {
-        return tag == null || tag.contains(item);
+        return tag == null || ForgeRegistries.ITEMS.tags().getTag(tag).contains(item);
     }
 
     public ArmorClass register(ArmorMaterial material) {
