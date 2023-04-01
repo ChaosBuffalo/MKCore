@@ -11,7 +11,7 @@ import com.chaosbuffalo.mkcore.network.MKParticleEffectSpawnPacket;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.serialization.attributes.FloatAttribute;
 import com.chaosbuffalo.mkcore.serialization.attributes.ResourceLocationAttribute;
-import com.chaosbuffalo.mkcore.test.effects.NewHealEffect;
+import com.chaosbuffalo.mkcore.test.MKTestEffects;
 import com.chaosbuffalo.targeting_api.TargetingContext;
 import com.chaosbuffalo.targeting_api.TargetingContexts;
 import com.google.common.collect.ImmutableSet;
@@ -96,7 +96,7 @@ public class HealAbility extends MKAbility {
         super.endCast(castingEntity, casterData, context);
         float level = getSkillLevel(castingEntity, MKAttributes.RESTORATION);
         context.getMemory(MKAbilityMemories.ABILITY_TARGET).ifPresent(targetEntity -> {
-            MKEffectBuilder<?> heal = NewHealEffect.INSTANCE.builder(castingEntity)
+            MKEffectBuilder<?> heal = MKTestEffects.NEW_HEAL.get().builder(castingEntity)
                     .ability(this)
                     .skillLevel(level)
                     .state(s -> s.setScalingParameters(base.value(), scale.value()));

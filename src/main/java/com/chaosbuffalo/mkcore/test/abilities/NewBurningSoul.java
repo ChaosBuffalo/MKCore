@@ -2,10 +2,9 @@ package com.chaosbuffalo.mkcore.test.abilities;
 
 import com.chaosbuffalo.mkcore.abilities.MKPassiveAbility;
 import com.chaosbuffalo.mkcore.effects.MKEffect;
-import com.chaosbuffalo.mkcore.test.effects.NewBurningSoulEffect;
+import com.chaosbuffalo.mkcore.test.MKTestEffects;
 
 public class NewBurningSoul extends MKPassiveAbility {
-    public static final NewBurningSoul INSTANCE = new NewBurningSoul();
 
     public NewBurningSoul() {
         super();
@@ -13,6 +12,6 @@ public class NewBurningSoul extends MKPassiveAbility {
 
     @Override
     public MKEffect getPassiveEffect() {
-        return NewBurningSoulEffect.INSTANCE;
+        return MKTestEffects.BURNING_SOUL.get();
     }
 }

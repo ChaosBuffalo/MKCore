@@ -1,11 +1,11 @@
 package com.chaosbuffalo.mkcore.effects.utility;
 
-import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.effects.MKActiveEffect;
 import com.chaosbuffalo.mkcore.effects.MKEffect;
 import com.chaosbuffalo.mkcore.effects.MKEffectBuilder;
 import com.chaosbuffalo.mkcore.effects.MKEffectState;
+import com.chaosbuffalo.mkcore.init.CoreEffects;
 import com.chaosbuffalo.mkcore.network.MKParticleEffectSpawnPacket;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.utils.MKNBTUtil;
@@ -15,22 +15,18 @@ import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 
 import java.util.UUID;
 
 public class MKParticleEffect extends MKEffect {
-    public static final MKParticleEffect INSTANCE = new MKParticleEffect();
 
     public MKParticleEffect() {
         super(MobEffectCategory.NEUTRAL);
-        setRegistryName("effect.mk_particle");
     }
 
     public static MKEffectBuilder<?> from(LivingEntity source, ResourceLocation animName, boolean includeSelf, Vec3 location) {
-        return INSTANCE.builder(source).state(s -> s.setup(animName, includeSelf, location));
+        return CoreEffects.PARTICLE.get().builder(source)
+                .state(s -> s.setup(animName, includeSelf, location));
     }
 
     @Override
@@ -89,15 +85,6 @@ public class MKParticleEffect extends MKEffect {
             includeSelf = tag.getBoolean("includeSelf");
             location = MKNBTUtil.readVector3(tag, "location");
             animName = MKNBTUtil.readResourceLocation(tag, "animName");
-        }
-    }
-
-    @SuppressWarnings("unused")
-    @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
-    private static class RegisterMe {
-        @SubscribeEvent
-        public static void register(RegistryEvent.Register<MKEffect> event) {
-            event.getRegistry().register(INSTANCE);
         }
     }
 }

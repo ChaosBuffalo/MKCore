@@ -3,7 +3,7 @@ package com.chaosbuffalo.mkcore.command;
 import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.effects.MKActiveEffect;
 import com.chaosbuffalo.mkcore.effects.MKEffectBuilder;
-import com.chaosbuffalo.mkcore.test.effects.NewHealEffect;
+import com.chaosbuffalo.mkcore.test.MKTestEffects;
 import com.chaosbuffalo.mkcore.utils.ChatUtils;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -76,7 +76,7 @@ public class EffectCommand {
         UUID source = player.getUUID();
         MKCore.getPlayer(player).ifPresent(playerData -> {
             MKEffectBuilder<?> newInstance;
-            newInstance = NewHealEffect.INSTANCE.builder(source)
+            newInstance = MKTestEffects.NEW_HEAL.get().builder(source)
                     .state(s -> s.setScalingParameters(3, 1, 1.f))
                     .periodic(20);
 //            newInstance = TestFallCountingEffect.INSTANCE.builder(UUID.randomUUID());

@@ -9,22 +9,17 @@ import com.google.common.reflect.TypeToken;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 
 import java.util.UUID;
 
 public class TestFallCountingEffect extends MKEffect {
-    public static final TestFallCountingEffect INSTANCE = new TestFallCountingEffect();
 
     private final TypeToken<State> STATE = new TypeToken<State>() {
     };
 
     public TestFallCountingEffect() {
         super(MobEffectCategory.BENEFICIAL);
-        setRegistryName(MKCore.makeRL("effect.v2.fall_counter"));
         SpellTriggers.FALL.register(this::onFall);
     }
 
@@ -65,11 +60,10 @@ public class TestFallCountingEffect extends MKEffect {
         @Override
         public boolean performEffect(IMKEntityData targetData, MKActiveEffect instance) {
             lastCounter = counter;
-            if (!(targetData instanceof MKPlayerData)) {
+            if (!(targetData instanceof MKPlayerData playerData)) {
                 return false;
             }
 
-            MKPlayerData playerData = (MKPlayerData) targetData;
             ChatUtils.sendMessage(playerData.getEntity(), "Fall counter %d", counter);
 
             instance.modifyStackCount(1);
@@ -80,15 +74,6 @@ public class TestFallCountingEffect extends MKEffect {
             }
 
             return true;
-        }
-    }
-
-    @SuppressWarnings("unused")
-    @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
-    private static class RegisterMe {
-        @SubscribeEvent
-        public static void register(RegistryEvent.Register<MKEffect> event) {
-            event.getRegistry().register(INSTANCE);
         }
     }
 }

@@ -7,8 +7,8 @@ import com.chaosbuffalo.mkcore.core.CastInterruptReason;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.core.MKEntityData;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
-import com.chaosbuffalo.mkcore.effects.status.StunEffect;
 import com.chaosbuffalo.mkcore.entities.IUpdateEngineProvider;
+import com.chaosbuffalo.mkcore.init.CoreEffects;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -157,7 +157,7 @@ public class EntityEventHandler {
     public static void onEntityJump(LivingEvent.LivingJumpEvent event) {
         MKCore.getEntityData(event.getEntity()).ifPresent(entityData -> {
             entityData.getAbilityExecutor().interruptCast(CastInterruptReason.Jump);
-            if (entityData.getEffects().isEffectActive(StunEffect.INSTANCE)) {
+            if (entityData.getEffects().isEffectActive(CoreEffects.STUN.get())) {
                 event.getEntity().setDeltaMovement(0, 0, 0);
             }
         });

@@ -8,26 +8,22 @@ import com.chaosbuffalo.mkcore.effects.MKActiveEffect;
 import com.chaosbuffalo.mkcore.effects.MKEffect;
 import com.chaosbuffalo.mkcore.effects.MKEffectBuilder;
 import com.chaosbuffalo.mkcore.effects.ScalingValueEffectState;
+import com.chaosbuffalo.mkcore.test.MKTestEffects;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 
 import java.util.UUID;
 
 public class NewHealEffect extends MKEffect {
-    public static final NewHealEffect INSTANCE = new NewHealEffect();
 
-    private NewHealEffect() {
+    public NewHealEffect() {
         super(MobEffectCategory.BENEFICIAL);
-        setRegistryName("effect.new_heal");
     }
 
     @Override
     public void onInstanceAdded(IMKEntityData targetData, MKActiveEffect newInstance) {
         super.onInstanceAdded(targetData, newInstance);
-        if (targetData.getEffects().isEffectActive(SkinLikeWoodEffect.INSTANCE)) {
+        if (targetData.getEffects().isEffectActive(MKTestEffects.SKIN_LIKE_WOOD.get())) {
             MKCore.LOGGER.info("NewHealEffect.onInstanceAdded found SkinLikeWoodEffectV2 so adding an extra stack");
             newInstance.modifyDuration(300);
             newInstance.modifyStackCount(1);
@@ -69,15 +65,6 @@ public class NewHealEffect extends MKEffect {
                     activeEffect.getSourceEntity(), getModifierScale());
             MKHealing.healEntityFrom(target, value, heal);
             return true;
-        }
-    }
-
-    @SuppressWarnings("unused")
-    @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
-    private static class RegisterMe {
-        @SubscribeEvent
-        public static void register(RegistryEvent.Register<MKEffect> event) {
-            event.getRegistry().register(INSTANCE);
         }
     }
 }

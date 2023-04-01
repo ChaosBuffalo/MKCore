@@ -4,6 +4,7 @@ import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.test.abilities.*;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
@@ -22,8 +23,8 @@ public class MKTestAbilities {
     public static final RegistryObject<WhirlwindBlades> TEST_WHIRLWIND_BLADES = ABILITIES.register("ability.test_whirlwind_blades", WhirlwindBlades::new);
 
 
-    public static void register() {
-        ABILITIES.register(FMLJavaModLoadingContext.get().getModEventBus());
+    public static void register(IEventBus modBus) {
+        ABILITIES.register(modBus);
     }
 
 }

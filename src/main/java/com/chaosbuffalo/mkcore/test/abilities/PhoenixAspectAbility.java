@@ -13,6 +13,7 @@ import com.chaosbuffalo.mkcore.effects.utility.MKOldParticleEffect;
 import com.chaosbuffalo.mkcore.fx.ParticleEffects;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.ParticleEffectSpawnPacket;
+import com.chaosbuffalo.mkcore.test.MKTestEffects;
 import com.chaosbuffalo.mkcore.test.effects.FeatherFallEffect;
 import com.chaosbuffalo.mkcore.test.effects.PhoenixAspectEffect;
 import com.chaosbuffalo.targeting_api.TargetingContext;
@@ -60,7 +61,7 @@ public class PhoenixAspectAbility extends MKAbility {
         // What to do for each target hit
         int duration = (BASE_DURATION + DURATION_SCALE * level) * GameConstants.TICKS_PER_SECOND;
 //        duration = PlayerFormulas.applyBuffDurationBonus(data, duration);
-        MKEffectBuilder<?> flying = PhoenixAspectEffect.INSTANCE.builder(castingEntity)
+        MKEffectBuilder<?> flying = MKTestEffects.PHOENIX_ASPECT.get().builder(castingEntity)
                 .ability(this)
                 .timed(duration)
                 .amplify(level);

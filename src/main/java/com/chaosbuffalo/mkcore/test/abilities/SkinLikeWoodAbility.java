@@ -4,7 +4,7 @@ import com.chaosbuffalo.mkcore.abilities.MKToggleAbility;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.effects.MKEffect;
 import com.chaosbuffalo.mkcore.effects.MKEffectBuilder;
-import com.chaosbuffalo.mkcore.test.effects.SkinLikeWoodEffect;
+import com.chaosbuffalo.mkcore.test.MKTestEffects;
 import com.chaosbuffalo.targeting_api.TargetingContext;
 import com.chaosbuffalo.targeting_api.TargetingContexts;
 import net.minecraft.world.entity.LivingEntity;
@@ -23,7 +23,7 @@ public class SkinLikeWoodAbility extends MKToggleAbility {
 
     @Override
     public MKEffect getToggleEffect() {
-        return SkinLikeWoodEffect.INSTANCE;
+        return MKTestEffects.SKIN_LIKE_WOOD.get();
     }
 
     @Override

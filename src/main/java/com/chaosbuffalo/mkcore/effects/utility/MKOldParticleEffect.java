@@ -1,11 +1,11 @@
 package com.chaosbuffalo.mkcore.effects.utility;
 
-import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.effects.MKActiveEffect;
 import com.chaosbuffalo.mkcore.effects.MKEffect;
 import com.chaosbuffalo.mkcore.effects.MKEffectBuilder;
 import com.chaosbuffalo.mkcore.effects.MKEffectState;
+import com.chaosbuffalo.mkcore.init.CoreEffects;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.ParticleEffectSpawnPacket;
 import net.minecraft.core.particles.ParticleOptions;
@@ -13,24 +13,19 @@ import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 
 import java.util.UUID;
 
 public class MKOldParticleEffect extends MKEffect {
-    public static final MKOldParticleEffect INSTANCE = new MKOldParticleEffect();
 
     public MKOldParticleEffect() {
         super(MobEffectCategory.NEUTRAL);
-        setRegistryName("effect.old_particle");
     }
 
     public static MKEffectBuilder<?> from(LivingEntity source, ParticleOptions particleId, int motionType, boolean includeSelf,
                                           Vec3 radius, Vec3 offsets, int particleCount, int particleData,
                                           double particleSpeed) {
-        return INSTANCE.builder(source).state(s ->
+        return CoreEffects.OLD_PARTICLE.get().builder(source).state(s ->
                 s.setup(source, particleId, motionType, radius, offsets, particleCount, particleData, particleSpeed, includeSelf));
     }
 
@@ -97,15 +92,6 @@ public class MKOldParticleEffect extends MKEffect {
                     radius.z,
                     particleSpeed,
                     source.position().subtract(target.position()).normalize());
-        }
-    }
-
-    @SuppressWarnings("unused")
-    @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
-    private static class RegisterMe {
-        @SubscribeEvent
-        public static void register(RegistryEvent.Register<MKEffect> event) {
-            event.getRegistry().register(INSTANCE);
         }
     }
 }

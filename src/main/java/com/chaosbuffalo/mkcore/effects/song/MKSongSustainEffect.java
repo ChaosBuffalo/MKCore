@@ -15,7 +15,7 @@ import net.minecraft.world.entity.LivingEntity;
 
 import java.util.UUID;
 
-public abstract class MKSongSustainEffect extends MKEffect {
+public class MKSongSustainEffect extends MKEffect {
 
     public MKSongSustainEffect() {
         super(MobEffectCategory.BENEFICIAL);
@@ -48,8 +48,7 @@ public abstract class MKSongSustainEffect extends MKEffect {
 //                return;
 //            }
 
-            if (targetData instanceof MKPlayerData) {
-                MKPlayerData playerData = (MKPlayerData) targetData;
+            if (targetData instanceof MKPlayerData playerData) {
                 if (!playerData.getStats().consumeMana(getSongAbility().getSustainEffectManaCost(playerData, instance))) {
                     // Remove the effect if you can't pay the upkeep
                     return false;

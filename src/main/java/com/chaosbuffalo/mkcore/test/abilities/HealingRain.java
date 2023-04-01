@@ -14,7 +14,7 @@ import com.chaosbuffalo.mkcore.effects.utility.MKOldParticleEffect;
 import com.chaosbuffalo.mkcore.fx.ParticleEffects;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.ParticleEffectSpawnPacket;
-import com.chaosbuffalo.mkcore.test.effects.NewHealEffect;
+import com.chaosbuffalo.mkcore.test.MKTestEffects;
 import com.chaosbuffalo.targeting_api.TargetingContext;
 import com.chaosbuffalo.targeting_api.TargetingContexts;
 import net.minecraft.core.particles.ParticleTypes;
@@ -64,7 +64,7 @@ public class HealingRain extends MKAbility {
         int tickSpeed = 5;
         if (castTimeLeft % tickSpeed == 0) {
             int level = 0;
-            MKEffectBuilder<?> heal = NewHealEffect.INSTANCE.builder(castingEntity)
+            MKEffectBuilder<?> heal = MKTestEffects.NEW_HEAL.get().builder(castingEntity)
                     .state(s -> s.setScalingParameters(BASE_AMOUNT, AMOUNT_SCALE))
                     .ability(this)
                     .amplify(level);

@@ -14,7 +14,7 @@ import com.chaosbuffalo.mkcore.effects.utility.MKOldParticleEffect;
 import com.chaosbuffalo.mkcore.fx.ParticleEffects;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
 import com.chaosbuffalo.mkcore.network.ParticleEffectSpawnPacket;
-import com.chaosbuffalo.mkcore.test.effects.NewFireArmorEffect;
+import com.chaosbuffalo.mkcore.test.MKTestEffects;
 import com.chaosbuffalo.targeting_api.TargetingContext;
 import com.chaosbuffalo.targeting_api.TargetingContexts;
 import net.minecraft.core.particles.ParticleTypes;
@@ -67,7 +67,7 @@ public class NewFireArmor extends MKAbility {
 
         MobEffectInstance fireResistanceEffect = new MobEffectInstance(MobEffects.FIRE_RESISTANCE, duration, level, false, true);
 
-        MKEffectBuilder<?> newFireEffect = NewFireArmorEffect.INSTANCE.builder(castingEntity)
+        MKEffectBuilder<?> newFireEffect = MKTestEffects.FIRE_ARMOR.get().builder(castingEntity)
                 .ability(this)
                 .timed(duration)
                 .amplify(level);

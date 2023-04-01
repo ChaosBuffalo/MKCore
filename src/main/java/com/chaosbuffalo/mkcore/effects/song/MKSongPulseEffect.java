@@ -10,7 +10,7 @@ import net.minecraft.world.effect.MobEffectCategory;
 
 import java.util.UUID;
 
-public abstract class MKSongPulseEffect extends MKEffect {
+public class MKSongPulseEffect extends MKEffect {
     public MKSongPulseEffect() {
         super(MobEffectCategory.NEUTRAL);
     }

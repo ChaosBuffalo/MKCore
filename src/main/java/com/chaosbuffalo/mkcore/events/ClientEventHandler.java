@@ -10,7 +10,7 @@ import com.chaosbuffalo.mkcore.core.AbilityGroupId;
 import com.chaosbuffalo.mkcore.core.MKAttributes;
 import com.chaosbuffalo.mkcore.core.MKPlayerData;
 import com.chaosbuffalo.mkcore.core.MKRangedAttribute;
-import com.chaosbuffalo.mkcore.effects.status.StunEffect;
+import com.chaosbuffalo.mkcore.init.CoreEffects;
 import com.chaosbuffalo.mkcore.item.ArmorClass;
 import com.chaosbuffalo.mkcore.item.AttributeTooltipManager;
 import com.chaosbuffalo.mkcore.network.ExecuteActiveAbilityPacket;
@@ -117,7 +117,7 @@ public class ClientEventHandler {
     public static void onRawMouseEvent(InputEvent.RawMouseEvent event) {
         Minecraft minecraft = Minecraft.getInstance();
         MKCore.getEntityData(minecraft.player).ifPresent(playerData -> {
-            if (playerData.getEffects().isEffectActive(StunEffect.INSTANCE) &&
+            if (playerData.getEffects().isEffectActive(CoreEffects.STUN.get()) &&
                     minecraft.screen == null) {
                 event.setCanceled(true);
             }
@@ -126,7 +126,7 @@ public class ClientEventHandler {
 
     static void handleAbilityBarPressed(MKPlayerData player, AbilityGroupId group, int slot) {
         if (player.getAbilityExecutor().isOnGlobalCooldown() ||
-                player.getEffects().isEffectActive(StunEffect.INSTANCE))
+                player.getEffects().isEffectActive(CoreEffects.STUN.get()))
             return;
 
         if (player.getAbilityExecutor().clientSimulateAbility(group, slot)) {

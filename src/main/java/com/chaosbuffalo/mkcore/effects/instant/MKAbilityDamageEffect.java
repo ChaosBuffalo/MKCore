@@ -1,6 +1,5 @@
 package com.chaosbuffalo.mkcore.effects.instant;
 
-import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.core.damage.MKDamageSource;
 import com.chaosbuffalo.mkcore.core.damage.MKDamageType;
@@ -8,27 +7,22 @@ import com.chaosbuffalo.mkcore.effects.MKActiveEffect;
 import com.chaosbuffalo.mkcore.effects.MKEffect;
 import com.chaosbuffalo.mkcore.effects.MKEffectBuilder;
 import com.chaosbuffalo.mkcore.effects.ScalingValueEffectState;
+import com.chaosbuffalo.mkcore.init.CoreEffects;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 
 import java.util.UUID;
 
 public class MKAbilityDamageEffect extends MKEffect {
-    public static final MKAbilityDamageEffect INSTANCE = new MKAbilityDamageEffect();
-
 
     public MKAbilityDamageEffect() {
         super(MobEffectCategory.HARMFUL);
-        setRegistryName(MKCore.makeRL("effect.ability_damage"));
     }
 
     public static MKEffectBuilder<State> from(LivingEntity source, MKDamageType damageType, float baseDamage,
                                               float scaling, float modifierScaling) {
-        return INSTANCE.builder(source).state(s -> {
+        return CoreEffects.ABILITY_DAMAGE.get().builder(source).state(s -> {
             s.setDamageType(damageType);
             s.setScalingParameters(baseDamage, scaling, modifierScaling);
         });
@@ -69,15 +63,6 @@ public class MKAbilityDamageEffect extends MKEffect {
             float value = getScaledValue(activeEffect.getStackCount(), activeEffect.getSkillLevel());
             targetData.getEntity().hurt(damage, value);
             return true;
-        }
-    }
-
-    @SuppressWarnings("unused")
-    @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
-    private static class RegisterMe {
-        @SubscribeEvent
-        public static void register(RegistryEvent.Register<MKEffect> event) {
-            event.getRegistry().register(INSTANCE);
         }
     }
 }

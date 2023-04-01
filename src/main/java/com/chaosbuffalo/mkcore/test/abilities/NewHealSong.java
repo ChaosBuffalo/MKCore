@@ -9,7 +9,7 @@ import com.chaosbuffalo.mkcore.effects.MKEffect;
 import com.chaosbuffalo.mkcore.effects.MKEffectBuilder;
 import com.chaosbuffalo.mkcore.effects.song.MKSongPulseEffect;
 import com.chaosbuffalo.mkcore.effects.song.MKSongSustainEffect;
-import com.chaosbuffalo.mkcore.test.effects.NewHealEffect;
+import com.chaosbuffalo.mkcore.test.MKTestEffects;
 import com.chaosbuffalo.targeting_api.TargetingContexts;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -21,8 +21,8 @@ public class NewHealSong extends MKSongAbility {
     }
 
     @Override
-    public NewHealSongSustainEffect getSustainEffect() {
-        return NewHealSongSustainEffect.INSTANCE;
+    public MKSongSustainEffect getSustainEffect() {
+        return MKTestEffects.NEW_HEAL_SONG_SUSTAIN.get();
     }
 
     @Override
@@ -31,8 +31,8 @@ public class NewHealSong extends MKSongAbility {
     }
 
     @Override
-    public NewHealSongPulseEffect getPulseEffect() {
-        return NewHealSongPulseEffect.INSTANCE;
+    public MKSongPulseEffect getPulseEffect() {
+        return MKTestEffects.NEW_HEAL_SONG_PULSE.get();
     }
 
     @Override
@@ -42,38 +42,10 @@ public class NewHealSong extends MKSongAbility {
 
     @Override
     public void addPulseAreaEffects(IMKEntityData casterData, AreaEffectBuilder areaEffect) {
-        MKEffectBuilder<?> effect = NewHealEffect.INSTANCE.builder(casterData.getEntity())
+        MKEffectBuilder<?> effect = MKTestEffects.NEW_HEAL.get().builder(casterData.getEntity())
                 .state(s -> s.setScalingParameters(3, 1))
                 .ability(this);
 
         areaEffect.effect(effect, TargetingContexts.FRIENDLY);
-    }
-
-    public static class NewHealSongSustainEffect extends MKSongSustainEffect {
-        public static final NewHealSongSustainEffect INSTANCE = new NewHealSongSustainEffect();
-
-        public NewHealSongSustainEffect() {
-            super();
-            setRegistryName(MKCore.makeRL("effect.v2.new_heal_song_sustain"));
-        }
-    }
-
-    public static class NewHealSongPulseEffect extends MKSongPulseEffect {
-        public static final NewHealSongPulseEffect INSTANCE = new NewHealSongPulseEffect();
-
-        public NewHealSongPulseEffect() {
-            setRegistryName(MKCore.makeRL("effect.v2.new_heal_song_pulse"));
-        }
-    }
-
-    @SuppressWarnings("unused")
-    @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
-    private static class RegisterMe {
-
-        @SubscribeEvent
-        public static void registerEffects(RegistryEvent.Register<MKEffect> event) {
-            event.getRegistry().register(NewHealSongSustainEffect.INSTANCE);
-            event.getRegistry().register(NewHealSongPulseEffect.INSTANCE);
-        }
     }
 }

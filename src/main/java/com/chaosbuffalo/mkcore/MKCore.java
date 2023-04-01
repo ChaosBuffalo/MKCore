@@ -3,7 +3,6 @@ package com.chaosbuffalo.mkcore;
 import com.chaosbuffalo.mkcore.abilities.AbilityManager;
 import com.chaosbuffalo.mkcore.client.gui.MKOverlay;
 import com.chaosbuffalo.mkcore.client.gui.PlayerPageRegistry;
-import com.chaosbuffalo.mkcore.client.rendering.MKRenderers;
 import com.chaosbuffalo.mkcore.command.MKCommand;
 import com.chaosbuffalo.mkcore.core.ICoreExtension;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
@@ -17,7 +16,6 @@ import com.chaosbuffalo.mkcore.fx.particles.ParticleAnimationManager;
 import com.chaosbuffalo.mkcore.init.CoreItems;
 import com.chaosbuffalo.mkcore.init.CoreParticles;
 import com.chaosbuffalo.mkcore.network.PacketHandler;
-import com.chaosbuffalo.mkcore.test.MKTestAbilities;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -32,9 +30,8 @@ import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
-import net.minecraftforge.event.server.ServerAboutToStartEvent;
-import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
@@ -66,13 +63,14 @@ public class MKCore {
 
     public MKCore() {
         INSTANCE = this;
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(EventPriority.LOWEST, this::loadComplete);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doClientStuff);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::modifyAttributesEvent);
+        IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
+        modBus.addListener(this::setup);
+        modBus.addListener(EventPriority.LOWEST, this::loadComplete);
+        modBus.addListener(this::clientSetup);
+        modBus.addListener(this::modifyAttributesEvent);
         // Register the processIMC method for modloading
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::processIMC);
-        MKTestAbilities.register();
+        modBus.addListener(this::processIMC);
+        MKCoreRegistry.register(modBus);
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
         talentManager = new TalentManager();
@@ -91,7 +89,6 @@ public class MKCore {
     }
 
     private void loadComplete(final FMLLoadCompleteEvent event) {
-        // Hopefully other mods will have put their entries in the GlobalEntityTypeAttributes by now
         event.enqueueWork(this::registerAttributes);
     }
 
@@ -108,26 +105,13 @@ public class MKCore {
         Attributes.ATTACK_DAMAGE.setSyncable(true);
     }
 
-    @SubscribeEvent
-    public void serverStart(ServerAboutToStartEvent event) {
-        // some preinit code
-//        LOGGER.info("HELLO FROM ABOUTTOSTART");
-    }
-
-    private void doClientStuff(final FMLClientSetupEvent event) {
+    private void clientSetup(final FMLClientSetupEvent event) {
         MinecraftForge.EVENT_BUS.register(new MKOverlay());
         ClientEventHandler.initKeybindings();
         PlayerPageRegistry.init();
         CoreItems.registerItemProperties();
         ClientEventHandler.setupAttributeRenderers();
         OverlayRegistry.enableOverlay(ForgeIngameGui.PLAYER_HEALTH_ELEMENT, false);
-    }
-
-    // You can use SubscribeEvent and let the Event Bus discover methods to call
-    @SubscribeEvent
-    public void onServerStarting(ServerStartingEvent event) {
-        // do something when the server starts
-//        LOGGER.info("HELLO from server starting");
     }
 
     @SubscribeEvent
