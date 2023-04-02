@@ -1,5 +1,6 @@
 package com.chaosbuffalo.mkcore.core.talents;
 
+import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.mojang.serialization.Dynamic;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -13,10 +14,6 @@ import java.util.regex.Pattern;
 
 public abstract class MKTalent extends ForgeRegistryEntry<MKTalent> {
 
-    public MKTalent(ResourceLocation name) {
-        setRegistryName(name);
-    }
-
     public abstract TalentType<?> getTalentType();
 
     public <T> TalentNode createNode(Dynamic<T> dynamic) {
@@ -25,7 +22,7 @@ public abstract class MKTalent extends ForgeRegistryEntry<MKTalent> {
 
     @Nonnull
     public ResourceLocation getTalentId() {
-        return Objects.requireNonNull(getRegistryName());
+        return Objects.requireNonNull(MKCoreRegistry.TALENTS.getKey(this));
     }
 
     public Component getTalentName() {

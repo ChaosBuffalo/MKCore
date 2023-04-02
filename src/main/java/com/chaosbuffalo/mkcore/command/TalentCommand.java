@@ -215,7 +215,7 @@ public class TalentCommand {
 
     private static String describeNode(TalentNode node, TalentRecord record) {
         int rank = record != null ? record.getRank() : 0;
-        return String.format("%d/%d %s - %s", rank, node.getMaxRanks(), node.getPositionString(), node.getTalent().getRegistryName());
+        return String.format("%d/%d %s - %s", rank, node.getMaxRanks(), node.getPositionString(), node.getTalent().getTalentId());
     }
 
     static int listTalents(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {

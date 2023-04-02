@@ -8,7 +8,7 @@ import java.util.function.Supplier;
 
 public class UltimateTalent extends AbilityGrantTalent {
 
-    public UltimateTalent(ResourceLocation name, Supplier<? extends MKAbility> ability) {
-        super(name, ability, TalentType.ULTIMATE);
+    public UltimateTalent(Supplier<? extends MKAbility> ability) {
+        super(ability, TalentType.ULTIMATE);
     }
 }

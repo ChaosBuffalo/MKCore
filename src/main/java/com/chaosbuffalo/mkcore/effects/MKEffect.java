@@ -59,12 +59,12 @@ public abstract class MKEffect extends ForgeRegistryEntry<MKEffect> {
 
     @Nonnull
     public ResourceLocation getId() {
-        return Objects.requireNonNull(getRegistryName());
+        return Objects.requireNonNull(MKCoreRegistry.EFFECTS.getKey(this));
     }
 
     protected String getOrCreateDescriptionId() {
         if (name == null) {
-            name = Util.makeDescriptionId("mk_effect", MKCoreRegistry.EFFECTS.getKey(this));
+            name = Util.makeDescriptionId("mk_effect", getId());
         }
         return name;
     }

@@ -24,8 +24,7 @@ public class AttributeTalent extends MKTalent {
     private double defaultPerRank;
     private boolean requiresStatRefresh;
 
-    public AttributeTalent(ResourceLocation name, Attribute attr, UUID id) {
-        super(name);
+    public AttributeTalent(Attribute attr, UUID id) {
         this.id = id;
         this.attribute = attr;
         this.operation = AttributeModifier.Operation.ADDITION;
@@ -71,15 +70,15 @@ public class AttributeTalent extends MKTalent {
     }
 
     private String getDescriptionTranslationKey() {
-        return String.format("%s.%s.description", getRegistryName().getNamespace(), getRegistryName().getPath());
+        ResourceLocation id = getTalentId();
+        return String.format("%s.%s.description", id.getNamespace(), id.getPath());
     }
 
     @Override
     public Component getTalentDescription(TalentRecord record) {
         double perRank = 0;
         double currentValue = 0;
-        if (record.getNode() instanceof AttributeTalentNode) {
-            AttributeTalentNode attrNode = (AttributeTalentNode) record.getNode();
+        if (record.getNode() instanceof AttributeTalentNode attrNode) {
             perRank = attrNode.getPerRank();
             currentValue = record.getRank() * perRank;
         } else {
@@ -99,7 +98,7 @@ public class AttributeTalent extends MKTalent {
     }
 
     public AttributeModifier createModifier(double value) {
-        return new AttributeModifier(getUUID(), () -> getRegistryName().toString(), value, getOp());
+        return new AttributeModifier(getUUID(), () -> getTalentId().toString(), value, getOp());
     }
 
     public double getDefaultPerRank() {

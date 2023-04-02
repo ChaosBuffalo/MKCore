@@ -42,8 +42,7 @@ public class AttributeTalentHandler extends TalentTypeHandler {
     }
 
     private void updateTalentRecord(TalentRecord record, boolean applyImmediately) {
-        if (record.getNode() instanceof AttributeTalentNode) {
-            AttributeTalentNode node = (AttributeTalentNode) record.getNode();
+        if (record.getNode() instanceof AttributeTalentNode node) {
 
             AttributeEntry entry = getAttributeEntry(node.getTalent());
             entry.updateTalent(record);

@@ -13,9 +13,9 @@ import java.util.Objects;
 
 public class EntitlementGrantTalentTypeHandler extends TalentTypeHandler {
     @Nonnull
-    private final RegistryObject<MKEntitlement> entitlement;
+    private final RegistryObject<? extends MKEntitlement> entitlement;
 
-    public EntitlementGrantTalentTypeHandler(MKPlayerData playerData, RegistryObject<MKEntitlement> entitlement) {
+    public EntitlementGrantTalentTypeHandler(MKPlayerData playerData, RegistryObject<? extends MKEntitlement> entitlement) {
         super(playerData);
         this.entitlement = Objects.requireNonNull(entitlement, "Must provide a valid MKEntitlement instance");
     }

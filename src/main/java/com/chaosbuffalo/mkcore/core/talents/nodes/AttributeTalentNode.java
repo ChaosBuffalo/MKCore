@@ -8,6 +8,7 @@ import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.DynamicOps;
 
 import java.util.Optional;
+import java.util.function.Supplier;
 
 public class AttributeTalentNode extends TalentNode {
 
@@ -18,8 +19,8 @@ public class AttributeTalentNode extends TalentNode {
         this.perRank = dynamic.get("value").asDouble(talent.getDefaultPerRank());
     }
 
-    public AttributeTalentNode(AttributeTalent talent, int maxRanks, double perRank) {
-        super(talent, maxRanks);
+    public AttributeTalentNode(Supplier<AttributeTalent> talent, int maxRanks, double perRank) {
+        super(talent.get(), maxRanks);
         this.perRank = perRank;
     }
 

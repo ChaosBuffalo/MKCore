@@ -17,16 +17,16 @@ public class CoreEntitlements {
     public static final DeferredRegister<MKEntitlement> ENTITLEMENTS =
             DeferredRegister.create(MKCoreRegistry.ENTITLEMENT_REGISTRY_NAME, MKCore.MOD_ID);
 
-    public static RegistryObject<MKEntitlement> BASIC_ABILITY_SLOT = ENTITLEMENTS.register("ability_slot.basic",
+    public static final RegistryObject<AbilitySlotEntitlement> BASIC_ABILITY_SLOT = ENTITLEMENTS.register("ability_slot.basic",
             () -> new AbilitySlotEntitlement(AbilityGroupId.Basic));
 
-    public static RegistryObject<MKEntitlement> PASSIVE_ABILITY_SLOT = ENTITLEMENTS.register("ability_slot.passive",
+    public static final RegistryObject<AbilitySlotEntitlement> PASSIVE_ABILITY_SLOT = ENTITLEMENTS.register("ability_slot.passive",
             () -> new AbilitySlotEntitlement(AbilityGroupId.Passive));
 
-    public static RegistryObject<MKEntitlement> ULTIMATE_ABILITY_SLOT = ENTITLEMENTS.register("ability_slot.ultimate",
+    public static final RegistryObject<AbilitySlotEntitlement> ULTIMATE_ABILITY_SLOT = ENTITLEMENTS.register("ability_slot.ultimate",
             () -> new AbilitySlotEntitlement(AbilityGroupId.Ultimate));
 
-    public static RegistryObject<MKEntitlement> ABILITY_POOL_SIZE = ENTITLEMENTS.register("ability_pool.count",
+    public static final RegistryObject<AbilityPoolEntitlement> ABILITY_POOL_SIZE = ENTITLEMENTS.register("ability_pool.count",
             () -> new AbilityPoolEntitlement(GameConstants.MAX_ABILITY_POOL_SIZE - GameConstants.DEFAULT_ABILITY_POOL_SIZE));
 
     public static void register(IEventBus modBus) {

@@ -8,6 +8,7 @@ import com.mojang.serialization.DynamicOps;
 
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 public class EntitlementGrantTalentNode extends TalentNode {
 
@@ -18,8 +19,8 @@ public class EntitlementGrantTalentNode extends TalentNode {
         this.nodeId = entry.get("nodeId").asString().map(UUID::fromString).result().orElse(UUID.randomUUID());
     }
 
-    public EntitlementGrantTalentNode(EntitlementGrantTalent talent, UUID nodeId) {
-        super(talent);
+    public EntitlementGrantTalentNode(Supplier<EntitlementGrantTalent> talent, UUID nodeId) {
+        super(talent.get());
         this.nodeId = nodeId;
     }
 
