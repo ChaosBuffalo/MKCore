@@ -308,12 +308,12 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> implements
 
     @Nullable
     public SoundEvent getCastingSoundEvent() {
-        return CoreSounds.casting_default;
+        return CoreSounds.casting_default.get();
     }
 
     @Nullable
     public SoundEvent getSpellCompleteSoundEvent() {
-        return CoreSounds.spell_cast_default;
+        return CoreSounds.spell_cast_default.get();
     }
 
     public void executeWithContext(IMKEntityData casterData, AbilityContext context, MKAbilityInfo abilityInfo) {

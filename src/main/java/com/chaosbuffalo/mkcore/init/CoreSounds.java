@@ -3,61 +3,34 @@ package com.chaosbuffalo.mkcore.init;
 import com.chaosbuffalo.mkcore.MKCore;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.registries.ObjectHolder;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
 
-@Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
-@ObjectHolder(MKCore.MOD_ID)
 public class CoreSounds {
 
-    @ObjectHolder("casting_default")
-    public static SoundEvent casting_default;
-    @ObjectHolder("spell_cast_default")
-    public static SoundEvent spell_cast_default;
-    @ObjectHolder("level_up")
-    public static SoundEvent level_up;
-    @ObjectHolder("block_break")
-    public static SoundEvent block_break;
-    @ObjectHolder("weapon_block")
-    public static SoundEvent weapon_block;
-    @ObjectHolder("arrow_block")
-    public static SoundEvent arrow_block;
-    @ObjectHolder("fist_block")
-    public static SoundEvent fist_block;
-    @ObjectHolder("parry")
-    public static SoundEvent parry;
-    @ObjectHolder("attack_cd_reset")
-    public static SoundEvent attack_cd_reset;
-    @ObjectHolder("stun")
-    public static SoundEvent stun_sound;
-    @ObjectHolder("quest_complete")
-    public static SoundEvent quest_complete_sound;
+    public static final DeferredRegister<SoundEvent> SOUNDS =
+            DeferredRegister.create(ForgeRegistries.SOUND_EVENTS, MKCore.MOD_ID);
 
-    public static void registerSound(RegistryEvent.Register<SoundEvent> evt, SoundEvent event) {
-        evt.getRegistry().register(event);
+    private static RegistryObject<SoundEvent> register(String name) {
+        return SOUNDS.register(name, () -> new SoundEvent(new ResourceLocation(MKCore.MOD_ID, name)));
     }
 
-    public static SoundEvent createSound(String name) {
-        ResourceLocation r_name = MKCore.makeRL(name);
-        SoundEvent event = new SoundEvent(r_name);
-        event.setRegistryName(r_name);
-        return event;
-    }
+    public static final RegistryObject<SoundEvent> casting_default = register("casting_default");
+    public static final RegistryObject<SoundEvent> spell_cast_default = register("spell_cast_default");
+    public static final RegistryObject<SoundEvent> level_up = register("level_up");
+    public static final RegistryObject<SoundEvent> block_break = register("block_break");
+    public static final RegistryObject<SoundEvent> weapon_block = register("weapon_block");
+    public static final RegistryObject<SoundEvent> arrow_block = register("arrow_block");
+    public static final RegistryObject<SoundEvent> fist_block = register("fist_block");
+    public static final RegistryObject<SoundEvent> parry = register("parry");
+    public static final RegistryObject<SoundEvent> attack_cd_reset = register("attack_cd_reset");
+    public static final RegistryObject<SoundEvent> stun_sound = register("stun");
+    public static final RegistryObject<SoundEvent> quest_complete_sound = register("quest_complete");
 
-    @SubscribeEvent
-    public static void registerSounds(RegistryEvent.Register<SoundEvent> evt) {
-        registerSound(evt, createSound("casting_default"));
-        registerSound(evt, createSound("spell_cast_default"));
-        registerSound(evt, createSound("level_up"));
-        registerSound(evt, createSound("block_break"));
-        registerSound(evt, createSound("arrow_block"));
-        registerSound(evt, createSound("fist_block"));
-        registerSound(evt, createSound("weapon_block"));
-        registerSound(evt, createSound("parry"));
-        registerSound(evt, createSound("attack_cd_reset"));
-        registerSound(evt, createSound("stun"));
-        registerSound(evt, createSound("quest_complete"));
+
+    public static void register(IEventBus modBus) {
+        SOUNDS.register(modBus);
     }
 }

@@ -139,28 +139,28 @@ public class CombatEventHandler {
                 }
                 if (breakResult.getB()) {
                     SoundUtils.serverPlaySoundAtEntity(event.getEntityLiving(),
-                            CoreSounds.block_break, event.getEntityLiving().getSoundSource());
+                            CoreSounds.block_break.get(), event.getEntityLiving().getSoundSource());
                 } else {
                     if (event.getEntityLiving().getTicksUsingItem() <= 6) {
                         SoundUtils.serverPlaySoundAtEntity(event.getEntityLiving(),
-                                CoreSounds.parry, event.getEntityLiving().getSoundSource());
+                                CoreSounds.parry.get(), event.getEntityLiving().getSoundSource());
                         playerData.getSkills().tryIncreaseSkill(MKAttributes.BLOCK);
                     } else {
                         playerData.getSkills().tryScaledIncreaseSkill(MKAttributes.BLOCK, 0.5);
                         if (dmgSource.getDirectEntity() instanceof AbstractArrow) {
                             SoundUtils.serverPlaySoundAtEntity(event.getEntityLiving(),
-                                    CoreSounds.arrow_block, event.getEntityLiving().getSoundSource());
+                                    CoreSounds.arrow_block.get(), event.getEntityLiving().getSoundSource());
                         } else if (source instanceof LivingEntity) {
                             if (((LivingEntity) source).getItemInHand(InteractionHand.MAIN_HAND).getItem() instanceof SwordItem) {
                                 SoundUtils.serverPlaySoundAtEntity(event.getEntityLiving(),
-                                        CoreSounds.weapon_block, event.getEntityLiving().getSoundSource());
+                                        CoreSounds.weapon_block.get(), event.getEntityLiving().getSoundSource());
                             } else {
                                 SoundUtils.serverPlaySoundAtEntity(event.getEntityLiving(),
-                                        CoreSounds.fist_block, event.getEntityLiving().getSoundSource());
+                                        CoreSounds.fist_block.get(), event.getEntityLiving().getSoundSource());
                             }
                         } else {
                             SoundUtils.serverPlaySoundAtEntity(event.getEntityLiving(),
-                                    CoreSounds.fist_block, event.getEntityLiving().getSoundSource());
+                                    CoreSounds.fist_block.get(), event.getEntityLiving().getSoundSource());
                         }
                     }
                 }

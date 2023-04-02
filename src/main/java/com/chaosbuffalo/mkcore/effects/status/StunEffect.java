@@ -53,7 +53,7 @@ public class StunEffect extends MKEffect {
             mob.setNoAi(true);
         }
         targetData.getAbilityExecutor().interruptCast(CastInterruptReason.Stun);
-        SoundUtils.serverPlaySoundAtEntity(target, CoreSounds.stun_sound, target.getSoundSource());
+        SoundUtils.serverPlaySoundAtEntity(target, CoreSounds.stun_sound.get(), target.getSoundSource());
     }
 
     @Override
