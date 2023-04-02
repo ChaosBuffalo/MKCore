@@ -48,7 +48,7 @@ public class CritMessagePacket {
         this.critDamage = critDamage;
         this.type = CritType.TYPED_CRIT;
         this.typeName = typeName;
-        this.damageType = damageType.getRegistryName();
+        this.damageType = damageType.getId();
     }
 
 
@@ -59,7 +59,7 @@ public class CritMessagePacket {
         this.critDamage = critDamage;
         this.type = CritType.MK_CRIT;
         this.abilityName = abilityName;
-        this.damageType = damageType.getRegistryName();
+        this.damageType = damageType.getId();
     }
 
     public CritMessagePacket(int targetId, int sourceId, float critDamage, int projectileId) {

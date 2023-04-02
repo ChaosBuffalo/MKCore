@@ -1,5 +1,6 @@
 package com.chaosbuffalo.mkcore.core.damage;
 
+import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
 import com.chaosbuffalo.mkcore.core.MKCombatFormulas;
 import net.minecraft.ChatFormatting;
@@ -45,7 +46,7 @@ public class MKDamageType extends ForgeRegistryEntry<MKDamageType> {
 
     @Nonnull
     public ResourceLocation getId() {
-        return Objects.requireNonNull(getRegistryName());
+        return Objects.requireNonNull(MKCoreRegistry.DAMAGE_TYPES.getKey(this));
     }
 
     public MKDamageType setCritMultiplier(float value) {

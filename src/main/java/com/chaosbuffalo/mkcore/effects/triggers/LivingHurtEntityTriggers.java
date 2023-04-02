@@ -138,12 +138,11 @@ public class LivingHurtEntityTriggers extends SpellTriggers.TriggerCollectionBas
 
     private void sendAbilityCrit(LivingEntity livingTarget, LivingEntity livingSource, MKDamageSource source,
                                  float newDamage) {
-        if (source instanceof MKDamageSource.AbilityDamage) {
-            MKDamageSource.AbilityDamage abilityDamage = (MKDamageSource.AbilityDamage) source;
+        if (source instanceof MKDamageSource.AbilityDamage abilityDamage) {
             MKAbility ability = MKCoreRegistry.getAbility(abilityDamage.getAbilityId());
             ResourceLocation abilityName;
             if (ability != null) {
-                abilityName = ability.getRegistryName();
+                abilityName = ability.getAbilityId();
             } else {
                 abilityName = MKCoreRegistry.INVALID_ABILITY;
             }

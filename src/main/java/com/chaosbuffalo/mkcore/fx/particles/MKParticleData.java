@@ -66,7 +66,7 @@ public class MKParticleData implements ParticleOptions {
 
     }
 
-    public static final ParticleOptions.Deserializer<MKParticleData> DESERIALIZER = new ParticleOptions.Deserializer<MKParticleData>() {
+    public static final ParticleOptions.Deserializer<MKParticleData> DESERIALIZER = new ParticleOptions.Deserializer<>() {
         public MKParticleData fromCommand(ParticleType<MKParticleData> particleTypeIn, StringReader reader) throws CommandSyntaxException {
             // todo make this read json nbt
             return new MKParticleData(particleTypeIn, new Vec3(reader.readDouble(), reader.readDouble(), reader.readDouble()),
@@ -120,7 +120,7 @@ public class MKParticleData implements ParticleOptions {
         if (dyn instanceof CompoundTag) {
             buffer.writeNbt((CompoundTag) dyn);
         } else {
-            throw new RuntimeException(String.format("Particle Animation %s did not serialize to a CompoundNBT!", getType().getRegistryName().toString()));
+            throw new RuntimeException(String.format("Particle Animation %s did not serialize to a CompoundNBT!", ForgeRegistries.PARTICLE_TYPES.getKey(getType())));
         }
     }
 

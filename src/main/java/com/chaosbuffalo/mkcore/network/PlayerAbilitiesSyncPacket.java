@@ -26,7 +26,7 @@ public class PlayerAbilitiesSyncPacket {
         for (MKAbility ability : abilities) {
             Tag dyn = ability.serializeDynamic(NbtOps.INSTANCE);
             if (dyn instanceof CompoundTag) {
-                data.put(ability.getRegistryName(), (CompoundTag) dyn);
+                data.put(ability.getAbilityId(), (CompoundTag) dyn);
             } else {
                 throw new RuntimeException(String.format("Ability %s did not serialize to a CompoundNBT!", ability.getAbilityId()));
             }

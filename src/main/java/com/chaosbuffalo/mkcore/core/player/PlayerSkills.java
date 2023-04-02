@@ -146,7 +146,7 @@ public class PlayerSkills implements IMKSerializable<CompoundTag> {
         CompoundTag tag = new CompoundTag();
         CompoundTag skillsNbt = new CompoundTag();
         for (Object2DoubleMap.Entry<Attribute> entry : skillValues.object2DoubleEntrySet()) {
-            ResourceLocation attrId = Objects.requireNonNull(entry.getKey().getRegistryName());
+            ResourceLocation attrId = Objects.requireNonNull(ForgeRegistries.ATTRIBUTES.getKey(entry.getKey()));
             skillsNbt.putDouble(attrId.toString(), entry.getDoubleValue());
         }
         tag.put("skills", skillsNbt);

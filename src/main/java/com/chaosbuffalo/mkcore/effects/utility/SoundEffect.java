@@ -54,7 +54,7 @@ public class SoundEffect extends MKEffect {
         public SoundSource category;
 
         public void setup(SoundEvent event, float pitch, float volume, SoundSource cat) {
-            soundEvent = event.getRegistryName();
+            soundEvent = ForgeRegistries.SOUND_EVENTS.getKey(event);
             this.volume = volume;
             this.pitch = pitch;
             this.category = cat;

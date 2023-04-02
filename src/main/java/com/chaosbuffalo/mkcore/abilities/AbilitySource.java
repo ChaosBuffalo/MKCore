@@ -4,6 +4,7 @@ import com.chaosbuffalo.mkcore.core.talents.MKTalent;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.Objects;
 
@@ -16,7 +17,8 @@ public class AbilitySource {
     public static AbilitySource ADMIN = new AbilitySource(AbilitySourceType.ADMIN);
 
     public static AbilitySource forItem(ItemStack item) {
-        return new ItemAbilitySource(item.getItem().getRegistryName());
+        ResourceLocation id = ForgeRegistries.ITEMS.getKey(item.getItem());
+        return new ItemAbilitySource(id);
     }
 
     public static AbilitySource forTalent(MKTalent talent) {

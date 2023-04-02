@@ -89,7 +89,7 @@ public class ParticleAnimation {
         }
         if (hasParticleType()) {
             builder.put(ops.createString("particleType"),
-                    ops.createString(particleType.getRegistryName().toString()));
+                    ops.createString(ForgeRegistries.PARTICLE_TYPES.getKey(particleType).toString()));
         }
         return ops.createMap(builder.build());
     }

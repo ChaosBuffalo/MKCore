@@ -2,6 +2,7 @@ package com.chaosbuffalo.mkcore.abilities;
 
 import com.chaosbuffalo.mkcore.GameConstants;
 import com.chaosbuffalo.mkcore.MKCore;
+import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.abilities.ai.conditions.AbilityUseCondition;
 import com.chaosbuffalo.mkcore.abilities.ai.conditions.StandardUseCondition;
 import com.chaosbuffalo.mkcore.core.*;
@@ -177,7 +178,7 @@ public abstract class MKAbility extends ForgeRegistryEntry<MKAbility> implements
     }
 
     public ResourceLocation getAbilityId() {
-        return getRegistryName();
+        return MKCoreRegistry.ABILITIES.getKey(this);
     }
 
     @Nonnull

@@ -213,7 +213,7 @@ public class MKActiveEffect {
         if (!attributeSkillSnapshot.isEmpty()) {
             CompoundTag attrTag = new CompoundTag();
             attributeSkillSnapshot.object2FloatEntrySet().forEach(entry -> {
-                ResourceLocation attrId = entry.getKey().getRegistryName();
+                ResourceLocation attrId = ForgeRegistries.ATTRIBUTES.getKey(entry.getKey());
                 if (attrId != null) {
                     attrTag.putFloat(attrId.toString(), entry.getFloatValue());
                 }

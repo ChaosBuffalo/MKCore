@@ -31,6 +31,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
 import java.util.Map;
@@ -141,7 +142,7 @@ public class ParticleEditorScreen extends MKScreen {
     }
 
     public ResourceLocation getParticleName() {
-        return editing.getParticleType().getRegistryName();
+        return ForgeRegistries.PARTICLE_TYPES.getKey(editing.getParticleType());
     }
 
     public ParticleType<MKParticleData> getParticleType() {
