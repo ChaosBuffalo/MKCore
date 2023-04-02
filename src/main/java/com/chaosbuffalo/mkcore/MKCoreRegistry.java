@@ -1,6 +1,7 @@
 package com.chaosbuffalo.mkcore;
 
 import com.chaosbuffalo.mkcore.abilities.MKAbility;
+import com.chaosbuffalo.mkcore.abilities.MKAbilityMemories;
 import com.chaosbuffalo.mkcore.core.damage.MKDamageType;
 import com.chaosbuffalo.mkcore.core.entitlements.MKEntitlement;
 import com.chaosbuffalo.mkcore.core.talents.MKTalent;
@@ -79,6 +80,7 @@ public class MKCoreRegistry {
         CoreParticles.register(modBus);
         CoreSounds.register(modBus);
         CoreTalents.register(modBus);
+        MKAbilityMemories.register(modBus);
         MKTestEffects.register(modBus);
         MKTestAbilities.register(modBus);
         MKCoreTestItems.register(modBus);

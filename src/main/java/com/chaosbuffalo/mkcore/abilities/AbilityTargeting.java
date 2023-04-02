@@ -20,17 +20,17 @@ public class AbilityTargeting {
             .setDescriptionKey("mkcore.ability_target.line");
 
     public static final AbilityTargetSelector SELF = new AbilityTargetSelector(AbilityTargeting::selectSelf)
-            .setRequiredMemories(ImmutableSet.of(MKAbilityMemories.ABILITY_TARGET))
+            .setRequiredMemories(ImmutableSet.of(MKAbilityMemories.ABILITY_TARGET.get()))
             .setShowTargetType(false)
             .setDescriptionKey("mkcore.ability_target.self");
 
     public static final AbilityTargetSelector SINGLE_TARGET = new AbilityTargetSelector(AbilityTargeting::selectSingle)
-            .setRequiredMemories(ImmutableSet.of(MKAbilityMemories.ABILITY_TARGET))
+            .setRequiredMemories(ImmutableSet.of(MKAbilityMemories.ABILITY_TARGET.get()))
             .addDynamicDescription(AbilityDescriptions::getRangeDescription)
             .setDescriptionKey("mkcore.ability_target.single_target");
 
     public static final AbilityTargetSelector SINGLE_TARGET_OR_SELF = new AbilityTargetSelector(AbilityTargeting::selectSingleOrSelf)
-            .setRequiredMemories(ImmutableSet.of(MKAbilityMemories.ABILITY_TARGET))
+            .setRequiredMemories(ImmutableSet.of(MKAbilityMemories.ABILITY_TARGET.get()))
             .addDynamicDescription(AbilityDescriptions::getRangeDescription)
             .setDescriptionKey("mkcore.ability_target.single_target_self");
 
@@ -39,7 +39,7 @@ public class AbilityTargeting {
             .addDynamicDescription(AbilityDescriptions::getRangeDescription);
 
     public static final AbilityTargetSelector POSITION_INCLUDE_ENTITIES = new AbilityTargetSelector(AbilityTargeting::selectPositionIncludeEntities)
-            .setRequiredMemories(ImmutableSet.of(MKAbilityMemories.ABILITY_POSITION_TARGET))
+            .setRequiredMemories(ImmutableSet.of(MKAbilityMemories.ABILITY_POSITION_TARGET.get()))
             .setDescriptionKey("mkcore.ability_target.position_include_entities")
             .addDynamicDescription(AbilityDescriptions::getRangeDescription);
 

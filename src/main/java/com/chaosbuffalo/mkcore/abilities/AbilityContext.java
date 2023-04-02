@@ -9,6 +9,7 @@ import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 public class AbilityContext {
     public static final AbilityContext EMPTY = new AbilityContext(ImmutableMap.of());
@@ -34,6 +35,12 @@ public class AbilityContext {
         return this;
     }
 
+    public <U> AbilityContext withMemory(Supplier<MemoryModuleType<U>> memoryType,
+                                         @SuppressWarnings("OptionalUsedAsFieldOrParameterType") Optional<U> value) {
+        setMemory(memoryType.get(), value);
+        return this;
+    }
+
     public <U> AbilityContext withBrainMemory(LivingEntity entity, MemoryModuleType<U> memoryType) {
         Optional<U> value = entity.getBrain().getMemory(memoryType);
         setMemory(memoryType, value);
@@ -43,6 +50,10 @@ public class AbilityContext {
     @SuppressWarnings("unchecked")
     public <T> Optional<T> getMemory(MemoryModuleType<T> memory) {
         return (Optional<T>) memories.get(memory);
+    }
+
+    public <T> Optional<T> getMemory(Supplier<MemoryModuleType<T>> memory) {
+        return getMemory(memory.get());
     }
 
     public <T> boolean hasMemory(MemoryModuleType<T> memory) {

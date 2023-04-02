@@ -59,11 +59,6 @@ public class NewHeal extends MKAbility {
     }
 
     @Override
-    public Set<MemoryModuleType<?>> getRequiredMemories() {
-        return ImmutableSet.of(MKAbilityMemories.ABILITY_TARGET);
-    }
-
-    @Override
     public AbilityTargetSelector getTargetSelector() {
         return AbilityTargeting.SINGLE_TARGET_OR_SELF;
     }
