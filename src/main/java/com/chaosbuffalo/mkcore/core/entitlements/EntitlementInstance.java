@@ -43,10 +43,11 @@ public class EntitlementInstance implements IRecordInstance {
 
     public <T> T serializeDynamic(DynamicOps<T> ops) {
         ImmutableMap.Builder<T, T> builder = ImmutableMap.builder();
-        builder.put(ops.createString("entitlement"),
-                entitlement != null && entitlement.getRegistryName() != null ?
-                        ops.createString(entitlement.getRegistryName().toString())
-                        : ops.createString(MKCoreRegistry.INVALID_ENTITLEMENT.toString()));
+        ResourceLocation id = entitlement != null && entitlement.getId() != null ?
+                entitlement.getId() :
+                MKCoreRegistry.INVALID_ENTITLEMENT;
+
+        builder.put(ops.createString("entitlement"), ops.createString(id.toString()));
         if (uuid != null) {
             builder.put(ops.createString("entitlementId"), ops.createString(uuid.toString()));
         }

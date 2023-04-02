@@ -6,18 +6,17 @@ import com.chaosbuffalo.mkcore.core.entitlements.EntitlementInstance;
 import com.chaosbuffalo.mkcore.core.entitlements.EntitlementTypeHandler;
 import com.chaosbuffalo.mkcore.core.entitlements.MKEntitlement;
 import com.chaosbuffalo.mkcore.core.records.IRecordType;
-import net.minecraft.resources.ResourceLocation;
 
 public class AbilitySlotEntitlement extends MKEntitlement {
     private final AbilityGroupId group;
     private final IRecordType<AbilitySlotEntitlementHandler> recordType;
 
-    public AbilitySlotEntitlement(ResourceLocation name, AbilityGroupId group) {
-        this(name, group, group.getMaxSlots());
+    public AbilitySlotEntitlement(AbilityGroupId group) {
+        this(group, group.getMaxSlots());
     }
 
-    public AbilitySlotEntitlement(ResourceLocation name, AbilityGroupId group, int maxEntitlements) {
-        super(name, maxEntitlements);
+    public AbilitySlotEntitlement(AbilityGroupId group, int maxEntitlements) {
+        super(maxEntitlements);
         this.group = group;
         recordType = playerData -> new AbilitySlotEntitlementHandler(playerData, this);
     }

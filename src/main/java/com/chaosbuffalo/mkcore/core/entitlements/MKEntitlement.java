@@ -1,5 +1,6 @@
 package com.chaosbuffalo.mkcore.core.entitlements;
 
+import com.chaosbuffalo.mkcore.MKCoreRegistry;
 import com.chaosbuffalo.mkcore.core.records.IRecordType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -9,9 +10,12 @@ import net.minecraftforge.registries.ForgeRegistryEntry;
 public abstract class MKEntitlement extends ForgeRegistryEntry<MKEntitlement> {
     private final int maxEntitlements;
 
-    public MKEntitlement(ResourceLocation name, int maxEntitlements) {
-        setRegistryName(name);
+    public MKEntitlement(int maxEntitlements) {
         this.maxEntitlements = maxEntitlements;
+    }
+
+    public ResourceLocation getId() {
+        return MKCoreRegistry.ENTITLEMENTS.getKey(this);
     }
 
     public int getMaxEntitlements() {
@@ -21,7 +25,7 @@ public abstract class MKEntitlement extends ForgeRegistryEntry<MKEntitlement> {
     public abstract IRecordType<?> getRecordType();
 
     public Component getDescription() {
-        return new TranslatableComponent(String.format("%s.entitlement.%s.name",
-                getRegistryName().getNamespace(), getRegistryName().getPath()));
+        ResourceLocation id = getId();
+        return new TranslatableComponent(String.format("%s.entitlement.%s.name", id.getNamespace(), id.getPath()));
     }
 }

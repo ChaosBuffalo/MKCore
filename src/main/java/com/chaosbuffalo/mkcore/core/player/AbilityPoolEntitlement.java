@@ -11,8 +11,8 @@ import net.minecraft.resources.ResourceLocation;
 public class AbilityPoolEntitlement extends MKEntitlement {
     private final IRecordType<AbilityPoolEntitlementHandler> recordType;
 
-    public AbilityPoolEntitlement(ResourceLocation name, int maxEntitlements) {
-        super(name, maxEntitlements);
+    public AbilityPoolEntitlement(int maxEntitlements) {
+        super(maxEntitlements);
         recordType = playerData -> new AbilityPoolEntitlementHandler(playerData, this);
     }
 
