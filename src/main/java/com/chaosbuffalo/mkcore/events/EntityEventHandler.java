@@ -131,13 +131,15 @@ public class EntityEventHandler {
     }
 
     @SubscribeEvent
-    public static void onPlayerClone(PlayerEvent.Clone evt) {
-        Player player = evt.getPlayer();
-        Player oldPlayer = evt.getOriginal();
+    public static void onPlayerClone(PlayerEvent.Clone event) {
+        Player player = event.getPlayer();
+        Player oldPlayer = event.getOriginal();
 
+        oldPlayer.reviveCaps();
         MKCore.getPlayer(player)
                 .ifPresent(newCap -> MKCore.getPlayer(oldPlayer)
-                        .ifPresent(oldCap -> newCap.clone(oldCap, evt.isWasDeath())));
+                        .ifPresent(oldCap -> newCap.clone(oldCap, event.isWasDeath())));
+        oldPlayer.invalidateCaps();
     }
 
     @SubscribeEvent

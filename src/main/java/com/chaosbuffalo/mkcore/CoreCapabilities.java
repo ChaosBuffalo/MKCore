@@ -16,16 +16,12 @@ import net.minecraftforge.fml.common.Mod;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Predicate;
 
 @Mod.EventBusSubscriber(modid = MKCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class CoreCapabilities {
 
     public static final ResourceLocation PLAYER_CAP_ID = MKCore.makeRL("player_data");
     public static final ResourceLocation ENTITY_CAP_ID = MKCore.makeRL("entity_data");
-    private static final List<Predicate<LivingEntity>> entityAdditionPredicates = new ArrayList<>();
 
     public static final Capability<MKPlayerData> PLAYER_CAPABILITY = CapabilityManager.get(new CapabilityToken<>(){});
     public static final Capability<MKEntityData> ENTITY_CAPABILITY = CapabilityManager.get(new CapabilityToken<>(){});
@@ -35,15 +31,6 @@ public class CoreCapabilities {
     public static void registerCapabilities(RegisterCapabilitiesEvent event) {
         event.register(MKPlayerData.class);
         event.register(MKEntityData.class);
-    }
-
-
-
-    /**
-     * @param entityPredicate Predicate to determine if the given entity should be given the IMKEntityData capability
-     */
-    public static void registerLivingEntity(Predicate<LivingEntity> entityPredicate) {
-        entityAdditionPredicates.add(entityPredicate);
     }
 
     public static class EntityDataProvider implements ICapabilitySerializable<CompoundTag> {
@@ -58,7 +45,6 @@ public class CoreCapabilities {
         public static void attach(AttachCapabilitiesEvent<Entity> event, LivingEntity playerEntity) {
             EntityDataProvider provider = new EntityDataProvider(playerEntity);
             event.addCapability(ENTITY_CAP_ID, provider);
-            event.addListener(provider.capOpt::invalidate);
         }
 
         @Nonnull
@@ -91,7 +77,6 @@ public class CoreCapabilities {
         public static void attach(AttachCapabilitiesEvent<Entity> event, Player playerEntity) {
             PlayerDataProvider provider = new PlayerDataProvider(playerEntity);
             event.addCapability(PLAYER_CAP_ID, provider);
-            event.addListener(provider.capOpt::invalidate);
         }
 
         @Nonnull
