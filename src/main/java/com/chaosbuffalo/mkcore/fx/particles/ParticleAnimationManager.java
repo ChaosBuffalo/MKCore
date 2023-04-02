@@ -29,6 +29,7 @@ import net.minecraftforge.event.OnDatapackSyncEvent;
 import net.minecraftforge.event.server.ServerAboutToStartEvent;
 import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.registries.RegistryObject;
 
 import javax.annotation.Nullable;
 import java.io.*;
@@ -81,9 +82,9 @@ public class ParticleAnimationManager extends SimpleJsonResourceReloadListener {
     }
 
     public static void putParticleTypeForEditor(ResourceLocation name,
-                                                ParticleType<MKParticleData> particleType) {
-        if (particleType != null) {
-            PARTICLE_TYPES_FOR_EDITOR.put(name, particleType);
+                                                RegistryObject<ParticleType<MKParticleData>> particleType) {
+        if (particleType.isPresent()) {
+            PARTICLE_TYPES_FOR_EDITOR.put(name, particleType.get());
         } else {
             MKCore.LOGGER.warn("Provided null particle type for particle editor with name {}", name);
         }

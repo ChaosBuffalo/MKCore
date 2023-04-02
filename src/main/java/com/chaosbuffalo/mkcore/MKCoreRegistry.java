@@ -76,6 +76,7 @@ public class MKCoreRegistry {
         CoreEffects.register(modBus);
         CoreEntities.register(modBus);
         CoreEntitlements.register(modBus);
+        CoreParticles.register(modBus);
         CoreSounds.register(modBus);
         CoreTalents.register(modBus);
         MKTestEffects.register(modBus);

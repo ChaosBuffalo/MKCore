@@ -145,7 +145,7 @@ public class MKCore {
     }
 
     private void internalIMCStageSetup() {
-        CoreParticles.HandleEditorParticleRegistration();
+        CoreParticles.handleEditorParticleRegistration();
     }
 
     public static ResourceLocation makeRL(String path) {

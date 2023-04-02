@@ -2,7 +2,6 @@ package com.chaosbuffalo.mkcore.fx.particles;
 
 import com.chaosbuffalo.mkcore.fx.particles.spawn_patterns.ParticleSpawnPattern;
 import com.chaosbuffalo.mkcore.init.CoreParticles;
-import com.chaosbuffalo.mkcore.init.CoreRegistryNames;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.DynamicOps;
@@ -25,7 +24,7 @@ public class ParticleAnimation {
 
     public ParticleAnimation() {
         this.keyFrames = new ArrayList<>();
-        this.particleType = CoreParticles.MAGIC_CROSS;
+        this.particleType = CoreParticles.MAGIC_CROSS.get();
     }
 
     public void setSpawnPattern(ParticleSpawnPattern spawnPattern) {
@@ -112,7 +111,7 @@ public class ParticleAnimation {
             return spawnPattern;
         }).result().orElse(null);
         ResourceLocation loc = new ResourceLocation(dynamic.get("particleType").asString().result()
-                .orElse(CoreRegistryNames.MAGIC_CROSS_NAME.toString()));
+                .orElse(CoreParticles.MAGIC_CROSS.getId().toString()));
         particleType = (ParticleType<MKParticleData>) ForgeRegistries.PARTICLE_TYPES.getValue(loc);
     }
 
