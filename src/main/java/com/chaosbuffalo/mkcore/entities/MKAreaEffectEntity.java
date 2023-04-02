@@ -4,6 +4,7 @@ import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.core.IMKEntityData;
 import com.chaosbuffalo.mkcore.effects.MKEffectBuilder;
 import com.chaosbuffalo.mkcore.effects.WorldAreaEffectEntry;
+import com.chaosbuffalo.mkcore.init.CoreEntities;
 import com.chaosbuffalo.targeting_api.TargetingContext;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
@@ -16,7 +17,6 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.entity.IEntityAdditionalSpawnData;
 import net.minecraftforge.network.NetworkHooks;
-import net.minecraftforge.registries.ObjectHolder;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -24,8 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MKAreaEffectEntity extends AreaEffectCloud implements IEntityAdditionalSpawnData {
-    @ObjectHolder(MKCore.MOD_ID + ":mk_area_effect")
-    public static EntityType<MKAreaEffectEntity> TYPE;
 
     private static final float DEFAULT_RADIUS = 3.0f;
     private static final float DEFAULT_HEIGHT = 1.0f;
@@ -35,7 +33,7 @@ public class MKAreaEffectEntity extends AreaEffectCloud implements IEntityAdditi
     private IMKEntityData ownerData;
 
 
-    public MKAreaEffectEntity(EntityType<? extends AreaEffectCloud> entityType, Level world) {
+    public MKAreaEffectEntity(EntityType<? extends MKAreaEffectEntity> entityType, Level world) {
         super(entityType, world);
         this.particlesDisabled = false;
         effects = new ArrayList<>();
@@ -43,7 +41,7 @@ public class MKAreaEffectEntity extends AreaEffectCloud implements IEntityAdditi
     }
 
     public MKAreaEffectEntity(Level worldIn, double x, double y, double z) {
-        this(TYPE, worldIn);
+        this(CoreEntities.AREA_EFFECT.get(), worldIn);
         this.setPos(x, y, z);
         this.duration = 600;
         this.waitTime = 20;

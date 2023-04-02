@@ -441,4 +441,9 @@ public class MKOverlay {
             slot = drawAbilities(event.getMatrixStack(), cap, AbilityGroupId.Item, slot, totalSlots, event.getPartialTicks());
         });
     }
+
+    public static void skipHealth(ForgeIngameGui gui, PoseStack poseStack, float partialTick, int width, int height) {
+        // Make room for our health and mana bars
+        gui.left_height += 12;
+    }
 }

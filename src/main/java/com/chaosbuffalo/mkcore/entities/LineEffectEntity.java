@@ -1,23 +1,20 @@
 package com.chaosbuffalo.mkcore.entities;
 
-import com.chaosbuffalo.mkcore.MKCore;
 import com.chaosbuffalo.mkcore.fx.particles.ParticleAnimation;
 import com.chaosbuffalo.mkcore.fx.particles.ParticleAnimationManager;
+import com.chaosbuffalo.mkcore.init.CoreEntities;
 import com.chaosbuffalo.mkcore.utils.RayTraceUtils;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.registries.ObjectHolder;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.stream.Collectors;
 
 public class LineEffectEntity extends BaseEffectEntity {
-    @ObjectHolder(MKCore.MOD_ID + ":mk_line_effect")
-    public static EntityType<LineEffectEntity> TYPE;
     private Vec3 startPoint;
     private Vec3 endPoint;
 
@@ -26,7 +23,7 @@ public class LineEffectEntity extends BaseEffectEntity {
     }
 
     public LineEffectEntity(Level worldIn, double x, double y, double z) {
-        this(TYPE, worldIn);
+        this(CoreEntities.LINE_EFFECT.get(), worldIn);
         this.setPos(x, y, z);
     }
 

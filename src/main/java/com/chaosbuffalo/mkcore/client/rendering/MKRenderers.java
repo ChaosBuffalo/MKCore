@@ -8,6 +8,7 @@ import com.chaosbuffalo.mkcore.entities.PointEffectEntity;
 import com.chaosbuffalo.mkcore.fx.particles.IndicatorParticle;
 import com.chaosbuffalo.mkcore.fx.particles.MKParticle;
 import com.chaosbuffalo.mkcore.fx.particles.ParticleRenderTypes;
+import com.chaosbuffalo.mkcore.init.CoreEntities;
 import com.chaosbuffalo.mkcore.init.CoreParticles;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
@@ -20,10 +21,10 @@ import net.minecraftforge.fml.common.Mod;
 public class MKRenderers {
 
     @SubscribeEvent
-    public static void registerModels(EntityRenderersEvent.RegisterRenderers evt) {
-        evt.registerEntityRenderer(MKAreaEffectEntity.TYPE, EntityMKAreaEffectRenderer::new);
-        evt.registerEntityRenderer(LineEffectEntity.TYPE, BaseEffectEntityRenderer::new);
-        evt.registerEntityRenderer(PointEffectEntity.TYPE, BaseEffectEntityRenderer::new);
+    public static void registerModels(EntityRenderersEvent.RegisterRenderers event) {
+        event.registerEntityRenderer(CoreEntities.AREA_EFFECT.get(), EntityMKAreaEffectRenderer::new);
+        event.registerEntityRenderer(CoreEntities.LINE_EFFECT.get(), BaseEffectEntityRenderer::new);
+        event.registerEntityRenderer(CoreEntities.POINT_EFFECT.get(), BaseEffectEntityRenderer::new);
     }
 
     @SubscribeEvent

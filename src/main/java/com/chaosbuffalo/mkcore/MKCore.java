@@ -109,8 +109,9 @@ public class MKCore {
         MinecraftForge.EVENT_BUS.register(new MKOverlay());
         ClientEventHandler.initKeybindings();
         PlayerPageRegistry.init();
-        CoreItems.registerItemProperties();
+        event.enqueueWork(CoreItems::registerItemProperties);
         ClientEventHandler.setupAttributeRenderers();
+        OverlayRegistry.registerOverlayAbove(ForgeIngameGui.PLAYER_HEALTH_ELEMENT, "skip health", MKOverlay::skipHealth);
         OverlayRegistry.enableOverlay(ForgeIngameGui.PLAYER_HEALTH_ELEMENT, false);
     }
 

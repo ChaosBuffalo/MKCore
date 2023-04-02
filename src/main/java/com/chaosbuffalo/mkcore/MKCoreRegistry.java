@@ -5,10 +5,7 @@ import com.chaosbuffalo.mkcore.core.damage.MKDamageType;
 import com.chaosbuffalo.mkcore.core.entitlements.MKEntitlement;
 import com.chaosbuffalo.mkcore.core.talents.MKTalent;
 import com.chaosbuffalo.mkcore.effects.MKEffect;
-import com.chaosbuffalo.mkcore.init.CoreEffects;
-import com.chaosbuffalo.mkcore.init.CoreEntitlements;
-import com.chaosbuffalo.mkcore.init.CoreSounds;
-import com.chaosbuffalo.mkcore.init.CoreTalents;
+import com.chaosbuffalo.mkcore.init.*;
 import com.chaosbuffalo.mkcore.test.MKCoreTestItems;
 import com.chaosbuffalo.mkcore.test.MKCoreTestTalents;
 import com.chaosbuffalo.mkcore.test.MKTestAbilities;
@@ -77,6 +74,7 @@ public class MKCoreRegistry {
 
     public static void register(IEventBus modBus) {
         CoreEffects.register(modBus);
+        CoreEntities.register(modBus);
         CoreEntitlements.register(modBus);
         CoreSounds.register(modBus);
         CoreTalents.register(modBus);
